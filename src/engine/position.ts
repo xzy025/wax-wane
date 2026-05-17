@@ -1,0 +1,153 @@
+import type { ParsedTrade, PositionSnapshot } from '../types'
+
+export interface PositionState {
+  quantity: number
+  avgCost: number
+  costBasis: number
+  realizedPnl: number
+  totalFees: number
+}
+
+export function validateTrades(trades: ParsedTrade[], existingPositions?: Map<string, number>): ParsedTrade[] {
+  const positions = new Map<string, number>(existingPositions ?? [])
+  const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
+
+  return sorted.map((trade) => {
+    const currentPos = positions.get(trade.stockCode) ?? 0
+
+    if (trade.side === 'buy') {
+      positions.set(trade.stockCode, currentPos + trade.quantity)
+      return { ...trade, validationStatus: 'valid' as const, validationMessage: undefined }
+    }
+
+    // sell
+    if (trade.quantity > currentPos) {
+      return {
+        ...trade,
+        validationStatus: 'error' as const,
+        validationMessage: `卖出数量(${trade.quantity})超过可用持仓(${currentPos})`,
+      }
+    }
+    positions.set(trade.stockCode, currentPos - trade.quantity)
+    return { ...trade, validationStatus: 'valid' as const, validationMessage: undefined }
+  })
+}
+
+export function getPositionQuantities(trades: ParsedTrade[]): Map<string, number> {
+  const positions = new Map<string, number>()
+  const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
+  for (const trade of sorted) {
+    const pos = positions.get(trade.stockCode) ?? 0
+    positions.set(trade.stockCode, trade.side === 'buy' ? pos + trade.quantity : pos - trade.quantity)
+  }
+  return positions
+}
+
+export function reconstructPositions(trades: ParsedTrade[]): Map<string, PositionState> {
+  const positions = new Map<string, PositionState>()
+
+  const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
+
+  for (const trade of sorted) {
+    const pos = positions.get(trade.stockCode) ?? {
+      quantity: 0,
+      avgCost: 0,
+      costBasis: 0,
+      realizedPnl: 0,
+      totalFees: 0,
+    }
+
+    const fees = trade.commission + trade.stampTax + trade.transferFee + trade.otherFee
+
+    if (trade.side === 'buy') {
+      const newQuantity = pos.quantity + trade.quantity
+      const newCostBasis = pos.costBasis + trade.grossAmount + fees
+      const newAvgCost = newQuantity > 0 ? newCostBasis / newQuantity : 0
+
+      positions.set(trade.stockCode, {
+        quantity: newQuantity,
+        avgCost: newAvgCost,
+        costBasis: newCostBasis,
+        realizedPnl: pos.realizedPnl,
+        totalFees: pos.totalFees + fees,
+      })
+    } else {
+      // sell
+      const costRemoved = pos.avgCost * trade.quantity
+      const sellProceeds = trade.grossAmount - fees
+      const realizedPnlDelta = sellProceeds - costRemoved
+      const newQuantity = pos.quantity - trade.quantity
+      const newCostBasis = newQuantity > 0 ? pos.avgCost * newQuantity : 0
+
+      positions.set(trade.stockCode, {
+        quantity: newQuantity,
+        avgCost: newQuantity > 0 ? pos.avgCost : 0,
+        costBasis: newCostBasis,
+        realizedPnl: pos.realizedPnl + realizedPnlDelta,
+        totalFees: pos.totalFees + fees,
+      })
+    }
+  }
+
+  return positions
+}
+
+export function getPositionSnapshots(trades: ParsedTrade[]): PositionSnapshot[] {
+  const snapshots: PositionSnapshot[] = []
+  const positions = new Map<string, PositionState>()
+
+  const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
+
+  for (const trade of sorted) {
+    const pos = positions.get(trade.stockCode) ?? {
+      quantity: 0,
+      avgCost: 0,
+      costBasis: 0,
+      realizedPnl: 0,
+      totalFees: 0,
+    }
+
+    const fees = trade.commission + trade.stampTax + trade.transferFee + trade.otherFee
+
+    if (trade.side === 'buy') {
+      const newQuantity = pos.quantity + trade.quantity
+      const newCostBasis = pos.costBasis + trade.grossAmount + fees
+      const newAvgCost = newQuantity > 0 ? newCostBasis / newQuantity : 0
+
+      positions.set(trade.stockCode, {
+        quantity: newQuantity,
+        avgCost: newAvgCost,
+        costBasis: newCostBasis,
+        realizedPnl: pos.realizedPnl,
+        totalFees: pos.totalFees + fees,
+      })
+    } else {
+      const costRemoved = pos.avgCost * trade.quantity
+      const sellProceeds = trade.grossAmount - fees
+      const realizedPnlDelta = sellProceeds - costRemoved
+      const newQuantity = pos.quantity - trade.quantity
+      const newCostBasis = newQuantity > 0 ? pos.avgCost * newQuantity : 0
+
+      positions.set(trade.stockCode, {
+        quantity: newQuantity,
+        avgCost: newQuantity > 0 ? pos.avgCost : 0,
+        costBasis: newCostBasis,
+        realizedPnl: pos.realizedPnl + realizedPnlDelta,
+        totalFees: pos.totalFees + fees,
+      })
+    }
+
+    const updated = positions.get(trade.stockCode)!
+    snapshots.push({
+      stockCode: trade.stockCode,
+      stockName: trade.stockName,
+      quantity: updated.quantity,
+      avgCost: updated.avgCost,
+      costBasis: updated.costBasis,
+      realizedPnl: updated.realizedPnl,
+      totalFees: updated.totalFees,
+    })
+  }
+
+  return snapshots
+}
