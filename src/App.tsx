@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
+import { AgentProvider } from './agent/agentStore'
 import SegmentedControl from './components/SegmentedControl'
 import Dashboard from './views/Dashboard'
 import ImportView from './views/ImportView'
@@ -124,6 +125,7 @@ function AppLayout() {
                 selectedGroup={selectedGroup}
                 selectedGroupId={selectedGroupId}
                 onSelectGroup={setSelectedGroupId}
+                language={language as 'zh' | 'en'}
               />
             }
           />
@@ -139,7 +141,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <StoreProvider>
-        <AppLayout />
+        <AgentProvider>
+          <AppLayout />
+        </AgentProvider>
       </StoreProvider>
     </BrowserRouter>
   )

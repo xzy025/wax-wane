@@ -4,3 +4,4 @@ dist/
 *.err
 .vite/
 .claude/
+server/.env

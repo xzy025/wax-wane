@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Tags } from 'lucide-react'
 import { useAppState, useAppDispatch } from '../store'
 import { formatMoney, translateMap } from '../utils'
+import { ChatPanel } from '../agent/components/ChatPanel'
 import type { TradeGroup, Translation } from '../types'
 
 interface ReviewViewProps {
@@ -9,9 +10,10 @@ interface ReviewViewProps {
   selectedGroup: TradeGroup
   selectedGroupId: string
   onSelectGroup: (id: string) => void
+  language?: 'zh' | 'en'
 }
 
-export default function ReviewView({ t, selectedGroup, selectedGroupId, onSelectGroup }: ReviewViewProps) {
+export default function ReviewView({ t, selectedGroup, selectedGroupId, onSelectGroup, language = 'zh' }: ReviewViewProps) {
   const { tradeGroups, reviewNotes } = useAppState()
   const dispatch = useAppDispatch()
 
@@ -131,6 +133,10 @@ export default function ReviewView({ t, selectedGroup, selectedGroupId, onSelect
           ) : (
             selectedGroup.mistakes.map((tag) => <span key={tag}>{translateMap(t.mistakes, tag)}</span>)
           )}
+        </div>
+
+        <div className="ai-agent-section">
+          <ChatPanel t={t} language={language} />
         </div>
       </section>
     </div>

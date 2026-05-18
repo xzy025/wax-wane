@@ -92,6 +92,15 @@ export interface Translation {
   mistakes: Record<string, string>
   statuses: Record<string, string>
   stocks: Record<string, string>
+  ai: {
+    chatTitle: string
+    chatPlaceholder: string
+    inputPlaceholder: string
+    send: string
+    clearChat: string
+    thinking: string
+    error: string
+  }
 }
 
 export interface ReviewNote {

@@ -138,4 +138,13 @@ export default {
     BYD: 'BYD',
     'Ping An': 'Ping An',
   },
+  ai: {
+    chatTitle: 'AI Review Assistant',
+    chatPlaceholder: 'Have questions about your trades? Type below.',
+    inputPlaceholder: 'Ask a question...',
+    send: 'Send',
+    clearChat: 'Clear chat',
+    thinking: 'Thinking...',
+    error: 'Analysis error, please retry',
+  },
 }

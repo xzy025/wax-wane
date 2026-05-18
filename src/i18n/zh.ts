@@ -138,4 +138,13 @@ export default {
     BYD: '比亚迪',
     'Ping An': '中国平安',
   },
+  ai: {
+    chatTitle: 'AI 复盘助手',
+    chatPlaceholder: '对你的交易有什么问题？在下方输入。',
+    inputPlaceholder: '输入你的问题...',
+    send: '发送',
+    clearChat: '清空对话',
+    thinking: '思考中...',
+    error: '分析出错，请重试',
+  },
 }
