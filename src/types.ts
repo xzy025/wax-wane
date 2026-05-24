@@ -101,6 +101,41 @@ export interface Translation {
     thinking: string
     error: string
   }
+  macro: {
+    us10y: string
+    us5y: string
+    gold: string
+    dxy: string
+    usdcny: string
+    crude: string
+    vix: string
+    lastUpdated: string
+    loading: string
+    error: string
+    retry: string
+    noApiKey: string
+    apiKeyLabel: string
+    apiKeyPlaceholder: string
+    dataSource: string
+  }
+  ashare: {
+    shIndex: string
+    szIndex: string
+    chiNext: string
+    limitUp: string
+    limitDown: string
+    advance: string
+    decline: string
+    adRatio: string
+    profitability: string
+    profitabilityGood: string
+    profitabilityOk: string
+    profitabilityBad: string
+    lastUpdated: string
+    loading: string
+    error: string
+    retry: string
+  }
 }
 
 export interface ReviewNote {

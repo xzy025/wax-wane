@@ -14,6 +14,8 @@ import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
 import { AgentProvider } from './agent/agentStore'
 import SegmentedControl from './components/SegmentedControl'
+import MacroBanner from './components/MacroBanner'
+import AShareBanner from './components/AShareBanner'
 import Dashboard from './views/Dashboard'
 import ImportView from './views/ImportView'
 import LedgerView from './views/LedgerView'
@@ -112,6 +114,9 @@ function AppLayout() {
             </button>
           </div>
         </header>
+
+        <MacroBanner t={t} />
+        <AShareBanner t={t} />
 
         <Routes>
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />

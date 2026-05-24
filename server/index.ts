@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { config } from 'dotenv'
+import { fetchAShareData } from './ashare'
 
 config()
 
@@ -282,6 +283,17 @@ app.get('/api/health', (_req, res) => {
     protocol,
     model: process.env.LLM_MODEL,
   })
+})
+
+// A-share market data
+app.get('/api/ashare', async (_req, res) => {
+  try {
+    const data = await fetchAShareData()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
 })
 
 app.listen(PORT, () => {
