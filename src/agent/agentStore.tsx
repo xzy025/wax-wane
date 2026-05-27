@@ -62,7 +62,9 @@ function reducer(state: AgentState, action: AgentAction): AgentState {
                 messages: c.messages.map((m) => {
                   if (m.id !== action.payload.messageId) return m
                   const existing = m.toolCalls ?? []
-                  const idx = existing.findIndex((tc) => tc.toolId === action.payload.toolCall.toolId)
+                  const idx = existing.findIndex(
+                    (tc) => tc.toolId === action.payload.toolCall.toolId,
+                  )
                   if (idx >= 0) {
                     const updated = [...existing]
                     updated[idx] = action.payload.toolCall
@@ -116,7 +118,9 @@ function reducer(state: AgentState, action: AgentAction): AgentState {
 // Context
 const StateContext = createContext<AgentState>(initialState)
 const DispatchContext = createContext<React.Dispatch<AgentAction>>(() => {})
-const HistoryContext = createContext<React.MutableRefObject<Map<string, AgentMessage[]>>>( { current: new Map() })
+const HistoryContext = createContext<React.MutableRefObject<Map<string, AgentMessage[]>>>({
+  current: new Map(),
+})
 
 export function AgentProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -125,9 +129,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   return (
     <StateContext.Provider value={state}>
       <DispatchContext.Provider value={dispatch}>
-        <HistoryContext.Provider value={historyRef}>
-          {children}
-        </HistoryContext.Provider>
+        <HistoryContext.Provider value={historyRef}>{children}</HistoryContext.Provider>
       </DispatchContext.Provider>
     </StateContext.Provider>
   )
@@ -145,7 +147,7 @@ export function useAgentHistory() {
   return useContext(HistoryContext)
 }
 
-export function useActiveConversation(): ConversationMessage[] {
+export function useActiveConversation(): readonly ConversationMessage[] {
   const state = useAgentState()
   const conv = state.conversations.find((c) => c.id === state.activeConversationId)
   return conv?.messages ?? []

@@ -16,11 +16,7 @@ const toolRegistry: Record<string, ToolModule> = {
 
 export const toolDefinitions: ToolDefinition[] = Object.values(toolRegistry).map((t) => t.schema)
 
-export function executeTool(
-  name: string,
-  args: Record<string, unknown>,
-  state: AppState,
-): unknown {
+export function executeTool(name: string, args: Record<string, unknown>, state: AppState): unknown {
   const tool = toolRegistry[name]
   if (!tool) {
     return { error: `Unknown tool: ${name}` }
@@ -28,6 +24,8 @@ export function executeTool(
   try {
     return tool.execute(args, state)
   } catch (err) {
-    return { error: `Tool execution failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
+    return {
+      error: `Tool execution failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
+    }
   }
 }

@@ -7,14 +7,21 @@ export interface StreamChatResult {
   toolCalls: ToolCall[]
 }
 
+export type StreamChunk =
+  | { readonly type: 'token'; readonly data: string }
+  | { readonly type: 'tool_calls'; readonly data: ToolCall[] }
+  | { readonly type: 'done'; readonly data: string }
+
 export async function* streamChat(
   messages: AgentMessage[],
   tools: ToolDefinition[],
-): AsyncGenerator<{ type: 'token' | 'tool_calls' | 'done'; data: string | ToolCall[] }> {
+  signal?: AbortSignal,
+): AsyncGenerator<StreamChunk> {
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages, tools }),
+    signal,
   })
 
   if (!response.ok) {
@@ -22,12 +29,17 @@ export async function* streamChat(
     throw new Error(`LLM API error (${response.status}): ${error}`)
   }
 
-  const reader = response.body!.getReader()
+  if (!response.body) {
+    throw new Error('LLM API response body is null')
+  }
+
+  const reader = response.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
 
   // Accumulate tool calls across chunks
-  const toolCallAccumulator: Map<number, { id: string; name: string; arguments: string }> = new Map()
+  const toolCallAccumulator: Map<number, { id: string; name: string; arguments: string }> =
+    new Map()
   let fullContent = ''
 
   while (true) {

@@ -20,11 +20,7 @@ export function ToolCallCard({ toolCall }: ToolCallCardProps) {
 
   return (
     <div className="ai-tool-card">
-      <button
-        className="ai-tool-card-header"
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-      >
+      <button className="ai-tool-card-header" type="button" onClick={() => setExpanded(!expanded)}>
         {toolCall.status === 'running' ? (
           <Loader2 size={14} className="ai-spin" />
         ) : (
@@ -34,9 +30,7 @@ export function ToolCallCard({ toolCall }: ToolCallCardProps) {
         {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
       </button>
       {expanded && toolCall.result !== undefined && (
-        <pre className="ai-tool-card-result">
-          {JSON.stringify(toolCall.result, null, 2)}
-        </pre>
+        <pre className="ai-tool-card-result">{JSON.stringify(toolCall.result, null, 2)}</pre>
       )}
     </div>
   )

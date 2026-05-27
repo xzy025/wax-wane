@@ -1,6 +1,6 @@
-import type { ParsedTrade, TradeGroup } from '../types'
+import type { ParsedTrade, TradeGroup, TradeStatus } from '../types'
 
-export function buildTradeGroups(trades: ParsedTrade[]): TradeGroup[] {
+export function buildTradeGroups(trades: readonly ParsedTrade[]): TradeGroup[] {
   if (trades.length === 0) return []
 
   const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
@@ -53,8 +53,10 @@ export function buildTradeGroups(trades: ParsedTrade[]): TradeGroup[] {
         activeGroupId.set(trade.stockCode, newGroup.id)
       }
 
-      const groupId = activeGroupId.get(trade.stockCode)!
-      const group = groups.find((g) => g.id === groupId)!
+      const groupId = activeGroupId.get(trade.stockCode)
+      if (groupId === undefined) continue
+      const group = groups.find((g) => g.id === groupId)
+      if (!group) continue
       group.buyCount++
       group.totalBuyAmount += trade.grossAmount
       group.totalBuyQuantity += trade.quantity
@@ -67,7 +69,8 @@ export function buildTradeGroups(trades: ParsedTrade[]): TradeGroup[] {
       const groupId = activeGroupId.get(trade.stockCode)
       const group = groups.find((g) => g.id === groupId)
       if (group) {
-        const avgCost = group.totalBuyQuantity > 0 ? group.totalBuyAmount / group.totalBuyQuantity : 0
+        const avgCost =
+          group.totalBuyQuantity > 0 ? group.totalBuyAmount / group.totalBuyQuantity : 0
         const costRemoved = avgCost * trade.quantity
         const sellProceeds = trade.grossAmount - fees
         const pnlDelta = sellProceeds - costRemoved
@@ -89,7 +92,10 @@ export function buildTradeGroups(trades: ParsedTrade[]): TradeGroup[] {
 
   return groups.map((g) => {
     const holdingDays = g.closed
-      ? Math.max(1, Math.ceil((new Date(g.closed).getTime() - new Date(g.opened).getTime()) / 86400000))
+      ? Math.max(
+          1,
+          Math.ceil((new Date(g.closed).getTime() - new Date(g.opened).getTime()) / 86400000),
+        )
       : Math.max(1, Math.ceil((Date.now() - new Date(g.opened).getTime()) / 86400000))
 
     const investedAmount = g.totalBuyAmount || 1
@@ -105,9 +111,9 @@ export function buildTradeGroups(trades: ParsedTrade[]): TradeGroup[] {
       returnRate: Math.round(returnRate * 10) / 10,
       days: holdingDays,
       totalFee: Math.round(g.totalFee * 100) / 100,
-      strategy: '',
+      strategy: '' as const,
       mistakes: [],
-      status: g.closed ? 'Not reviewed' : 'Not reviewed',
+      status: 'Not reviewed' as TradeStatus,
     }
   })
 }

@@ -8,7 +8,14 @@ export interface PositionState {
   totalFees: number
 }
 
-export function validateTrades(trades: ParsedTrade[], existingPositions?: Map<string, number>): ParsedTrade[] {
+function createEmptyPosition(): PositionState {
+  return { quantity: 0, avgCost: 0, costBasis: 0, realizedPnl: 0, totalFees: 0 }
+}
+
+export function validateTrades(
+  trades: readonly ParsedTrade[],
+  existingPositions?: ReadonlyMap<string, number>,
+): ParsedTrade[] {
   const positions = new Map<string, number>(existingPositions ?? [])
   const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
 
@@ -33,29 +40,26 @@ export function validateTrades(trades: ParsedTrade[], existingPositions?: Map<st
   })
 }
 
-export function getPositionQuantities(trades: ParsedTrade[]): Map<string, number> {
+export function getPositionQuantities(trades: readonly ParsedTrade[]): Map<string, number> {
   const positions = new Map<string, number>()
   const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
   for (const trade of sorted) {
     const pos = positions.get(trade.stockCode) ?? 0
-    positions.set(trade.stockCode, trade.side === 'buy' ? pos + trade.quantity : pos - trade.quantity)
+    positions.set(
+      trade.stockCode,
+      trade.side === 'buy' ? pos + trade.quantity : pos - trade.quantity,
+    )
   }
   return positions
 }
 
-export function reconstructPositions(trades: ParsedTrade[]): Map<string, PositionState> {
+export function reconstructPositions(trades: readonly ParsedTrade[]): Map<string, PositionState> {
   const positions = new Map<string, PositionState>()
 
   const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
 
   for (const trade of sorted) {
-    const pos = positions.get(trade.stockCode) ?? {
-      quantity: 0,
-      avgCost: 0,
-      costBasis: 0,
-      realizedPnl: 0,
-      totalFees: 0,
-    }
+    const pos = positions.get(trade.stockCode) ?? createEmptyPosition()
 
     const fees = trade.commission + trade.stampTax + trade.transferFee + trade.otherFee
 
@@ -92,20 +96,14 @@ export function reconstructPositions(trades: ParsedTrade[]): Map<string, Positio
   return positions
 }
 
-export function getPositionSnapshots(trades: ParsedTrade[]): PositionSnapshot[] {
+export function getPositionSnapshots(trades: readonly ParsedTrade[]): PositionSnapshot[] {
   const snapshots: PositionSnapshot[] = []
   const positions = new Map<string, PositionState>()
 
   const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
 
   for (const trade of sorted) {
-    const pos = positions.get(trade.stockCode) ?? {
-      quantity: 0,
-      avgCost: 0,
-      costBasis: 0,
-      realizedPnl: 0,
-      totalFees: 0,
-    }
+    const pos = positions.get(trade.stockCode) ?? createEmptyPosition()
 
     const fees = trade.commission + trade.stampTax + trade.transferFee + trade.otherFee
 
@@ -137,7 +135,8 @@ export function getPositionSnapshots(trades: ParsedTrade[]): PositionSnapshot[] 
       })
     }
 
-    const updated = positions.get(trade.stockCode)!
+    const updated = positions.get(trade.stockCode)
+    if (!updated) continue
     snapshots.push({
       stockCode: trade.stockCode,
       stockName: trade.stockName,

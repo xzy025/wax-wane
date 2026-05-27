@@ -1,7 +1,16 @@
 import { useMemo } from 'react'
 import { AlertTriangle, ChevronRight, CircleDollarSign } from 'lucide-react'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 import { formatMoney, getDateRange, isInDateRange } from '../utils'
+import { computeWinRate, computePayoff, computeTotalFees, computeTotalPnl } from '../utils/metrics'
 import { metricCards } from '../data/mock'
 import { useAppState } from '../store'
 import AlertItem from '../components/AlertItem'
@@ -23,27 +32,18 @@ export default function Dashboard({ t, range }: DashboardProps) {
   })
 
   const closedGroups = filteredGroups.filter((g) => g.closed)
-  const winners = closedGroups.filter((g) => g.pnl > 0)
-  const losers = closedGroups.filter((g) => g.pnl < 0)
-  const totalPnl = closedGroups.reduce((sum, g) => sum + g.pnl, 0)
-  const winRate = closedGroups.length > 0 ? (winners.length / closedGroups.length) * 100 : 0
-  const avgWin = winners.length > 0 ? winners.reduce((s, g) => s + g.pnl, 0) / winners.length : 0
-  const avgLoss = losers.length > 0 ? Math.abs(losers.reduce((s, g) => s + g.pnl, 0) / losers.length) : 0
-  const payoff = avgLoss > 0 ? avgWin / avgLoss : 0
-
-  const totalFees = filteredGroups.reduce((sum, g) => sum + (g.totalFee ?? 0), 0)
+  const totalPnl = computeTotalPnl(closedGroups)
+  const winRate = computeWinRate(closedGroups)
+  const payoff = computePayoff(closedGroups)
+  const totalFees = computeTotalFees(filteredGroups)
 
   const equityCurveData = useMemo(() => {
     const sorted = [...closedGroups].sort((a, b) => (a.closed ?? '').localeCompare(b.closed ?? ''))
-    let cumulative = 0
-    return sorted.map((g) => {
-      cumulative += g.pnl
-      return {
-        date: g.closed,
-        pnl: Math.round(cumulative * 100) / 100,
-        name: g.name,
-      }
-    })
+    return sorted.reduce<{ date: string | undefined; pnl: number; name: string }[]>((acc, g) => {
+      const prev = acc.length > 0 ? acc[acc.length - 1].pnl : 0
+      acc.push({ date: g.closed ?? undefined, pnl: Math.round((prev + g.pnl) * 100) / 100, name: g.name })
+      return acc
+    }, [])
   }, [closedGroups])
 
   const alerts = useMemo(() => {
@@ -73,7 +73,10 @@ export default function Dashboard({ t, range }: DashboardProps) {
     }
 
     // 费用拖累 - high fee ratio
-    const totalGrossAmount = filteredGroups.reduce((s, g) => s + Math.abs(g.pnl) + (g.totalFee ?? 0), 0)
+    const totalGrossAmount = filteredGroups.reduce(
+      (s, g) => s + Math.abs(g.pnl) + (g.totalFee ?? 0),
+      0,
+    )
     const feeRatio = totalGrossAmount > 0 ? (totalFees / totalGrossAmount) * 100 : 0
     if (feeRatio > 0.5) {
       result.push({
@@ -161,12 +164,17 @@ export default function Dashboard({ t, range }: DashboardProps) {
               <h2>{t.dashboard.equityTitle}</h2>
               <p>{t.dashboard.equityDesc}</p>
             </div>
-            <span className={`status-pill ${totalPnl >= 0 ? 'positive' : ''}`}>{formatMoney(totalPnl, { withSign: true })}</span>
+            <span className={`status-pill ${totalPnl >= 0 ? 'positive' : ''}`}>
+              {formatMoney(totalPnl, { withSign: true })}
+            </span>
           </div>
           <div className="chart-shell">
             {equityCurveData.length > 0 ? (
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={equityCurveData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <AreaChart
+                  data={equityCurveData}
+                  margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                >
                   <defs>
                     <linearGradient id="pnlGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--orange)" stopOpacity={0.3} />
@@ -175,16 +183,36 @@ export default function Dashboard({ t, range }: DashboardProps) {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
                   <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--muted)' }} />
-                  <YAxis tick={{ fontSize: 12, fill: 'var(--muted)' }} tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: 'var(--muted)' }}
+                    tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`}
+                  />
                   <Tooltip
-                    formatter={(value: number) => [formatMoney(value, { withSign: true }), '累计盈亏']}
+                    formatter={(value: number) => [
+                      formatMoney(value, { withSign: true }),
+                      '累计盈亏',
+                    ]}
                     labelFormatter={(label) => `日期: ${label}`}
                   />
-                  <Area type="monotone" dataKey="pnl" stroke="var(--orange)" fill="url(#pnlGradient)" strokeWidth={2} />
+                  <Area
+                    type="monotone"
+                    dataKey="pnl"
+                    stroke="var(--orange)"
+                    fill="url(#pnlGradient)"
+                    strokeWidth={2}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>
+              <div
+                style={{
+                  height: 220,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--muted)',
+                }}
+              >
                 暂无闭环交易数据
               </div>
             )}

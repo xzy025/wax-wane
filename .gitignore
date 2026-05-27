@@ -4,4 +4,18 @@ dist/
 *.err
 .vite/
 .claude/
+
+# Environment variables (never commit secrets)
+.env
+.env.local
+.env.*.local
 server/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo

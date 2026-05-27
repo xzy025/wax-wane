@@ -1,6 +1,12 @@
 import React, { useCallback, useRef, useState } from 'react'
 import { ChevronRight, FileSpreadsheet, Upload, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { parseFile, mapAndValidate, STANDARD_FIELDS, type CsvPreview, type ColumnMapping } from '../engine/csvParser'
+import {
+  parseFile,
+  mapAndValidate,
+  STANDARD_FIELDS,
+  type CsvPreview,
+  type ColumnMapping,
+} from '../engine/csvParser'
 import { buildTradeGroups } from '../engine/tradeGroup'
 import { validateTrades, getPositionQuantities } from '../engine/position'
 import { useAppState, useAppDispatch } from '../store'
@@ -17,47 +23,65 @@ export default function ImportView({ t }: ImportViewProps) {
   const [step, setStep] = useState<ImportStep>('upload')
   const [preview, setPreview] = useState<CsvPreview | null>(null)
   const [mapping, setMapping] = useState<ColumnMapping>({
-    tradeDate: '', stockCode: '', stockName: '', side: '',
-    quantity: '', price: '', grossAmount: '', commission: '',
-    stampTax: '', transferFee: '', netAmount: '',
+    tradeDate: '',
+    stockCode: '',
+    stockName: '',
+    side: '',
+    quantity: '',
+    price: '',
+    grossAmount: '',
+    commission: '',
+    stampTax: '',
+    transferFee: '',
+    netAmount: '',
   })
   const [validationErrors, setValidationErrors] = useState<string[]>([])
   const [importResult, setImportResult] = useState<{ count: number; errors: number } | null>(null)
   const dispatch = useAppDispatch()
   const { trades } = useAppState()
 
-  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    try {
-      const result = await parseFile(file)
-      setPreview(result)
-      // Auto-detect column mapping
-      const autoMapping: ColumnMapping = { ...mapping }
-      for (const field of STANDARD_FIELDS) {
-        const match = result.headers.find((h) => {
-          const lower = h.toLowerCase()
-          if (field.key === 'tradeDate') return lower.includes('日期') || lower.includes('date')
-          if (field.key === 'stockCode') return lower.includes('代码') || lower.includes('code')
-          if (field.key === 'stockName') return lower.includes('名称') || lower.includes('name')
-          if (field.key === 'side') return lower.includes('方向') || lower.includes('side') || lower.includes('买卖')
-          if (field.key === 'quantity') return lower.includes('数量') || lower.includes('qty') || lower.includes('quantity')
-          if (field.key === 'price') return lower.includes('价格') || lower.includes('price')
-          if (field.key === 'grossAmount') return lower.includes('金额') || lower.includes('amount')
-          if (field.key === 'commission') return lower.includes('佣金') || lower.includes('commission') || lower.includes('手续费')
-          if (field.key === 'stampTax') return lower.includes('印花') || lower.includes('stamp')
-          if (field.key === 'transferFee') return lower.includes('过户') || lower.includes('transfer')
-          if (field.key === 'netAmount') return lower.includes('实收') || lower.includes('net')
-          return false
-        })
-        if (match) autoMapping[field.key] = match
+  const handleFileSelect = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      try {
+        const result = await parseFile(file)
+        setPreview(result)
+        // Auto-detect column mapping
+        const autoMapping: ColumnMapping = { ...mapping }
+        for (const field of STANDARD_FIELDS) {
+          const match = result.headers.find((h) => {
+            const lower = h.toLowerCase()
+            if (field.key === 'tradeDate') return lower.includes('日期') || lower.includes('date')
+            if (field.key === 'stockCode') return lower.includes('代码') || lower.includes('code')
+            if (field.key === 'stockName') return lower.includes('名称') || lower.includes('name')
+            if (field.key === 'side')
+              return lower.includes('方向') || lower.includes('side') || lower.includes('买卖')
+            if (field.key === 'quantity')
+              return lower.includes('数量') || lower.includes('qty') || lower.includes('quantity')
+            if (field.key === 'price') return lower.includes('价格') || lower.includes('price')
+            if (field.key === 'grossAmount')
+              return lower.includes('金额') || lower.includes('amount')
+            if (field.key === 'commission')
+              return (
+                lower.includes('佣金') || lower.includes('commission') || lower.includes('手续费')
+              )
+            if (field.key === 'stampTax') return lower.includes('印花') || lower.includes('stamp')
+            if (field.key === 'transferFee')
+              return lower.includes('过户') || lower.includes('transfer')
+            if (field.key === 'netAmount') return lower.includes('实收') || lower.includes('net')
+            return false
+          })
+          if (match) autoMapping[field.key] = match
+        }
+        setMapping(autoMapping)
+        setStep('mapping')
+      } catch (err) {
+        alert(`解析失败: ${err instanceof Error ? err.message : '未知错误'}`)
       }
-      setMapping(autoMapping)
-      setStep('mapping')
-    } catch (err) {
-      alert(`解析失败: ${err instanceof Error ? err.message : '未知错误'}`)
-    }
-  }, [mapping])
+    },
+    [mapping],
+  )
 
   const handleImport = useCallback(() => {
     if (!preview) return
@@ -111,7 +135,11 @@ export default function ImportView({ t }: ImportViewProps) {
                 style={{ display: 'none' }}
                 onChange={handleFileSelect}
               />
-              <button className="primary-button" type="button" onClick={() => fileRef.current?.click()}>
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => fileRef.current?.click()}
+              >
                 <FileSpreadsheet size={18} aria-hidden="true" />
                 {t.import.selectFile}
               </button>
@@ -129,7 +157,10 @@ export default function ImportView({ t }: ImportViewProps) {
             <>
               <CheckCircle2 size={34} style={{ color: 'var(--red)' }} />
               <h2>导入完成</h2>
-              <p>{importResult?.count} 条记录已导入{importResult?.errors ? `，${importResult.errors} 条警告` : ''}</p>
+              <p>
+                {importResult?.count} 条记录已导入
+                {importResult?.errors ? `，${importResult.errors} 条警告` : ''}
+              </p>
               <button className="text-button" type="button" onClick={handleReset}>
                 继续导入
               </button>
@@ -190,7 +221,9 @@ export default function ImportView({ t }: ImportViewProps) {
                 >
                   <option value="">-- 未选择 --</option>
                   {preview.headers.map((h) => (
-                    <option key={h} value={h}>{h}</option>
+                    <option key={h} value={h}>
+                      {h}
+                    </option>
                   ))}
                 </select>
                 <small>{field.required ? '必填' : '可选'}</small>
@@ -206,7 +239,16 @@ export default function ImportView({ t }: ImportViewProps) {
                   <thead>
                     <tr>
                       {preview.headers.map((h) => (
-                        <th key={h} style={{ padding: '8px', borderBottom: '1px solid var(--line)', textAlign: 'left', color: 'var(--muted)', fontWeight: 800 }}>
+                        <th
+                          key={h}
+                          style={{
+                            padding: '8px',
+                            borderBottom: '1px solid var(--line)',
+                            textAlign: 'left',
+                            color: 'var(--muted)',
+                            fontWeight: 800,
+                          }}
+                        >
                           {h}
                         </th>
                       ))}
@@ -216,7 +258,10 @@ export default function ImportView({ t }: ImportViewProps) {
                     {preview.rows.slice(0, 5).map((row, i) => (
                       <tr key={i}>
                         {row.map((cell, j) => (
-                          <td key={j} style={{ padding: '6px 8px', borderBottom: '1px solid var(--line)' }}>
+                          <td
+                            key={j}
+                            style={{ padding: '6px 8px', borderBottom: '1px solid var(--line)' }}
+                          >
                             {cell}
                           </td>
                         ))}
@@ -229,7 +274,15 @@ export default function ImportView({ t }: ImportViewProps) {
           )}
 
           {validationErrors.length > 0 && (
-            <div style={{ marginTop: '14px', padding: '12px', borderRadius: '8px', background: 'var(--red-soft)', color: 'var(--red)' }}>
+            <div
+              style={{
+                marginTop: '14px',
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'var(--red-soft)',
+                color: 'var(--red)',
+              }}
+            >
               <strong>校验警告 ({validationErrors.length})</strong>
               <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
                 {validationErrors.slice(0, 10).map((err, i) => (

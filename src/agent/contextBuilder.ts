@@ -1,5 +1,6 @@
 import type { AppState } from '../store'
 import type { TradeGroup, ReviewNote } from '../types'
+import { computeWinRate, computePayoff, computeTotalFees, computeTotalPnl } from '../utils/metrics'
 
 export function serializeTradeGroup(group: TradeGroup, note?: ReviewNote): string {
   const lines: string[] = []
@@ -17,10 +18,10 @@ export function serializeTradeGroup(group: TradeGroup, note?: ReviewNote): strin
   lines.push(`  Status: ${group.status}`)
 
   if (note) {
-    if (note.buyReason) lines.push(`  Buy Reason: ${note.buyReason}`)
-    if (note.sellReason) lines.push(`  Sell Reason: ${note.sellReason}`)
-    if (note.executionReview) lines.push(`  Execution Review: ${note.executionReview}`)
-    if (note.lesson) lines.push(`  Lesson: ${note.lesson}`)
+    if (note.buyReason) lines.push(`  Buy Reason: <user-data>${note.buyReason}</user-data>`)
+    if (note.sellReason) lines.push(`  Sell Reason: <user-data>${note.sellReason}</user-data>`)
+    if (note.executionReview) lines.push(`  Execution Review: <user-data>${note.executionReview}</user-data>`)
+    if (note.lesson) lines.push(`  Lesson: <user-data>${note.lesson}</user-data>`)
   }
 
   return lines.join('\n')
@@ -30,12 +31,10 @@ export function serializeAnalytics(groups: TradeGroup[]): string {
   const closed = groups.filter((g) => g.closed)
   const winners = closed.filter((g) => g.pnl > 0)
   const losers = closed.filter((g) => g.pnl < 0)
-  const totalPnl = closed.reduce((s, g) => s + g.pnl, 0)
-  const winRate = closed.length > 0 ? (winners.length / closed.length) * 100 : 0
-  const avgWin = winners.length > 0 ? winners.reduce((s, g) => s + g.pnl, 0) / winners.length : 0
-  const avgLoss = losers.length > 0 ? Math.abs(losers.reduce((s, g) => s + g.pnl, 0) / losers.length) : 0
-  const payoff = avgLoss > 0 ? avgWin / avgLoss : 0
-  const totalFees = groups.reduce((s, g) => s + (g.totalFee ?? 0), 0)
+  const totalPnl = computeTotalPnl(closed)
+  const winRate = computeWinRate(closed)
+  const payoff = computePayoff(closed)
+  const totalFees = computeTotalFees(groups)
 
   const mistakeMap = new Map<string, number>()
   for (const g of closed) {
@@ -43,13 +42,13 @@ export function serializeAnalytics(groups: TradeGroup[]): string {
       mistakeMap.set(m, (mistakeMap.get(m) ?? 0) + 1)
     }
   }
-  const topMistakes = [...mistakeMap.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
+  const topMistakes = [...mistakeMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5)
 
   const lines: string[] = []
   lines.push(`## Portfolio Overview`)
-  lines.push(`Total trade groups: ${groups.length} (${closed.length} closed, ${groups.length - closed.length} open)`)
+  lines.push(
+    `Total trade groups: ${groups.length} (${closed.length} closed, ${groups.length - closed.length} open)`,
+  )
   lines.push(`Win/Loss: ${winners.length}/${losers.length} (Win rate: ${winRate.toFixed(1)}%)`)
   lines.push(`Total P&L: ${totalPnl >= 0 ? '+' : ''}${Math.round(totalPnl)} CNY`)
   lines.push(`Payoff ratio: ${payoff.toFixed(2)}`)

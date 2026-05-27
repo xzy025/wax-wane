@@ -1,3 +1,5 @@
+import type { Translation } from '../types'
+
 export default {
   appSubtitle: 'A股交割单复盘',
   nav: {
@@ -164,6 +166,10 @@ export default {
     apiKeyPlaceholder: '输入你的 API Key（免费注册）',
     dataSource: '数据来源',
   },
+  datePicker: {
+    today: '今天',
+    yesterday: '昨天',
+  },
   ashare: {
     shIndex: '上证指数',
     szIndex: '深证成指',
@@ -177,9 +183,11 @@ export default {
     profitabilityGood: '好',
     profitabilityOk: '一般',
     profitabilityBad: '差',
+    promotionRate: '连板晋级率',
+    newHigh: '趋势新高',
     lastUpdated: '更新于',
     loading: '加载中...',
     error: '加载失败',
     retry: '重试',
   },
-}
+} satisfies Translation

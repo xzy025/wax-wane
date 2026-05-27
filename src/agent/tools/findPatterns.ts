@@ -1,6 +1,24 @@
 import type { AppState } from '../../store'
 import type { ToolModule } from '../types'
 
+/** Safely extract a string argument, returning undefined if not a string. */
+function getStringArg(args: Record<string, unknown>, key: string): string | undefined {
+  const val = args[key]
+  return typeof val === 'string' ? val : undefined
+}
+
+/** Safely extract a number argument, returning undefined if not a number. */
+function getNumberArg(args: Record<string, unknown>, key: string): number | undefined {
+  const val = args[key]
+  return typeof val === 'number' ? val : undefined
+}
+
+/** Safely extract a boolean argument, returning the default if not a boolean. */
+function getBooleanArg(args: Record<string, unknown>, key: string, defaultValue: boolean): boolean {
+  const val = args[key]
+  return typeof val === 'boolean' ? val : defaultValue
+}
+
 export const schema = {
   name: 'findPatternTrades',
   description:
@@ -9,13 +27,19 @@ export const schema = {
   parameters: {
     type: 'object' as const,
     properties: {
-      mistakeTag: { type: 'string', description: 'Filter by mistake tag (e.g., "No plan", "Late stop loss")' },
+      mistakeTag: {
+        type: 'string',
+        description: 'Filter by mistake tag (e.g., "No plan", "Late stop loss")',
+      },
       strategy: { type: 'string', description: 'Filter by strategy tag' },
       minPnl: { type: 'number', description: 'Minimum PnL filter (negative for losses)' },
       maxPnl: { type: 'number', description: 'Maximum PnL filter' },
       minDays: { type: 'number', description: 'Minimum holding days' },
       maxDays: { type: 'number', description: 'Maximum holding days' },
-      closedOnly: { type: 'boolean', description: 'If true, only return closed groups (default true)' },
+      closedOnly: {
+        type: 'boolean',
+        description: 'If true, only return closed groups (default true)',
+      },
     },
     required: [],
   },
@@ -27,19 +51,20 @@ export function execute(
 ): Array<Record<string, unknown>> {
   let groups = [...state.tradeGroups]
 
-  const mistakeTag = args.mistakeTag as string | undefined
-  const strategy = args.strategy as string | undefined
-  const minPnl = args.minPnl as number | undefined
-  const maxPnl = args.maxPnl as number | undefined
-  const minDays = args.minDays as number | undefined
-  const maxDays = args.maxDays as number | undefined
-  const closedOnly = (args.closedOnly as boolean) ?? true
+  const mistakeTag = getStringArg(args, 'mistakeTag')
+  const strategy = getStringArg(args, 'strategy')
+  const minPnl = getNumberArg(args, 'minPnl')
+  const maxPnl = getNumberArg(args, 'maxPnl')
+  const minDays = getNumberArg(args, 'minDays')
+  const maxDays = getNumberArg(args, 'maxDays')
+  const closedOnly = getBooleanArg(args, 'closedOnly', true)
 
   if (closedOnly) {
     groups = groups.filter((g) => g.closed)
   }
   if (mistakeTag) {
-    groups = groups.filter((g) => g.mistakes.includes(mistakeTag))
+    // Cast is safe: the LLM provides any string; we filter by membership
+    groups = groups.filter((g) => g.mistakes.includes(mistakeTag as typeof g.mistakes[number]))
   }
   if (strategy) {
     groups = groups.filter((g) => g.strategy === strategy)

@@ -11,6 +11,7 @@ export async function* runAgent(
   appState: AppState,
   conversationHistory: AgentMessage[],
   language: 'zh' | 'en' = 'zh',
+  signal?: AbortSignal,
 ): AsyncGenerator<AgentEvent> {
   const systemPrompt = buildSystemPrompt(appState, language)
 
@@ -29,17 +30,20 @@ export async function* runAgent(
     let toolCalls: ToolCall[] = []
 
     try {
-      const stream = streamChat(messages, toolDefinitions)
+      signal?.throwIfAborted()
+      const stream = streamChat(messages, toolDefinitions, signal)
 
       for await (const chunk of stream) {
+        signal?.throwIfAborted()
         if (chunk.type === 'token') {
-          content += chunk.data as string
-          yield { type: 'token', content: chunk.data as string }
+          content += chunk.data
+          yield { type: 'token', content: chunk.data }
         } else if (chunk.type === 'tool_calls') {
-          toolCalls = chunk.data as ToolCall[]
+          toolCalls = chunk.data
         }
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
       yield { type: 'error', message: err instanceof Error ? err.message : 'Unknown error' }
       return
     }
@@ -82,21 +86,27 @@ export async function* runAgent(
 
   // If we hit max iterations, make one final call without tools
   try {
+    signal?.throwIfAborted()
     let finalContent = ''
     const finalMessages: AgentMessage[] = [
       ...messages,
-      { role: 'user', content: 'Please provide your final analysis based on the data you have gathered.' },
+      {
+        role: 'user',
+        content: 'Please provide your final analysis based on the data you have gathered.',
+      },
     ]
 
-    const stream = streamChat(finalMessages, [])
+    const stream = streamChat(finalMessages, [], signal)
     for await (const chunk of stream) {
+      signal?.throwIfAborted()
       if (chunk.type === 'token') {
-        finalContent += chunk.data as string
-        yield { type: 'token', content: chunk.data as string }
+        finalContent += chunk.data
+        yield { type: 'token', content: chunk.data }
       }
     }
     yield { type: 'assistant_message', content: finalContent }
   } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') return
     yield { type: 'error', message: err instanceof Error ? err.message : 'Unknown error' }
   }
 }

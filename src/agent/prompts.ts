@@ -4,9 +4,7 @@ import { buildFullContext } from './contextBuilder'
 export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh'): string {
   const context = buildFullContext(state)
 
-  const lang = language === 'zh'
-    ? '请用中文回复。'
-    : 'Please respond in English.'
+  const lang = language === 'zh' ? '请用中文回复。' : 'Please respond in English.'
 
   return `You are an experienced A-share trading discipline analyst. Your role is to help the user review their trades, identify behavioral patterns, and improve trading discipline.
 
@@ -31,7 +29,9 @@ export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh')
 - Use tools to look up data when needed. Do not hallucinate numbers.
 
 ## Current Portfolio Context
+<context>
 ${context}
+</context>
 
 ${state.tradeGroups.length === 0 ? 'No trade data loaded yet. Ask the user to import a delivery statement first.' : ''}
 

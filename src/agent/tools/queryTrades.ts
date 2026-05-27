@@ -1,6 +1,18 @@
 import type { AppState } from '../../store'
 import type { ToolModule } from '../types'
 
+/** Safely extract a string argument, returning undefined if not a string. */
+function getStringArg(args: Record<string, unknown>, key: string): string | undefined {
+  const val = args[key]
+  return typeof val === 'string' ? val : undefined
+}
+
+/** Safely extract a number argument, returning undefined if not a number. */
+function getNumberArg(args: Record<string, unknown>, key: string): number | undefined {
+  const val = args[key]
+  return typeof val === 'number' ? val : undefined
+}
+
 export const schema = {
   name: 'queryTradeHistory',
   description:
@@ -9,7 +21,10 @@ export const schema = {
   parameters: {
     type: 'object' as const,
     properties: {
-      stockCode: { type: 'string', description: '6-digit stock code to filter by (e.g., "300750")' },
+      stockCode: {
+        type: 'string',
+        description: '6-digit stock code to filter by (e.g., "300750")',
+      },
       startDate: { type: 'string', description: 'Start date in YYYY-MM-DD format' },
       endDate: { type: 'string', description: 'End date in YYYY-MM-DD format' },
       side: { type: 'string', enum: ['buy', 'sell'], description: 'Filter by trade side' },
@@ -25,11 +40,11 @@ export function execute(
 ): Array<Record<string, unknown>> {
   let trades = [...state.trades]
 
-  const stockCode = args.stockCode as string | undefined
-  const startDate = args.startDate as string | undefined
-  const endDate = args.endDate as string | undefined
-  const side = args.side as 'buy' | 'sell' | undefined
-  const limit = (args.limit as number) ?? 20
+  const stockCode = getStringArg(args, 'stockCode')
+  const startDate = getStringArg(args, 'startDate')
+  const endDate = getStringArg(args, 'endDate')
+  const side = getStringArg(args, 'side') as 'buy' | 'sell' | undefined
+  const limit = getNumberArg(args, 'limit') ?? 20
 
   if (stockCode) {
     trades = trades.filter((t) => t.stockCode === stockCode)

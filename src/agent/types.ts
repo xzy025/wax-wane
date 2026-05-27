@@ -2,73 +2,93 @@ import type { AppState } from '../store'
 
 // --- Agent Messages (for LLM conversation) ---
 
-export interface AgentMessage {
-  role: 'system' | 'user' | 'assistant' | 'tool'
-  content: string
-  tool_call_id?: string
-  tool_calls?: ToolCall[]
+/** A message from the system, user, or assistant in the LLM conversation. */
+export type AgentMessage = SystemMessage | UserMessage | AssistantMessage | ToolMessage
+
+export interface SystemMessage {
+  readonly role: 'system'
+  readonly content: string
+}
+
+export interface UserMessage {
+  readonly role: 'user'
+  readonly content: string
+}
+
+export interface AssistantMessage {
+  readonly role: 'assistant'
+  readonly content: string
+  readonly tool_calls?: readonly ToolCall[]
+}
+
+export interface ToolMessage {
+  readonly role: 'tool'
+  readonly content: string
+  readonly tool_call_id: string
 }
 
 export interface ToolCall {
-  id: string
-  type: 'function'
-  function: {
-    name: string
-    arguments: string
+  readonly id: string
+  readonly type: 'function'
+  readonly function: {
+    readonly name: string
+    readonly arguments: string
   }
 }
 
 // --- Tool Definitions (OpenAI function calling format) ---
 
+export interface ToolPropertyDefinition {
+  readonly type: string
+  readonly description: string
+  readonly enum?: readonly string[]
+}
+
 export interface ToolDefinition {
-  name: string
-  description: string
-  parameters: {
-    type: 'object'
-    properties: Record<string, {
-      type: string
-      description: string
-      enum?: string[]
-    }>
-    required: string[]
+  readonly name: string
+  readonly description: string
+  readonly parameters: {
+    readonly type: 'object'
+    readonly properties: Record<string, ToolPropertyDefinition>
+    readonly required: readonly string[]
   }
 }
 
 export interface ToolModule {
-  schema: ToolDefinition
-  execute: (args: Record<string, unknown>, state: AppState) => unknown
+  readonly schema: ToolDefinition
+  readonly execute: (args: Record<string, unknown>, state: AppState) => unknown
 }
 
 // --- Agent Events (yielded by agent loop to UI) ---
 
 export type AgentEvent =
-  | { type: 'tool_start'; toolName: string; toolId: string }
-  | { type: 'tool_result'; toolName: string; toolId: string; result: unknown }
-  | { type: 'token'; content: string }
-  | { type: 'assistant_message'; content: string }
-  | { type: 'error'; message: string }
+  | { readonly type: 'tool_start'; readonly toolName: string; readonly toolId: string }
+  | { readonly type: 'tool_result'; readonly toolName: string; readonly toolId: string; readonly result: unknown }
+  | { readonly type: 'token'; readonly content: string }
+  | { readonly type: 'assistant_message'; readonly content: string }
+  | { readonly type: 'error'; readonly message: string }
 
 // --- Agent Store State ---
 
 export interface AgentConversation {
-  id: string
-  messages: ConversationMessage[]
-  createdAt: string
+  readonly id: string
+  readonly messages: readonly ConversationMessage[]
+  readonly createdAt: string
 }
 
 export interface ConversationMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: number
-  toolCalls?: ToolCallInfo[]
+  readonly id: string
+  readonly role: 'user' | 'assistant'
+  readonly content: string
+  readonly timestamp: number
+  readonly toolCalls?: readonly ToolCallInfo[]
 }
 
 export interface ToolCallInfo {
-  toolName: string
-  toolId: string
-  result?: unknown
-  status: 'running' | 'done'
+  readonly toolName: string
+  readonly toolId: string
+  readonly result?: unknown
+  readonly status: 'running' | 'done'
 }
 
 export interface AgentMemory {
@@ -96,20 +116,26 @@ export type AgentAction =
 
 // --- SSE Stream Types ---
 
+export interface SSEToolCallDelta {
+  readonly index: number
+  readonly id?: string
+  readonly type?: 'function'
+  readonly function?: {
+    readonly name?: string
+    readonly arguments?: string
+  }
+}
+
+export interface SSEDelta {
+  readonly content?: string
+  readonly tool_calls?: readonly SSEToolCallDelta[]
+}
+
+export interface SSEChoice {
+  readonly delta?: SSEDelta
+  readonly finish_reason?: string
+}
+
 export interface SSEChunk {
-  choices?: Array<{
-    delta?: {
-      content?: string
-      tool_calls?: Array<{
-        index: number
-        id?: string
-        type?: 'function'
-        function?: {
-          name?: string
-          arguments?: string
-        }
-      }>
-    }
-    finish_reason?: string
-  }>
+  readonly choices?: readonly SSEChoice[]
 }

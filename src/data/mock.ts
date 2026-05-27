@@ -1,16 +1,18 @@
-import {
-  Activity,
-  CheckCircle2,
-  CircleDollarSign,
-  Database,
-} from 'lucide-react'
+import { Activity, CheckCircle2, CircleDollarSign, Database } from 'lucide-react'
+import type { TradeGroup, MetricCard } from '../types'
 
 export const metricCards = [
-  { key: 'realizedPnl', value: '¥18,426', positive: true, tone: 'positive', icon: CircleDollarSign },
+  {
+    key: 'realizedPnl',
+    value: '¥18,426',
+    positive: true,
+    tone: 'positive',
+    icon: CircleDollarSign,
+  },
   { key: 'winRate', value: '58.3%', tone: 'neutral', icon: CheckCircle2 },
   { key: 'payoff', value: '1.72', tone: 'positive', icon: Activity },
   { key: 'fees', value: '¥2,184', tone: 'warning', icon: Database },
-]
+] satisfies MetricCard[]
 
 export const tradeGroups = [
   {
@@ -69,7 +71,7 @@ export const tradeGroups = [
     mistakes: ['Oversized position'],
     status: 'Not reviewed',
   },
-]
+] satisfies TradeGroup[]
 
 export const ledgerRows = [
   ['2026-04-11', '601318', 'Ping An', 'Buy', '1,200', '41.20', '49,440.00', '12.60'],

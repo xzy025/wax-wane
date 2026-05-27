@@ -13,7 +13,13 @@ interface ReviewViewProps {
   language?: 'zh' | 'en'
 }
 
-export default function ReviewView({ t, selectedGroup, selectedGroupId, onSelectGroup, language = 'zh' }: ReviewViewProps) {
+export default function ReviewView({
+  t,
+  selectedGroup,
+  selectedGroupId,
+  onSelectGroup,
+  language = 'zh',
+}: ReviewViewProps) {
   const { tradeGroups, reviewNotes } = useAppState()
   const dispatch = useAppDispatch()
 
@@ -78,7 +84,8 @@ export default function ReviewView({ t, selectedGroup, selectedGroupId, onSelect
             <span className="stock-code">{selectedGroup.code}</span>
             <h2>{translateMap(t.stocks, selectedGroup.name)}</h2>
             <p>
-              {selectedGroup.opened} - {selectedGroup.closed ?? t.reviews.open} · {selectedGroup.days}
+              {selectedGroup.opened} - {selectedGroup.closed ?? t.reviews.open} ·{' '}
+              {selectedGroup.days}
               {t.reviews.dayUnit}
             </p>
           </div>
@@ -131,7 +138,9 @@ export default function ReviewView({ t, selectedGroup, selectedGroupId, onSelect
           {selectedGroup.mistakes.length === 0 ? (
             <span>{t.reviews.noMistake}</span>
           ) : (
-            selectedGroup.mistakes.map((tag) => <span key={tag}>{translateMap(t.mistakes, tag)}</span>)
+            selectedGroup.mistakes.map((tag) => (
+              <span key={tag}>{translateMap(t.mistakes, tag)}</span>
+            ))
           )}
         </div>
 

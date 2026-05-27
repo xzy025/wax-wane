@@ -1,20 +1,63 @@
 import { useState } from 'react'
-import { Activity, ArrowLeftRight, BarChart2, DollarSign, Flame, Landmark, RefreshCw, Settings2, TrendingDown, TrendingUp } from 'lucide-react'
+import {
+  Activity,
+  ArrowLeftRight,
+  BarChart2,
+  DollarSign,
+  Flame,
+  Landmark,
+  RefreshCw,
+  Settings2,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react'
 import { useMacroData } from '../hooks/useMacroData'
 import type { Translation } from '../types'
 
 interface MacroBannerProps {
   t: Translation
+  date?: string
 }
 
-const indicatorConfig: Record<string, { icon: typeof DollarSign; labelKey: keyof Translation['macro']; chartUrl: string }> = {
-  us10y: { icon: Landmark, labelKey: 'us10y', chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:US10Y' },
-  us5y: { icon: Landmark, labelKey: 'us5y', chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:US05Y' },
-  gold: { icon: DollarSign, labelKey: 'gold', chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:GOLD' },
-  dxy: { icon: BarChart2, labelKey: 'dxy', chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:DXY' },
-  usdcny: { icon: ArrowLeftRight, labelKey: 'usdcny', chartUrl: 'https://www.tradingview.com/chart/?symbol=FX_IDC:USDCNY' },
-  crude: { icon: Flame, labelKey: 'crude', chartUrl: 'https://www.tradingview.com/chart/?symbol=NYMEX:CL1!' },
-  vix: { icon: Activity, labelKey: 'vix', chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:VIX' },
+const indicatorConfig: Record<
+  string,
+  { icon: typeof DollarSign; labelKey: keyof Translation['macro']; chartUrl: string }
+> = {
+  us10y: {
+    icon: Landmark,
+    labelKey: 'us10y',
+    chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:US10Y',
+  },
+  us5y: {
+    icon: Landmark,
+    labelKey: 'us5y',
+    chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:US05Y',
+  },
+  gold: {
+    icon: DollarSign,
+    labelKey: 'gold',
+    chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:GOLD',
+  },
+  dxy: {
+    icon: BarChart2,
+    labelKey: 'dxy',
+    chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:DXY',
+  },
+  usdcny: {
+    icon: ArrowLeftRight,
+    labelKey: 'usdcny',
+    chartUrl: 'https://www.tradingview.com/chart/?symbol=FX_IDC:USDCNY',
+  },
+  crude: {
+    icon: Flame,
+    labelKey: 'crude',
+    chartUrl: 'https://www.tradingview.com/chart/?symbol=NYMEX:CL1!',
+  },
+  vix: {
+    icon: Activity,
+    labelKey: 'vix',
+    chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:VIX',
+  },
 }
 
 function formatValue(value: number, unit: string, id: string): string {
@@ -27,8 +70,8 @@ function formatValue(value: number, unit: string, id: string): string {
   return value.toFixed(2)
 }
 
-export default function MacroBanner({ t }: MacroBannerProps) {
-  const { data, loading, error, lastUpdated, refresh } = useMacroData()
+export default function MacroBanner({ t, date }: MacroBannerProps) {
+  const { data, loading, error, lastUpdated, refresh } = useMacroData(date)
   const [showSettings, setShowSettings] = useState(false)
   const [apiKeyInput, setApiKeyInput] = useState(localStorage.getItem('macro-api-key') ?? '')
 
@@ -80,17 +123,26 @@ export default function MacroBanner({ t }: MacroBannerProps) {
             const ChangeIcon = isUp ? TrendingUp : TrendingDown
 
             return (
-              <a className="macro-item" key={item.id} href={config.chartUrl} target="_blank" rel="noopener noreferrer">
+              <a
+                className="macro-item"
+                key={item.id}
+                href={config.chartUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <div className="macro-item-icon">
                   <Icon size={16} aria-hidden="true" />
                 </div>
                 <div>
                   <div className="macro-item-label">{t.macro[config.labelKey]}</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                    <span className="macro-item-value">{formatValue(item.value, item.unit, item.id)}</span>
+                    <span className="macro-item-value">
+                      {formatValue(item.value, item.unit, item.id)}
+                    </span>
                     <span className={`macro-item-change ${isUp ? 'up' : 'down'}`}>
                       <ChangeIcon size={12} aria-hidden="true" />
-                      {isUp ? '+' : ''}{changePct.toFixed(2)}%
+                      {isUp ? '+' : ''}
+                      {changePct.toFixed(2)}%
                     </span>
                   </div>
                 </div>
@@ -101,7 +153,9 @@ export default function MacroBanner({ t }: MacroBannerProps) {
         <div className="macro-banner-meta">
           {!hasKey && <span className="demo-badge">{t.macro.noApiKey}</span>}
           {lastUpdated && (
-            <span>{t.macro.lastUpdated} {lastUpdated.toLocaleTimeString()}</span>
+            <span>
+              {t.macro.lastUpdated} {lastUpdated.toLocaleTimeString()}
+            </span>
           )}
           {error && <span style={{ color: 'var(--red)' }}>{t.macro.error}</span>}
           <button
@@ -144,7 +198,9 @@ export default function MacroBanner({ t }: MacroBannerProps) {
             </button>
           </div>
           <small className="macro-settings-hint">
-            {hasKey ? `${t.macro.dataSource}: Twelve Data + ExchangeRate-API` : `${t.macro.dataSource}: ExchangeRate-API + Mock`}
+            {hasKey
+              ? `${t.macro.dataSource}: Twelve Data + ExchangeRate-API`
+              : `${t.macro.dataSource}: ExchangeRate-API + Mock`}
           </small>
         </div>
       )}

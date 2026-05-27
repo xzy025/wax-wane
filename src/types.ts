@@ -1,29 +1,77 @@
+/** Known behavioral mistake tags used across the application. */
+export type MistakeTag =
+  | 'Early profit taking'
+  | 'No plan'
+  | 'Late stop loss'
+  | 'Oversized position'
+  | 'Chasing high'
+
+/** Review status for a closed trade group. */
+export type TradeStatus = 'Reviewed' | 'Follow up' | 'Not reviewed'
+
+/** Trading strategy tags. */
+export type TradeStrategy = '' | 'Pullback' | 'Index beta' | 'Breakout' | 'Reversal'
+
+/**
+ * A trade group represents one complete stock-level trading cycle
+ * (from first buy to full close, or an ongoing open position).
+ *
+ * @example
+ * ```ts
+ * const group: TradeGroup = {
+ *   id: 'tg-001', code: '300750', name: 'CATL',
+ *   opened: '2026-03-04', closed: '2026-03-18',
+ *   pnl: 8460, returnRate: 9.4, days: 14, totalFee: 324.6,
+ *   strategy: 'Pullback', mistakes: ['Early profit taking'],
+ *   status: 'Reviewed',
+ * }
+ * ```
+ */
 export interface TradeGroup {
-  id: string
-  code: string
-  name: string
-  opened: string
-  closed: string | null
-  pnl: number
-  returnRate: number
-  days: number
-  totalFee: number
-  strategy: string
-  mistakes: string[]
-  status: string
+  readonly id: string
+  readonly code: string
+  readonly name: string
+  readonly opened: string
+  readonly closed: string | null
+  readonly pnl: number
+  readonly returnRate: number
+  readonly days: number
+  readonly totalFee: number
+  strategy: TradeStrategy
+  mistakes: readonly MistakeTag[]
+  status: TradeStatus
 }
+
+/** Keys for the four metric cards displayed on the dashboard. */
+export type MetricKey = 'realizedPnl' | 'winRate' | 'payoff' | 'fees'
 
 export interface MetricCard {
-  key: string
-  value: string
-  positive?: boolean
-  tone: 'positive' | 'neutral' | 'warning'
-  icon: React.ComponentType<{ size?: number; 'aria-hidden'?: string }>
+  readonly key: MetricKey
+  readonly value: string
+  readonly positive?: boolean
+  readonly tone: 'positive' | 'neutral' | 'warning'
+  readonly icon: React.ComponentType<Record<string, unknown>>
 }
 
-export type LedgerRow = [string, string, string, string, string, string, string, string]
+/**
+ * A single row in the trade ledger table.
+ * Indices: 0=date, 1=code, 2=name, 3=side, 4=qty, 5=price, 6=amount, 7=fees
+ */
+export type LedgerRow = readonly [
+  date: string,
+  code: string,
+  name: string,
+  side: string,
+  qty: string,
+  price: string,
+  amount: string,
+  fees: string,
+]
 
-export type MistakeStat = [string, number, number]
+/**
+ * A mistake statistic entry: [mistake tag, occurrence count, total PnL impact].
+ */
+export type MistakeStat = readonly [tag: string, count: number, pnl: number]
 
 export interface Translation {
   appSubtitle: string
@@ -118,6 +166,10 @@ export interface Translation {
     apiKeyPlaceholder: string
     dataSource: string
   }
+  datePicker: {
+    today: string
+    yesterday: string
+  }
   ashare: {
     shIndex: string
     szIndex: string
@@ -131,6 +183,8 @@ export interface Translation {
     profitabilityGood: string
     profitabilityOk: string
     profitabilityBad: string
+    promotionRate: string
+    newHigh: string
     lastUpdated: string
     loading: string
     error: string
@@ -139,36 +193,36 @@ export interface Translation {
 }
 
 export interface ReviewNote {
-  buyReason: string
-  sellReason: string
-  executionReview: string
-  lesson: string
+  readonly buyReason: string
+  readonly sellReason: string
+  readonly executionReview: string
+  readonly lesson: string
 }
 
 export interface ParsedTrade {
-  tradeDate: string
-  stockCode: string
-  stockName: string
-  side: 'buy' | 'sell'
-  quantity: number
-  price: number
-  grossAmount: number
-  commission: number
-  stampTax: number
-  transferFee: number
-  otherFee: number
-  netAmount: number
-  raw: Record<string, string>
-  validationStatus?: 'valid' | 'warning' | 'error'
-  validationMessage?: string
+  readonly tradeDate: string
+  readonly stockCode: string
+  readonly stockName: string
+  readonly side: 'buy' | 'sell'
+  readonly quantity: number
+  readonly price: number
+  readonly grossAmount: number
+  readonly commission: number
+  readonly stampTax: number
+  readonly transferFee: number
+  readonly otherFee: number
+  readonly netAmount: number
+  readonly raw: Readonly<Record<string, string>>
+  readonly validationStatus?: 'valid' | 'warning' | 'error'
+  readonly validationMessage?: string
 }
 
 export interface PositionSnapshot {
-  stockCode: string
-  stockName: string
-  quantity: number
-  avgCost: number
-  costBasis: number
-  realizedPnl: number
-  totalFees: number
+  readonly stockCode: string
+  readonly stockName: string
+  readonly quantity: number
+  readonly avgCost: number
+  readonly costBasis: number
+  readonly realizedPnl: number
+  readonly totalFees: number
 }

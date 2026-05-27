@@ -43,7 +43,7 @@ export function parseCsvFile(file: File): Promise<CsvPreview> {
     Papa.parse(file, {
       encoding: 'UTF-8',
       complete(results) {
-        const allRows = results.data as string[][]
+        const allRows = results.data as string[][] // PapaParse returns string[][] when parsing text
         const nonEmpty = allRows.filter((row) => row.some((cell) => cell.trim() !== ''))
         if (nonEmpty.length === 0) {
           reject(new Error('文件为空'))
@@ -69,7 +69,12 @@ function parseExcelFile(file: File): Promise<CsvPreview> {
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer)
+        const buffer = e.target?.result
+        if (!(buffer instanceof ArrayBuffer)) {
+          reject(new Error('读取文件失败'))
+          return
+        }
+        const data = new Uint8Array(buffer)
         const workbook = XLSX.read(data, { type: 'array' })
         const sheetName = workbook.SheetNames[0]
         if (!sheetName) {
@@ -112,7 +117,7 @@ function normalizeSide(value: string): 'buy' | 'sell' {
   const v = value.trim().toLowerCase()
   if (v === 'buy' || v === 'b' || v === '买入' || v === '证券买入') return 'buy'
   if (v === 'sell' || v === 's' || v === '卖出' || v === '证券卖出') return 'sell'
-  return 'buy' // default fallback
+  return 'buy' // default fallback for unknown values
 }
 
 function parseNumber(value: string): number {
@@ -147,27 +152,42 @@ export function mapAndValidate(
     const priceRaw = getVal(mapping.price)
 
     // Validate required fields
-    if (!tradeDate) { errors.push(`行 ${rowNum}: 缺少成交日期`); continue }
+    if (!tradeDate) {
+      errors.push(`行 ${rowNum}: 缺少成交日期`)
+      continue
+    }
     if (!stockCode || !/^\d{6}$/.test(stockCode.replace(/\s/g, ''))) {
       errors.push(`行 ${rowNum}: 证券代码无效 (${stockCode})`)
       continue
     }
-    if (!sideRaw) { errors.push(`行 ${rowNum}: 缺少买卖方向`); continue }
+    if (!sideRaw) {
+      errors.push(`行 ${rowNum}: 缺少买卖方向`)
+      continue
+    }
 
     const quantity = parseNumber(quantityRaw)
     const price = parseNumber(priceRaw)
-    if (quantity <= 0) { errors.push(`行 ${rowNum}: 数量无效 (${quantityRaw})`); continue }
-    if (price <= 0) { errors.push(`行 ${rowNum}: 价格无效 (${priceRaw})`); continue }
+    if (quantity <= 0) {
+      errors.push(`行 ${rowNum}: 数量无效 (${quantityRaw})`)
+      continue
+    }
+    if (price <= 0) {
+      errors.push(`行 ${rowNum}: 价格无效 (${priceRaw})`)
+      continue
+    }
 
     const side = normalizeSide(sideRaw)
     const grossAmount = parseNumber(getVal(mapping.grossAmount)) || quantity * price
     const commission = parseNumber(getVal(mapping.commission))
     const stampTax = parseNumber(getVal(mapping.stampTax))
     const transferFee = parseNumber(getVal(mapping.transferFee))
-    const netAmount = parseNumber(getVal(mapping.netAmount)) || grossAmount - commission - stampTax - transferFee
+    const netAmount =
+      parseNumber(getVal(mapping.netAmount)) || grossAmount - commission - stampTax - transferFee
 
     const raw: Record<string, string> = {}
-    preview.headers.forEach((h, idx) => { raw[h] = row[idx] ?? '' })
+    preview.headers.forEach((h, idx) => {
+      raw[h] = row[idx] ?? ''
+    })
 
     trades.push({
       tradeDate,

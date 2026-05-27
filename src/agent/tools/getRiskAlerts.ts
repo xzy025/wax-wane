@@ -1,5 +1,6 @@
 import type { AppState } from '../../store'
 import type { ToolModule } from '../types'
+import { computeTotalFees, computeConsecutiveLosses } from '../../utils/metrics'
 
 export const schema = {
   name: 'getRiskAlerts',
@@ -13,10 +14,7 @@ export const schema = {
   },
 }
 
-export function execute(
-  _args: Record<string, unknown>,
-  state: AppState,
-): Record<string, unknown> {
+export function execute(_args: Record<string, unknown>, state: AppState): Record<string, unknown> {
   const groups = state.tradeGroups
   const closedGroups = groups.filter((g) => g.closed)
   const alerts: Array<{ severity: string; title: string; detail: string }> = []
@@ -45,7 +43,7 @@ export function execute(
   }
 
   // Fee drag
-  const totalFees = groups.reduce((s, g) => s + (g.totalFee ?? 0), 0)
+  const totalFees = computeTotalFees(groups)
   const totalGross = groups.reduce((s, g) => s + Math.abs(g.pnl) + (g.totalFee ?? 0), 0)
   const feeRatio = totalGross > 0 ? (totalFees / totalGross) * 100 : 0
   if (feeRatio > 0.5) {
@@ -57,16 +55,7 @@ export function execute(
   }
 
   // Consecutive losses
-  let maxConsecutive = 0
-  let streak = 0
-  for (const g of closedGroups) {
-    if (g.pnl < 0) {
-      streak++
-      maxConsecutive = Math.max(maxConsecutive, streak)
-    } else {
-      streak = 0
-    }
-  }
+  const maxConsecutive = computeConsecutiveLosses(closedGroups)
   if (maxConsecutive >= 3) {
     alerts.push({
       severity: 'high',

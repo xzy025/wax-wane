@@ -21,22 +21,28 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [editForm, setEditForm] = useState<ParsedTrade | null>(null)
 
-  const filteredTrades = trades.filter((trade, i) => {
-    if (!range) return true
-    const { start, end } = getDateRange(range)
-    return isInDateRange(trade.tradeDate, start, end)
-  }).filter((trade) => {
-    if (!searchQuery.trim()) return true
-    const q = searchQuery.trim().toLowerCase()
-    return trade.stockCode.includes(q) || trade.stockName.toLowerCase().includes(q)
-  }).filter((trade) => {
-    if (sideFilter === 'all') return true
-    return trade.side === sideFilter
-  })
+  const filteredTrades = trades
+    .filter((trade, i) => {
+      if (!range) return true
+      const { start, end } = getDateRange(range)
+      return isInDateRange(trade.tradeDate, start, end)
+    })
+    .filter((trade) => {
+      if (!searchQuery.trim()) return true
+      const q = searchQuery.trim().toLowerCase()
+      return trade.stockCode.includes(q) || trade.stockName.toLowerCase().includes(q)
+    })
+    .filter((trade) => {
+      if (sideFilter === 'all') return true
+      return trade.side === sideFilter
+    })
 
-  const getOriginalIndex = useCallback((trade: ParsedTrade) => {
-    return trades.indexOf(trade)
-  }, [trades])
+  const getOriginalIndex = useCallback(
+    (trade: ParsedTrade) => {
+      return trades.indexOf(trade)
+    },
+    [trades],
+  )
 
   function handleStartEdit(trade: ParsedTrade) {
     const idx = trades.indexOf(trade)
@@ -114,42 +120,92 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
             return isEditing && editForm ? (
               <div className="table-row row-editing" key={`edit-${index}`}>
                 <span>
-                  <input type="date" className="edit-input" value={editForm.tradeDate}
-                    onChange={(e) => setEditForm({ ...editForm, tradeDate: e.target.value })} />
+                  <input
+                    type="date"
+                    className="edit-input"
+                    value={editForm.tradeDate}
+                    onChange={(e) => setEditForm({ ...editForm, tradeDate: e.target.value })}
+                  />
                 </span>
                 <span>
-                  <input type="text" className="edit-input" value={editForm.stockCode} style={{ width: 70 }}
-                    onChange={(e) => setEditForm({ ...editForm, stockCode: e.target.value })} />
+                  <input
+                    type="text"
+                    className="edit-input"
+                    value={editForm.stockCode}
+                    style={{ width: 70 }}
+                    onChange={(e) => setEditForm({ ...editForm, stockCode: e.target.value })}
+                  />
                 </span>
                 <span>
-                  <input type="text" className="edit-input" value={editForm.stockName} style={{ width: 80 }}
-                    onChange={(e) => setEditForm({ ...editForm, stockName: e.target.value })} />
+                  <input
+                    type="text"
+                    className="edit-input"
+                    value={editForm.stockName}
+                    style={{ width: 80 }}
+                    onChange={(e) => setEditForm({ ...editForm, stockName: e.target.value })}
+                  />
                 </span>
                 <span>
-                  <select className="edit-input" value={editForm.side}
-                    onChange={(e) => setEditForm({ ...editForm, side: e.target.value as 'buy' | 'sell' })}>
+                  <select
+                    className="edit-input"
+                    value={editForm.side}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, side: e.target.value as 'buy' | 'sell' })
+                    }
+                  >
                     <option value="buy">{t.ledger.side.Buy}</option>
                     <option value="sell">{t.ledger.side.Sell}</option>
                   </select>
                 </span>
                 <span>
-                  <input type="number" className="edit-input" value={editForm.quantity} style={{ width: 70 }}
-                    onChange={(e) => setEditForm({ ...editForm, quantity: Number(e.target.value) })} />
+                  <input
+                    type="number"
+                    className="edit-input"
+                    value={editForm.quantity}
+                    style={{ width: 70 }}
+                    onChange={(e) => setEditForm({ ...editForm, quantity: Number(e.target.value) })}
+                  />
                 </span>
                 <span>
-                  <input type="number" className="edit-input" value={editForm.price} style={{ width: 80 }} step="0.01"
-                    onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })} />
+                  <input
+                    type="number"
+                    className="edit-input"
+                    value={editForm.price}
+                    style={{ width: 80 }}
+                    step="0.01"
+                    onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
+                  />
                 </span>
-                <span>{editForm.grossAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</span>
                 <span>
-                  <input type="number" className="edit-input" value={editForm.commission} style={{ width: 70 }} step="0.01"
-                    onChange={(e) => setEditForm({ ...editForm, commission: Number(e.target.value) })} />
+                  {editForm.grossAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                </span>
+                <span>
+                  <input
+                    type="number"
+                    className="edit-input"
+                    value={editForm.commission}
+                    style={{ width: 70 }}
+                    step="0.01"
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, commission: Number(e.target.value) })
+                    }
+                  />
                 </span>
                 <span className="edit-actions">
-                  <button className="icon-button" type="button" title="保存" onClick={handleSaveEdit}>
+                  <button
+                    className="icon-button"
+                    type="button"
+                    title="保存"
+                    onClick={handleSaveEdit}
+                  >
                     <Check size={16} />
                   </button>
-                  <button className="icon-button" type="button" title="取消" onClick={handleCancelEdit}>
+                  <button
+                    className="icon-button"
+                    type="button"
+                    title="取消"
+                    onClick={handleCancelEdit}
+                  >
                     <X size={16} />
                   </button>
                 </span>
@@ -174,10 +230,17 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
                 </span>
                 <span>{trade.quantity.toLocaleString()}</span>
                 <span>{trade.price.toFixed(2)}</span>
-                <span>{trade.grossAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}</span>
+                <span>
+                  {trade.grossAmount.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}
+                </span>
                 <span>{trade.commission.toFixed(2)}</span>
                 <span>
-                  <button className="icon-button" type="button" title="编辑" onClick={() => handleStartEdit(trade)}>
+                  <button
+                    className="icon-button"
+                    type="button"
+                    title="编辑"
+                    onClick={() => handleStartEdit(trade)}
+                  >
                     <Pencil size={14} />
                   </button>
                 </span>
@@ -185,9 +248,14 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
             )
           })
         ) : (
-          <div className="table-row" style={{ textAlign: 'center', gridColumn: '1 / -1', color: 'var(--muted)' }}>
+          <div
+            className="table-row"
+            style={{ textAlign: 'center', gridColumn: '1 / -1', color: 'var(--muted)' }}
+          >
             {trades.length === 0
-              ? (t.ledger.search === '搜索股票或代码' ? '暂无数据，请先导入交割单' : 'No data. Import a delivery statement first.')
+              ? t.ledger.search === '搜索股票或代码'
+                ? '暂无数据，请先导入交割单'
+                : 'No data. Import a delivery statement first.'
               : '无匹配结果'}
           </div>
         )}

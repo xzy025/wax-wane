@@ -9,7 +9,14 @@ interface SegmentedControlProps {
   icon?: React.ReactNode
 }
 
-export default function SegmentedControl({ label, value, options, labels, onChange, icon }: SegmentedControlProps) {
+export default function SegmentedControl({
+  label,
+  value,
+  options,
+  labels,
+  onChange,
+  icon,
+}: SegmentedControlProps) {
   return (
     <div className="segmented-shell">
       <span className="segmented-label">

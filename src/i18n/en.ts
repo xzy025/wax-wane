@@ -1,3 +1,5 @@
+import type { Translation } from '../types'
+
 export default {
   appSubtitle: 'A-share delivery statement review',
   nav: {
@@ -53,7 +55,8 @@ export default {
   },
   import: {
     uploadTitle: 'Upload delivery statement',
-    uploadDesc: 'Drop a broker CSV or Excel file here. The MVP keeps raw rows and standardized trades.',
+    uploadDesc:
+      'Drop a broker CSV or Excel file here. The MVP keeps raw rows and standardized trades.',
     selectFile: 'Select file',
     pipelineTitle: 'Import Pipeline',
     pipelineDesc: 'Designed for repeatable data quality checks.',
@@ -164,6 +167,10 @@ export default {
     apiKeyPlaceholder: 'Enter your API key (free signup)',
     dataSource: 'Source',
   },
+  datePicker: {
+    today: 'Today',
+    yesterday: 'Yesterday',
+  },
   ashare: {
     shIndex: 'Shanghai',
     szIndex: 'Shenzhen',
@@ -177,9 +184,11 @@ export default {
     profitabilityGood: 'Good',
     profitabilityOk: 'Neutral',
     profitabilityBad: 'Bad',
+    promotionRate: 'Promotion Rate',
+    newHigh: 'New High',
     lastUpdated: 'Updated',
     loading: 'Loading...',
     error: 'Failed to load',
     retry: 'Retry',
   },
-}
+} satisfies Translation

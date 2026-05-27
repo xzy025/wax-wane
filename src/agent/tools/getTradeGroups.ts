@@ -1,6 +1,12 @@
 import type { AppState } from '../../store'
 import type { ToolModule } from '../types'
 
+/** Safely extract a string argument, returning undefined if not a string. */
+function getStringArg(args: Record<string, unknown>, key: string): string | undefined {
+  const val = args[key]
+  return typeof val === 'string' ? val : undefined
+}
+
 export const schema = {
   name: 'getTradeGroupDetail',
   description:
@@ -10,7 +16,10 @@ export const schema = {
     type: 'object' as const,
     properties: {
       groupId: { type: 'string', description: 'Trade group ID (e.g., "tg-001")' },
-      stockCode: { type: 'string', description: 'Stock code to look up the active or most recent group' },
+      stockCode: {
+        type: 'string',
+        description: 'Stock code to look up the active or most recent group',
+      },
     },
     required: [],
   },
@@ -20,8 +29,8 @@ export function execute(
   args: Record<string, unknown>,
   state: AppState,
 ): Record<string, unknown> | null {
-  const groupId = args.groupId as string | undefined
-  const stockCode = args.stockCode as string | undefined
+  const groupId = getStringArg(args, 'groupId')
+  const stockCode = getStringArg(args, 'stockCode')
 
   let group = undefined
 

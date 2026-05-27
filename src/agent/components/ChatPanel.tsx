@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Trash2, Sparkles, Loader2 } from 'lucide-react'
-import { useAgentState, useAgentDispatch, useAgentHistory, useActiveConversation } from '../agentStore'
+import { Send, Trash2, Sparkles, Loader2, Square } from 'lucide-react'
+import {
+  useAgentState,
+  useAgentDispatch,
+  useAgentHistory,
+  useActiveConversation,
+} from '../agentStore'
 import { runAgent } from '../agentLoop'
 import { useAppState } from '../../store'
 import { ChatMessage } from './ChatMessage'
@@ -39,6 +44,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   const [isStreaming, setIsStreaming] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   const quickPrompts = language === 'zh' ? QUICK_PROMPTS_ZH : QUICK_PROMPTS_EN
 
@@ -54,106 +60,122 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
     }
   }, [agentState.activeConversationId, agentDispatch])
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || agentState.isProcessing) return
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || agentState.isProcessing) return
 
-    const userMsg: ConversationMessage = {
-      id: `msg-${Date.now()}`,
-      role: 'user',
-      content: text.trim(),
-      timestamp: Date.now(),
-    }
-
-    agentDispatch({ type: 'ADD_USER_MESSAGE', payload: userMsg })
-    agentDispatch({ type: 'SET_PROCESSING', payload: true })
-    setInput('')
-
-    // Build LLM history from conversation
-    const convId = agentState.activeConversationId!
-    const existingHistory = historyRef.current.get(convId) ?? []
-    const llmHistory: AgentMessage[] = [
-      ...existingHistory,
-      { role: 'user', content: text.trim() },
-    ]
-
-    // Create assistant message placeholder
-    const assistantMsgId = `msg-${Date.now() + 1}`
-    const assistantMsg: ConversationMessage = {
-      id: assistantMsgId,
-      role: 'assistant',
-      content: '',
-      timestamp: Date.now(),
-      toolCalls: [],
-    }
-    agentDispatch({ type: 'ADD_ASSISTANT_MESSAGE', payload: assistantMsg })
-
-    setIsStreaming(true)
-    setStreamingContent('')
-
-    try {
-      const generator = runAgent(text.trim(), appState, llmHistory, language)
-      let fullContent = ''
-
-      for await (const event of generator) {
-        switch (event.type) {
-          case 'token':
-            fullContent += event.content
-            setStreamingContent(fullContent)
-            break
-
-          case 'tool_start':
-            agentDispatch({
-              type: 'UPDATE_TOOL_CALL',
-              payload: {
-                messageId: assistantMsgId,
-                toolCall: { toolName: event.toolName, toolId: event.toolId, status: 'running' },
-              },
-            })
-            break
-
-          case 'tool_result':
-            agentDispatch({
-              type: 'UPDATE_TOOL_CALL',
-              payload: {
-                messageId: assistantMsgId,
-                toolCall: { toolName: event.toolName, toolId: event.toolId, result: event.result, status: 'done' },
-              },
-            })
-            break
-
-          case 'assistant_message':
-            fullContent = event.content
-            break
-
-          case 'error':
-            fullContent = fullContent || `Error: ${event.message}`
-            break
-        }
+      const userMsg: ConversationMessage = {
+        id: `msg-${Date.now()}`,
+        role: 'user',
+        content: text.trim(),
+        timestamp: Date.now(),
       }
 
-      // Finalize: update the assistant message with final content
-      agentDispatch({
-        type: 'STREAM_TOKEN',
-        payload: { messageId: assistantMsgId, token: '' },
-      })
+      agentDispatch({ type: 'ADD_USER_MESSAGE', payload: userMsg })
+      agentDispatch({ type: 'SET_PROCESSING', payload: true })
+      setInput('')
 
-      // Store in LLM history for future context
-      historyRef.current.set(convId, [
-        ...llmHistory,
-        { role: 'assistant', content: fullContent },
-      ])
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error'
-      agentDispatch({
-        type: 'STREAM_TOKEN',
-        payload: { messageId: assistantMsgId, token: `\n\nError: ${errorMsg}` },
-      })
-    } finally {
-      setIsStreaming(false)
+      // Build LLM history from conversation
+      const convId = agentState.activeConversationId!
+      const existingHistory = historyRef.current.get(convId) ?? []
+      const llmHistory: AgentMessage[] = [
+        ...existingHistory,
+        { role: 'user', content: text.trim() },
+      ]
+
+      // Create assistant message placeholder
+      const assistantMsgId = `msg-${Date.now() + 1}`
+      const assistantMsg: ConversationMessage = {
+        id: assistantMsgId,
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+        toolCalls: [],
+      }
+      agentDispatch({ type: 'ADD_ASSISTANT_MESSAGE', payload: assistantMsg })
+
+      setIsStreaming(true)
       setStreamingContent('')
-      agentDispatch({ type: 'SET_PROCESSING', payload: false })
-    }
-  }, [agentState.isProcessing, agentState.activeConversationId, agentDispatch, historyRef, appState, language])
+
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      try {
+        const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal)
+        let fullContent = ''
+
+        for await (const event of generator) {
+          switch (event.type) {
+            case 'token':
+              fullContent += event.content
+              setStreamingContent(fullContent)
+              break
+
+            case 'tool_start':
+              agentDispatch({
+                type: 'UPDATE_TOOL_CALL',
+                payload: {
+                  messageId: assistantMsgId,
+                  toolCall: { toolName: event.toolName, toolId: event.toolId, status: 'running' },
+                },
+              })
+              break
+
+            case 'tool_result':
+              agentDispatch({
+                type: 'UPDATE_TOOL_CALL',
+                payload: {
+                  messageId: assistantMsgId,
+                  toolCall: {
+                    toolName: event.toolName,
+                    toolId: event.toolId,
+                    result: event.result,
+                    status: 'done',
+                  },
+                },
+              })
+              break
+
+            case 'assistant_message':
+              fullContent = event.content
+              break
+
+            case 'error':
+              fullContent = fullContent || `Error: ${event.message}`
+              break
+          }
+        }
+
+        // Finalize: update the assistant message with final content
+        agentDispatch({
+          type: 'STREAM_TOKEN',
+          payload: { messageId: assistantMsgId, token: '' },
+        })
+
+        // Store in LLM history for future context
+        historyRef.current.set(convId, [...llmHistory, { role: 'assistant', content: fullContent }])
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Unknown error'
+        agentDispatch({
+          type: 'STREAM_TOKEN',
+          payload: { messageId: assistantMsgId, token: `\n\nError: ${errorMsg}` },
+        })
+      } finally {
+        abortRef.current = null
+        setIsStreaming(false)
+        setStreamingContent('')
+        agentDispatch({ type: 'SET_PROCESSING', payload: false })
+      }
+    },
+    [
+      agentState.isProcessing,
+      agentState.activeConversationId,
+      agentDispatch,
+      historyRef,
+      appState,
+      language,
+    ],
+  )
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -171,6 +193,10 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
     }
   }
 
+  function handleStop() {
+    abortRef.current?.abort()
+  }
+
   return (
     <div className="ai-chat-panel">
       <div className="ai-chat-header">
@@ -179,7 +205,12 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           <span>{t.ai?.chatTitle ?? 'AI Assistant'}</span>
         </div>
         {messages.length > 0 && (
-          <button className="ai-chat-clear" type="button" onClick={handleClear} title={t.ai?.clearChat ?? 'Clear'}>
+          <button
+            className="ai-chat-clear"
+            type="button"
+            onClick={handleClear}
+            title={t.ai?.clearChat ?? 'Clear'}
+          >
             <Trash2 size={14} />
           </button>
         )}
@@ -219,9 +250,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
               <Loader2 size={16} className="ai-spin" />
             </div>
             <div className="ai-msg-body">
-              <div className="ai-msg-content ai-thinking">
-                {t.ai?.thinking ?? 'Thinking...'}
-              </div>
+              <div className="ai-msg-content ai-thinking">{t.ai?.thinking ?? 'Thinking...'}</div>
             </div>
           </div>
         )}
@@ -238,9 +267,15 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           placeholder={t.ai?.inputPlaceholder ?? 'Ask a question...'}
           disabled={agentState.isProcessing}
         />
-        <button type="submit" disabled={agentState.isProcessing || !input.trim()}>
-          {agentState.isProcessing ? <Loader2 size={18} className="ai-spin" /> : <Send size={18} />}
-        </button>
+        {isStreaming ? (
+          <button type="button" onClick={handleStop} title="Stop">
+            <Square size={18} />
+          </button>
+        ) : (
+          <button type="submit" disabled={agentState.isProcessing || !input.trim()}>
+            {agentState.isProcessing ? <Loader2 size={18} className="ai-spin" /> : <Send size={18} />}
+          </button>
+        )}
       </form>
     </div>
   )

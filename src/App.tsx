@@ -16,6 +16,9 @@ import { AgentProvider } from './agent/agentStore'
 import SegmentedControl from './components/SegmentedControl'
 import MacroBanner from './components/MacroBanner'
 import AShareBanner from './components/AShareBanner'
+import MarketDatePicker from './components/MarketDatePicker'
+import ErrorBoundary from './components/ErrorBoundary'
+import { todayStr } from './utils/marketHistory'
 import Dashboard from './views/Dashboard'
 import ImportView from './views/ImportView'
 import LedgerView from './views/LedgerView'
@@ -36,6 +39,7 @@ const translations: Record<string, Translation> = { zh, en }
 function AppLayout() {
   const [language, setLanguage] = useState('zh')
   const [range, setRange] = useState('month')
+  const [selectedDate, setSelectedDate] = useState(todayStr())
   const location = useLocation()
   const t = translations[language]
   const { tradeGroups } = useAppState()
@@ -109,16 +113,25 @@ function AppLayout() {
               onChange={(v) => setLanguage(v as 'zh' | 'en')}
               icon={<Languages size={17} aria-hidden="true" />}
             />
-            <button className="icon-button" type="button" aria-label={t.settings} title={t.settings}>
+            <button
+              className="icon-button"
+              type="button"
+              aria-label={t.settings}
+              title={t.settings}
+            >
               <Settings2 size={19} aria-hidden="true" />
             </button>
           </div>
         </header>
 
-        <MacroBanner t={t} />
-        <AShareBanner t={t} />
+        <MarketDatePicker selectedDate={selectedDate} onSelect={setSelectedDate} t={t} />
+        <ErrorBoundary>
+          <MacroBanner t={t} date={selectedDate} />
+          <AShareBanner t={t} date={selectedDate} />
+        </ErrorBoundary>
 
-        <Routes>
+        <ErrorBoundary>
+          <Routes>
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />
           <Route path="/import" element={<ImportView t={t} />} />
           <Route path="/ledger" element={<LedgerView t={t} range={range} />} />
@@ -136,7 +149,8 @@ function AppLayout() {
           />
           <Route path="/analytics" element={<AnalyticsView t={t} />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+          </Routes>
+        </ErrorBoundary>
       </section>
     </main>
   )

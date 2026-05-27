@@ -1,7 +1,23 @@
 import { useMemo, useState } from 'react'
 import { CalendarDays, Copy, Check } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts'
 import { formatMoney, translateMap, getDateRange, isInDateRange } from '../utils'
+import {
+  computeWinRate,
+  computePayoff,
+  computeTotalFees,
+  computeTotalPnl,
+  computeDisciplineScore,
+} from '../utils/metrics'
 import { useAppState } from '../store'
 import type { Translation } from '../types'
 
@@ -24,7 +40,11 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
       }
     }
     return [...map.entries()]
-      .map(([name, { count, pnl }]) => ({ name: translateMap(t.mistakes, name), count, pnl: Math.round(pnl) }))
+      .map(([name, { count, pnl }]) => ({
+        name: translateMap(t.mistakes, name),
+        count,
+        pnl: Math.round(pnl),
+      }))
       .sort((a, b) => b.count - a.count)
   }, [closedGroups, t.mistakes])
 
@@ -43,47 +63,18 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
   }, [closedGroups, t.periods])
 
   const disciplineScore = useMemo(() => {
-    if (closedGroups.length === 0) return { score: 0, summary: '暂无闭环交易数据，无法计算纪律评分。' }
+    if (closedGroups.length === 0)
+      return { score: 0, summary: '暂无闭环交易数据，无法计算纪律评分。' }
 
-    let score = 100
-    const penalties: string[] = []
+    const { score, penalties } = computeDisciplineScore(closedGroups, reviewNotes)
 
-    const reviewedCount = closedGroups.filter((g) => {
-      const note = reviewNotes[g.id]
-      return note && (note.buyReason || note.sellReason || note.executionReview || note.lesson)
-    }).length
-    const reviewRate = reviewedCount / closedGroups.length
-    if (reviewRate < 1) {
-      const deduction = Math.round((1 - reviewRate) * 20)
-      score -= deduction
-      penalties.push(`复盘覆盖率 ${(reviewRate * 100).toFixed(0)}%（-${deduction}）`)
-    }
-
-    const mistakePenalties: Record<string, { label: string; cap: number }> = {
-      'Late stop loss': { label: '止损拖延', cap: 15 },
-      'No plan': { label: '无计划交易', cap: 15 },
-      'Oversized position': { label: '仓位过重', cap: 10 },
-      'Chasing high': { label: '追涨杀跌', cap: 10 },
-    }
-
-    for (const [key, { label, cap }] of Object.entries(mistakePenalties)) {
-      const count = closedGroups.filter((g) => g.mistakes.includes(key)).length
-      if (count > 0) {
-        const deduction = Math.min(count * 5, cap)
-        score -= deduction
-        penalties.push(`${label} ${count} 次（-${deduction}）`)
-      }
-    }
-
-    score = Math.max(0, Math.min(100, score))
-
-    const totalPnl = closedGroups.reduce((s, g) => s + g.pnl, 0)
+    const totalPnl = computeTotalPnl(closedGroups)
     const winners = closedGroups.filter((g) => g.pnl > 0).length
     const summaryParts: string[] = []
 
     summaryParts.push(
       `${closedGroups.length} 笔闭环交易，${winners} 盈 ${closedGroups.length - winners} 亏，` +
-      `总盈亏 ${formatMoney(totalPnl, { withSign: true })}。`
+        `总盈亏 ${formatMoney(totalPnl, { withSign: true })}。`,
     )
 
     if (penalties.length > 0) {
@@ -114,12 +105,13 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
       return { periodLabel: '', empty: true, text: '', markdown: '' }
     }
 
-    const periodLabel = reportPeriod === 'week' ? `本周（${start} ~ ${end}）` : `本月（${start} ~ ${end}）`
-    const totalPnl = periodGroups.reduce((s, g) => s + g.pnl, 0)
-    const totalFees = periodGroups.reduce((s, g) => s + (g.totalFee ?? 0), 0)
+    const periodLabel =
+      reportPeriod === 'week' ? `本周（${start} ~ ${end}）` : `本月（${start} ~ ${end}）`
+    const totalPnl = computeTotalPnl(periodGroups)
+    const totalFees = computeTotalFees(periodGroups)
     const winners = periodGroups.filter((g) => g.pnl > 0)
     const losers = periodGroups.filter((g) => g.pnl < 0)
-    const winRate = (winners.length / periodGroups.length) * 100
+    const winRate = computeWinRate(periodGroups)
 
     const topWinners = [...periodGroups].sort((a, b) => b.pnl - a.pnl).slice(0, 3)
     const topLosers = [...periodGroups].sort((a, b) => a.pnl - b.pnl).slice(0, 3)
@@ -136,7 +128,9 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
     lines.push(`📊 ${periodLabel} 交易复盘报告`)
     lines.push('')
     lines.push(`■ 总览`)
-    lines.push(`  闭环交易：${periodGroups.length} 笔（${winners.length} 盈 / ${losers.length} 亏）`)
+    lines.push(
+      `  闭环交易：${periodGroups.length} 笔（${winners.length} 盈 / ${losers.length} 亏）`,
+    )
     lines.push(`  胜率：${winRate.toFixed(1)}%`)
     lines.push(`  总盈亏：${formatMoney(totalPnl, { withSign: true })}`)
     lines.push(`  总费用：${formatMoney(totalFees)}`)
@@ -145,16 +139,22 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
     if (topWinners.length > 0) {
       lines.push(`■ 盈利 Top ${topWinners.length}`)
       topWinners.forEach((g, i) => {
-        lines.push(`  ${i + 1}. ${g.name}（${g.code}）${formatMoney(g.pnl, { withSign: true })} / ${g.days}天`)
+        lines.push(
+          `  ${i + 1}. ${g.name}（${g.code}）${formatMoney(g.pnl, { withSign: true })} / ${g.days}天`,
+        )
       })
       lines.push('')
     }
 
     if (topLosers.length > 0 && topLosers.some((g) => g.pnl < 0)) {
       lines.push(`■ 亏损 Top ${Math.min(topLosers.filter((g) => g.pnl < 0).length, 3)}`)
-      topLosers.filter((g) => g.pnl < 0).forEach((g, i) => {
-        lines.push(`  ${i + 1}. ${g.name}（${g.code}）${formatMoney(g.pnl, { withSign: true })} / ${g.days}天`)
-      })
+      topLosers
+        .filter((g) => g.pnl < 0)
+        .forEach((g, i) => {
+          lines.push(
+            `  ${i + 1}. ${g.name}（${g.code}）${formatMoney(g.pnl, { withSign: true })} / ${g.days}天`,
+          )
+        })
       lines.push('')
     }
 
@@ -187,7 +187,9 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
       mdLines.push(`| 股票 | 盈亏 | 持仓 |`)
       mdLines.push(`|------|------|------|`)
       topWinners.forEach((g) => {
-        mdLines.push(`| ${g.name}（${g.code}） | ${formatMoney(g.pnl, { withSign: true })} | ${g.days}天 |`)
+        mdLines.push(
+          `| ${g.name}（${g.code}） | ${formatMoney(g.pnl, { withSign: true })} | ${g.days}天 |`,
+        )
       })
       mdLines.push('')
     }
@@ -196,9 +198,13 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
       mdLines.push(`## 亏损 Top`)
       mdLines.push(`| 股票 | 盈亏 | 持仓 |`)
       mdLines.push(`|------|------|------|`)
-      topLosers.filter((g) => g.pnl < 0).forEach((g) => {
-        mdLines.push(`| ${g.name}（${g.code}） | ${formatMoney(g.pnl, { withSign: true })} | ${g.days}天 |`)
-      })
+      topLosers
+        .filter((g) => g.pnl < 0)
+        .forEach((g) => {
+          mdLines.push(
+            `| ${g.name}（${g.code}） | ${formatMoney(g.pnl, { withSign: true })} | ${g.days}天 |`,
+          )
+        })
       mdLines.push('')
     }
 
@@ -235,10 +241,19 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
         </div>
         {mistakeData.length > 0 ? (
           <ResponsiveContainer width="100%" height={Math.max(200, mistakeData.length * 48)}>
-            <BarChart data={mistakeData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+            <BarChart
+              data={mistakeData}
+              layout="vertical"
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
               <XAxis type="number" tick={{ fontSize: 12, fill: 'var(--muted)' }} />
-              <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 12, fill: 'var(--muted)' }} />
+              <YAxis
+                type="category"
+                dataKey="name"
+                width={80}
+                tick={{ fontSize: 12, fill: 'var(--muted)' }}
+              />
               <Tooltip
                 formatter={(value: number, name: string) => {
                   if (name === 'count') return [`${value} 次`, '出现次数']
@@ -322,7 +337,12 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
               </button>
             </div>
             {!report.empty && (
-              <button className="icon-button" type="button" title="复制报告" onClick={handleCopyReport}>
+              <button
+                className="icon-button"
+                type="button"
+                title="复制报告"
+                onClick={handleCopyReport}
+              >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
               </button>
             )}
