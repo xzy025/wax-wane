@@ -228,6 +228,62 @@ CREATE TABLE report_snapshots (
 );
 ```
 
+## RAG Vector Store (Implemented)
+
+The RAG system uses Vectra (embedded vector database) for semantic search. When migrating to SQLite, use the following schema:
+
+### rag_documents
+
+Stores vectorized trade data for semantic retrieval.
+
+```sql
+CREATE TABLE rag_documents (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL CHECK (type IN ('trade_group', 'review_note', 'lesson')),
+  trade_group_id TEXT REFERENCES trade_groups(id),
+  stock_code TEXT,
+  stock_name TEXT,
+  content TEXT NOT NULL,
+  embedding BLOB NOT NULL,
+  metadata_json TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+```
+
+Recommended indexes:
+
+```sql
+CREATE INDEX idx_rag_documents_type ON rag_documents(type);
+CREATE INDEX idx_rag_documents_trade_group ON rag_documents(trade_group_id);
+CREATE INDEX idx_rag_documents_stock ON rag_documents(stock_code);
+```
+
+### Document Types
+
+- `trade_group`: Trade summary (stock code, name, dates, P&L, strategy, mistakes)
+- `review_note`: User review notes (buy reason, sell reason, execution review, lesson)
+- `lesson`: Standalone lesson extracted from review notes
+
+### Sync Strategy
+
+- Documents are synced automatically when trade data changes
+- Each trade group generates 1-3 documents:
+  1. Trade summary document (always)
+  2. Review note document (if review notes exist)
+  3. Lesson document (if lesson text > 10 chars)
+- Sync is debounced (5 seconds) to avoid excessive updates
+
+## Market Data Cache (Implemented)
+
+Market data is cached in-memory on the server with 30-second TTL:
+
+- Macro indicators: `server/macro.ts`
+- A-share breadth/limit pool: `server/ashare.ts`
+- News RSS: `server/news.ts`
+
+Client-side cache uses `localStorage` with `market-history` key (7-day retention).
+
 ## Moving Average PnL Rules
 
 For a buy:

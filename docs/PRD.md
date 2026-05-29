@@ -40,6 +40,47 @@ The first version focuses on offline review and local data accuracy. Market quot
 
 ### 6.1 Import
 
+> **Note**: The following sections describe the current implementation. Features marked with ✅ are implemented.
+
+### 6.0 AI Agent & Market Data (Implemented)
+
+#### 6.0.1 AI Agent
+
+- ✅ ReAct-style agent loop with tool calling
+- ✅ 12 registered tools: trade queries, metrics calculation, pattern finding, risk alerts, market data, news, semantic search
+- ✅ Streaming responses with SSE (Server-Sent Events)
+- ✅ Dual LLM protocol support (OpenAI + Anthropic)
+- ✅ Conversation history management
+- ✅ Abort/cancellation support
+
+#### 6.0.2 Market Data Integration
+
+- ✅ Macro indicators: US 10Y/5Y Treasury, Gold, DXY, USD/CNY, Crude Oil, VIX
+- ✅ A-share market breadth: advance/decline, limit up/down counts
+- ✅ Index intraday trends (分时数据): SSE Composite, SZSE Component, ChiNext
+- ✅ Limit pool data: 涨停/跌停 stocks with industry and consecutive days
+- ✅ Individual stock quotes
+
+#### 6.0.3 Structured Review Workflow
+
+- ✅ One-click review button triggering 6-step workflow:
+  1. Macro analysis (Treasury, Gold, USD, Oil, VIX)
+  2. News summary (RSS feeds from WeChat public accounts)
+  3. Market trends (breadth + index intraday)
+  4. Sector analysis (limit pool, hot sectors)
+  5. Trade review (combine market context with user's trades)
+- ✅ Structured output report template
+
+#### 6.0.4 RAG (Retrieval-Augmented Generation)
+
+- ✅ Vectra embedded vector database for semantic search
+- ✅ Trade groups, review notes, and lessons indexed as vectors
+- ✅ Embedding via LLM API with TF-IDF fallback
+- ✅ Automatic sync when trade data changes
+- ✅ `semanticSearch` tool for Agent to retrieve historical experiences
+
+### 6.1 Import
+
 - Upload `.xlsx`, `.xls`, or `.csv` files.
 - Preview the first 50 rows.
 - Map source columns to standard fields.
@@ -185,6 +226,10 @@ Required standard fields:
 - Market quote import and benchmark comparison.
 - FIFO cost mode.
 - Corporate action handling.
-- AI-generated review summaries.
+- ~~AI-generated review summaries.~~ ✅ Implemented via AI Agent
 - Multi-account support.
 - Markdown and PDF report export.
+- SQLite storage layer (currently using localStorage).
+- AnalyticsView enhancements: backtest, Sharpe ratio, max drawdown.
+- Milvus migration (currently using Vectra embedded).
+- RSS news feed: paid wechat2rss service for latest articles.
