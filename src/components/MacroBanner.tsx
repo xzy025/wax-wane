@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   Activity,
   ArrowLeftRight,
@@ -7,7 +6,6 @@ import {
   Flame,
   Landmark,
   RefreshCw,
-  Settings2,
   TrendingDown,
   TrendingUp,
 } from 'lucide-react'
@@ -72,21 +70,6 @@ function formatValue(value: number, unit: string, id: string): string {
 
 export default function MacroBanner({ t, date }: MacroBannerProps) {
   const { data, loading, error, lastUpdated, refresh } = useMacroData(date)
-  const [showSettings, setShowSettings] = useState(false)
-  const [apiKeyInput, setApiKeyInput] = useState(localStorage.getItem('macro-api-key') ?? '')
-
-  const handleSaveKey = () => {
-    const trimmed = apiKeyInput.trim()
-    if (trimmed) {
-      localStorage.setItem('macro-api-key', trimmed)
-    } else {
-      localStorage.removeItem('macro-api-key')
-    }
-    setShowSettings(false)
-    refresh()
-  }
-
-  const hasKey = !!localStorage.getItem('macro-api-key')
   const hasData = data.length > 0
 
   return (
@@ -151,7 +134,6 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
           })
         )}
         <div className="macro-banner-meta">
-          {!hasKey && <span className="demo-badge">{t.macro.noApiKey}</span>}
           {lastUpdated && (
             <span>
               {t.macro.lastUpdated} {lastUpdated.toLocaleTimeString()}
@@ -169,41 +151,8 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
           >
             <RefreshCw size={14} className={loading ? 'spin' : ''} aria-hidden="true" />
           </button>
-          <button
-            className="icon-button"
-            type="button"
-            aria-label={t.settings}
-            title={t.macro.apiKeyLabel}
-            onClick={() => setShowSettings(!showSettings)}
-            style={{ padding: 4 }}
-          >
-            <Settings2 size={14} aria-hidden="true" />
-          </button>
         </div>
       </div>
-      {showSettings && (
-        <div className="macro-settings">
-          <label className="macro-settings-label">{t.macro.apiKeyLabel}</label>
-          <div className="macro-settings-row">
-            <input
-              type="password"
-              className="macro-settings-input"
-              placeholder={t.macro.apiKeyPlaceholder}
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSaveKey()}
-            />
-            <button className="macro-settings-btn" type="button" onClick={handleSaveKey}>
-              {t.macro.retry}
-            </button>
-          </div>
-          <small className="macro-settings-hint">
-            {hasKey
-              ? `${t.macro.dataSource}: Twelve Data + ExchangeRate-API`
-              : `${t.macro.dataSource}: ExchangeRate-API + Mock`}
-          </small>
-        </div>
-      )}
     </>
   )
 }
