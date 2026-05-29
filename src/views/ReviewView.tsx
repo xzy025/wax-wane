@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { Tags } from 'lucide-react'
 import { useAppState, useAppDispatch } from '../store'
 import { formatMoney, translateMap } from '../utils'
@@ -30,6 +30,7 @@ export default function ReviewView({
     executionReview: currentNote?.executionReview ?? '',
     lesson: currentNote?.lesson ?? '',
   })
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const note = reviewNotes[selectedGroupId]
@@ -41,13 +42,20 @@ export default function ReviewView({
     })
   }, [selectedGroupId, reviewNotes])
 
+  const debouncedDispatch = useCallback(
+    (groupId: string, note: typeof form) => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => {
+        dispatch({ type: 'UPDATE_REVIEW_NOTE', payload: { groupId, note } })
+      }, 500)
+    },
+    [dispatch],
+  )
+
   function handleChange(field: keyof typeof form, value: string) {
     const next = { ...form, [field]: value }
     setForm(next)
-    dispatch({
-      type: 'UPDATE_REVIEW_NOTE',
-      payload: { groupId: selectedGroupId, note: next },
-    })
+    debouncedDispatch(selectedGroupId, next)
   }
   return (
     <div className="content-grid review-grid">

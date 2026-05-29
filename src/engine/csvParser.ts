@@ -117,7 +117,9 @@ function normalizeSide(value: string): 'buy' | 'sell' {
   const v = value.trim().toLowerCase()
   if (v === 'buy' || v === 'b' || v === '买入' || v === '证券买入') return 'buy'
   if (v === 'sell' || v === 's' || v === '卖出' || v === '证券卖出') return 'sell'
-  return 'buy' // default fallback for unknown values
+  // Log warning for unknown values instead of silently defaulting
+  console.warn(`[csvParser] Unknown side value: "${value}", defaulting to "buy"`)
+  return 'buy'
 }
 
 function parseNumber(value: string): number {

@@ -118,9 +118,8 @@ function reducer(state: AgentState, action: AgentAction): AgentState {
 // Context
 const StateContext = createContext<AgentState>(initialState)
 const DispatchContext = createContext<React.Dispatch<AgentAction>>(() => {})
-const HistoryContext = createContext<React.MutableRefObject<Map<string, AgentMessage[]>>>({
-  current: new Map(),
-})
+const defaultHistoryRef = { current: new Map<string, AgentMessage[]>() }
+const HistoryContext = createContext<React.MutableRefObject<Map<string, AgentMessage[]>>>(defaultHistoryRef)
 
 export function AgentProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
