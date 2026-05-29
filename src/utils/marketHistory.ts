@@ -15,9 +15,19 @@ export interface SaveDayOptions {
   ashare?: unknown
 }
 
+let cachedToday: string | null = null
+let cachedTodayTimestamp = 0
+
 export function todayStr(): string {
+  const now = Date.now()
+  // Cache for 1 minute to avoid creating new Date objects on every call
+  if (cachedToday && now - cachedTodayTimestamp < 60_000) {
+    return cachedToday
+  }
   const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  cachedToday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  cachedTodayTimestamp = now
+  return cachedToday
 }
 
 function readHistory(): HistoryMap {
