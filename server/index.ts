@@ -1,7 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 import { config } from 'dotenv'
-import { fetchAShareData } from './ashare'
+import { fetchAShareData, fetchStockQuote, fetchIndexTrends } from './ashare'
+import { fetchNewsFeed } from './news'
+import { fetchMacroData } from './macro'
+import { searchSimilar, getDocumentCount } from './vectorStore'
+import { syncTradeGroups, resetAndSyncAll } from './ragSync'
 
 config()
 
@@ -290,6 +294,158 @@ app.get('/api/ashare', async (_req, res) => {
   try {
     const data = await fetchAShareData()
     res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// ── MCP Routes: A-share market data ──────────────────────
+
+app.get('/api/mcp/ashare/trends', async (req, res) => {
+  const code = req.query.code as string | undefined
+  if (!code || !/^\d{6}$/.test(code)) {
+    res.status(400).json({ error: 'Missing or invalid ?code= (6-digit stock/index code)' })
+    return
+  }
+  try {
+    const data = await fetchIndexTrends(code)
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/mcp/ashare/quote', async (req, res) => {
+  const code = req.query.code as string | undefined
+  if (!code || !/^\d{6}$/.test(code)) {
+    res.status(400).json({ error: 'Missing or invalid ?code= (6-digit stock code)' })
+    return
+  }
+  try {
+    const quote = await fetchStockQuote(code)
+    if (!quote) {
+      res.status(404).json({ error: `Stock ${code} not found` })
+      return
+    }
+    res.json(quote)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/mcp/ashare/breadth', async (_req, res) => {
+  try {
+    const data = await fetchAShareData()
+    res.json({
+      advance: data.advance,
+      decline: data.decline,
+      flat: data.flat,
+      limitUpCount: data.limitUpCount,
+      limitDownCount: data.limitDownCount,
+      promotionRate: data.promotionRate,
+      promotedCount: data.promotedCount,
+      promotionTotal: data.promotionTotal,
+      newHighCount: data.newHighCount,
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/mcp/ashare/limit-pool', async (req, res) => {
+  const direction = (req.query.direction as string) ?? 'up'
+  if (direction !== 'up' && direction !== 'down') {
+    res.status(400).json({ error: '?direction= must be "up" or "down"' })
+    return
+  }
+  try {
+    const data = await fetchAShareData()
+    const stocks = direction === 'up' ? data.limitUpStocks : data.limitDownStocks
+    const count = direction === 'up' ? data.limitUpCount : data.limitDownCount
+    res.json({ count, stocks })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/mcp/ashare/indices', async (_req, res) => {
+  try {
+    const data = await fetchAShareData()
+    res.json(data.indices)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// ── MCP Routes: News (RSS) ──────────────────────────────
+
+app.get('/api/mcp/news/summary', async (_req, res) => {
+  try {
+    const items = await fetchNewsFeed()
+    res.json(items)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// ── MCP Routes: Macro data ───────────────────────────────
+
+app.get('/api/mcp/macro/indicators', async (_req, res) => {
+  try {
+    const data = await fetchMacroData()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// ── MCP Routes: RAG (Vector Search) ─────────────────────
+
+app.get('/api/mcp/rag/status', async (_req, res) => {
+  try {
+    const count = await getDocumentCount()
+    res.json({ status: 'ok', documentCount: count })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/mcp/rag/search', async (req, res) => {
+  const { query, type, topK } = req.query
+  if (!query || typeof query !== 'string') {
+    res.status(400).json({ error: 'Missing ?query= parameter' })
+    return
+  }
+  try {
+    const k = topK ? parseInt(topK as string, 10) : 5
+    const results = await searchSimilar(query, k, type as string)
+    res.json(results)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/mcp/rag/sync', async (req, res) => {
+  const { tradeGroups, reviewNotes, reset } = req.body
+  if (!tradeGroups || !Array.isArray(tradeGroups)) {
+    res.status(400).json({ error: 'Missing tradeGroups array in body' })
+    return
+  }
+  try {
+    const result = reset
+      ? await resetAndSyncAll(tradeGroups, reviewNotes || {})
+      : await syncTradeGroups(tradeGroups, reviewNotes || {})
+    res.json(result)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     res.status(500).json({ error: message })

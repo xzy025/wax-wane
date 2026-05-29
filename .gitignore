@@ -11,6 +11,9 @@ dist/
 .env.*.local
 server/.env
 
+# Vector index data (generated, not source)
+server/data/
+
 # OS files
 .DS_Store
 Thumbs.db

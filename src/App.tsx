@@ -13,6 +13,7 @@ import {
 import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
 import { AgentProvider } from './agent/agentStore'
+import { useRagSync } from './hooks/useRagSync'
 import SegmentedControl from './components/SegmentedControl'
 import MacroBanner from './components/MacroBanner'
 import AShareBanner from './components/AShareBanner'
@@ -44,6 +45,9 @@ function AppLayout() {
   const t = translations[language]
   const { tradeGroups } = useAppState()
   const [selectedGroupId, setSelectedGroupId] = useState(tradeGroups[0]?.id ?? '')
+
+  // Auto-sync RAG when trade data changes
+  useRagSync()
 
   const activeView = useMemo(() => {
     const path = location.pathname.replace('/', '')

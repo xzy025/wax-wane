@@ -54,6 +54,36 @@
   background: var(--red-soft);
 }
 
+.ai-chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-chat-review {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--orange);
+  background: var(--orange-soft);
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.ai-chat-review:hover:not(:disabled) {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.ai-chat-review:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .ai-chat-messages {
   flex: 1;
   overflow-y: auto;

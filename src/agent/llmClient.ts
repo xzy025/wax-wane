@@ -71,14 +71,18 @@ export async function* streamChat(
         return
       }
 
-      let parsed: SSEChunk
+      let parsed: Record<string, unknown>
       try {
         parsed = JSON.parse(data)
       } catch {
         continue
       }
 
-      const delta = parsed.choices?.[0]?.delta
+      if (typeof parsed.error === 'string') {
+        throw new Error(`SSE error: ${parsed.error}`)
+      }
+
+      const delta = (parsed as SSEChunk).choices?.[0]?.delta
       if (!delta) continue
 
       // Stream text content

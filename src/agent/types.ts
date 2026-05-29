@@ -56,7 +56,7 @@ export interface ToolDefinition {
 
 export interface ToolModule {
   readonly schema: ToolDefinition
-  readonly execute: (args: Record<string, unknown>, state: AppState) => unknown
+  readonly execute: (args: Record<string, unknown>, state: AppState) => unknown | Promise<unknown>
 }
 
 // --- Agent Events (yielded by agent loop to UI) ---

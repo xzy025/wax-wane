@@ -68,16 +68,51 @@ export function serializeAnalytics(groups: TradeGroup[]): string {
 export function buildFullContext(state: AppState): string {
   const parts: string[] = []
 
+  // Always include full analytics
   parts.push(serializeAnalytics(state.tradeGroups))
 
-  if (state.tradeGroups.length > 0) {
+  if (state.tradeGroups.length === 0) return parts.join('\n')
+
+  // Compact list of ALL trade groups (for quick reference)
+  parts.push('')
+  parts.push('## All Trade Groups (compact)')
+  for (const group of state.tradeGroups) {
+    const status = group.closed ? `${group.days}d` : 'OPEN'
+    const pnl = group.pnl >= 0 ? `+${group.pnl}` : `${group.pnl}`
+    parts.push(`- ${group.name} (${group.code}): ${pnl} CNY, ${group.returnRate}%, ${status}, ${group.status}`)
+  }
+
+  // Full detail for RECENT trade groups only (last 5)
+  const recentGroups = [...state.tradeGroups]
+    .sort((a, b) => new Date(b.opened).getTime() - new Date(a.opened).getTime())
+    .slice(0, 5)
+
+  parts.push('')
+  parts.push('## Recent Trade Groups (detailed)')
+  for (const group of recentGroups) {
     parts.push('')
-    parts.push('## Trade Groups')
-    for (const group of state.tradeGroups) {
-      parts.push('')
-      parts.push(serializeTradeGroup(group, state.reviewNotes[group.id]))
+    parts.push(serializeTradeGroup(group, state.reviewNotes[group.id]))
+  }
+
+  // Risk alerts (unreviewed, consecutive losses)
+  const unreviewed = state.tradeGroups.filter((g) => g.status === 'Not reviewed')
+  const openLosers = state.tradeGroups.filter((g) => !g.closed && g.pnl < 0)
+
+  if (unreviewed.length > 0 || openLosers.length > 0) {
+    parts.push('')
+    parts.push('## ⚠️ Alerts')
+    if (unreviewed.length > 0) {
+      parts.push(`- ${unreviewed.length} trade group(s) not reviewed`)
+    }
+    if (openLosers.length > 0) {
+      parts.push(`- ${openLosers.length} open losing position(s)`)
     }
   }
+
+  // Hint for semantic search
+  parts.push('')
+  parts.push('## Note')
+  parts.push('For historical trade details not shown above, use the semanticSearch tool to find relevant experiences by topic.')
 
   const context = parts.join('\n')
   return context

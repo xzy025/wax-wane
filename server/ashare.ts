@@ -359,6 +359,100 @@ async function fetchNewHighStocks(): Promise<{ count: number; stocks: NewHighSto
   return { count: stocks.length, stocks }
 }
 
+// ── Index intraday trends (分时数据) ───────────────────────
+
+export interface TrendPoint {
+  time: string
+  price: number
+  volume: number
+  avgPrice: number
+}
+
+const INDEX_SECIDS: Record<string, string> = {
+  '000001': '1.000001', // 上证指数
+  '399001': '0.399001', // 深证成指
+  '399006': '0.399006', // 创业板指
+  '000016': '1.000016', // 上证50
+  '000300': '1.000300', // 沪深300
+  '000905': '1.000905', // 中证500
+}
+
+export async function fetchIndexTrends(code: string): Promise<{ name: string; trends: TrendPoint[] }> {
+  const secid = INDEX_SECIDS[code] ?? (code.startsWith('6') ? `1.${code}` : `0.${code}`)
+  const url = `https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58`
+  const res = await fetch(url, { headers: EM_HEADERS })
+  if (!res.ok) throw new Error(`East Money trends: ${res.status}`)
+  const json = await res.json()
+
+  const name = toStr(json?.data?.name)
+  const preClose = toNum(json?.data?.preClose)
+  const trendsRaw = json?.data?.trends as string[] | undefined
+
+  const trends: TrendPoint[] = []
+  if (trendsRaw) {
+    for (const line of trendsRaw) {
+      const parts = line.split(',')
+      if (parts.length >= 6) {
+        trends.push({
+          time: parts[0],
+          price: parseFloat(parts[1]) || preClose,
+          volume: parseFloat(parts[5]) || 0,
+          avgPrice: parseFloat(parts[2]) || preClose,
+        })
+      }
+    }
+  }
+
+  return { name, trends }
+}
+
+// ── Individual stock quote ───────────────────────────────
+
+export interface StockQuote {
+  code: string
+  name: string
+  price: number
+  changePct: number
+  changeAmt: number
+  volume: number
+  turnover: number
+  high: number
+  low: number
+  open: number
+  prevClose: number
+  marketCap: number
+  pe: number
+}
+
+export async function fetchStockQuote(stockCode: string): Promise<StockQuote | null> {
+  // Determine market prefix: 6xx = Shanghai (1.), 0xx/3xx = Shenzhen (0.)
+  const prefix = stockCode.startsWith('6') ? '1' : '0'
+  const secid = `${prefix}.${stockCode}`
+  const fields = 'f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18,f20,f9'
+  const url = `https://push2.eastmoney.com/api/qt/stock/get?secid=${secid}&fields=${fields}`
+  const res = await fetch(url, { headers: EM_HEADERS })
+  if (!res.ok) return null
+  const json = await res.json()
+  const d = json?.data
+  if (!d) return null
+
+  return {
+    code: toStr(d.f12),
+    name: toStr(d.f14),
+    price: toNum(d.f2),
+    changePct: toNum(d.f3),
+    changeAmt: toNum(d.f4),
+    volume: toNum(d.f5),
+    turnover: toNum(d.f6),
+    high: toNum(d.f15),
+    low: toNum(d.f16),
+    open: toNum(d.f17),
+    prevClose: toNum(d.f18),
+    marketCap: toNum(d.f20),
+    pe: toNum(d.f9),
+  }
+}
+
 // ── Main export ────────────────────────────────────────────
 
 export async function fetchAShareData(): Promise<AShareData> {

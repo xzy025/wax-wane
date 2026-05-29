@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Trash2, Sparkles, Loader2, Square } from 'lucide-react'
+import { Send, Trash2, Sparkles, Loader2, Square, ClipboardCheck } from 'lucide-react'
 import {
   useAgentState,
   useAgentDispatch,
@@ -146,10 +146,10 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           }
         }
 
-        // Finalize: update the assistant message with final content
+        // Finalize: write accumulated content to the store
         agentDispatch({
           type: 'STREAM_TOKEN',
-          payload: { messageId: assistantMsgId, token: '' },
+          payload: { messageId: assistantMsgId, token: fullContent },
         })
 
         // Store in LLM history for future context
@@ -193,6 +193,10 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
     }
   }
 
+  function handleReview() {
+    sendMessage('请开始今日复盘')
+  }
+
   function handleStop() {
     abortRef.current?.abort()
   }
@@ -204,16 +208,28 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           <Sparkles size={16} />
           <span>{t.ai?.chatTitle ?? 'AI Assistant'}</span>
         </div>
-        {messages.length > 0 && (
+        <div className="ai-chat-header-actions">
           <button
-            className="ai-chat-clear"
+            className="ai-chat-review"
             type="button"
-            onClick={handleClear}
-            title={t.ai?.clearChat ?? 'Clear'}
+            onClick={handleReview}
+            disabled={agentState.isProcessing}
+            title="一键复盘"
           >
-            <Trash2 size={14} />
+            <ClipboardCheck size={14} />
+            <span>复盘</span>
           </button>
-        )}
+          {messages.length > 0 && (
+            <button
+              className="ai-chat-clear"
+              type="button"
+              onClick={handleClear}
+              title={t.ai?.clearChat ?? 'Clear'}
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="ai-chat-messages">

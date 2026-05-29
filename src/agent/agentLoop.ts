@@ -4,7 +4,7 @@ import { toolDefinitions, executeTool } from './tools'
 import { buildSystemPrompt } from './prompts'
 import { streamChat } from './llmClient'
 
-const MAX_ITERATIONS = 5
+const MAX_ITERATIONS = 10
 
 export async function* runAgent(
   userMessage: string,
@@ -72,7 +72,7 @@ export async function* runAgent(
         // Empty args
       }
 
-      const result = executeTool(toolCall.function.name, args, appState)
+      const result = await executeTool(toolCall.function.name, args, appState)
 
       yield { type: 'tool_result', toolName: toolCall.function.name, toolId: toolCall.id, result }
 
