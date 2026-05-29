@@ -6,6 +6,15 @@ import { fetchNewsFeed } from './news'
 import { fetchMacroData } from './macro'
 import { searchSimilar, getDocumentCount } from './vectorStore'
 import { syncTradeGroups, resetAndSyncAll } from './ragSync'
+import {
+  insertImportBatch,
+  insertTrade,
+  getTrades,
+  insertTradeGroup,
+  getTradeGroups,
+  upsertReviewNote,
+  getReviewNote,
+} from './database'
 
 config()
 
@@ -446,6 +455,89 @@ app.post('/api/mcp/rag/sync', async (req, res) => {
       ? await resetAndSyncAll(tradeGroups, reviewNotes || {})
       : await syncTradeGroups(tradeGroups, reviewNotes || {})
     res.json(result)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// ── MCP Routes: Database ────────────────────────────────────
+
+app.get('/api/db/trades', async (req, res) => {
+  try {
+    const { stock_code, start_date, end_date, side, limit } = req.query
+    const trades = await getTrades({
+      stock_code: stock_code as string,
+      start_date: start_date as string,
+      end_date: end_date as string,
+      side: side as 'buy' | 'sell',
+      limit: limit ? parseInt(limit as string, 10) : undefined,
+    })
+    res.json(trades)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/db/trades', async (req, res) => {
+  try {
+    await insertTrade(req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/db/trade-groups', async (req, res) => {
+  try {
+    const { status, stock_code } = req.query
+    const groups = await getTradeGroups({
+      status: status as 'open' | 'closed',
+      stock_code: stock_code as string,
+    })
+    res.json(groups)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/db/trade-groups', async (req, res) => {
+  try {
+    await insertTradeGroup(req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/db/review-notes/:groupId', async (req, res) => {
+  try {
+    const note = await getReviewNote(req.params.groupId)
+    res.json(note)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.put('/api/db/review-notes/:groupId', async (req, res) => {
+  try {
+    await upsertReviewNote({ trade_group_id: req.params.groupId, ...req.body })
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/db/import-batches', async (req, res) => {
+  try {
+    await insertImportBatch(req.body)
+    res.json({ success: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     res.status(500).json({ error: message })
