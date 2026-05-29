@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CalendarDays, Copy, Check } from 'lucide-react'
+import { CalendarDays, Copy, Check, TrendingUp, TrendingDown, BarChart2, AlertTriangle } from 'lucide-react'
 import {
   BarChart,
   Bar,
@@ -18,6 +18,7 @@ import {
   computeTotalPnl,
   computeDisciplineScore,
 } from '../utils/metrics'
+import { computeQuantMetrics } from '../utils/quantMetrics'
 import { useAppState } from '../store'
 import type { Translation } from '../types'
 
@@ -28,6 +29,9 @@ interface AnalyticsViewProps {
 export default function AnalyticsView({ t }: AnalyticsViewProps) {
   const { tradeGroups, reviewNotes } = useAppState()
   const closedGroups = tradeGroups.filter((g) => g.closed)
+
+  // Quantitative metrics
+  const quantMetrics = useMemo(() => computeQuantMetrics(tradeGroups), [tradeGroups])
 
   const mistakeData = useMemo(() => {
     const map = new Map<string, { count: number; pnl: number }>()
@@ -232,6 +236,99 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
 
   return (
     <div className="content-grid">
+      {/* Quantitative Metrics */}
+      <article className="panel wide">
+        <div className="panel-title">
+          <div>
+            <h2>量化指标</h2>
+            <p>基于闭环交易数据计算的专业量化指标</p>
+          </div>
+          <BarChart2 size={20} aria-hidden="true" />
+        </div>
+        {closedGroups.length > 0 ? (
+          <div className="quant-metrics-grid">
+            <div className="quant-metric">
+              <div className="quant-metric-icon" style={{ color: 'var(--green)' }}>
+                <TrendingUp size={16} />
+              </div>
+              <div>
+                <div className="quant-metric-label">夏普比率</div>
+                <div className="quant-metric-value">{quantMetrics.sharpeRatio.toFixed(2)}</div>
+                <div className="quant-metric-hint">
+                  {quantMetrics.sharpeRatio > 1 ? '优秀' : quantMetrics.sharpeRatio > 0.5 ? '良好' : '偏低'}
+                </div>
+              </div>
+            </div>
+            <div className="quant-metric">
+              <div className="quant-metric-icon" style={{ color: 'var(--red)' }}>
+                <AlertTriangle size={16} />
+              </div>
+              <div>
+                <div className="quant-metric-label">最大回撤</div>
+                <div className="quant-metric-value">{quantMetrics.maxDrawdownPercent.toFixed(1)}%</div>
+                <div className="quant-metric-hint">
+                  {quantMetrics.maxDrawdownPercent < 10 ? '控制良好' : quantMetrics.maxDrawdownPercent < 20 ? '中等风险' : '风险偏高'}
+                </div>
+              </div>
+            </div>
+            <div className="quant-metric">
+              <div className="quant-metric-icon" style={{ color: 'var(--purple)' }}>
+                <TrendingDown size={16} />
+              </div>
+              <div>
+                <div className="quant-metric-label">年化收益</div>
+                <div className="quant-metric-value">{quantMetrics.annualizedReturn.toFixed(1)}%</div>
+                <div className="quant-metric-hint">
+                  {quantMetrics.annualizedReturn > 20 ? '高收益' : quantMetrics.annualizedReturn > 0 ? '正收益' : '负收益'}
+                </div>
+              </div>
+            </div>
+            <div className="quant-metric">
+              <div className="quant-metric-icon" style={{ color: 'var(--orange)' }}>
+                <BarChart2 size={16} />
+              </div>
+              <div>
+                <div className="quant-metric-label">盈亏比</div>
+                <div className="quant-metric-value">{quantMetrics.payoffRatio.toFixed(2)}</div>
+                <div className="quant-metric-hint">
+                  {quantMetrics.payoffRatio > 2 ? '优秀' : quantMetrics.payoffRatio > 1 ? '良好' : '偏低'}
+                </div>
+              </div>
+            </div>
+            <div className="quant-metric">
+              <div className="quant-metric-icon" style={{ color: 'var(--green)' }}>
+                <TrendingUp size={16} />
+              </div>
+              <div>
+                <div className="quant-metric-label">盈利因子</div>
+                <div className="quant-metric-value">
+                  {quantMetrics.profitFactor === Infinity ? '∞' : quantMetrics.profitFactor.toFixed(2)}
+                </div>
+                <div className="quant-metric-hint">
+                  {quantMetrics.profitFactor > 2 ? '优秀' : quantMetrics.profitFactor > 1 ? '盈利' : '亏损'}
+                </div>
+              </div>
+            </div>
+            <div className="quant-metric">
+              <div className="quant-metric-icon" style={{ color: 'var(--purple)' }}>
+                <TrendingUp size={16} />
+              </div>
+              <div>
+                <div className="quant-metric-label">期望值</div>
+                <div className="quant-metric-value">{formatMoney(quantMetrics.expectancy, { withSign: true })}</div>
+                <div className="quant-metric-hint">
+                  {quantMetrics.expectancy > 0 ? '正期望' : '负期望'}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--muted)', padding: '16px 0' }}>
+            暂无闭环交易数据，无法计算量化指标。
+          </p>
+        )}
+      </article>
+
       <article className="panel">
         <div className="panel-title">
           <div>
