@@ -12,6 +12,9 @@ import { getLimitPool } from './getLimitPool'
 import { getIndexTrends } from './getIndexTrends'
 import { getNewsSummary } from './getNewsSummary'
 import { semanticSearch } from './semanticSearch'
+import { analyzeWithTheory } from './analyzeWithTheory'
+import { analyzeTradePatterns } from './analyzeTradePatterns'
+import { generateImprovementPlan } from './generateImprovementPlan'
 
 const toolRegistry: Record<string, ToolModule> = {
   queryTradeHistory: queryTrades,
@@ -26,6 +29,9 @@ const toolRegistry: Record<string, ToolModule> = {
   getIndexTrends: getIndexTrends,
   getNewsSummary: getNewsSummary,
   semanticSearch: semanticSearch,
+  analyzeWithTheory: analyzeWithTheory,
+  analyzeTradePatterns: analyzeTradePatterns,
+  generateImprovementPlan: generateImprovementPlan,
 }
 
 export const toolDefinitions: ToolDefinition[] = Object.values(toolRegistry).map((t) => t.schema)
