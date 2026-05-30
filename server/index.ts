@@ -262,12 +262,21 @@ app.post('/api/agent/chat', async (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.setHeader('X-Accel-Buffering', 'no')
 
-  const protocol = getProtocol(apiUrl)
+  // Detect MiMo API
+  const isMiMo = apiUrl.includes('xiaomimimo.com') || apiUrl.includes('mimo')
+
+  // For MiMo, always use OpenAI-compatible format
+  const protocol = isMiMo ? 'openai' : getProtocol(apiUrl)
 
   // For Anthropic protocol, ensure URL ends with /v1/messages
   let actualUrl = apiUrl
   if (protocol === 'anthropic' && !apiUrl.endsWith('/v1/messages')) {
     actualUrl = apiUrl.replace(/\/+$/, '') + '/v1/messages'
+  }
+
+  // For MiMo, ensure URL ends with /v1/chat/completions
+  if (isMiMo && !actualUrl.endsWith('/v1/chat/completions')) {
+    actualUrl = actualUrl.replace(/\/+$/, '') + '/v1/chat/completions'
   }
 
   try {
@@ -283,9 +292,17 @@ app.post('/api/agent/chat', async (req, res) => {
       }
     } else {
       body = toOpenAIRequest(messages, tools ?? [], model)
-      headers = {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+      // MiMo uses api-key header, others use Authorization: Bearer
+      if (isMiMo) {
+        headers = {
+          'api-key': apiKey,
+          'Content-Type': 'application/json',
+        }
+      } else {
+        headers = {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        }
       }
     }
 
