@@ -13,13 +13,14 @@ export async function* runAgent(
   language: 'zh' | 'en' = 'zh',
   signal?: AbortSignal,
   llmConfig?: LLMConfig,
+  images?: string[],
 ): AsyncGenerator<AgentEvent> {
   const systemPrompt = buildSystemPrompt(appState, language)
 
   const messages: AgentMessage[] = [
     { role: 'system', content: systemPrompt },
     ...conversationHistory,
-    { role: 'user', content: userMessage },
+    { role: 'user', content: userMessage, images },
   ]
 
   let iteration = 0

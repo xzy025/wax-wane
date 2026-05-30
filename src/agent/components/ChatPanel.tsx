@@ -223,11 +223,12 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
 
       try {
         const profile = llmProfiles[llmConfig.id]
+        const imagesToSend = pastedImages.length > 0 ? pastedImages : undefined
         const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal, {
           apiUrl: llmConfig.apiUrl,
           model: llmConfig.model,
           apiKey: profile?.apiKey || llmConfig.apiKey || undefined,
-        })
+        }, imagesToSend)
         let fullContent = ''
 
         for await (const event of generator) {
