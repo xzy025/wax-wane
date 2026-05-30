@@ -108,11 +108,37 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   const [showLLMSettings, setShowLLMSettings] = useState(false)
   const [editingKeyId, setEditingKeyId] = useState<string | null>(null)
   const [editingKeyValue, setEditingKeyValue] = useState('')
+  const [pastedImages, setPastedImages] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   const quickPrompts = language === 'zh' ? QUICK_PROMPTS_ZH : QUICK_PROMPTS_EN
+
+  // Handle image paste
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault()
+        const blob = item.getAsFile()
+        if (!blob) continue
+
+        const reader = new FileReader()
+        reader.onload = () => {
+          const base64 = reader.result as string
+          setPastedImages((prev) => [...prev, base64])
+        }
+        reader.readAsDataURL(blob)
+      }
+    }
+  }, [])
+
+  const removeImage = useCallback((index: number) => {
+    setPastedImages((prev) => prev.filter((_, i) => i !== index))
+  }, [])
 
   const handleLLMChange = useCallback((preset: LLMConfig) => {
     const profile = llmProfiles[preset.id]
@@ -150,25 +176,32 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
 
   const sendMessage = useCallback(
     async (text: string) => {
-      if (!text.trim() || agentState.isProcessing) return
+      if ((!text.trim() && pastedImages.length === 0) || agentState.isProcessing) return
 
       const userMsg: ConversationMessage = {
         id: `msg-${Date.now()}`,
         role: 'user',
-        content: text.trim(),
+        content: text.trim() || '请分析这张图片',
         timestamp: Date.now(),
+        images: pastedImages.length > 0 ? pastedImages : undefined,
       }
 
       agentDispatch({ type: 'ADD_USER_MESSAGE', payload: userMsg })
       agentDispatch({ type: 'SET_PROCESSING', payload: true })
       setInput('')
+      setPastedImages([])
 
       // Build LLM history from conversation
       const convId = agentState.activeConversationId!
       const existingHistory = historyRef.current.get(convId) ?? []
+      const userMessage: AgentMessage = {
+        role: 'user',
+        content: text.trim() || '请分析这张图片',
+        images: pastedImages.length > 0 ? pastedImages : undefined,
+      }
       const llmHistory: AgentMessage[] = [
         ...existingHistory,
-        { role: 'user', content: text.trim() },
+        userMessage,
       ]
 
       // Create assistant message placeholder
@@ -429,13 +462,31 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         <div ref={messagesEndRef} />
       </div>
 
+      {pastedImages.length > 0 && (
+        <div className="ai-chat-images-preview">
+          {pastedImages.map((img, index) => (
+            <div key={index} className="ai-chat-image-wrapper">
+              <img src={img} alt={`Preview ${index + 1}`} className="ai-chat-image-thumb" />
+              <button
+                type="button"
+                className="ai-chat-image-remove"
+                onClick={() => removeImage(index)}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <form className="ai-chat-input" onSubmit={handleSubmit}>
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={t.ai?.inputPlaceholder ?? 'Ask a question...'}
+          onPaste={handlePaste}
+          placeholder={pastedImages.length > 0 ? '添加说明或直接发送...' : (t.ai?.inputPlaceholder ?? 'Ask a question... (Ctrl+V to paste image)')}
           disabled={agentState.isProcessing}
         />
         {isStreaming ? (
@@ -443,7 +494,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
             <Square size={18} />
           </button>
         ) : (
-          <button type="submit" disabled={agentState.isProcessing || !input.trim()}>
+          <button type="submit" disabled={agentState.isProcessing || (!input.trim() && pastedImages.length === 0)}>
             {agentState.isProcessing ? <Loader2 size={18} className="ai-spin" /> : <Send size={18} />}
           </button>
         )}

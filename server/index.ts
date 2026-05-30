@@ -42,7 +42,7 @@ function getProtocol(apiUrl: string): 'anthropic' | 'openai' {
 
 // --- Anthropic format conversion ---
 
-function toAnthropicRequest(messages: Array<{ role: string; content: string; tool_call_id?: string; tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }> }>, tools: Array<{ name: string; description: string; parameters: unknown }>, model: string) {
+function toAnthropicRequest(messages: Array<{ role: string; content: string; images?: string[]; tool_call_id?: string; tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }> }>, tools: Array<{ name: string; description: string; parameters: unknown }>, model: string) {
   // Extract system message
   const systemMsg = messages.find((m) => m.role === 'system')
   const nonSystemMessages = messages.filter((m) => m.role !== 'system')
@@ -79,6 +79,25 @@ function toAnthropicRequest(messages: Array<{ role: string; content: string; too
         })
       }
       anthropicMessages.push({ role: 'assistant', content })
+    } else if (msg.role === 'user' && msg.images && msg.images.length > 0) {
+      // User message with images - use content blocks
+      const content: Array<unknown> = []
+      for (const img of msg.images) {
+        // Extract base64 data and media type
+        const match = img.match(/^data:(image\/\w+);base64,(.+)$/)
+        if (match) {
+          content.push({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: match[1],
+              data: match[2],
+            },
+          })
+        }
+      }
+      content.push({ type: 'text', text: msg.content })
+      anthropicMessages.push({ role: 'user', content })
     } else {
       anthropicMessages.push({ role: msg.role, content: msg.content })
     }
@@ -183,10 +202,26 @@ async function* anthropicToOpenAIStream(reader: ReadableStreamDefaultReader<Uint
 
 // --- OpenAI format (pass-through) ---
 
-function toOpenAIRequest(messages: Array<{ role: string; content: string }>, tools: Array<{ name: string; description: string; parameters: unknown }>, model: string) {
+function toOpenAIRequest(messages: Array<{ role: string; content: string; images?: string[] }>, tools: Array<{ name: string; description: string; parameters: unknown }>, model: string) {
+  // Convert messages to OpenAI format with image support
+  const openaiMessages = messages.map((msg) => {
+    if (msg.role === 'user' && msg.images && msg.images.length > 0) {
+      // User message with images
+      const content: Array<unknown> = [{ type: 'text', text: msg.content }]
+      for (const img of msg.images) {
+        content.push({
+          type: 'image_url',
+          image_url: { url: img },
+        })
+      }
+      return { role: msg.role, content }
+    }
+    return { role: msg.role, content: msg.content }
+  })
+
   const body: Record<string, unknown> = {
     model,
-    messages,
+    messages: openaiMessages,
     stream: true,
   }
 

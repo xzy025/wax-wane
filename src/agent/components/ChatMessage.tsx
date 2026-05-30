@@ -10,6 +10,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user'
   const hasContent = !!message.content
   const hasToolCalls = !!message.toolCalls?.length
+  const hasImages = !!message.images?.length
 
   return (
     <div className={`ai-msg ai-msg-${message.role}`}>
@@ -19,6 +20,18 @@ export function ChatMessage({ message }: ChatMessageProps) {
           <div className="ai-msg-tools">
             {message.toolCalls!.map((tc) => (
               <ToolCallCard key={tc.toolId} toolCall={tc} />
+            ))}
+          </div>
+        )}
+        {hasImages && (
+          <div className="ai-msg-images">
+            {message.images!.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt={`Pasted image ${index + 1}`}
+                className="ai-msg-image"
+              />
             ))}
           </div>
         )}

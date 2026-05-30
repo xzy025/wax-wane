@@ -13,6 +13,7 @@ export interface SystemMessage {
 export interface UserMessage {
   readonly role: 'user'
   readonly content: string
+  readonly images?: readonly string[]  // base64 encoded images
 }
 
 export interface AssistantMessage {
@@ -82,6 +83,7 @@ export interface ConversationMessage {
   readonly content: string
   readonly timestamp: number
   readonly toolCalls?: readonly ToolCallInfo[]
+  readonly images?: readonly string[]  // base64 encoded images
 }
 
 export interface ToolCallInfo {
