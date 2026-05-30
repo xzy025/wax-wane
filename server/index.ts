@@ -256,7 +256,13 @@ app.post('/api/agent/chat', async (req, res) => {
   // Use request config or fall back to environment variables
   const apiUrl = llmConfig?.apiUrl ?? process.env.LLM_API_URL
   const apiKey = llmConfig?.apiKey ?? process.env.LLM_API_KEY
-  const model = llmConfig?.model ?? process.env.LLM_MODEL ?? 'deepseek-chat'
+  let model = llmConfig?.model ?? process.env.LLM_MODEL ?? 'deepseek-chat'
+
+  // MiMo: auto-switch to mimo-v2.5 when images are present (mimo-v2.5-pro doesn't support images)
+  if (hasImages && model === 'mimo-v2.5-pro') {
+    model = 'mimo-v2.5'
+    console.log('[Agent] Auto-switched to mimo-v2.5 for image support')
+  }
 
   if (!apiUrl || !apiKey) {
     res.status(500).json({
