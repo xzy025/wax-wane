@@ -15,6 +15,7 @@ import { semanticSearch } from './semanticSearch'
 import { analyzeWithTheory } from './analyzeWithTheory'
 import { analyzeTradePatterns } from './analyzeTradePatterns'
 import { generateImprovementPlan } from './generateImprovementPlan'
+import { screenStocks } from './screenStocks'
 
 const toolRegistry: Record<string, ToolModule> = {
   queryTradeHistory: queryTrades,
@@ -32,6 +33,7 @@ const toolRegistry: Record<string, ToolModule> = {
   analyzeWithTheory: analyzeWithTheory,
   analyzeTradePatterns: analyzeTradePatterns,
   generateImprovementPlan: generateImprovementPlan,
+  screenStocks: screenStocks,
 }
 
 export const toolDefinitions: ToolDefinition[] = Object.values(toolRegistry).map((t) => t.schema)
