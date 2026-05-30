@@ -7,6 +7,7 @@ import { fetchMacroData } from './macro'
 import { searchSimilar, getDocumentCount } from './vectorStore'
 import { syncTradeGroups, resetAndSyncAll } from './ragSync'
 import {
+  initDatabase,
   insertImportBatch,
   insertTrade,
   getTrades,
@@ -14,7 +15,7 @@ import {
   getTradeGroups,
   upsertReviewNote,
   getReviewNote,
-} from './database'
+} from './pgDatabase'
 import {
   getMemory,
   saveMemory,
@@ -626,10 +627,24 @@ app.patch('/api/memory/:userId/summary', async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  const protocol = process.env.LLM_API_URL ? getProtocol(process.env.LLM_API_URL) : 'unknown'
-  console.log(`Agent server running on http://localhost:${PORT}`)
-  console.log(`LLM configured: ${!!(process.env.LLM_API_URL && process.env.LLM_API_KEY)}`)
-  console.log(`Protocol: ${protocol}`)
-  console.log(`Model: ${process.env.LLM_MODEL}`)
-})
+// Initialize database and start server
+async function startServer() {
+  try {
+    await initDatabase()
+    console.log('[Server] PostgreSQL database initialized')
+  } catch (err) {
+    console.error('[Server] Failed to initialize database:', err)
+    process.exit(1)
+  }
+
+  app.listen(PORT, () => {
+    const protocol = process.env.LLM_API_URL ? getProtocol(process.env.LLM_API_URL) : 'unknown'
+    console.log(`Agent server running on http://localhost:${PORT}`)
+    console.log(`LLM configured: ${!!(process.env.LLM_API_URL && process.env.LLM_API_KEY)}`)
+    console.log(`Protocol: ${protocol}`)
+    console.log(`Model: ${process.env.LLM_MODEL}`)
+    console.log(`Database: PostgreSQL (pgvector)`)
+  })
+}
+
+startServer()

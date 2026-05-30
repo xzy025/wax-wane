@@ -1,22 +1,12 @@
-// Embedded vector store using Vectra (pure JS, no external dependencies)
-import { LocalIndex } from 'vectra'
+// Vector store using PostgreSQL pgvector
 import { embedText } from './embedding'
-import path from 'path'
-
-const INDEX_DIR = path.join(import.meta.dirname, 'data', 'vector-index')
-const COLLECTION_NAME = 'trade_memory'
-
-let index: LocalIndex | null = null
-
-async function getIndex(): Promise<LocalIndex> {
-  if (!index) {
-    index = new LocalIndex(INDEX_DIR)
-    if (!(await index.isIndexCreated())) {
-      await index.createIndex()
-    }
-  }
-  return index
-}
+import {
+  searchSimilarTradeGroups,
+  searchSimilarReviewNotes,
+  updateTradeGroupEmbedding,
+  updateReviewNoteEmbedding,
+  pool,
+} from './pgDatabase'
 
 export interface VectorDocument {
   id: string
@@ -32,30 +22,15 @@ export interface SearchResult {
 }
 
 export async function addDocument(doc: VectorDocument): Promise<void> {
-  const idx = await getIndex()
   const embedding = await embedText(doc.text)
 
-  // Delete existing document with same ID
-  try {
-    const existing = await idx.listItems()
-    for (const item of existing) {
-      if (item.id === doc.id) {
-        await idx.deleteItem(item.id)
-        break
-      }
-    }
-  } catch {
-    // Ignore errors during cleanup
+  if (doc.id.startsWith('trade_group:')) {
+    const tradeGroupId = doc.id.replace('trade_group:', '')
+    await updateTradeGroupEmbedding(tradeGroupId, embedding)
+  } else if (doc.id.startsWith('review:')) {
+    const tradeGroupId = doc.id.replace('review:', '')
+    await updateReviewNoteEmbedding(tradeGroupId, embedding)
   }
-
-  await idx.insertItem({
-    id: doc.id,
-    vector: embedding,
-    metadata: {
-      text: doc.text,
-      ...doc.metadata,
-    },
-  })
 }
 
 export async function searchSimilar(
@@ -63,51 +38,66 @@ export async function searchSimilar(
   topK: number = 5,
   type?: string,
 ): Promise<SearchResult[]> {
-  const idx = await getIndex()
   const queryEmbedding = await embedText(query)
 
-  const results = await idx.queryItems(queryEmbedding, topK * 2) // Get more results for filtering
+  let results: SearchResult[] = []
 
-  let items = results.map((r) => ({
-    id: r.item.id,
-    text: (r.item.metadata as Record<string, unknown>).text as string,
-    metadata: r.item.metadata as Record<string, unknown>,
-    score: r.score,
-  }))
-
-  // Filter by type if specified
-  if (type && type !== 'all') {
-    items = items.filter((item) => item.metadata.type === type)
+  if (!type || type === 'all' || type === 'trade_group') {
+    const tradeGroups = await searchSimilarTradeGroups(queryEmbedding, topK)
+    results.push(...tradeGroups.map((row) => ({
+      id: `trade_group:${row.id}`,
+      text: `${row.stock_name} (${row.stock_code}): ${row.pnl} CNY, ${row.return_rate}%, ${row.strategy}`,
+      metadata: {
+        type: 'trade_group',
+        tradeGroupId: row.id,
+        stockCode: row.stock_code,
+        stockName: row.stock_name,
+        pnl: row.pnl,
+        strategy: row.strategy,
+        mistakes: JSON.parse(row.mistakes_json as string || '[]'),
+      },
+      score: 1 - (row.distance as number), // Convert distance to similarity
+    })))
   }
 
-  return items.slice(0, topK)
+  if (!type || type === 'all' || type === 'review_note') {
+    const reviewNotes = await searchSimilarReviewNotes(queryEmbedding, topK)
+    results.push(...reviewNotes.map((row) => ({
+      id: `review:${row.trade_group_id}`,
+      text: `复盘笔记: 买入${row.buy_reason || '无'}, 卖出${row.sell_reason || '无'}, 教训${row.lesson || '无'}`,
+      metadata: {
+        type: 'review_note',
+        tradeGroupId: row.trade_group_id,
+        buyReason: row.buy_reason,
+        sellReason: row.sell_reason,
+        lesson: row.lesson,
+      },
+      score: 1 - (row.distance as number),
+    })))
+  }
+
+  // Sort by score and limit
+  results.sort((a, b) => b.score - a.score)
+  return results.slice(0, topK)
 }
 
 export async function deleteDocument(id: string): Promise<void> {
-  const idx = await getIndex()
-  try {
-    const existing = await idx.listItems()
-    for (const item of existing) {
-      if (item.id === id) {
-        await idx.deleteItem(item.id)
-        break
-      }
-    }
-  } catch {
-    // Document doesn't exist
+  if (id.startsWith('trade_group:')) {
+    const tradeGroupId = id.replace('trade_group:', '')
+    await pool.query('UPDATE trade_groups SET embedding = NULL WHERE id = $1', [tradeGroupId])
+  } else if (id.startsWith('review:')) {
+    const tradeGroupId = id.replace('review:', '')
+    await pool.query('UPDATE review_notes SET embedding = NULL WHERE trade_group_id = $1', [tradeGroupId])
   }
 }
 
 export async function getDocumentCount(): Promise<number> {
-  const idx = await getIndex()
-  const items = await idx.listItems()
-  return items.length
+  const tradeGroupCount = await pool.query('SELECT COUNT(*) FROM trade_groups WHERE embedding IS NOT NULL')
+  const reviewNoteCount = await pool.query('SELECT COUNT(*) FROM review_notes WHERE embedding IS NOT NULL')
+  return parseInt(tradeGroupCount.rows[0].count as string) + parseInt(reviewNoteCount.rows[0].count as string)
 }
 
 export async function clearIndex(): Promise<void> {
-  const idx = await getIndex()
-  const items = await idx.listItems()
-  for (const item of items) {
-    await idx.deleteItem(item.id)
-  }
+  await pool.query('UPDATE trade_groups SET embedding = NULL')
+  await pool.query('UPDATE review_notes SET embedding = NULL')
 }

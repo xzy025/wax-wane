@@ -15,9 +15,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@types/pg": "^8.20.0",
     "@zilliz/milvus2-sdk-node": "^3.0.1",
     "lucide-react": "^0.468.0",
     "papaparse": "^5.5.3",
+    "pg": "^8.21.0",
     "react": "^19.1.1",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.6.1",
