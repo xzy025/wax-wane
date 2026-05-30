@@ -60,6 +60,101 @@
   gap: 6px;
 }
 
+/* LLM Settings */
+.ai-chat-llm-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--purple);
+  background: var(--purple-soft);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ai-chat-llm-badge:hover {
+  border-color: var(--purple);
+}
+
+.ai-llm-settings {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.ai-llm-settings-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.ai-llm-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-llm-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+
+.ai-llm-option:hover {
+  border-color: var(--purple);
+}
+
+.ai-llm-option.active {
+  border-color: var(--purple);
+  background: var(--purple-soft);
+}
+
+.ai-llm-option-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.ai-llm-option-model {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.ai-llm-option svg {
+  color: var(--purple);
+}
+
+.ai-llm-custom {
+  margin-top: 8px;
+}
+
+.ai-llm-api-key {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.ai-llm-api-key:focus {
+  outline: none;
+  border-color: var(--purple);
+}
+
 .ai-chat-review {
   display: flex;
   align-items: center;

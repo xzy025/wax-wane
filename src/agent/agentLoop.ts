@@ -2,7 +2,7 @@ import type { AppState } from '../store'
 import type { AgentMessage, AgentEvent, ToolCall } from './types'
 import { toolDefinitions, executeTool } from './tools'
 import { buildSystemPrompt } from './prompts'
-import { streamChat } from './llmClient'
+import { streamChat, type LLMConfig } from './llmClient'
 
 const MAX_ITERATIONS = 10
 
@@ -12,6 +12,7 @@ export async function* runAgent(
   conversationHistory: AgentMessage[],
   language: 'zh' | 'en' = 'zh',
   signal?: AbortSignal,
+  llmConfig?: LLMConfig,
 ): AsyncGenerator<AgentEvent> {
   const systemPrompt = buildSystemPrompt(appState, language)
 
@@ -31,7 +32,7 @@ export async function* runAgent(
 
     try {
       signal?.throwIfAborted()
-      const stream = streamChat(messages, toolDefinitions, signal)
+      const stream = streamChat(messages, toolDefinitions, signal, llmConfig)
 
       for await (const chunk of stream) {
         signal?.throwIfAborted()
@@ -96,7 +97,7 @@ export async function* runAgent(
       },
     ]
 
-    const stream = streamChat(finalMessages, [], signal)
+    const stream = streamChat(finalMessages, [], signal, llmConfig)
     for await (const chunk of stream) {
       signal?.throwIfAborted()
       if (chunk.type === 'token') {

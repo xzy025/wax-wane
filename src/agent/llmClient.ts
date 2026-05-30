@@ -12,15 +12,27 @@ export type StreamChunk =
   | { readonly type: 'tool_calls'; readonly data: ToolCall[] }
   | { readonly type: 'done'; readonly data: string }
 
+export interface LLMConfig {
+  apiUrl: string
+  model: string
+  apiKey?: string
+}
+
 export async function* streamChat(
   messages: AgentMessage[],
   tools: ToolDefinition[],
   signal?: AbortSignal,
+  llmConfig?: LLMConfig,
 ): AsyncGenerator<StreamChunk> {
+  const body: Record<string, unknown> = { messages, tools }
+  if (llmConfig) {
+    body.llmConfig = llmConfig
+  }
+
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, tools }),
+    body: JSON.stringify(body),
     signal,
   })
 

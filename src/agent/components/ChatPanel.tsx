@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Trash2, Sparkles, Loader2, Square, ClipboardCheck } from 'lucide-react'
+import { Send, Trash2, Sparkles, Loader2, Square, ClipboardCheck, Settings2, Check } from 'lucide-react'
 import {
   useAgentState,
   useAgentDispatch,
@@ -16,6 +16,51 @@ import type { Translation } from '../../types'
 interface ChatPanelProps {
   t: Translation
   language: 'zh' | 'en'
+}
+
+interface LLMConfig {
+  id: string
+  name: string
+  apiUrl: string
+  model: string
+  protocol: 'openai' | 'anthropic'
+  apiKey?: string
+}
+
+const LLM_PRESETS: LLMConfig[] = [
+  {
+    id: 'xiaomi-mimo',
+    name: '小米 MiMo',
+    apiUrl: 'https://token-plan-cn.xiaomimimo.com/anthropic',
+    model: 'mimo-v2.5-pro',
+    protocol: 'anthropic',
+  },
+  {
+    id: 'claude',
+    name: 'Claude',
+    apiUrl: 'https://api.anthropic.com',
+    model: 'claude-sonnet-4-20250514',
+    protocol: 'anthropic',
+  },
+  {
+    id: 'codex',
+    name: 'Codex (OpenAI)',
+    apiUrl: 'https://api.openai.com/v1',
+    model: 'gpt-4o',
+    protocol: 'openai',
+  },
+]
+
+function loadLLMConfig(): LLMConfig {
+  try {
+    const saved = localStorage.getItem('llm-config')
+    if (saved) return JSON.parse(saved)
+  } catch {}
+  return LLM_PRESETS[0]
+}
+
+function saveLLMConfig(config: LLMConfig) {
+  localStorage.setItem('llm-config', JSON.stringify(config))
 }
 
 const QUICK_PROMPTS_ZH = [
@@ -42,11 +87,20 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   const [input, setInput] = useState('')
   const [streamingContent, setStreamingContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
+  const [llmConfig, setLlmConfig] = useState<LLMConfig>(loadLLMConfig)
+  const [showLLMSettings, setShowLLMSettings] = useState(false)
+  const [customApiKey, setCustomApiKey] = useState(llmConfig.apiKey ?? '')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   const quickPrompts = language === 'zh' ? QUICK_PROMPTS_ZH : QUICK_PROMPTS_EN
+
+  const handleLLMChange = useCallback((config: LLMConfig) => {
+    setLlmConfig(config)
+    saveLLMConfig(config)
+    setShowLLMSettings(false)
+  }, [])
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -101,7 +155,11 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       abortRef.current = controller
 
       try {
-        const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal)
+        const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal, {
+          apiUrl: llmConfig.apiUrl,
+          model: llmConfig.model,
+          apiKey: customApiKey || undefined,
+        })
         let fullContent = ''
 
         for await (const event of generator) {
@@ -207,6 +265,14 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         <div className="ai-chat-header-title">
           <Sparkles size={16} />
           <span>{t.ai?.chatTitle ?? 'AI Assistant'}</span>
+          <button
+            className="ai-chat-llm-badge"
+            type="button"
+            onClick={() => setShowLLMSettings(!showLLMSettings)}
+            title="切换 LLM"
+          >
+            {llmConfig.name}
+          </button>
         </div>
         <div className="ai-chat-header-actions">
           <button
@@ -231,6 +297,35 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           )}
         </div>
       </div>
+
+      {showLLMSettings && (
+        <div className="ai-llm-settings">
+          <div className="ai-llm-settings-title">选择 LLM</div>
+          <div className="ai-llm-options">
+            {LLM_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                className={`ai-llm-option ${llmConfig.id === preset.id ? 'active' : ''}`}
+                type="button"
+                onClick={() => handleLLMChange(preset)}
+              >
+                <span className="ai-llm-option-name">{preset.name}</span>
+                <span className="ai-llm-option-model">{preset.model}</span>
+                {llmConfig.id === preset.id && <Check size={14} />}
+              </button>
+            ))}
+          </div>
+          <div className="ai-llm-custom">
+            <input
+              type="password"
+              placeholder="API Key（可选）"
+              value={customApiKey}
+              onChange={(e) => setCustomApiKey(e.target.value)}
+              className="ai-llm-api-key"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="ai-chat-messages">
         {messages.length === 0 && !isStreaming && (

@@ -207,11 +207,12 @@ function toOpenAIRequest(messages: Array<{ role: string; content: string }>, too
 // --- Main endpoint ---
 
 app.post('/api/agent/chat', async (req, res) => {
-  const { messages, tools } = req.body
+  const { messages, tools, llmConfig } = req.body
 
-  const apiUrl = process.env.LLM_API_URL
-  const apiKey = process.env.LLM_API_KEY
-  const model = process.env.LLM_MODEL ?? 'deepseek-chat'
+  // Use request config or fall back to environment variables
+  const apiUrl = llmConfig?.apiUrl ?? process.env.LLM_API_URL
+  const apiKey = llmConfig?.apiKey ?? process.env.LLM_API_KEY
+  const model = llmConfig?.model ?? process.env.LLM_MODEL ?? 'deepseek-chat'
 
   if (!apiUrl || !apiKey) {
     res.status(500).json({
