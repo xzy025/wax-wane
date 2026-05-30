@@ -1,8 +1,64 @@
 import type { AppState } from '../store'
 import { buildFullContext } from './contextBuilder'
 
+function getTradingDayInfo(): string {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+  const day = now.getDate()
+  const dayOfWeek = now.getDay()
+  const todayStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
+  const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+  // 计算最近交易日
+  function getLastTradingDay(d: Date): Date {
+    const result = new Date(d)
+    while (result.getDay() === 0 || result.getDay() === 6) {
+      result.setDate(result.getDate() - 1)
+    }
+    return result
+  }
+
+  const lastTradingDay = getLastTradingDay(now)
+  const lastTradingDayStr = `${lastTradingDay.getFullYear()}-${String(lastTradingDay.getMonth() + 1).padStart(2, '0')}-${String(lastTradingDay.getDate()).padStart(2, '0')}`
+
+  // 判断是否在交易时间内（9:30-11:30, 13:00-15:00）
+  const hours = now.getHours()
+  const minutes = now.getMinutes()
+  const timeMinutes = hours * 60 + minutes
+  const isMarketOpen = !isWeekend && (
+    (timeMinutes >= 570 && timeMinutes <= 690) ||   // 9:30-11:30
+    (timeMinutes >= 780 && timeMinutes <= 900)       // 13:00-15:00
+  )
+  const isPreMarket = !isWeekend && timeMinutes >= 555 && timeMinutes < 570  // 9:15-9:30
+  const isAfterMarket = !isWeekend && timeMinutes > 900  // 15:00+
+
+  let marketStatus = ''
+  if (isWeekend) {
+    marketStatus = '休市（周末）'
+  } else if (isPreMarket) {
+    marketStatus = '盘前（集合竞价）'
+  } else if (isMarketOpen) {
+    marketStatus = '交易中'
+  } else if (isAfterMarket) {
+    marketStatus = '已收盘'
+  } else {
+    marketStatus = '未开盘'
+  }
+
+  return `## 交易日信息
+- 当前日期：${todayStr} ${dayNames[dayOfWeek]}
+- 最近交易日：${lastTradingDayStr}
+- 市场状态：${marketStatus}
+- 数据来源：实时行情（东方财富 API，30秒缓存）
+- 重要提示：选股和行情分析应基于**最新交易日的实时数据**，不要使用历史数据`
+}
+
 export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh'): string {
   const context = buildFullContext(state)
+  const tradingDayInfo = getTradingDayInfo()
 
   const lang = language === 'zh' ? '请用中文回复。' : 'Please respond in English.'
 
@@ -206,6 +262,8 @@ export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh')
 ### 五、理论学习推荐
 - [推荐学习内容]
 ---
+
+${tradingDayInfo}
 
 ## Current Portfolio Context
 <context>
