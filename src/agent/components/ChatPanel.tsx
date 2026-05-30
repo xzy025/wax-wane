@@ -27,6 +27,10 @@ interface LLMConfig {
   apiKey?: string
 }
 
+interface LLMProfiles {
+  [key: string]: { apiKey: string }
+}
+
 const LLM_PRESETS: LLMConfig[] = [
   {
     id: 'xiaomi-mimo',
@@ -63,6 +67,18 @@ function saveLLMConfig(config: LLMConfig) {
   localStorage.setItem('llm-config', JSON.stringify(config))
 }
 
+function loadLLMProfiles(): LLMProfiles {
+  try {
+    const saved = localStorage.getItem('llm-profiles')
+    if (saved) return JSON.parse(saved)
+  } catch {}
+  return {}
+}
+
+function saveLLMProfiles(profiles: LLMProfiles) {
+  localStorage.setItem('llm-profiles', JSON.stringify(profiles))
+}
+
 const QUICK_PROMPTS_ZH = [
   '分析我最差的交易',
   '我的交易有什么模式？',
@@ -88,19 +104,37 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   const [streamingContent, setStreamingContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [llmConfig, setLlmConfig] = useState<LLMConfig>(loadLLMConfig)
+  const [llmProfiles, setLlmProfiles] = useState<LLMProfiles>(loadLLMProfiles)
   const [showLLMSettings, setShowLLMSettings] = useState(false)
-  const [customApiKey, setCustomApiKey] = useState(llmConfig.apiKey ?? '')
+  const [editingKeyId, setEditingKeyId] = useState<string | null>(null)
+  const [editingKeyValue, setEditingKeyValue] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   const quickPrompts = language === 'zh' ? QUICK_PROMPTS_ZH : QUICK_PROMPTS_EN
 
-  const handleLLMChange = useCallback((config: LLMConfig) => {
+  const handleLLMChange = useCallback((preset: LLMConfig) => {
+    const profile = llmProfiles[preset.id]
+    const config = { ...preset, apiKey: profile?.apiKey }
     setLlmConfig(config)
     saveLLMConfig(config)
     setShowLLMSettings(false)
-  }, [])
+  }, [llmProfiles])
+
+  const handleSaveApiKey = useCallback((presetId: string) => {
+    const newProfiles = { ...llmProfiles, [presetId]: { apiKey: editingKeyValue } }
+    setLlmProfiles(newProfiles)
+    saveLLMProfiles(newProfiles)
+    // Update current config if editing the active one
+    if (llmConfig.id === presetId) {
+      const updated = { ...llmConfig, apiKey: editingKeyValue }
+      setLlmConfig(updated)
+      saveLLMConfig(updated)
+    }
+    setEditingKeyId(null)
+    setEditingKeyValue('')
+  }, [llmProfiles, llmConfig, editingKeyValue])
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -155,10 +189,11 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       abortRef.current = controller
 
       try {
+        const profile = llmProfiles[llmConfig.id]
         const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal, {
           apiUrl: llmConfig.apiUrl,
           model: llmConfig.model,
-          apiKey: customApiKey || undefined,
+          apiKey: profile?.apiKey || llmConfig.apiKey || undefined,
         })
         let fullContent = ''
 
@@ -302,27 +337,52 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         <div className="ai-llm-settings">
           <div className="ai-llm-settings-title">选择 LLM</div>
           <div className="ai-llm-options">
-            {LLM_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                className={`ai-llm-option ${llmConfig.id === preset.id ? 'active' : ''}`}
-                type="button"
-                onClick={() => handleLLMChange(preset)}
-              >
-                <span className="ai-llm-option-name">{preset.name}</span>
-                <span className="ai-llm-option-model">{preset.model}</span>
-                {llmConfig.id === preset.id && <Check size={14} />}
-              </button>
-            ))}
-          </div>
-          <div className="ai-llm-custom">
-            <input
-              type="password"
-              placeholder="API Key（可选）"
-              value={customApiKey}
-              onChange={(e) => setCustomApiKey(e.target.value)}
-              className="ai-llm-api-key"
-            />
+            {LLM_PRESETS.map((preset) => {
+              const profile = llmProfiles[preset.id]
+              const hasKey = !!profile?.apiKey
+              const isActive = llmConfig.id === preset.id
+              const isEditing = editingKeyId === preset.id
+
+              return (
+                <div key={preset.id} className={`ai-llm-option ${isActive ? 'active' : ''}`}>
+                  <button
+                    className="ai-llm-option-select"
+                    type="button"
+                    onClick={() => handleLLMChange(preset)}
+                  >
+                    <span className="ai-llm-option-name">{preset.name}</span>
+                    <span className="ai-llm-option-model">{preset.model}</span>
+                    {isActive && <Check size={14} />}
+                  </button>
+                  <button
+                    className={`ai-llm-key-btn ${hasKey ? 'configured' : ''}`}
+                    type="button"
+                    onClick={() => {
+                      if (isEditing) {
+                        handleSaveApiKey(preset.id)
+                      } else {
+                        setEditingKeyId(preset.id)
+                        setEditingKeyValue(profile?.apiKey ?? '')
+                      }
+                    }}
+                    title={hasKey ? 'API Key 已配置' : '配置 API Key'}
+                  >
+                    {isEditing ? '保存' : hasKey ? '✓ Key' : '+ Key'}
+                  </button>
+                  {isEditing && (
+                    <input
+                      type="password"
+                      className="ai-llm-api-key"
+                      placeholder={`${preset.name} API Key`}
+                      value={editingKeyValue}
+                      onChange={(e) => setEditingKeyValue(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSaveApiKey(preset.id)}
+                      autoFocus
+                    />
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

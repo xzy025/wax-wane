@@ -106,9 +106,7 @@
   border-radius: 6px;
   background: var(--surface);
   border: 1px solid var(--line);
-  cursor: pointer;
   transition: all 0.15s;
-  text-align: left;
 }
 
 .ai-llm-option:hover {
@@ -118,6 +116,18 @@
 .ai-llm-option.active {
   border-color: var(--purple);
   background: var(--purple-soft);
+}
+
+.ai-llm-option-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
 }
 
 .ai-llm-option-name {
@@ -136,13 +146,33 @@
   color: var(--purple);
 }
 
-.ai-llm-custom {
-  margin-top: 8px;
+.ai-llm-key-btn {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ai-llm-key-btn:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.ai-llm-key-btn.configured {
+  background: var(--green-soft, #e6f9e6);
+  border-color: var(--green, #22c55e);
+  color: var(--green, #22c55e);
 }
 
 .ai-llm-api-key {
   width: 100%;
   padding: 6px 10px;
+  margin-top: 6px;
   border: 1px solid var(--line);
   border-radius: 6px;
   font-size: 0.8rem;
