@@ -24,8 +24,6 @@ import {
   updateMarketAnalysis,
   updateConversationSummary,
 } from './memoryStore'
-  getReviewNote,
-} from './database'
 
 config()
 
