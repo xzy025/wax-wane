@@ -202,7 +202,7 @@ async function* anthropicToOpenAIStream(reader: ReadableStreamDefaultReader<Uint
 
 // --- OpenAI format (pass-through) ---
 
-function toOpenAIRequest(messages: Array<{ role: string; content: string; images?: string[] }>, tools: Array<{ name: string; description: string; parameters: unknown }>, model: string) {
+function toOpenAIRequest(messages: Array<{ role: string; content: string; images?: string[]; tool_call_id?: string; tool_calls?: Array<{ id: string; type: string; function: { name: string; arguments: string } }> }>, tools: Array<{ name: string; description: string; parameters: unknown }>, model: string) {
   // Convert messages to OpenAI format with image support
   const openaiMessages = messages.map((msg) => {
     if (msg.role === 'user' && msg.images && msg.images.length > 0) {
@@ -215,6 +215,12 @@ function toOpenAIRequest(messages: Array<{ role: string; content: string; images
         })
       }
       return { role: msg.role, content }
+    } else if (msg.role === 'tool') {
+      // Tool message - must include tool_call_id
+      return { role: msg.role, content: msg.content, tool_call_id: msg.tool_call_id }
+    } else if (msg.role === 'assistant' && msg.tool_calls) {
+      // Assistant message with tool calls
+      return { role: msg.role, content: msg.content, tool_calls: msg.tool_calls }
     }
     return { role: msg.role, content: msg.content }
   })
