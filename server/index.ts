@@ -268,15 +268,18 @@ app.post('/api/agent/chat', async (req, res) => {
   // For MiMo, always use OpenAI-compatible format
   const protocol = isMiMo ? 'openai' : getProtocol(apiUrl)
 
-  // For Anthropic protocol, ensure URL ends with /v1/messages
   let actualUrl = apiUrl
-  if (protocol === 'anthropic' && !apiUrl.endsWith('/v1/messages')) {
-    actualUrl = apiUrl.replace(/\/+$/, '') + '/v1/messages'
-  }
-
-  // For MiMo, ensure URL ends with /v1/chat/completions
-  if (isMiMo && !actualUrl.endsWith('/v1/chat/completions')) {
-    actualUrl = actualUrl.replace(/\/+$/, '') + '/v1/chat/completions'
+  if (isMiMo) {
+    // MiMo: remove /anthropic suffix and add /v1/chat/completions
+    actualUrl = apiUrl.replace(/\/anthropic\/?$/, '').replace(/\/+$/, '')
+    if (!actualUrl.endsWith('/v1/chat/completions')) {
+      actualUrl = actualUrl + '/v1/chat/completions'
+    }
+  } else if (protocol === 'anthropic') {
+    // Anthropic: ensure URL ends with /v1/messages
+    if (!apiUrl.endsWith('/v1/messages')) {
+      actualUrl = apiUrl.replace(/\/+$/, '') + '/v1/messages'
+    }
   }
 
   try {
