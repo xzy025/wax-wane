@@ -5,6 +5,8 @@ interface StockCandidate {
   name: string
   price: number
   changePct: number
+  turnoverRate: number
+  amount: number
   reason: string
   model: string
   confidence: 'high' | 'medium' | 'low'
@@ -14,16 +16,16 @@ export const screenStocks: ToolModule = {
   schema: {
     name: 'screenStocks',
     description:
-      '基于云聪老师的交易方法论筛选股票。' +
-      '支持多种模式：2B买入、强势股低吸、首板涨停、早盘低吸。' +
-      '结合资金流、板块热点、技术形态进行筛选。',
+      '基于云聪老师的交易方法论筛选今日 A 股机会。' +
+      '分析涨停股、市场情绪、指数走势，返回候选股票列表。' +
+      '用户问"帮我选股"、"今天有什么机会"、"用XX模式选股"时使用。',
     parameters: {
       type: 'object',
       properties: {
         model: {
           type: 'string',
           enum: ['2b', 'strongDip', 'firstBoard', 'morningDip', 'all'],
-          description: '筛选模式：2b(2B买入)、strongDip(强势股低吸)、firstBoard(首板涨停)、morningDip(早盘低吸)、all(全部)',
+          description: '筛选模式，默认 all',
         },
       },
       required: [],
@@ -35,132 +37,204 @@ export const screenStocks: ToolModule = {
 
     try {
       // 获取市场数据
-      const [breadthRes, limitPoolRes, indicesRes] = await Promise.all([
+      const [breadthRes, limitUpRes, limitDownRes, indicesRes] = await Promise.all([
         fetch('/api/mcp/ashare/breadth'),
         fetch('/api/mcp/ashare/limit-pool?direction=up'),
+        fetch('/api/mcp/ashare/limit-pool?direction=down'),
         fetch('/api/mcp/ashare/indices'),
       ])
 
       const breadth = await breadthRes.json()
-      const limitPool = await limitPoolRes.json()
+      const limitUp = await limitUpRes.json()
+      const limitDown = await limitDownRes.json()
       const indices = await indicesRes.json()
 
       const candidates: StockCandidate[] = []
 
       // 市场情绪判断
       const limitUpCount = breadth?.limitUpCount ?? 0
-      const limitDownCount = breadth?.limitDownCount ?? 0
+      const limitDownCount = breadth?.limitDownCount ?? limitDown?.count ?? 0
       const advance = breadth?.advance ?? 0
       const decline = breadth?.decline ?? 0
-      const marketSentiment = limitUpCount > 50 && limitDownCount < 30 ? 'good' : 'bad'
 
-      // 获取涨停股列表
-      const limitUpStocks = limitPool?.stocks ?? []
-
-      // 首板涨停模式筛选
-      if (model === 'firstBoard' || model === 'all') {
-        if (marketSentiment === 'good') {
-          // 筛选首板涨停股
-          const firstBoardStocks = limitUpStocks.filter((s: { consecutiveDays?: number }) => {
-            return (s.consecutiveDays ?? 0) === 1
-          })
-
-          for (const stock of firstBoardStocks.slice(0, 5)) {
-            candidates.push({
-              code: stock.code,
-              name: stock.name,
-              price: stock.price,
-              changePct: stock.changePct,
-              reason: `首板涨停，${stock.industry ?? '未知'}板块，换手率${stock.turnoverRate?.toFixed(1) ?? '0'}%`,
-              model: '首板涨停',
-              confidence: marketSentiment === 'good' ? 'high' : 'medium',
-            })
-          }
-        }
+      // 情绪判断逻辑
+      let sentiment = 'neutral'
+      let sentimentDesc = ''
+      if (limitUpCount >= 80 && limitDownCount < 20) {
+        sentiment = 'very_good'
+        sentimentDesc = '市场情绪非常好，适合大胆操作'
+      } else if (limitUpCount >= 50 && limitDownCount < 40) {
+        sentiment = 'good'
+        sentimentDesc = '市场情绪良好，可以操作'
+      } else if (limitUpCount < 30 && limitDownCount > 50) {
+        sentiment = 'bad'
+        sentimentDesc = '市场情绪较差，建议观望或轻仓'
+      } else if (limitUpCount < 20 && limitDownCount > 80) {
+        sentiment = 'very_bad'
+        sentimentDesc = '市场情绪极差，建议空仓等待'
+      } else {
+        sentiment = 'neutral'
+        sentimentDesc = '市场情绪中性，谨慎操作'
       }
 
-      // 2B 模型筛选（需要更复杂的技术分析，这里简化处理）
-      if (model === '2b' || model === 'all') {
-        // 从涨停池中找可能的 2B 候选
-        // 实际应该分析个股的 K 线形态
-        const potential2B = limitUpStocks.filter((s: { openCount?: number }) => {
-          return (s.openCount ?? 0) >= 1 // 开板次数 >= 1，可能是 2B
+      // 涨停股列表
+      const limitUpStocks = limitUp?.stocks ?? []
+      const limitDownStocks = limitDown?.stocks ?? []
+
+      // 指数数据
+      const sseIndex = indices?.find((i: { code: string }) => i.code === '000001')
+      const szseIndex = indices?.find((i: { code: string }) => i.code === '399001')
+      const chinextIndex = indices?.find((i: { code: string }) => i.code === '399006')
+
+      // === 首板涨停模式 ===
+      if (model === 'firstBoard' || model === 'all') {
+        // 筛选涨幅接近涨停的股票（9.5% - 10%）
+        const nearLimitUp = limitUpStocks.filter((s: { changePct: number }) => {
+          return s.changePct >= 9.5 && s.changePct < 10.5
         })
 
-        for (const stock of potential2B.slice(0, 3)) {
+        // 筛选涨停股
+        const limitUpCandidates = limitUpStocks.filter((s: { changePct: number }) => {
+          return s.changePct >= 19.5 || (s.changePct >= 9.5 && s.changePct <= 10.5)
+        })
+
+        for (const stock of limitUpCandidates.slice(0, 8)) {
+          const is20cm = stock.code.startsWith('300') || stock.code.startsWith('301') || stock.code.startsWith('688')
+          const limitPct = is20cm ? 20 : 10
+          const isLimitUp = stock.changePct >= limitPct - 0.5
+
           candidates.push({
             code: stock.code,
             name: stock.name,
             price: stock.price,
             changePct: stock.changePct,
-            reason: `可能的 2B 形态，开板${stock.openCount ?? 0}次，${stock.industry ?? '未知'}板块`,
+            turnoverRate: stock.turnoverRate ?? 0,
+            amount: stock.amount ?? 0,
+            reason: isLimitUp
+              ? `涨停 ${stock.changePct.toFixed(1)}%，换手率 ${(stock.turnoverRate ?? 0).toFixed(1)}%，成交额 ${((stock.amount ?? 0) / 100000000).toFixed(2)}亿`
+              : `涨幅 ${stock.changePct.toFixed(1)}%，接近涨停`,
+            model: '首板涨停',
+            confidence: sentiment === 'good' || sentiment === 'very_good' ? 'high' : 'medium',
+          })
+        }
+      }
+
+      // === 2B 模型 ===
+      if (model === '2b' || model === 'all') {
+        // 从涨停股中找开板的（可能是 2B 形态）
+        const openedLimitUp = limitUpStocks.filter((s: { openCount?: number }) => {
+          return (s.openCount ?? 0) >= 1
+        })
+
+        for (const stock of openedLimitUp.slice(0, 5)) {
+          candidates.push({
+            code: stock.code,
+            name: stock.name,
+            price: stock.price,
+            changePct: stock.changePct,
+            turnoverRate: stock.turnoverRate ?? 0,
+            amount: stock.amount ?? 0,
+            reason: `涨停开板${stock.openCount ?? 0}次，可能是 2B 形态，换手率 ${(stock.turnoverRate ?? 0).toFixed(1)}%`,
             model: '2B 模型',
             confidence: 'medium',
           })
         }
       }
 
-      // 强势股低吸筛选
+      // === 强势股低吸 ===
       if (model === 'strongDip' || model === 'all') {
-        // 从涨停池中找连板后回调的股票
-        const strongStocks = limitUpStocks.filter((s: { consecutiveDays?: number }) => {
-          return (s.consecutiveDays ?? 0) >= 2 // 连板 >= 2
-        })
+        // 找高换手率的股票（可能是强势股）
+        const highTurnover = limitUpStocks
+          .filter((s: { turnoverRate?: number }) => (s.turnoverRate ?? 0) > 10)
+          .sort((a: { turnoverRate?: number }, b: { turnoverRate?: number }) => (b.turnoverRate ?? 0) - (a.turnoverRate ?? 0))
 
-        for (const stock of strongStocks.slice(0, 3)) {
+        for (const stock of highTurnover.slice(0, 5)) {
           candidates.push({
             code: stock.code,
             name: stock.name,
             price: stock.price,
             changePct: stock.changePct,
-            reason: `强势股，连板${stock.consecutiveDays ?? 0}天，${stock.industry ?? '未知'}板块`,
+            turnoverRate: stock.turnoverRate ?? 0,
+            amount: stock.amount ?? 0,
+            reason: `高换手率 ${(stock.turnoverRate ?? 0).toFixed(1)}%，成交活跃，可能是强势股`,
             model: '强势股低吸',
             confidence: 'medium',
           })
         }
       }
 
-      // 早盘低吸筛选（沪深300/中证500成分股）
+      // === 早盘低吸 ===
       if (model === 'morningDip' || model === 'all') {
-        // 检查指数是否到达关键位置
-        const sseIndex = indices?.find((i: { code: string }) => i.code === '000001')
-        const indexChange = sseIndex?.changePct ?? 0
+        const sseChange = sseIndex?.changePct ?? 0
+        const szseChange = szseIndex?.changePct ?? 0
 
-        if (indexChange < -1) {
+        if (sseChange < -1 || szseChange < -1) {
           // 指数下跌，可能有机会
           candidates.push({
             code: '000001',
             name: '上证指数',
             price: sseIndex?.price ?? 0,
-            changePct: indexChange,
-            reason: `指数下跌${Math.abs(indexChange).toFixed(2)}%，关注沪深300成分股低吸机会`,
+            changePct: sseChange,
+            turnoverRate: 0,
+            amount: 0,
+            reason: `指数下跌 ${Math.abs(sseChange).toFixed(2)}%，关注沪深300成分股低吸机会`,
             model: '早盘低吸',
             confidence: 'medium',
           })
         }
       }
 
+      // 去重
+      const seen = new Set<string>()
+      const uniqueCandidates = candidates.filter(c => {
+        if (seen.has(c.code)) return false
+        seen.add(c.code)
+        return true
+      })
+
       // 市场概况
       const marketSummary = {
-        sentiment: marketSentiment,
-        limitUpCount,
-        limitDownCount,
-        advance,
-        decline,
-        adRatio: decline > 0 ? (advance / decline).toFixed(2) : 'N/A',
+        sentiment,
+        sentimentDesc,
+        indices: {
+          sse: { name: '上证指数', price: sseIndex?.price ?? 0, changePct: sseIndex?.changePct ?? 0 },
+          szse: { name: '深证成指', price: szseIndex?.price ?? 0, changePct: szseIndex?.changePct ?? 0 },
+          chinext: { name: '创业板指', price: chinextIndex?.price ?? 0, changePct: chinextIndex?.changePct ?? 0 },
+        },
+        breadth: {
+          limitUpCount,
+          limitDownCount,
+          advance,
+          decline,
+          adRatio: decline > 0 ? (advance / decline).toFixed(2) : 'N/A',
+        },
+      }
+
+      // 操作建议
+      let advice = ''
+      if (sentiment === 'very_bad') {
+        advice = '❌ 市场情绪极差，建议空仓等待，不要操作。'
+      } else if (sentiment === 'bad') {
+        advice = '⚠️ 市场情绪较差，建议观望或极轻仓练习。'
+      } else if (sentiment === 'neutral') {
+        advice = '⚠️ 市场情绪中性，可以轻仓操作，严格止损。'
+      } else if (sentiment === 'good') {
+        advice = '✅ 市场情绪良好，可以正常操作，关注以上候选股票。'
+      } else {
+        advice = '🔥 市场情绪非常好，可以大胆操作，但注意不要追高。'
       }
 
       return {
         marketSummary,
-        candidates,
-        totalCandidates: candidates.length,
-        advice: marketSentiment === 'bad'
-          ? '当前市场情绪较差，建议轻仓或观望，等待市场企稳后再操作。'
-          : `当前市场情绪${marketSentiment === 'good' ? '良好' : '一般'}，可以关注以上候选股票。`,
+        candidates: uniqueCandidates,
+        totalCandidates: uniqueCandidates.length,
+        advice,
+        usage: '你可以问："帮我分析XXX股票" 或 "用2B模式选股" 或 "今天适合做什么"',
       }
     } catch (err) {
       return {
-        error: `Stock screening failed: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        error: `选股失败: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        tip: '请确保市场数据服务正常运行。',
       }
     }
   },
