@@ -15,6 +15,17 @@ import {
   upsertReviewNote,
   getReviewNote,
 } from './database'
+import {
+  getMemory,
+  saveMemory,
+  updateTradingProfile,
+  addImprovementPlan,
+  updateImprovementPlan,
+  updateMarketAnalysis,
+  updateConversationSummary,
+} from './memoryStore'
+  getReviewNote,
+} from './database'
 
 config()
 
@@ -537,6 +548,79 @@ app.put('/api/db/review-notes/:groupId', async (req, res) => {
 app.post('/api/db/import-batches', async (req, res) => {
   try {
     await insertImportBatch(req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// ── MCP Routes: Agent Memory ───────────────────────────────
+
+app.get('/api/memory/:userId', async (req, res) => {
+  try {
+    const memory = await getMemory(req.params.userId)
+    res.json(memory)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.put('/api/memory/:userId', async (req, res) => {
+  try {
+    const memory = { ...req.body, userId: req.params.userId }
+    await saveMemory(memory)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.patch('/api/memory/:userId/profile', async (req, res) => {
+  try {
+    await updateTradingProfile(req.params.userId, req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/memory/:userId/plans', async (req, res) => {
+  try {
+    await addImprovementPlan(req.params.userId, req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.patch('/api/memory/:userId/plans/:planId', async (req, res) => {
+  try {
+    await updateImprovementPlan(req.params.userId, req.params.planId, req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.patch('/api/memory/:userId/market', async (req, res) => {
+  try {
+    await updateMarketAnalysis(req.params.userId, req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.patch('/api/memory/:userId/summary', async (req, res) => {
+  try {
+    await updateConversationSummary(req.params.userId, req.body.summary)
     res.json({ success: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
