@@ -224,6 +224,10 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       try {
         const profile = llmProfiles[llmConfig.id]
         const imagesToSend = pastedImages.length > 0 ? pastedImages : undefined
+        console.log('[ChatPanel] Sending message with images:', imagesToSend?.length ?? 0)
+        if (imagesToSend) {
+          console.log('[ChatPanel] Image format:', imagesToSend[0].substring(0, 50) + '...')
+        }
         const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal, {
           apiUrl: llmConfig.apiUrl,
           model: llmConfig.model,
@@ -301,6 +305,9 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       historyRef,
       appState,
       language,
+      pastedImages,
+      llmProfiles,
+      llmConfig,
     ],
   )
 

@@ -244,6 +244,15 @@ function toOpenAIRequest(messages: Array<{ role: string; content: string; images
 app.post('/api/agent/chat', async (req, res) => {
   const { messages, tools, llmConfig } = req.body
 
+  // Debug: log image info
+  const hasImages = messages.some((m: { images?: string[] }) => m.images && m.images.length > 0)
+  if (hasImages) {
+    console.log('[Agent] Request contains images')
+    const imgMsg = messages.find((m: { images?: string[] }) => m.images && m.images.length > 0)
+    console.log('[Agent] Image count:', imgMsg.images.length)
+    console.log('[Agent] Image format:', imgMsg.images[0].substring(0, 50) + '...')
+  }
+
   // Use request config or fall back to environment variables
   const apiUrl = llmConfig?.apiUrl ?? process.env.LLM_API_URL
   const apiKey = llmConfig?.apiKey ?? process.env.LLM_API_KEY
@@ -313,6 +322,14 @@ app.post('/api/agent/chat', async (req, res) => {
     console.error(`[Agent] URL: ${actualUrl}`)
     console.error(`[Agent] Key: ${apiKey?.substring(0, 10)}...`)
     console.error(`[Agent] Body preview:`, JSON.stringify(body).substring(0, 200))
+
+    // Debug: log image content in body
+    if (hasImages) {
+      const msgWithImg = (body.messages as Array<{ content: unknown }>).find((m) => Array.isArray(m.content))
+      if (msgWithImg) {
+        console.log('[Agent] Image content block:', JSON.stringify(msgWithImg.content).substring(0, 200))
+      }
+    }
 
     const llmResponse = await fetch(actualUrl, {
       method: 'POST',
