@@ -185,6 +185,65 @@
   border-color: var(--purple);
 }
 
+/* Image preview and display */
+.ai-chat-images-preview {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow-x: auto;
+  background: var(--surface-soft);
+  border-top: 1px solid var(--line);
+}
+
+.ai-chat-image-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ai-chat-image-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.ai-chat-image-remove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--red);
+  color: white;
+  font-size: 12px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border: none;
+}
+
+.ai-msg-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-msg-image {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  object-fit: contain;
+}
+
+.ai-msg-user .ai-msg-image {
+  border-color: var(--orange);
+}
+
 .ai-chat-review {
   display: flex;
   align-items: center;
