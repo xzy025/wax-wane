@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import {
   Activity,
-  ArrowUpCircle,
-  ArrowDownCircle,
+  ArrowUp,
+  ArrowDown,
   ArrowUpRight,
-  BarChart2,
-  RefreshCw,
-  TrendingUp,
-  TrendingDown,
+  ChartBar,
+  ArrowClockwise,
+  TrendUp,
+  TrendDown,
   Gauge,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react'
+  CaretDown,
+  CaretUp,
+} from 'phosphor-react'
 import { useAShareData, calcProfitabilityScore } from '../hooks/useAShareData'
 import type { Translation } from '../types'
 
@@ -75,7 +75,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             const config = INDEX_CONFIG[idx.code]
             if (!config) return null
             const isUp = idx.changePct >= 0
-            const ChangeIcon = isUp ? TrendingUp : TrendingDown
+            const ChangeIcon = isUp ? TrendUp : TrendDown
 
             return (
               <a
@@ -100,7 +100,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
           <div className="ashare-empty">
             <span>{t.ashare.loading}</span>
             <button className="macro-refresh-btn" type="button" onClick={refresh}>
-              <RefreshCw size={14} aria-hidden="true" />
+              <ArrowClockwise size={14} aria-hidden="true" />
               {t.ashare.retry}
             </button>
           </div>
@@ -113,7 +113,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
         {hasData && (
           <>
             <div className="ashare-stat">
-              <ArrowUpCircle size={14} aria-hidden="true" className="ashare-stat-icon up" />
+              <ArrowUp size={14} aria-hidden="true" className="ashare-stat-icon up" />
               <div>
                 <div className="ashare-stat-label">{t.ashare.limitUp}</div>
                 <div className="ashare-stat-value up">{data.limitUpCount}</div>
@@ -121,7 +121,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             </div>
 
             <div className="ashare-stat">
-              <ArrowDownCircle size={14} aria-hidden="true" className="ashare-stat-icon down" />
+              <ArrowDown size={14} aria-hidden="true" className="ashare-stat-icon down" />
               <div>
                 <div className="ashare-stat-label">{t.ashare.limitDown}</div>
                 <div className="ashare-stat-value down">{data.limitDownCount}</div>
@@ -129,7 +129,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             </div>
 
             <div className="ashare-stat">
-              <BarChart2 size={14} aria-hidden="true" className="ashare-stat-icon" />
+              <ChartBar size={14} aria-hidden="true" className="ashare-stat-icon" />
               <div>
                 <div className="ashare-stat-label">
                   {t.ashare.advance}/{t.ashare.decline}
@@ -171,16 +171,16 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                 if (e.key === 'Enter' || e.key === ' ') setNewHighExpanded((v) => !v)
               }}
             >
-              <TrendingUp size={14} aria-hidden="true" className="ashare-stat-icon up" />
+              <TrendUp size={14} aria-hidden="true" className="ashare-stat-icon up" />
               <div>
                 <div className="ashare-stat-label">{t.ashare.newHigh}</div>
                 <div className="ashare-stat-value">
                   {data.newHighCount}
                   {(data.newHighStocks?.length ?? 0) > 0 &&
                     (newHighExpanded ? (
-                      <ChevronUp size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
+                      <CaretUp size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
                     ) : (
-                      <ChevronDown size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
+                      <CaretDown size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
                     ))}
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             disabled={loading}
             style={{ padding: 4 }}
           >
-            <RefreshCw size={14} className={loading ? 'spin' : ''} aria-hidden="true" />
+            <ArrowClockwise size={14} className={loading ? 'spin' : ''} aria-hidden="true" />
           </button>
         </div>
       </div>

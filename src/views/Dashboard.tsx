@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { AlertTriangle, ChevronRight, CircleDollarSign } from 'lucide-react'
+import { Warning, CaretRight, CurrencyCircleDollar } from 'phosphor-react'
 import {
   AreaChart,
   Area,
@@ -142,7 +142,7 @@ export default function Dashboard({ t, range }: DashboardProps) {
       <section className="metric-grid">
         {computedMetrics.map((metric) => {
           const mockCard = metricCards.find((c) => c.key === metric.key)
-          const Icon = mockCard?.icon ?? CircleDollarSign
+          const Icon = mockCard?.icon ?? CurrencyCircleDollar
           const [label, delta] = t.metrics[metric.key]
           return (
             <article className={`metric-card ${metric.tone}`} key={metric.key}>
@@ -177,8 +177,8 @@ export default function Dashboard({ t, range }: DashboardProps) {
                 >
                   <defs>
                     <linearGradient id="pnlGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--orange)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--orange)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--blue)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--blue)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
@@ -197,7 +197,7 @@ export default function Dashboard({ t, range }: DashboardProps) {
                   <Area
                     type="monotone"
                     dataKey="pnl"
-                    stroke="var(--orange)"
+                    stroke="var(--blue)"
                     fill="url(#pnlGradient)"
                     strokeWidth={2}
                   />
@@ -225,7 +225,7 @@ export default function Dashboard({ t, range }: DashboardProps) {
               <h2>{t.dashboard.riskTitle}</h2>
               <p>{t.dashboard.riskDesc}</p>
             </div>
-            <AlertTriangle size={20} aria-hidden="true" />
+            <Warning size={20} aria-hidden="true" />
           </div>
           <div className="alert-list">
             {alerts.map((alert) => (
@@ -248,7 +248,7 @@ export default function Dashboard({ t, range }: DashboardProps) {
           </div>
           <button className="text-button" type="button">
             {t.dashboard.viewAll}
-            <ChevronRight size={16} aria-hidden="true" />
+            <CaretRight size={16} aria-hidden="true" />
           </button>
         </div>
         <TradeGroupTable groups={filteredGroups} t={t} />

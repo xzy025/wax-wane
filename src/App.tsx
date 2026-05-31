@@ -1,15 +1,14 @@
 import React, { useMemo, useState } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import {
-  BarChart3,
-  BookOpenText,
-  FileSpreadsheet,
-  Languages,
-  LineChart,
-  PieChart,
-  Settings2,
-  Upload,
-} from 'lucide-react'
+  ChartBar,
+  BookOpen,
+  File,
+  Globe,
+  ChartLineUp,
+  ChartPieSlice,
+  UploadSimple,
+} from 'phosphor-react'
 import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
 import { AgentProvider } from './agent/agentStore'
@@ -28,11 +27,11 @@ import AnalyticsView from './views/AnalyticsView'
 import type { Translation } from './types'
 
 const navItems = [
-  { id: 'dashboard', icon: BarChart3, path: '/dashboard' },
-  { id: 'import', icon: Upload, path: '/import' },
-  { id: 'ledger', icon: FileSpreadsheet, path: '/ledger' },
-  { id: 'reviews', icon: BookOpenText, path: '/reviews' },
-  { id: 'analytics', icon: PieChart, path: '/analytics' },
+  { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
+  { id: 'import', icon: UploadSimple, path: '/import' },
+  { id: 'ledger', icon: File, path: '/ledger' },
+  { id: 'reviews', icon: BookOpen, path: '/reviews' },
+  { id: 'analytics', icon: ChartPieSlice, path: '/analytics' },
 ]
 
 const translations: Record<string, Translation> = { zh, en }
@@ -64,7 +63,7 @@ function AppLayout() {
       <aside className="sidebar" aria-label="Primary navigation">
         <div className="brand">
           <div className="brand-mark">
-            <LineChart size={22} aria-hidden="true" />
+            <ChartLineUp size={22} aria-hidden="true" />
           </div>
           <div>
             <strong>TradeReview</strong>
@@ -115,16 +114,8 @@ function AppLayout() {
               options={['zh', 'en']}
               labels={t.language}
               onChange={(v) => setLanguage(v as 'zh' | 'en')}
-              icon={<Languages size={17} aria-hidden="true" />}
+              icon={<Globe size={17} aria-hidden="true" />}
             />
-            <button
-              className="icon-button"
-              type="button"
-              aria-label={t.settings}
-              title={t.settings}
-            >
-              <Settings2 size={19} aria-hidden="true" />
-            </button>
           </div>
         </header>
 

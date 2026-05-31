@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Wrench, ChevronDown, ChevronRight, Loader2 } from 'lucide-react'
+import { Wrench, CaretDown, CaretRight, CircleNotch } from 'phosphor-react'
 import type { ToolCallInfo } from '../types'
 
 interface ToolCallCardProps {
@@ -22,12 +22,12 @@ export function ToolCallCard({ toolCall }: ToolCallCardProps) {
     <div className="ai-tool-card">
       <button className="ai-tool-card-header" type="button" onClick={() => setExpanded(!expanded)}>
         {toolCall.status === 'running' ? (
-          <Loader2 size={14} className="ai-spin" />
+          <CircleNotch size={14} className="ai-spin" />
         ) : (
           <Wrench size={14} />
         )}
         <span>{label}</span>
-        {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        {expanded ? <CaretDown size={14} /> : <CaretRight size={14} />}
       </button>
       {expanded && toolCall.result !== undefined && (
         <pre className="ai-tool-card-result">{JSON.stringify(toolCall.result, null, 2)}</pre>

@@ -2,8 +2,8 @@
 @import './agent/agent.css';
 
 :root {
-  color: #241611;
-  background: #f5efe9;
+  color: #1D2129;
+  background: #F5F7FA;
   font-family:
     Inter,
     ui-sans-serif,
@@ -15,19 +15,43 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --bg: #f5efe9;
-  --surface: #fffaf5;
-  --surface-soft: #fbf3ea;
-  --ink: #241611;
-  --muted: #7a645b;
-  --line: #ead8cd;
-  --orange: #d96c22;
-  --orange-soft: #fff0e4;
-  --red: #c43d3d;
-  --red-soft: #ffe9e9;
-  --purple: #6f3ca1;
-  --purple-soft: #f2e9fb;
-  --shadow: 0 18px 55px rgb(68 35 18 / 11%);
+
+  /* 背景与表面 */
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-soft: #F0F5FF;
+
+  /* 文字 */
+  --ink: #1D2129;
+  --muted: #86909C;
+
+  /* 边框 */
+  --line: #E5E6EB;
+
+  /* 主色 - 科技蓝 */
+  --blue: #1677FF;
+  --blue-soft: #E8F3FF;
+  --blue-hover: #4096FF;
+  --blue-active: #0958D9;
+
+  /* 强调色 - 青色 */
+  --cyan: #06B6D4;
+  --cyan-soft: #E6FFFB;
+
+  /* 语义色 - A股标准 */
+  --red: #F53F3F;
+  --red-soft: #FFECE8;
+  --green: #00B42A;
+  --green-soft: #E8FFEA;
+  --orange: #FF7D00;
+  --orange-soft: #FFF7E8;
+
+  /* 阴影 */
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+
+  /* 渐变 */
+  --gradient-blue: linear-gradient(135deg, #1677FF 0%, #06B6D4 100%);
 }
 
 * {
@@ -55,9 +79,7 @@ button {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 264px minmax(0, 1fr);
-  background:
-    linear-gradient(135deg, rgb(217 108 34 / 12%), transparent 34%),
-    linear-gradient(315deg, rgb(111 60 161 / 11%), transparent 32%), var(--bg);
+  background: var(--bg);
 }
 
 .sidebar {
@@ -67,8 +89,7 @@ button {
   gap: 24px;
   padding: 24px;
   border-right: 1px solid var(--line);
-  background: rgb(255 255 255 / 82%);
-  backdrop-filter: blur(14px);
+  background: #FFFFFF;
 }
 
 .brand {
@@ -84,7 +105,7 @@ button {
   place-items: center;
   border-radius: 8px;
   color: #ffffff;
-  background: var(--orange);
+  background: var(--gradient-blue);
 }
 
 .brand strong,
@@ -125,8 +146,8 @@ button {
 
 .nav-item:hover,
 .nav-item.active {
-  color: var(--orange);
-  background: var(--orange-soft);
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .sidebar-card {
@@ -163,7 +184,7 @@ button {
 
 .eyebrow {
   margin: 0 0 6px;
-  color: var(--orange);
+  color: var(--blue);
   font-size: 0.86rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -242,7 +263,7 @@ p {
 
 .segmented button.active {
   color: #ffffff;
-  background: var(--purple);
+  background: var(--blue);
 }
 
 .icon-button,
@@ -267,15 +288,15 @@ p {
 .text-button {
   min-height: 38px;
   padding: 0 10px;
-  color: var(--purple);
-  background: var(--purple-soft);
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .primary-button {
   min-height: 44px;
   padding: 0 16px;
   color: #ffffff;
-  background: var(--orange);
+  background: var(--blue);
 }
 
 .view-stack {
@@ -325,7 +346,7 @@ p {
 }
 
 .metric-card.neutral svg {
-  color: var(--purple);
+  color: var(--blue);
 }
 
 .content-grid {
@@ -378,7 +399,7 @@ p {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: linear-gradient(180deg, rgb(217 108 34 / 13%), transparent 62%), var(--surface-soft);
+  background: linear-gradient(180deg, rgb(22 119 255 / 8%), transparent 62%), var(--surface-soft);
 }
 
 .chart-grid {
@@ -408,7 +429,7 @@ p {
     100% 100%,
     0 100%
   );
-  background: linear-gradient(180deg, rgb(217 108 34 / 44%), rgb(217 108 34 / 5%));
+  background: linear-gradient(180deg, rgb(22 119 255 / 40%), rgb(22 119 255 / 5%));
 }
 
 .chart-line::before {
@@ -433,7 +454,7 @@ p {
     15% 72%,
     0 78%
   );
-  background: var(--red);
+  background: var(--blue);
 }
 
 .chart-labels {
@@ -485,8 +506,8 @@ p {
 }
 
 .alert-item.info {
-  color: var(--purple);
-  background: var(--purple-soft);
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .data-table {
@@ -538,7 +559,7 @@ p {
 }
 
 .negative-text {
-  color: var(--purple);
+  color: var(--green);
   font-weight: 850;
 }
 
@@ -551,13 +572,13 @@ p {
 }
 
 .side-buy {
-  color: var(--orange);
-  background: var(--orange-soft);
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .side-sell {
-  color: var(--purple);
-  background: var(--purple-soft);
+  color: var(--cyan);
+  background: var(--cyan-soft);
 }
 
 .row-error {
@@ -574,7 +595,7 @@ p {
 }
 
 .row-editing {
-  background: var(--orange-soft);
+  background: var(--blue-soft);
 }
 
 .edit-input {
@@ -589,7 +610,7 @@ p {
 }
 
 .edit-input:focus {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--blue);
   outline-offset: -1px;
 }
 
@@ -626,7 +647,7 @@ p {
 }
 
 .upload-box svg {
-  color: var(--orange);
+  color: var(--blue);
 }
 
 .step-item {
@@ -645,7 +666,7 @@ p {
   place-items: center;
   border-radius: 999px;
   color: #ffffff;
-  background: var(--purple);
+  background: var(--blue);
   font-weight: 850;
 }
 
@@ -671,7 +692,7 @@ p {
 }
 
 .mapping-row small {
-  color: var(--orange);
+  color: var(--blue);
   font-weight: 800;
 }
 
@@ -738,12 +759,12 @@ p {
 }
 
 .filter-chip:hover {
-  background: var(--orange-soft);
+  background: var(--blue-soft);
   color: var(--text);
 }
 
 .filter-chip.active {
-  background: var(--orange);
+  background: var(--blue);
   color: #fff;
 }
 
@@ -771,8 +792,8 @@ p {
 }
 
 .group-button.active {
-  border-color: rgb(217 108 34 / 48%);
-  background: var(--orange-soft);
+  border-color: rgb(22 119 255 / 48%);
+  background: var(--blue-soft);
 }
 
 .group-button span,
@@ -791,7 +812,7 @@ p {
 .stock-code {
   display: inline-block;
   margin-bottom: 6px;
-  color: var(--orange);
+  color: var(--blue);
   font-weight: 850;
 }
 
@@ -826,8 +847,8 @@ p {
 }
 
 .pnl-box.negative {
-  color: var(--purple);
-  background: var(--purple-soft);
+  color: var(--green);
+  background: var(--green-soft);
 }
 
 .review-form-grid {
@@ -857,8 +878,8 @@ textarea {
 }
 
 textarea:focus {
-  border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgb(217 108 34 / 16%);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgb(22 119 255 / 16%);
 }
 
 .tag-strip {
@@ -875,8 +896,8 @@ textarea:focus {
   min-height: 32px;
   padding: 0 10px;
   border-radius: 999px;
-  color: var(--purple);
-  background: var(--purple-soft);
+  color: var(--cyan);
+  background: var(--cyan-soft);
   font-size: 0.9rem;
   font-weight: 800;
 }
@@ -930,7 +951,7 @@ textarea:focus {
   width: 100%;
   align-self: end;
   border-radius: 8px 8px 0 0;
-  background: linear-gradient(180deg, var(--orange), var(--purple));
+  background: var(--gradient-blue);
 }
 
 .period-bar span {
@@ -957,8 +978,8 @@ textarea:focus {
 .report-preview div {
   padding: 18px;
   border-radius: 8px;
-  color: var(--orange);
-  background: var(--orange-soft);
+  color: var(--blue);
+  background: var(--blue-soft);
   text-align: center;
 }
 

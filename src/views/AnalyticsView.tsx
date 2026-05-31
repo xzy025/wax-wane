@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CalendarDays, Copy, Check, TrendingUp, TrendingDown, BarChart2, AlertTriangle } from 'lucide-react'
+import { Calendar, Copy, Check, TrendUp, TrendDown, ChartBar, Warning } from 'phosphor-react'
 import {
   BarChart,
   Bar,
@@ -243,13 +243,13 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
             <h2>量化指标</h2>
             <p>基于闭环交易数据计算的专业量化指标</p>
           </div>
-          <BarChart2 size={20} aria-hidden="true" />
+          <ChartBar size={20} aria-hidden="true" />
         </div>
         {closedGroups.length > 0 ? (
           <div className="quant-metrics-grid">
             <div className="quant-metric">
               <div className="quant-metric-icon" style={{ color: 'var(--green)' }}>
-                <TrendingUp size={16} />
+                <TrendUp size={16} />
               </div>
               <div>
                 <div className="quant-metric-label">夏普比率</div>
@@ -261,7 +261,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
             </div>
             <div className="quant-metric">
               <div className="quant-metric-icon" style={{ color: 'var(--red)' }}>
-                <AlertTriangle size={16} />
+                <Warning size={16} />
               </div>
               <div>
                 <div className="quant-metric-label">最大回撤</div>
@@ -272,8 +272,8 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
               </div>
             </div>
             <div className="quant-metric">
-              <div className="quant-metric-icon" style={{ color: 'var(--purple)' }}>
-                <TrendingDown size={16} />
+              <div className="quant-metric-icon" style={{ color: 'var(--cyan)' }}>
+                <TrendDown size={16} />
               </div>
               <div>
                 <div className="quant-metric-label">年化收益</div>
@@ -285,7 +285,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
             </div>
             <div className="quant-metric">
               <div className="quant-metric-icon" style={{ color: 'var(--orange)' }}>
-                <BarChart2 size={16} />
+                <ChartBar size={16} />
               </div>
               <div>
                 <div className="quant-metric-label">盈亏比</div>
@@ -297,7 +297,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
             </div>
             <div className="quant-metric">
               <div className="quant-metric-icon" style={{ color: 'var(--green)' }}>
-                <TrendingUp size={16} />
+                <TrendUp size={16} />
               </div>
               <div>
                 <div className="quant-metric-label">盈利因子</div>
@@ -310,8 +310,8 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
               </div>
             </div>
             <div className="quant-metric">
-              <div className="quant-metric-icon" style={{ color: 'var(--purple)' }}>
-                <TrendingUp size={16} />
+              <div className="quant-metric-icon" style={{ color: 'var(--cyan)' }}>
+                <TrendUp size={16} />
               </div>
               <div>
                 <div className="quant-metric-label">期望值</div>
@@ -357,7 +357,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                   return [formatMoney(value, { withSign: true }), '关联盈亏']
                 }}
               />
-              <Bar dataKey="count" fill="var(--orange)" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="count" fill="var(--blue)" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
@@ -382,7 +382,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
             <h2>{t.analytics.holdingTitle}</h2>
             <p>{t.analytics.holdingDesc}</p>
           </div>
-          <CalendarDays size={20} aria-hidden="true" />
+          <Calendar size={20} aria-hidden="true" />
         </div>
         {closedGroups.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>
@@ -393,7 +393,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
               <Tooltip formatter={(value: number) => [`${value} 笔`, '交易数']} />
               <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                 {holdingData.map((_, index) => (
-                  <Cell key={index} fill={index % 2 === 0 ? 'var(--orange)' : 'var(--purple)'} />
+                  <Cell key={index} fill={index % 2 === 0 ? 'var(--blue)' : 'var(--cyan)'} />
                 ))}
               </Bar>
             </BarChart>

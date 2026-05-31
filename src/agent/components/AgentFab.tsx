@@ -1,4 +1,4 @@
-import { Sparkles, X } from 'lucide-react'
+import { Sparkle, X } from 'phosphor-react'
 import { useAgentState, useAgentDispatch } from '../agentStore'
 
 interface AgentFabProps {
@@ -16,7 +16,7 @@ export function AgentFab({ label }: AgentFabProps) {
       onClick={() => dispatch({ type: 'TOGGLE_PANEL' })}
       title={label ?? 'AI Assistant'}
     >
-      {state.isOpen ? <X size={22} /> : <Sparkles size={22} />}
+      {state.isOpen ? <X size={22} /> : <Sparkle size={22} />}
     </button>
   )
 }

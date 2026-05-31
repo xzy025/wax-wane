@@ -37,8 +37,8 @@
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  background: var(--orange-soft);
-  color: var(--orange);
+  background: var(--blue-soft);
+  color: var(--blue);
   flex-shrink: 0;
 }
 
@@ -68,7 +68,7 @@
 }
 
 .macro-item-change.down {
-  color: var(--muted);
+  color: var(--green);
 }
 
 .macro-banner-meta {
@@ -85,8 +85,8 @@
 .demo-badge {
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--orange-soft);
-  color: var(--orange);
+  background: var(--blue-soft);
+  color: var(--blue);
   font-weight: 800;
   font-size: 0.7rem;
 }
@@ -150,7 +150,7 @@
 }
 
 .ashare-index-change.down {
-  color: var(--muted);
+  color: var(--green);
 }
 
 .ashare-index-vol {
@@ -182,7 +182,7 @@
 }
 
 .ashare-stat-icon.down {
-  color: var(--green, #22c55e);
+  color: var(--green);
 }
 
 .ashare-stat-label {
@@ -203,7 +203,7 @@
 }
 
 .ashare-stat-value.down {
-  color: var(--green, #22c55e);
+  color: var(--green);
 }
 
 .ashare-score {
@@ -216,18 +216,18 @@
 }
 
 .ashare-score.good {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--red-soft);
   color: var(--red);
 }
 
 .ashare-score.ok {
-  background: rgba(245, 158, 11, 0.08);
+  background: var(--orange-soft);
   color: var(--orange);
 }
 
 .ashare-score.bad {
-  background: rgba(34, 197, 94, 0.08);
-  color: var(--green, #22c55e);
+  background: var(--green-soft);
+  color: var(--green);
 }
 
 .ashare-score-value {
@@ -352,7 +352,7 @@
 }
 
 .date-picker-btn:hover {
-  border-color: var(--orange);
+  border-color: var(--blue);
 }
 
 .date-picker-popup {
@@ -449,16 +449,16 @@
 }
 
 .date-picker-day.today {
-  border: 1px solid var(--orange);
+  border: 1px solid var(--blue);
 }
 
 .date-picker-day.selected {
-  background: var(--orange);
+  background: var(--blue);
   color: #fff;
 }
 
 .date-picker-day.selected:hover {
-  background: var(--orange);
+  background: var(--blue-hover);
 }
 
 .macro-skeleton {
@@ -514,7 +514,7 @@
 }
 
 .macro-settings-input:focus {
-  border-color: var(--orange);
+  border-color: var(--blue);
 }
 
 .macro-settings-btn {
@@ -523,7 +523,7 @@
   font-size: 0.78rem;
   font-weight: 700;
   color: #fff;
-  background: var(--orange);
+  background: var(--blue);
   white-space: nowrap;
 }
 
@@ -548,8 +548,8 @@
   border-radius: 6px;
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--orange);
-  background: var(--orange-soft);
+  color: var(--blue);
+  background: var(--blue-soft);
 }
 
 .spin {
