@@ -77,7 +77,9 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
       <div className="macro-banner">
         {!hasData && !loading ? (
           <div className="macro-banner-empty">
-            <span>{t.macro.loading}</span>
+            <span style={{ color: error ? 'var(--red)' : 'var(--muted)' }}>
+              {error ? t.macro.error : t.macro.loading}
+            </span>
             <button className="macro-refresh-btn" type="button" onClick={refresh}>
               <ArrowClockwise size={14} aria-hidden="true" />
               {t.macro.retry}
@@ -139,18 +141,7 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
               {t.macro.lastUpdated} {lastUpdated.toLocaleTimeString()}
             </span>
           )}
-          {error && <span style={{ color: 'var(--red)' }}>{t.macro.error}</span>}
-          <button
-            className="icon-button"
-            type="button"
-            aria-label={t.macro.retry}
-            title={t.macro.retry}
-            onClick={refresh}
-            disabled={loading}
-            style={{ padding: 4 }}
-          >
-            <ArrowClockwise size={14} className={loading ? 'spin' : ''} aria-hidden="true" />
-          </button>
+          {error && hasData && <span style={{ color: 'var(--red)' }}>{t.macro.error}</span>}
         </div>
       </div>
     </>

@@ -29,29 +29,41 @@ async function fetchFromBackend(): Promise<MacroIndicator[]> {
 export function useMacroData(date: string = todayStr()): MacroDataResult {
   const isToday = date === todayStr()
 
-  // Initialize from history if viewing a past date
-  const initial = !isToday ? ((getDay(date)?.macro as MacroIndicator[] | undefined) ?? []) : []
-  const [data, setData] = useState<MacroIndicator[]>(initial)
+  // Initialize from cache (works for both today and past dates)
+  const cachedEntry = getDay(date)
+  const cachedData = cachedEntry?.macro as MacroIndicator[] | undefined
+  const [data, setData] = useState<MacroIndicator[]>(cachedData ?? [])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(
-    !isToday && initial.length > 0 ? new Date(getDay(date)?.timestamp ?? Date.now()) : null,
+    cachedData && cachedData.length > 0 && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
   const fetching = useRef(false)
 
-  // When date changes, load from history or fetch
+  // When date changes, load from cache or fetch
   useEffect(() => {
-    if (!isToday) {
-      const entry = getDay(date)
-      const historical = entry?.macro as MacroIndicator[] | undefined
-      setData(historical ?? [])
-      setLastUpdated(historical && entry ? new Date(entry.timestamp) : null)
-      setError(historical ? null : 'No data for this date')
+    const entry = getDay(date)
+    const cached = entry?.macro as MacroIndicator[] | undefined
+
+    // If cached data exists, use it (for both today and past dates)
+    if (cached && cached.length > 0) {
+      setData(cached)
+      setLastUpdated(entry ? new Date(entry.timestamp) : null)
+      setError(null)
       setLoading(false)
       return
     }
 
-    // Today: fetch from backend (API key stays on server)
+    // Past date without cache: no data
+    if (!isToday) {
+      setData([])
+      setLastUpdated(null)
+      setError('No data for this date')
+      setLoading(false)
+      return
+    }
+
+    // Today without cache: fetch from backend
     if (fetching.current) return
     fetching.current = true
     setLoading(true)

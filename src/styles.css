@@ -253,6 +253,10 @@ p {
   grid-template-columns: repeat(3, 82px);
 }
 
+.segmented-4 {
+  grid-template-columns: repeat(4, 72px);
+}
+
 .segmented button {
   min-height: 36px;
   border-radius: 6px;
@@ -327,6 +331,14 @@ p {
 .metric-card small {
   display: block;
   color: var(--muted);
+}
+
+.metric-card small.positive-text {
+  color: var(--red);
+}
+
+.metric-card small.negative-text {
+  color: var(--green);
 }
 
 .metric-card strong {
@@ -1126,6 +1138,10 @@ textarea:focus {
 
   .segmented-3 {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .segmented-4 {
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .metric-grid,

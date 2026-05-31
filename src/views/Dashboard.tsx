@@ -113,12 +113,21 @@ export default function Dashboard({ t, range }: DashboardProps) {
     return result
   }, [filteredGroups, closedGroups, totalFees])
 
+  // 计算收益率百分比（基于总成本）
+  const totalCost = closedGroups.reduce((sum, g) => {
+    const avgCost = g.pnl / (g.returnRate / 100)
+    return sum + Math.abs(avgCost)
+  }, 0)
+  const returnPercent = totalCost > 0 ? ((totalPnl / totalCost) * 100).toFixed(1) : '0.0'
+
   const computedMetrics = [
     {
       key: 'realizedPnl',
-      value: formatMoney(totalPnl, { withSign: true }),
+      value: formatMoney(totalPnl),
       positive: totalPnl > 0,
       tone: totalPnl >= 0 ? 'positive' : 'neutral',
+      delta: `${totalPnl >= 0 ? '+' : ''}${returnPercent}%`,
+      deltaPositive: totalPnl >= 0,
     },
     {
       key: 'winRate',
@@ -143,13 +152,17 @@ export default function Dashboard({ t, range }: DashboardProps) {
         {computedMetrics.map((metric) => {
           const mockCard = metricCards.find((c) => c.key === metric.key)
           const Icon = mockCard?.icon ?? CurrencyCircleDollar
-          const [label, delta] = t.metrics[metric.key]
+          const [label, defaultDelta] = t.metrics[metric.key]
+          const delta = metric.delta ?? defaultDelta
+          const deltaClass = metric.deltaPositive !== undefined
+            ? (metric.deltaPositive ? 'positive-text' : 'negative-text')
+            : ''
           return (
             <article className={`metric-card ${metric.tone}`} key={metric.key}>
               <div>
                 <span>{label}</span>
                 <strong>{metric.positive ? `+${metric.value}` : metric.value}</strong>
-                <small>{delta}</small>
+                <small className={deltaClass}>{delta}</small>
               </div>
               <Icon size={24} aria-hidden="true" />
             </article>

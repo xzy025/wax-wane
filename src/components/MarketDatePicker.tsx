@@ -24,10 +24,27 @@ function formatDisplay(date: string, t: Translation): string {
   return `${parts[1]}-${parts[2]}`
 }
 
+function isTradingDay(dateStr: string): boolean {
+  const date = new Date(dateStr + 'T00:00:00')
+  const day = date.getDay()
+  // 0 = Sunday, 6 = Saturday
+  return day !== 0 && day !== 6
+}
+
 function isSelectable(date: string): boolean {
   const today = todayStr()
-  const minDate = daysAgo(6)
-  return date >= minDate && date <= today
+  const minDate = daysAgo(30) // 扩大范围到30天
+  return date >= minDate && date <= today && isTradingDay(date)
+}
+
+export function getLastTradingDay(): string {
+  const today = new Date()
+  let d = new Date(today)
+  // 如果今天是周末，往前找
+  while (d.getDay() === 0 || d.getDay() === 6) {
+    d.setDate(d.getDate() - 1)
+  }
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function getMonthDays(

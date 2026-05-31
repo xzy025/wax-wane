@@ -257,6 +257,69 @@
   flex-shrink: 0;
 }
 
+/* Volume History */
+.ashare-volume-section {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.ashare-volume-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 52px;
+}
+
+.ashare-volume-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1px;
+  height: 100%;
+}
+
+.ashare-volume-bar {
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: height 0.3s ease;
+}
+
+.ashare-volume-value {
+  font-size: 0.6rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ashare-volume-date {
+  font-size: 0.55rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Index price colors */
+.ashare-index-price.up {
+  color: var(--red);
+}
+
+.ashare-index-price.down {
+  color: var(--green);
+}
+
+/* Advance/Decline colors */
+.ashare-stat-value .up {
+  color: var(--red);
+  font-weight: 800;
+}
+
+.ashare-stat-value .down {
+  color: var(--green);
+  font-weight: 800;
+}
+
 .ashare-empty {
   display: flex;
   align-items: center;
