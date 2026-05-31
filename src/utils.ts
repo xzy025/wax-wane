@@ -22,6 +22,10 @@ export function getDateRange(range: string): { start: string; end: string } {
       start = new Date(now)
       start.setMonth(start.getMonth() - 3)
       break
+    case 'year':
+      start = new Date(now)
+      start.setFullYear(start.getFullYear() - 1)
+      break
     case 'month':
     default:
       start = new Date(now)

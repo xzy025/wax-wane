@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react'
-import { CaretRight, File, UploadSimpleSimple, CheckCircle, Warning } from 'phosphor-react'
+import { CaretRight, File, UploadSimple, CheckCircle, Warning } from 'phosphor-react'
 import {
   parseFile,
   mapAndValidate,

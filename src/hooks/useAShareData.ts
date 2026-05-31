@@ -22,6 +22,12 @@ export interface NewHighStock {
   changePct: number
 }
 
+export interface VolumeRecord {
+  date: string
+  volume: number
+  turnover: number
+}
+
 export interface AShareData {
   indices: IndexQuote[]
   limitUpCount: number
@@ -34,6 +40,7 @@ export interface AShareData {
   promotionTotal: number
   newHighCount: number
   newHighStocks: NewHighStock[]
+  volumeHistory: VolumeRecord[]
 }
 
 export interface AShareResult {
@@ -104,6 +111,32 @@ function getMockData(): AShareData {
         open: 2170.0,
         prevClose: 2173.05,
       },
+      {
+        code: '000688',
+        name: '科创50',
+        price: 986.45,
+        changePct: 0.85,
+        changeAmt: 8.32,
+        volume: 856234,
+        turnover: 98000000000,
+        high: 992.0,
+        low: 978.0,
+        open: 980.0,
+        prevClose: 978.13,
+      },
+      {
+        code: '899050',
+        name: '北证50',
+        price: 1025.38,
+        changePct: 1.23,
+        changeAmt: 12.46,
+        volume: 423156,
+        turnover: 32000000000,
+        high: 1030.0,
+        low: 1015.0,
+        open: 1018.0,
+        prevClose: 1012.92,
+      },
     ],
     limitUpCount: 65,
     limitDownCount: 12,
@@ -119,6 +152,15 @@ function getMockData(): AShareData {
       { code: '688001', name: '华兴源创', price: 82.55, changePct: 2.18 },
       { code: '688110', name: '东芯股份', price: 166.6, changePct: 5.02 },
     ],
+    volumeHistory: [
+      { date: '05-23', volume: 18234567, turnover: 2876543210000 },
+      { date: '05-26', volume: 21123456, turnover: 3234567890000 },
+      { date: '05-27', volume: 16987654, turnover: 2676543210000 },
+      { date: '05-28', volume: 22234567, turnover: 3434567890000 },
+      { date: '05-29', volume: 19876543, turnover: 3098765432000 },
+      { date: '05-30', volume: 20543210, turnover: 3156789012000 },
+      { date: '05-31', volume: 23052654, turnover: 3071144520000 },
+    ],
   }
 }
 
@@ -127,33 +169,45 @@ function getMockData(): AShareData {
 export function useAShareData(date: string = todayStr()): AShareResult {
   const isToday = date === todayStr()
 
-  // Initialize from history if viewing a past date
-  const initial = !isToday ? ((getDay(date)?.ashare as AShareData | undefined) ?? null) : null
-  const [data, setData] = useState<AShareData | null>(initial)
+  // Initialize from cache (works for both today and past dates)
+  const cachedEntry = getDay(date)
+  const cachedData = cachedEntry?.ashare as AShareData | undefined
+  const [data, setData] = useState<AShareData | null>(cachedData ?? null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(
-    !isToday && !initial ? 'No data for this date' : null,
+    !cachedData && !isToday ? 'No data for this date' : null,
   )
   const [lastUpdated, setLastUpdated] = useState<Date | null>(
-    !isToday && initial ? new Date(getDay(date)?.timestamp ?? Date.now()) : null,
+    cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
   const fetching = useRef(false)
   const dataRef = useRef(data)
   dataRef.current = data
 
-  // When date changes, load from history or fetch
+  // When date changes, load from cache or fetch
   useEffect(() => {
-    if (!isToday) {
-      const entry = getDay(date)
-      const historical = entry?.ashare as AShareData | undefined
-      setData(historical ?? null)
-      setLastUpdated(historical && entry ? new Date(entry.timestamp) : null)
-      setError(historical ? null : 'No data for this date')
+    const entry = getDay(date)
+    const cached = entry?.ashare as AShareData | undefined
+
+    // If cached data exists, use it (for both today and past dates)
+    if (cached) {
+      setData(cached)
+      setLastUpdated(entry ? new Date(entry.timestamp) : null)
+      setError(null)
       setLoading(false)
       return
     }
 
-    // Today: fetch fresh data
+    // Past date without cache: no data
+    if (!isToday) {
+      setData(null)
+      setLastUpdated(null)
+      setError('No data for this date')
+      setLoading(false)
+      return
+    }
+
+    // Today without cache: fetch fresh data
     if (fetching.current) return
     fetching.current = true
     setLoading(true)
@@ -177,6 +231,7 @@ export function useAShareData(date: string = todayStr()): AShareResult {
         if (!dataRef.current) {
           const mock = getMockData()
           setData(mock)
+          saveDay(date, { ashare: mock })
         }
         setError('Failed to fetch A-share data')
       } finally {

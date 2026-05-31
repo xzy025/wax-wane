@@ -24,6 +24,8 @@ const INDEX_CONFIG: Record<string, { labelKey: keyof Translation['ashare']; char
   '000001': { labelKey: 'shIndex', chartUrl: 'https://quote.eastmoney.com/zs000001.html' },
   '399001': { labelKey: 'szIndex', chartUrl: 'https://quote.eastmoney.com/zs399001.html' },
   '399006': { labelKey: 'chiNext', chartUrl: 'https://quote.eastmoney.com/zs399006.html' },
+  '000688': { labelKey: 'star50', chartUrl: 'https://quote.eastmoney.com/zs000688.html' },
+  '899050': { labelKey: 'bse50', chartUrl: 'https://quote.eastmoney.com/zs899050.html' },
 }
 
 function formatPrice(price: number, code: string): string {
@@ -86,7 +88,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                 rel="noopener noreferrer"
               >
                 <div className="ashare-index-name">{t.ashare[config.labelKey]}</div>
-                <div className="ashare-index-price">{formatPrice(idx.price, idx.code)}</div>
+                <div className={`ashare-index-price ${isUp ? 'up' : 'down'}`}>{formatPrice(idx.price, idx.code)}</div>
                 <div className={`ashare-index-change ${isUp ? 'up' : 'down'}`}>
                   <ChangeIcon size={12} aria-hidden="true" />
                   {isUp ? '+' : ''}
@@ -98,7 +100,9 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
           })
         ) : (
           <div className="ashare-empty">
-            <span>{t.ashare.loading}</span>
+            <span style={{ color: error ? 'var(--red)' : 'var(--muted)' }}>
+              {error ? t.ashare.error : t.ashare.loading}
+            </span>
             <button className="macro-refresh-btn" type="button" onClick={refresh}>
               <ArrowClockwise size={14} aria-hidden="true" />
               {t.ashare.retry}
@@ -135,7 +139,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                   {t.ashare.advance}/{t.ashare.decline}
                 </div>
                 <div className="ashare-stat-value">
-                  {data.advance}/{data.decline}
+                  <span className="up">{data.advance}</span>/<span className="down">{data.decline}</span>
                 </div>
               </div>
             </div>
@@ -197,6 +201,37 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                 <div className="ashare-score-label">{getProfitabilityLabel(t, score)}</div>
               </div>
             </div>
+
+            {/* Volume History */}
+            <div className="ashare-divider" />
+            <div className="ashare-volume-section">
+              <div className="ashare-stat-label" style={{ marginBottom: 4 }}>{t.ashare.totalVolume}</div>
+              <div className="ashare-volume-bars">
+                {(data.volumeHistory ?? []).map((v, i) => {
+                  const maxVol = Math.max(...(data.volumeHistory ?? []).map((d) => d.turnover))
+                  const height = maxVol > 0 ? (v.turnover / maxVol) * 100 : 0
+                  const prevVol = i > 0 ? data.volumeHistory![i - 1].turnover : v.turnover
+                  const isUp = v.turnover >= prevVol
+                  const isToday = i === (data.volumeHistory?.length ?? 0) - 1
+                  const volInYi = (v.turnover / 1e12).toFixed(1)
+                  return (
+                    <div key={v.date} className="ashare-volume-bar-wrapper">
+                      <div
+                        className="ashare-volume-bar"
+                        style={{
+                          height: `${height}%`,
+                          background: isToday ? (isUp ? 'var(--red)' : 'var(--green)') : (isUp ? 'rgba(245,63,63,0.3)' : 'rgba(0,180,42,0.3)'),
+                        }}
+                      />
+                      <div className="ashare-volume-value" style={{ color: isUp ? 'var(--red)' : 'var(--green)' }}>
+                        {volInYi}
+                      </div>
+                      <div className="ashare-volume-date">{v.date}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </>
         )}
 
@@ -207,18 +242,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               {t.ashare.lastUpdated} {lastUpdated.toLocaleTimeString()}
             </span>
           )}
-          {error && <span style={{ color: 'var(--red)' }}>{t.ashare.error}</span>}
-          <button
-            className="icon-button"
-            type="button"
-            aria-label={t.ashare.retry}
-            title={t.ashare.retry}
-            onClick={refresh}
-            disabled={loading}
-            style={{ padding: 4 }}
-          >
-            <ArrowClockwise size={14} className={loading ? 'spin' : ''} aria-hidden="true" />
-          </button>
+          {error && hasData && <span style={{ color: 'var(--red)' }}>{t.ashare.error}</span>}
         </div>
       </div>
 

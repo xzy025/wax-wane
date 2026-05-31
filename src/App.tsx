@@ -16,7 +16,7 @@ import { useRagSync } from './hooks/useRagSync'
 import SegmentedControl from './components/SegmentedControl'
 import MacroBanner from './components/MacroBanner'
 import AShareBanner from './components/AShareBanner'
-import MarketDatePicker from './components/MarketDatePicker'
+import MarketDatePicker, { getLastTradingDay } from './components/MarketDatePicker'
 import ErrorBoundary from './components/ErrorBoundary'
 import { todayStr } from './utils/marketHistory'
 import Dashboard from './views/Dashboard'
@@ -39,7 +39,7 @@ const translations: Record<string, Translation> = { zh, en }
 function AppLayout() {
   const [language, setLanguage] = useState('zh')
   const [range, setRange] = useState('month')
-  const [selectedDate, setSelectedDate] = useState(todayStr())
+  const [selectedDate, setSelectedDate] = useState(getLastTradingDay())
   const location = useLocation()
   const t = translations[language]
   const { tradeGroups } = useAppState()
@@ -101,13 +101,15 @@ function AppLayout() {
             <h1>{t.titles[activeView]}</h1>
           </div>
           <div className="topbar-actions">
-            <SegmentedControl
-              label={t.range.label}
-              value={range}
-              options={['week', 'month', 'quarter']}
-              labels={t.range}
-              onChange={setRange}
-            />
+            {activeView === 'dashboard' && (
+              <SegmentedControl
+                label={t.range.label}
+                value={range}
+                options={['week', 'month', 'quarter', 'year']}
+                labels={t.range}
+                onChange={setRange}
+              />
+            )}
             <SegmentedControl
               label={t.language.label}
               value={language}
@@ -119,11 +121,15 @@ function AppLayout() {
           </div>
         </header>
 
-        <MarketDatePicker selectedDate={selectedDate} onSelect={setSelectedDate} t={t} />
-        <ErrorBoundary>
-          <MacroBanner t={t} date={selectedDate} />
-          <AShareBanner t={t} date={selectedDate} />
-        </ErrorBoundary>
+        {activeView === 'dashboard' && (
+          <>
+            <MarketDatePicker selectedDate={selectedDate} onSelect={setSelectedDate} t={t} />
+            <ErrorBoundary>
+              <MacroBanner t={t} date={selectedDate} />
+              <AShareBanner t={t} date={selectedDate} />
+            </ErrorBoundary>
+          </>
+        )}
 
         <ErrorBoundary>
           <Routes>

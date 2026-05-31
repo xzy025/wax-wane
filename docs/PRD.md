@@ -252,6 +252,61 @@ Key icons:
 - `CurrencyCircleDollar` - Financial metrics
 - `Robot` - AI Agent
 
+### 12.3 A-Share Dashboard Features
+
+#### Market Indices
+- Shanghai Composite (上证指数)
+- Shenzhen Component (深证成指)
+- ChiNext (创业板指)
+- STAR 50 (科创50)
+- BSE 50 (北证50)
+
+#### Market Sentiment Indicators
+- Limit up/down counts with red/green colors
+- Advance/decline ratio with colored numbers
+- Profitability score (0-100)
+- Promotion rate (连板晋级率)
+- New high stocks list
+
+#### Volume Statistics
+- 7-day volume history chart
+- Volume in trillions (万亿)
+- Red bars for volume increase vs previous day
+- Green bars for volume decrease vs previous day
+
+### 12.4 Date Range & Selection
+
+#### Range Options
+- Week (周度): Last 7 days
+- Month (月度): Last 30 days
+- Quarter (季度): Last 90 days
+- Year (年度): Last 365 days
+
+#### Date Picker
+- Weekends (Saturday/Sunday) are disabled
+- Default selection: Last trading day
+- Calendar shows current month
+
+### 12.5 Data Caching
+
+Market data is cached per date in localStorage:
+- First fetch for each date is cached
+- Page refresh uses cached data (no API call)
+- Manual refresh button forces new data fetch
+- Cache expires after 30 days (pruned automatically)
+
+### 12.6 Dashboard Layout
+
+The dashboard tab shows:
+- Date picker and range selector
+- Macro indicators banner (Treasury, Gold, USD, Oil, VIX)
+- A-Share market banner (indices, sentiment, volume)
+- Equity curve chart
+- Risk alerts
+- Recent trade groups
+
+Other tabs (Import, Ledger, Reviews, Analytics) do not show these elements.
+
 ## 13. Future Enhancements
 
 - Broker-specific mapping templates.

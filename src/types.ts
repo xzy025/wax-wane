@@ -77,7 +77,7 @@ export interface Translation {
   appSubtitle: string
   nav: Record<string, string>
   titles: Record<string, string>
-  range: { label: string; week: string; month: string; quarter: string }
+  range: { label: string; week: string; month: string; quarter: string; year: string }
   language: { label: string; zh: string; en: string }
   settings: string
   sidebar: { costLabel: string; costMode: string; costHint: string }
@@ -174,6 +174,8 @@ export interface Translation {
     shIndex: string
     szIndex: string
     chiNext: string
+    star50: string
+    bse50: string
     limitUp: string
     limitDown: string
     advance: string
@@ -185,6 +187,7 @@ export interface Translation {
     profitabilityBad: string
     promotionRate: string
     newHigh: string
+    totalVolume: string
     lastUpdated: string
     loading: string
     error: string
