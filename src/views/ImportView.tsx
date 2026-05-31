@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react'
-import { ChevronRight, FileSpreadsheet, Upload, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { CaretRight, File, UploadSimpleSimple, CheckCircle, Warning } from 'phosphor-react'
 import {
   parseFile,
   mapAndValidate,
@@ -125,7 +125,7 @@ export default function ImportView({ t }: ImportViewProps) {
         <div className="upload-box">
           {step === 'upload' ? (
             <>
-              <Upload size={34} aria-hidden="true" />
+              <UploadSimple size={34} aria-hidden="true" />
               <h2>{t.import.uploadTitle}</h2>
               <p>{t.import.uploadDesc}</p>
               <input
@@ -140,13 +140,13 @@ export default function ImportView({ t }: ImportViewProps) {
                 type="button"
                 onClick={() => fileRef.current?.click()}
               >
-                <FileSpreadsheet size={18} aria-hidden="true" />
+                <File size={18} aria-hidden="true" />
                 {t.import.selectFile}
               </button>
             </>
           ) : step === 'mapping' ? (
             <>
-              <CheckCircle2 size={34} style={{ color: 'var(--orange)' }} />
+              <CheckCircle size={34} style={{ color: 'var(--blue)' }} />
               <h2>{preview?.totalRows} 行数据已解析</h2>
               <p>请确认下方的列映射关系</p>
               <button className="primary-button" type="button" onClick={handleImport}>
@@ -155,7 +155,7 @@ export default function ImportView({ t }: ImportViewProps) {
             </>
           ) : step === 'done' ? (
             <>
-              <CheckCircle2 size={34} style={{ color: 'var(--red)' }} />
+              <CheckCircle size={34} style={{ color: 'var(--red)' }} />
               <h2>导入完成</h2>
               <p>
                 {importResult?.count} 条记录已导入
@@ -207,7 +207,7 @@ export default function ImportView({ t }: ImportViewProps) {
             {STANDARD_FIELDS.map((field) => (
               <div className="mapping-row" key={field.key}>
                 <span>{field.label}</span>
-                <ChevronRight size={16} aria-hidden="true" />
+                <CaretRight size={16} aria-hidden="true" />
                 <select
                   value={mapping[field.key]}
                   onChange={(e) => setMapping((prev) => ({ ...prev, [field.key]: e.target.value }))}
@@ -307,7 +307,7 @@ export default function ImportView({ t }: ImportViewProps) {
             {t.import.mappingRows.map(([source, target, status]) => (
               <div className="mapping-row" key={target}>
                 <span>{source}</span>
-                <ChevronRight size={16} aria-hidden="true" />
+                <CaretRight size={16} aria-hidden="true" />
                 <strong>{target}</strong>
                 <small>{status}</small>
               </div>

@@ -1,4 +1,4 @@
-import { Bot, User } from 'lucide-react'
+import { Robot, User } from 'phosphor-react'
 import type { ConversationMessage } from '../types'
 import { ToolCallCard } from './ToolCallCard'
 
@@ -14,7 +14,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   return (
     <div className={`ai-msg ai-msg-${message.role}`}>
-      <div className="ai-msg-avatar">{isUser ? <User size={16} /> : <Bot size={16} />}</div>
+      <div className="ai-msg-avatar">{isUser ? <User size={16} /> : <Robot size={16} />}</div>
       <div className="ai-msg-body">
         {hasToolCalls && (
           <div className="ai-msg-tools">

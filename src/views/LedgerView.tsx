@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Filter, Search, AlertTriangle, Pencil, Check, X } from 'lucide-react'
+import { Funnel, MagnifyingGlass, Warning, PencilSimple, Check, X } from 'phosphor-react'
 import { useAppState, useAppDispatch } from '../store'
 import { buildTradeGroups } from '../engine/tradeGroup'
 import { validateTrades, getPositionQuantities } from '../engine/position'
@@ -83,7 +83,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
         </div>
         <div className="table-tools">
           <div className="search-box">
-            <Search size={16} aria-hidden="true" />
+            <MagnifyingGlass size={16} aria-hidden="true" />
             <input
               type="text"
               placeholder={t.ledger.search}
@@ -92,7 +92,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
             />
           </div>
           <div className="filter-group">
-            <Filter size={16} aria-hidden="true" />
+            <Funnel size={16} aria-hidden="true" />
             {sideOptions.map((opt) => (
               <button
                 key={opt.value}
@@ -220,7 +220,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
                   {trade.stockCode}
                   {trade.validationStatus === 'error' && (
                     <span className="validation-badge" title={trade.validationMessage}>
-                      <AlertTriangle size={14} />
+                      <Warning size={14} />
                     </span>
                   )}
                 </span>
@@ -241,7 +241,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
                     title="编辑"
                     onClick={() => handleStartEdit(trade)}
                   >
-                    <Pencil size={14} />
+                    <PencilSimple size={14} />
                   </button>
                 </span>
               </div>

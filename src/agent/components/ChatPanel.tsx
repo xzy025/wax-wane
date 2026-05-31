@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Send, Trash2, Sparkles, Loader2, Square, ClipboardCheck, Settings2, Check } from 'lucide-react'
+import { PaperPlaneRight, Trash, Sparkle, CircleNotch, Square, ClipboardText, Gear, Check } from 'phosphor-react'
 import {
   useAgentState,
   useAgentDispatch,
@@ -339,7 +339,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
     <div className="ai-chat-panel">
       <div className="ai-chat-header">
         <div className="ai-chat-header-title">
-          <Sparkles size={16} />
+          <Sparkle size={16} />
           <span>{t.ai?.chatTitle ?? 'AI Assistant'}</span>
           <button
             className="ai-chat-llm-badge"
@@ -358,7 +358,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
             disabled={agentState.isProcessing}
             title="一键复盘"
           >
-            <ClipboardCheck size={14} />
+            <ClipboardText size={14} />
             <span>复盘</span>
           </button>
           {messages.length > 0 && (
@@ -368,7 +368,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
               onClick={handleClear}
               title={t.ai?.clearChat ?? 'Clear'}
             >
-              <Trash2 size={14} />
+              <Trash size={14} />
             </button>
           )}
         </div>
@@ -431,7 +431,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       <div className="ai-chat-messages">
         {messages.length === 0 && !isStreaming && (
           <div className="ai-chat-welcome">
-            <Sparkles size={24} />
+            <Sparkle size={24} />
             <p>{t.ai?.chatPlaceholder ?? 'Ask a question about your trades'}</p>
             <div className="ai-quick-prompts">
               {quickPrompts.map((prompt) => (
@@ -459,7 +459,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         {isStreaming && !streamingContent && (
           <div className="ai-msg ai-msg-assistant">
             <div className="ai-msg-avatar">
-              <Loader2 size={16} className="ai-spin" />
+              <CircleNotch size={16} className="ai-spin" />
             </div>
             <div className="ai-msg-body">
               <div className="ai-msg-content ai-thinking">{t.ai?.thinking ?? 'Thinking...'}</div>
@@ -503,7 +503,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           </button>
         ) : (
           <button type="submit" disabled={agentState.isProcessing || (!input.trim() && pastedImages.length === 0)}>
-            {agentState.isProcessing ? <Loader2 size={18} className="ai-spin" /> : <Send size={18} />}
+            {agentState.isProcessing ? <CircleNotch size={18} className="ai-spin" /> : <PaperPlaneRight size={18} />}
           </button>
         )}
       </form>

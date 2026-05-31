@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Tags } from 'lucide-react'
+import { Tag } from 'phosphor-react'
 import { useAppState, useAppDispatch } from '../store'
 import { formatMoney, translateMap } from '../utils'
 import { ChatPanel } from '../agent/components/ChatPanel'
@@ -140,7 +140,7 @@ export default function ReviewView({
 
         <div className="tag-strip">
           <span>
-            <Tags size={16} aria-hidden="true" />
+            <Tag size={16} aria-hidden="true" />
             {translateMap(t.strategies, selectedGroup.strategy)}
           </span>
           {selectedGroup.mistakes.length === 0 ? (

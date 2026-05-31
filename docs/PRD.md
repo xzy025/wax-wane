@@ -218,7 +218,41 @@ Required standard fields:
 - User can write and edit a review note for a closed trade.
 - Production build passes.
 
-## 12. Future Enhancements
+## 12. UI Design System
+
+### 12.1 Color Scheme (Blue Theme)
+
+The application uses a modern blue-themed design system inspired by:
+- Xiaomi MiPlatform - Blue tech aesthetic, gradient style
+- Alibaba Cloud Bailian - Enterprise blue (#1677FF), card layout, light shadows
+- Stock Ladder - Clear rise/fall color display
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--bg` | `#F5F7FA` | Page background |
+| `--surface` | `#FFFFFF` | Card/panel background |
+| `--blue` | `#1677FF` | Primary actions, links |
+| `--cyan` | `#06B6D4` | Accent, secondary actions |
+| `--red` | `#F53F3F` | Rise (涨), danger |
+| `--green` | `#00B42A` | Fall (跌), success |
+| `--ink` | `#1D2129` | Primary text |
+| `--muted` | `#86909C` | Secondary text |
+
+### 12.2 Icon System
+
+Phosphor Icons (Apple-style line icons) with regular weight for:
+- Clean, modern appearance
+- Consistent with Apple SF Symbols design language
+- Financial and tech-oriented iconography
+
+Key icons:
+- `ChartBar` - Dashboard
+- `ChartPieSlice` - Analytics
+- `TrendUp/Down` - Market trends
+- `CurrencyCircleDollar` - Financial metrics
+- `Robot` - AI Agent
+
+## 13. Future Enhancements
 
 - Broker-specific mapping templates.
 - OCR import for PDF or image delivery statements.

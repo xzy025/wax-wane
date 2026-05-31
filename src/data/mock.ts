@@ -1,4 +1,4 @@
-import { Activity, CheckCircle2, CircleDollarSign, Database } from 'lucide-react'
+import { Activity, CheckCircle, CurrencyCircleDollar, Database } from 'phosphor-react'
 import type { TradeGroup, MetricCard } from '../types'
 
 export const metricCards = [
@@ -7,9 +7,9 @@ export const metricCards = [
     value: '¥18,426',
     positive: true,
     tone: 'positive',
-    icon: CircleDollarSign,
+    icon: CurrencyCircleDollar,
   },
-  { key: 'winRate', value: '58.3%', tone: 'neutral', icon: CheckCircle2 },
+  { key: 'winRate', value: '58.3%', tone: 'neutral', icon: CheckCircle },
   { key: 'payoff', value: '1.72', tone: 'positive', icon: Activity },
   { key: 'fees', value: '¥2,184', tone: 'warning', icon: Database },
 ] satisfies MetricCard[]

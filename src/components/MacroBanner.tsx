@@ -1,14 +1,14 @@
 import {
   Activity,
-  ArrowLeftRight,
-  BarChart2,
-  DollarSign,
+  ArrowsLeftRight,
+  ChartBar,
+  CurrencyDollar,
   Flame,
-  Landmark,
-  RefreshCw,
-  TrendingDown,
-  TrendingUp,
-} from 'lucide-react'
+  Bank,
+  ArrowClockwise,
+  TrendDown,
+  TrendUp,
+} from 'phosphor-react'
 import { useMacroData } from '../hooks/useMacroData'
 import type { Translation } from '../types'
 
@@ -19,30 +19,30 @@ interface MacroBannerProps {
 
 const indicatorConfig: Record<
   string,
-  { icon: typeof DollarSign; labelKey: keyof Translation['macro']; chartUrl: string }
+  { icon: typeof CurrencyDollar; labelKey: keyof Translation['macro']; chartUrl: string }
 > = {
   us10y: {
-    icon: Landmark,
+    icon: Bank,
     labelKey: 'us10y',
     chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:US10Y',
   },
   us5y: {
-    icon: Landmark,
+    icon: Bank,
     labelKey: 'us5y',
     chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:US05Y',
   },
   gold: {
-    icon: DollarSign,
+    icon: CurrencyDollar,
     labelKey: 'gold',
     chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:GOLD',
   },
   dxy: {
-    icon: BarChart2,
+    icon: ChartBar,
     labelKey: 'dxy',
     chartUrl: 'https://www.tradingview.com/chart/?symbol=TVC:DXY',
   },
   usdcny: {
-    icon: ArrowLeftRight,
+    icon: ArrowsLeftRight,
     labelKey: 'usdcny',
     chartUrl: 'https://www.tradingview.com/chart/?symbol=FX_IDC:USDCNY',
   },
@@ -79,7 +79,7 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
           <div className="macro-banner-empty">
             <span>{t.macro.loading}</span>
             <button className="macro-refresh-btn" type="button" onClick={refresh}>
-              <RefreshCw size={14} aria-hidden="true" />
+              <ArrowClockwise size={14} aria-hidden="true" />
               {t.macro.retry}
             </button>
           </div>
@@ -103,7 +103,7 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
             const change = item.value - item.previousClose
             const changePct = (change / item.previousClose) * 100
             const isUp = change >= 0
-            const ChangeIcon = isUp ? TrendingUp : TrendingDown
+            const ChangeIcon = isUp ? TrendUp : TrendDown
 
             return (
               <a
@@ -149,7 +149,7 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
             disabled={loading}
             style={{ padding: 4 }}
           >
-            <RefreshCw size={14} className={loading ? 'spin' : ''} aria-hidden="true" />
+            <ArrowClockwise size={14} className={loading ? 'spin' : ''} aria-hidden="true" />
           </button>
         </div>
       </div>

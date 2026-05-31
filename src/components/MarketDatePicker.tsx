@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { CaretLeft, CaretRight } from 'phosphor-react'
 import { todayStr } from '../utils/marketHistory'
 import type { Translation } from '../types'
 
@@ -152,13 +152,13 @@ export default function MarketDatePicker({ selectedDate, onSelect, t }: MarketDa
         <div className="date-picker-popup">
           <div className="date-picker-header">
             <button className="date-picker-nav" type="button" onClick={prevMonth}>
-              <ChevronLeft size={14} />
+              <CaretLeft size={14} />
             </button>
             <span className="date-picker-title">
               {calYear}年{calMonth + 1}月
             </span>
             <button className="date-picker-nav" type="button" onClick={nextMonth}>
-              <ChevronRight size={14} />
+              <CaretRight size={14} />
             </button>
           </div>
           <div className="date-picker-weekdays">
