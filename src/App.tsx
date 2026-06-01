@@ -106,7 +106,7 @@ function AppLayout() {
             <h1>{t.titles[activeView]}</h1>
           </div>
           <div className="topbar-actions">
-            {(activeView === 'dashboard' || activeView === 'market') && (
+            {activeView === 'dashboard' && (
               <SegmentedControl
                 label={t.range.label}
                 value={range}
