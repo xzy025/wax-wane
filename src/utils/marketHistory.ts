@@ -4,6 +4,9 @@ const MAX_DAYS = 7
 interface DayEntry {
   macro?: unknown
   ashare?: unknown
+  hk?: unknown
+  us?: unknown
+  hotlist?: unknown
   timestamp: number
 }
 
@@ -13,6 +16,9 @@ type HistoryMap = Record<string, DayEntry>
 export interface SaveDayOptions {
   macro?: unknown
   ashare?: unknown
+  hk?: unknown
+  us?: unknown
+  hotlist?: unknown
 }
 
 let cachedToday: string | null = null

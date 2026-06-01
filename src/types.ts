@@ -193,6 +193,27 @@ export interface Translation {
     error: string
     retry: string
   }
+  hk: {
+    hsi: string
+    hstech: string
+    chinaInternet: string
+    lastUpdated: string
+    loading: string
+    error: string
+    retry: string
+    closed: string
+  }
+  us: {
+    nvda: string
+    lite: string
+    amd: string
+    tsm: string
+    lastUpdated: string
+    loading: string
+    error: string
+    retry: string
+    closed: string
+  }
 }
 
 export interface ReviewNote {

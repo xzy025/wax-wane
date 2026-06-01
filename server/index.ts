@@ -1,7 +1,12 @@
 import express from 'express'
 import cors from 'cors'
 import { config } from 'dotenv'
+import { SocksProxyAgent } from 'socks-proxy-agent'
+import fetch from 'node-fetch'
 import { fetchAShareData, fetchStockQuote, fetchIndexTrends } from './ashare'
+import { fetchHKData } from './hk'
+import { fetchUSData } from './us'
+import { fetchHotList } from './hotlist'
 import { fetchNewsFeed } from './news'
 import { fetchMacroData } from './macro'
 import { searchSimilar, getDocumentCount } from './vectorStore'
@@ -33,6 +38,27 @@ const PORT = process.env.PORT ?? 3001
 
 app.use(cors({ origin: true }))
 app.use(express.json({ limit: '50mb' }))
+
+// Proxy configuration for Google API access (SOCKS5) - only for foreign APIs
+const socksProxy = process.env.SOCKS_PROXY || 'socks5://127.0.0.1:10808'
+let proxyAgent: SocksProxyAgent | undefined
+if (socksProxy) {
+  proxyAgent = new SocksProxyAgent(socksProxy)
+  console.log(`[Proxy] SOCKS proxy configured: ${socksProxy} (for Google API only)`)
+}
+
+// Custom fetch - only use proxy for foreign APIs (Google, Anthropic, OpenAI)
+async function fetchWithProxy(url: string, options: any = {}) {
+  const needsProxy = url.includes('googleapis.com') || url.includes('google.com')
+    || url.includes('anthropic.com') || url.includes('openai.com')
+
+  if (proxyAgent && needsProxy) {
+    console.log(`[Proxy] Using proxy for: ${url}`)
+    return fetch(url, { ...options, agent: proxyAgent } as any)
+  }
+  // Direct fetch for domestic APIs (eastmoney, etc.)
+  return fetch(url, options)
+}
 
 // Detect protocol from URL
 function getProtocol(apiUrl: string): 'anthropic' | 'openai' {
@@ -245,6 +271,54 @@ function toOpenAIRequest(messages: Array<{ role: string; content: string; images
   return body
 }
 
+// --- LLM Config by ID ---
+
+interface LLMPreset {
+  apiUrl: string
+  apiKey: string
+  model: string
+  protocol: 'openai' | 'anthropic'
+}
+
+function getLLMPresetById(id?: string): LLMPreset {
+  // Default: 小米 MiMo
+  const defaultPreset: LLMPreset = {
+    apiUrl: process.env.LLM_API_URL || 'https://token-plan-cn.xiaomimimo.com/anthropic',
+    apiKey: process.env.LLM_API_KEY || '',
+    model: process.env.LLM_MODEL || 'mimo-v2.5-pro',
+    protocol: 'openai', // MiMo uses OpenAI-compatible format
+  }
+
+  if (!id) return defaultPreset
+
+  switch (id) {
+    case 'claude':
+      return {
+        apiUrl: process.env.CLAUDE_API_URL || 'https://api.anthropic.com',
+        apiKey: process.env.CLAUDE_API_KEY || '',
+        model: process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514',
+        protocol: 'anthropic',
+      }
+    case 'codex':
+      return {
+        apiUrl: process.env.OPENAI_API_URL || 'https://api.openai.com/v1',
+        apiKey: process.env.OPENAI_API_KEY || '',
+        model: process.env.OPENAI_MODEL || 'gpt-4o',
+        protocol: 'openai',
+      }
+    case 'gemini':
+      return {
+        apiUrl: process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/openai',
+        apiKey: process.env.GEMINI_API_KEY || '',
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        protocol: 'openai',
+      }
+    case 'xiaomi-mimo':
+    default:
+      return defaultPreset
+  }
+}
+
 // --- Main endpoint ---
 
 app.post('/api/agent/chat', async (req, res) => {
@@ -259,10 +333,12 @@ app.post('/api/agent/chat', async (req, res) => {
     console.log('[Agent] Image format:', imgMsg.images[0].substring(0, 50) + '...')
   }
 
-  // Use request config or fall back to environment variables
-  const apiUrl = llmConfig?.apiUrl ?? process.env.LLM_API_URL
-  const apiKey = llmConfig?.apiKey ?? process.env.LLM_API_KEY
-  let model = llmConfig?.model ?? process.env.LLM_MODEL ?? 'deepseek-chat'
+  // Get LLM config by ID (API keys stay on server)
+  const preset = getLLMPresetById(llmConfig?.id)
+  const apiUrl = preset.apiUrl
+  const apiKey = preset.apiKey
+  let model = preset.model
+  const protocol = preset.protocol
 
   // MiMo: auto-switch to mimo-v2.5 when images are present (mimo-v2.5-pro doesn't support images)
   if (hasImages && model === 'mimo-v2.5-pro') {
@@ -270,9 +346,9 @@ app.post('/api/agent/chat', async (req, res) => {
     console.log('[Agent] Auto-switched to mimo-v2.5 for image support')
   }
 
-  if (!apiUrl || !apiKey) {
+  if (!apiKey) {
     res.status(500).json({
-      error: 'LLM API not configured. Set LLM_API_URL and LLM_API_KEY in server/.env',
+      error: `API key not configured for model "${llmConfig?.id || 'default'}". Set the key in server/.env`,
     })
     return
   }
@@ -285,9 +361,7 @@ app.post('/api/agent/chat', async (req, res) => {
 
   // Detect MiMo API
   const isMiMo = apiUrl.includes('xiaomimimo.com') || apiUrl.includes('mimo')
-
-  // For MiMo, always use OpenAI-compatible format
-  const protocol = isMiMo ? 'openai' : getProtocol(apiUrl)
+  const isGemini = apiUrl.includes('googleapis.com')
 
   let actualUrl = apiUrl
   if (isMiMo) {
@@ -295,6 +369,11 @@ app.post('/api/agent/chat', async (req, res) => {
     actualUrl = apiUrl.replace(/\/anthropic\/?$/, '').replace(/\/+$/, '')
     if (!actualUrl.endsWith('/v1/chat/completions')) {
       actualUrl = actualUrl + '/v1/chat/completions'
+    }
+  } else if (isGemini) {
+    // Gemini: ensure URL ends with /chat/completions
+    if (!actualUrl.endsWith('/chat/completions')) {
+      actualUrl = actualUrl.replace(/\/+$/, '') + '/chat/completions'
     }
   } else if (protocol === 'anthropic') {
     // Anthropic: ensure URL ends with /v1/messages
@@ -343,7 +422,7 @@ app.post('/api/agent/chat', async (req, res) => {
       }
     }
 
-    const llmResponse = await fetch(actualUrl, {
+    const llmResponse = await fetchWithProxy(actualUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
@@ -376,6 +455,11 @@ app.post('/api/agent/chat', async (req, res) => {
     res.end()
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
+    const stack = err instanceof Error ? err.stack : ''
+    console.error(`[Agent] Error:`, message)
+    console.error(`[Agent] Stack:`, stack)
+    console.error(`[Agent] URL:`, actualUrl)
+    console.error(`[Agent] Model:`, model)
     res.write(`data: ${JSON.stringify({ error: message })}\n\n`)
     res.write('data: [DONE]\n\n')
     res.end()
@@ -397,6 +481,39 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/ashare', async (_req, res) => {
   try {
     const data = await fetchAShareData()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// Hong Kong market data
+app.get('/api/hk', async (_req, res) => {
+  try {
+    const data = await fetchHKData()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// US market data
+app.get('/api/us', async (_req, res) => {
+  try {
+    const data = await fetchUSData()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// Hot stock rankings
+app.get('/api/hotlist', async (_req, res) => {
+  try {
+    const data = await fetchHotList()
     res.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

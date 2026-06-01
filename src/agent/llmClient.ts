@@ -13,9 +13,7 @@ export type StreamChunk =
   | { readonly type: 'done'; readonly data: string }
 
 export interface LLMConfig {
-  apiUrl: string
-  model: string
-  apiKey?: string
+  id?: string
 }
 
 export async function* streamChat(

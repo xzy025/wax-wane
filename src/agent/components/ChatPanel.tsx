@@ -21,38 +21,13 @@ interface ChatPanelProps {
 interface LLMConfig {
   id: string
   name: string
-  apiUrl: string
-  model: string
-  protocol: 'openai' | 'anthropic'
-  apiKey?: string
-}
-
-interface LLMProfiles {
-  [key: string]: { apiKey: string }
 }
 
 const LLM_PRESETS: LLMConfig[] = [
-  {
-    id: 'xiaomi-mimo',
-    name: '小米 MiMo',
-    apiUrl: 'https://token-plan-cn.xiaomimimo.com/anthropic',
-    model: 'mimo-v2.5-pro',
-    protocol: 'anthropic',
-  },
-  {
-    id: 'claude',
-    name: 'Claude',
-    apiUrl: 'https://api.anthropic.com',
-    model: 'claude-sonnet-4-20250514',
-    protocol: 'anthropic',
-  },
-  {
-    id: 'codex',
-    name: 'Codex (OpenAI)',
-    apiUrl: 'https://api.openai.com/v1',
-    model: 'gpt-4o',
-    protocol: 'openai',
-  },
+  { id: 'xiaomi-mimo', name: '小米 MiMo' },
+  { id: 'claude', name: 'Claude' },
+  { id: 'codex', name: 'Codex (OpenAI)' },
+  { id: 'gemini', name: 'Gemini' },
 ]
 
 function loadLLMConfig(): LLMConfig {
@@ -65,18 +40,6 @@ function loadLLMConfig(): LLMConfig {
 
 function saveLLMConfig(config: LLMConfig) {
   localStorage.setItem('llm-config', JSON.stringify(config))
-}
-
-function loadLLMProfiles(): LLMProfiles {
-  try {
-    const saved = localStorage.getItem('llm-profiles')
-    if (saved) return JSON.parse(saved)
-  } catch {}
-  return {}
-}
-
-function saveLLMProfiles(profiles: LLMProfiles) {
-  localStorage.setItem('llm-profiles', JSON.stringify(profiles))
 }
 
 const QUICK_PROMPTS_ZH = [
@@ -104,10 +67,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   const [streamingContent, setStreamingContent] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [llmConfig, setLlmConfig] = useState<LLMConfig>(loadLLMConfig)
-  const [llmProfiles, setLlmProfiles] = useState<LLMProfiles>(loadLLMProfiles)
   const [showLLMSettings, setShowLLMSettings] = useState(false)
-  const [editingKeyId, setEditingKeyId] = useState<string | null>(null)
-  const [editingKeyValue, setEditingKeyValue] = useState('')
   const [pastedImages, setPastedImages] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -141,26 +101,10 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   }, [])
 
   const handleLLMChange = useCallback((preset: LLMConfig) => {
-    const profile = llmProfiles[preset.id]
-    const config = { ...preset, apiKey: profile?.apiKey }
-    setLlmConfig(config)
-    saveLLMConfig(config)
+    setLlmConfig(preset)
+    saveLLMConfig(preset)
     setShowLLMSettings(false)
-  }, [llmProfiles])
-
-  const handleSaveApiKey = useCallback((presetId: string) => {
-    const newProfiles = { ...llmProfiles, [presetId]: { apiKey: editingKeyValue } }
-    setLlmProfiles(newProfiles)
-    saveLLMProfiles(newProfiles)
-    // Update current config if editing the active one
-    if (llmConfig.id === presetId) {
-      const updated = { ...llmConfig, apiKey: editingKeyValue }
-      setLlmConfig(updated)
-      saveLLMConfig(updated)
-    }
-    setEditingKeyId(null)
-    setEditingKeyValue('')
-  }, [llmProfiles, llmConfig, editingKeyValue])
+  }, [])
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -222,16 +166,13 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       abortRef.current = controller
 
       try {
-        const profile = llmProfiles[llmConfig.id]
         const imagesToSend = pastedImages.length > 0 ? pastedImages : undefined
         console.log('[ChatPanel] Sending message with images:', imagesToSend?.length ?? 0)
         if (imagesToSend) {
           console.log('[ChatPanel] Image format:', imagesToSend[0].substring(0, 50) + '...')
         }
         const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal, {
-          apiUrl: llmConfig.apiUrl,
-          model: llmConfig.model,
-          apiKey: profile?.apiKey || llmConfig.apiKey || undefined,
+          id: llmConfig.id,
         }, imagesToSend)
         let fullContent = ''
 
@@ -306,7 +247,6 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       appState,
       language,
       pastedImages,
-      llmProfiles,
       llmConfig,
     ],
   )
@@ -379,10 +319,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           <div className="ai-llm-settings-title">选择 LLM</div>
           <div className="ai-llm-options">
             {LLM_PRESETS.map((preset) => {
-              const profile = llmProfiles[preset.id]
-              const hasKey = !!profile?.apiKey
               const isActive = llmConfig.id === preset.id
-              const isEditing = editingKeyId === preset.id
 
               return (
                 <div key={preset.id} className={`ai-llm-option ${isActive ? 'active' : ''}`}>
@@ -392,35 +329,8 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
                     onClick={() => handleLLMChange(preset)}
                   >
                     <span className="ai-llm-option-name">{preset.name}</span>
-                    <span className="ai-llm-option-model">{preset.model}</span>
                     {isActive && <Check size={14} />}
                   </button>
-                  <button
-                    className={`ai-llm-key-btn ${hasKey ? 'configured' : ''}`}
-                    type="button"
-                    onClick={() => {
-                      if (isEditing) {
-                        handleSaveApiKey(preset.id)
-                      } else {
-                        setEditingKeyId(preset.id)
-                        setEditingKeyValue(profile?.apiKey ?? '')
-                      }
-                    }}
-                    title={hasKey ? 'API Key 已配置' : '配置 API Key'}
-                  >
-                    {isEditing ? '保存' : hasKey ? '✓ Key' : '+ Key'}
-                  </button>
-                  {isEditing && (
-                    <input
-                      type="password"
-                      className="ai-llm-api-key"
-                      placeholder={`${preset.name} API Key`}
-                      value={editingKeyValue}
-                      onChange={(e) => setEditingKeyValue(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSaveApiKey(preset.id)}
-                      autoFocus
-                    />
-                  )}
                 </div>
               )
             })}
