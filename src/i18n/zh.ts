@@ -1,8 +1,9 @@
 import type { Translation } from '../types'
 
 export default {
-  appSubtitle: 'A股交割单复盘',
+  appSubtitle: 'TradeReview 交易复盘',
   nav: {
+    market: '行情',
     dashboard: '工作台',
     import: '导入',
     ledger: '流水',
@@ -10,6 +11,7 @@ export default {
     analytics: '分析',
   },
   titles: {
+    market: '全球行情',
     dashboard: '复盘工作台',
     import: '交割单导入',
     ledger: '交易流水',
@@ -193,5 +195,26 @@ export default {
     loading: '加载中...',
     error: '加载失败',
     retry: '重试',
+  },
+  hk: {
+    hsi: '恒生指数',
+    hstech: '恒生科技',
+    chinaInternet: '中概互联',
+    lastUpdated: '更新于',
+    loading: '加载中...',
+    error: '加载失败',
+    retry: '重试',
+    closed: '休市',
+  },
+  us: {
+    nvda: '英伟达',
+    lite: 'Lumentum',
+    amd: 'AMD',
+    tsm: '台积电',
+    lastUpdated: '更新于',
+    loading: '加载中...',
+    error: '加载失败',
+    retry: '重试',
+    closed: '休市',
   },
 } satisfies Translation

@@ -257,7 +257,8 @@ Required standard fields:
 
 | 术语 | 路由 | 指代 |
 |------|------|------|
-| **工作台** | `/dashboard` | 仪表盘，显示看板和收益曲线 |
+| **行情** | `/market` | 全球行情总览（默认首页） |
+| **工作台** | `/dashboard` | 复盘工作台，收益曲线和交易闭环 |
 | **导入** | `/import` | 交割单导入 |
 | **流水** | `/ledger` | 交易流水列表 |
 | **复盘** | `/reviews` | 交易闭环复盘 |
@@ -265,13 +266,19 @@ Required standard fields:
 
 #### 显示规则
 
-| 元素 | 工作台 | 其他 Tab |
-|------|--------|----------|
-| 日期范围选择器 | ✅ | ❌ |
-| 日期选择器 | ✅ | ❌ |
-| 宏观看板 | ✅ | ❌ |
-| A股看板 | ✅ | ❌ |
-| 语言切换 | ✅ | ✅ |
+| 元素 | 行情 | 工作台 | 其他 Tab |
+|------|------|--------|----------|
+| 日期范围选择器 | ✅ | ✅ | ❌ |
+| 日期选择器 | ✅ | ❌ | ❌ |
+| 宏观看板 | ✅ | ❌ | ❌ |
+| A股看板 | ✅ | ❌ | ❌ |
+| 港股看板 | ✅ | ❌ | ❌ |
+| 美股看板 | ✅ | ❌ | ❌ |
+| 热门榜单 | ✅ | ❌ | ❌ |
+| 收益曲线 | ❌ | ✅ | ❌ |
+| 风险提示 | ❌ | ✅ | ❌ |
+| 交易闭环 | ❌ | ✅ | ❌ |
+| 语言切换 | ✅ | ✅ | ✅ |
 
 ### 12.1 Color Scheme (Blue Theme)
 
@@ -326,6 +333,46 @@ Key icons:
 - Volume in trillions (万亿)
 - Red bars for volume increase vs previous day
 - Green bars for volume decrease vs previous day
+
+### 12.3.1 Hong Kong Market
+
+#### Indices
+- Hang Seng Index (恒生指数)
+- Hang Seng TECH (恒生科技)
+- China Internet (中概互联)
+
+#### Display
+- Price colored by direction (red up, green down)
+- Change percentage with trend icon
+- Links to East Money quote pages
+
+### 12.3.2 US Market
+
+#### Stocks (A-share US mapping)
+- NVIDIA (英伟达)
+- Lumentum
+- AMD
+- TSMC (台积电)
+
+#### Display
+- Price in USD with $ prefix
+- Change percentage with trend icon
+- Links to East Money quote pages
+
+### 12.3.3 Hot Stock Rankings
+
+Four ranking sources displayed in a 4-column grid:
+
+| Source | Features |
+|--------|----------|
+| 东方财富 热搜榜 | Hot search ranking |
+| 同花顺 热榜 | Concept tags + popularity tags |
+| 淘股吧 热榜 | Leader/follower/emotion tags |
+| 龙虎榜 | Net buy amount + seat explanation |
+
+- Each panel separated by vertical divider
+- Dragon Tiger (龙虎榜) shows institutional activity
+- All stocks link to East Money quote pages
 
 ### 12.4 Date Range & Selection
 

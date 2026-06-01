@@ -8,6 +8,7 @@ import {
   ChartLineUp,
   ChartPieSlice,
   UploadSimple,
+  TrendUp,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
@@ -16,6 +17,9 @@ import { useRagSync } from './hooks/useRagSync'
 import SegmentedControl from './components/SegmentedControl'
 import MacroBanner from './components/MacroBanner'
 import AShareBanner from './components/AShareBanner'
+import HKBanner from './components/HKBanner'
+import USBanner from './components/USBanner'
+import HotListBanner from './components/HotListBanner'
 import MarketDatePicker, { getLastTradingDay } from './components/MarketDatePicker'
 import ErrorBoundary from './components/ErrorBoundary'
 import { todayStr } from './utils/marketHistory'
@@ -27,6 +31,7 @@ import AnalyticsView from './views/AnalyticsView'
 import type { Translation } from './types'
 
 const navItems = [
+  { id: 'market', icon: TrendUp, path: '/market' },
   { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
   { id: 'import', icon: UploadSimple, path: '/import' },
   { id: 'ledger', icon: File, path: '/ledger' },
@@ -101,7 +106,7 @@ function AppLayout() {
             <h1>{t.titles[activeView]}</h1>
           </div>
           <div className="topbar-actions">
-            {activeView === 'dashboard' && (
+            {(activeView === 'dashboard' || activeView === 'market') && (
               <SegmentedControl
                 label={t.range.label}
                 value={range}
@@ -121,18 +126,22 @@ function AppLayout() {
           </div>
         </header>
 
-        {activeView === 'dashboard' && (
+        {activeView === 'market' && (
           <>
             <MarketDatePicker selectedDate={selectedDate} onSelect={setSelectedDate} t={t} />
             <ErrorBoundary>
               <MacroBanner t={t} date={selectedDate} />
               <AShareBanner t={t} date={selectedDate} />
+              <HKBanner t={t} date={selectedDate} />
+              <USBanner t={t} date={selectedDate} />
+              <HotListBanner t={t} date={selectedDate} />
             </ErrorBoundary>
           </>
         )}
 
         <ErrorBoundary>
           <Routes>
+          <Route path="/market" element={<div />} />
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />
           <Route path="/import" element={<ImportView t={t} />} />
           <Route path="/ledger" element={<LedgerView t={t} range={range} />} />
@@ -149,7 +158,7 @@ function AppLayout() {
             }
           />
           <Route path="/analytics" element={<AnalyticsView t={t} />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/market" replace />} />
           </Routes>
         </ErrorBoundary>
       </section>

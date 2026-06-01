@@ -394,6 +394,214 @@
   color: var(--muted);
 }
 
+/* ── Hot Stock List ──────────────────────────────────── */
+
+.hotlist-section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.hotlist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.hotlist-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 850;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.hotlist-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.hotlist-loading {
+  padding: 16px;
+}
+
+.hotlist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.hotlist-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+@media (max-width: 1400px) {
+  .hotlist-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 820px) {
+  .hotlist-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hotlist-panel {
+  padding: 0;
+  border-right: 1px solid var(--line);
+}
+
+.hotlist-panel:last-child {
+  border-right: none;
+}
+
+.hotlist-panel-title {
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--line);
+}
+
+.hotlist-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.hotlist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s ease;
+  min-height: 36px;
+}
+
+.hotlist-row:last-child {
+  border-bottom: none;
+}
+
+.hotlist-row:hover {
+  background: var(--surface-soft);
+}
+
+.hotlist-rank {
+  width: 20px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.hotlist-rank.top3 {
+  color: var(--orange);
+}
+
+.hotlist-code {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  min-width: 48px;
+}
+
+.hotlist-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hotlist-change {
+  font-size: 0.78rem;
+  font-weight: 800;
+  min-width: 52px;
+  text-align: right;
+}
+
+.hotlist-change.up {
+  color: var(--red);
+}
+
+.hotlist-change.down {
+  color: var(--green);
+}
+
+.hotlist-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.hotlist-tag {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--blue);
+  background: var(--blue-soft);
+  white-space: nowrap;
+}
+
+.hotlist-popularity {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--orange);
+  white-space: nowrap;
+}
+
+.hotlist-net {
+  font-size: 0.78rem;
+  font-weight: 800;
+  min-width: 60px;
+  text-align: right;
+}
+
+.hotlist-net.up {
+  color: var(--red);
+}
+
+.hotlist-net.down {
+  color: var(--green);
+}
+
+.hotlist-explain {
+  font-size: 0.7rem;
+  color: var(--muted);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hotlist-header-row {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--surface-soft);
+  border-bottom: 1px solid var(--line);
+}
+
 /* ── Date Picker ──────────────────────────────────────── */
 
 .date-picker {

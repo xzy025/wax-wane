@@ -1,8 +1,9 @@
 import type { Translation } from '../types'
 
 export default {
-  appSubtitle: 'A-share delivery statement review',
+  appSubtitle: 'TradeReview',
   nav: {
+    market: 'Market',
     dashboard: 'Dashboard',
     import: 'Import',
     ledger: 'Trades',
@@ -10,6 +11,7 @@ export default {
     analytics: 'Analytics',
   },
   titles: {
+    market: 'Global Market',
     dashboard: 'Review Workspace',
     import: 'Statement Import',
     ledger: 'Trade Ledger',
@@ -194,5 +196,26 @@ export default {
     loading: 'Loading...',
     error: 'Failed to load',
     retry: 'Retry',
+  },
+  hk: {
+    hsi: 'HSI',
+    hstech: 'Hang Seng TECH',
+    chinaInternet: 'China Internet',
+    lastUpdated: 'Updated',
+    loading: 'Loading...',
+    error: 'Failed to load',
+    retry: 'Retry',
+    closed: 'Closed',
+  },
+  us: {
+    nvda: 'NVIDIA',
+    lite: 'Lumentum',
+    amd: 'AMD',
+    tsm: 'TSMC',
+    lastUpdated: 'Updated',
+    loading: 'Loading...',
+    error: 'Failed to load',
+    retry: 'Retry',
+    closed: 'Closed',
   },
 } satisfies Translation
