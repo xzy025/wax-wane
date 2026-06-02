@@ -9,6 +9,7 @@ export default {
     ledger: 'Trades',
     reviews: 'Reviews',
     analytics: 'Analytics',
+    agent: 'Agent',
   },
   titles: {
     market: 'Global Market',
@@ -17,6 +18,7 @@ export default {
     ledger: 'Trade Ledger',
     reviews: 'Closed Trade Review',
     analytics: 'Analytics',
+    agent: 'Agent Review',
   },
   range: {
     label: 'Date range',
@@ -152,6 +154,14 @@ export default {
     clearChat: 'Clear chat',
     thinking: 'Thinking...',
     error: 'Analysis error, please retry',
+  },
+  agent: {
+    title: 'AI Agent Review',
+    description: 'Smart review assistant with structured review, theory analysis, and pattern recognition',
+    featureReview: 'One-click Review',
+    featureAnalysis: 'Theory Analysis',
+    featureTheory: 'Pattern Recognition',
+    featureSearch: 'Experience Search',
   },
   macro: {
     us10y: 'US 10Y Yield',

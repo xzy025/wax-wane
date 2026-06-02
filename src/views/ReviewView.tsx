@@ -2,7 +2,6 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { Tag } from 'phosphor-react'
 import { useAppState, useAppDispatch } from '../store'
 import { formatMoney, translateMap } from '../utils'
-import { ChatPanel } from '../agent/components/ChatPanel'
 import type { TradeGroup, Translation } from '../types'
 
 interface ReviewViewProps {
@@ -150,10 +149,6 @@ export default function ReviewView({
               <span key={tag}>{translateMap(t.mistakes, tag)}</span>
             ))
           )}
-        </div>
-
-        <div className="ai-agent-section">
-          <ChatPanel t={t} language={language} />
         </div>
       </section>
     </div>

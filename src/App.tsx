@@ -9,6 +9,7 @@ import {
   ChartPieSlice,
   UploadSimple,
   TrendUp,
+  Robot,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
@@ -29,6 +30,7 @@ import ImportView from './views/ImportView'
 import LedgerView from './views/LedgerView'
 import ReviewView from './views/ReviewView'
 import AnalyticsView from './views/AnalyticsView'
+import AgentView from './views/AgentView'
 import type { Translation } from './types'
 
 const navItems = [
@@ -38,6 +40,7 @@ const navItems = [
   { id: 'ledger', icon: File, path: '/ledger' },
   { id: 'reviews', icon: BookOpen, path: '/reviews' },
   { id: 'analytics', icon: ChartPieSlice, path: '/analytics' },
+  { id: 'agent', icon: Robot, path: '/agent' },
 ]
 
 const translations: Record<string, Translation> = { zh, en }
@@ -103,32 +106,34 @@ function AppLayout() {
         </div>
       </aside>
 
-      <section className="workspace">
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">{t.appSubtitle}</p>
-            <h1>{t.titles[activeView]}</h1>
-          </div>
-          <div className="topbar-actions">
-            {activeView === 'dashboard' && (
+      <section className={`workspace ${activeView === 'agent' ? 'workspace-agent' : ''}`}>
+        {activeView !== 'agent' && (
+          <header className="topbar">
+            <div>
+              <p className="eyebrow">{t.appSubtitle}</p>
+              <h1>{t.titles[activeView]}</h1>
+            </div>
+            <div className="topbar-actions">
+              {activeView === 'dashboard' && (
+                <SegmentedControl
+                  label={t.range.label}
+                  value={range}
+                  options={['week', 'month', 'quarter', 'year']}
+                  labels={t.range}
+                  onChange={setRange}
+                />
+              )}
               <SegmentedControl
-                label={t.range.label}
-                value={range}
-                options={['week', 'month', 'quarter', 'year']}
-                labels={t.range}
-                onChange={setRange}
+                label={t.language.label}
+                value={language}
+                options={['zh', 'en']}
+                labels={t.language}
+                onChange={(v) => setLanguage(v as 'zh' | 'en')}
+                icon={<Globe size={17} aria-hidden="true" />}
               />
-            )}
-            <SegmentedControl
-              label={t.language.label}
-              value={language}
-              options={['zh', 'en']}
-              labels={t.language}
-              onChange={(v) => setLanguage(v as 'zh' | 'en')}
-              icon={<Globe size={17} aria-hidden="true" />}
-            />
-          </div>
-        </header>
+            </div>
+          </header>
+        )}
 
         {activeView === 'market' && (
           <>
@@ -162,6 +167,7 @@ function AppLayout() {
             }
           />
           <Route path="/analytics" element={<AnalyticsView t={t} />} />
+          <Route path="/agent" element={<AgentView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="*" element={<Navigate to="/market" replace />} />
           </Routes>
         </ErrorBoundary>
