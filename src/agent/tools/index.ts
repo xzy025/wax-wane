@@ -16,6 +16,12 @@ import { analyzeWithTheory } from './analyzeWithTheory'
 import { analyzeTradePatterns } from './analyzeTradePatterns'
 import { generateImprovementPlan } from './generateImprovementPlan'
 import { screenStocks } from './screenStocks'
+import { graphQuery } from './graphQuery'
+import { findRelatedTrades } from './findRelatedTrades'
+import { findPatternPath } from './findPatternPath'
+import { hybridSearch } from './hybridSearch'
+import { runStructuredReview } from './runStructuredReview'
+import { runTheoryReview } from './runTheoryReview'
 
 const toolRegistry: Record<string, ToolModule> = {
   queryTradeHistory: queryTrades,
@@ -34,6 +40,12 @@ const toolRegistry: Record<string, ToolModule> = {
   analyzeTradePatterns: analyzeTradePatterns,
   generateImprovementPlan: generateImprovementPlan,
   screenStocks: screenStocks,
+  graphQuery: graphQuery,
+  findRelatedTrades: findRelatedTrades,
+  findPatternPath: findPatternPath,
+  hybridSearch: hybridSearch,
+  runStructuredReview: runStructuredReview,
+  runTheoryReview: runTheoryReview,
 }
 
 export const toolDefinitions: ToolDefinition[] = Object.values(toolRegistry).map((t) => t.schema)
