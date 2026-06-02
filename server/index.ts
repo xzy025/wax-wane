@@ -3,6 +3,8 @@ import cors from 'cors'
 import { config } from 'dotenv'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import fetch from 'node-fetch'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 import { fetchAShareData, fetchStockQuote, fetchIndexTrends } from './ashare'
 import { fetchHKData } from './hk'
 import { fetchUSData } from './us'
@@ -31,10 +33,19 @@ import {
   updateConversationSummary,
 } from './memoryStore'
 
-config()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+config({ path: join(__dirname, '.env') })
+
+// Debug: log env vars
+console.log('[Debug] __dirname:', __dirname)
+console.log('[Debug] LLM_API_KEY:', process.env.LLM_API_KEY ? 'set' : 'not set')
+console.log('[Debug] LLM_API_URL:', process.env.LLM_API_URL)
+console.log('[Debug] LLM_MODEL:', process.env.LLM_MODEL)
 
 const app = express()
-const PORT = process.env.PORT ?? 3001
+const PORT = process.env.PORT ?? 3002
 
 app.use(cors({ origin: true }))
 app.use(express.json({ limit: '50mb' }))
@@ -464,10 +475,13 @@ app.post('/api/agent/chat', async (req, res) => {
 
 // Health check
 app.get('/api/health', (_req, res) => {
-  const protocol = process.env.LLM_API_URL ? getProtocol(process.env.LLM_API_URL) : 'unknown'
+  const hasUrl = !!process.env.LLM_API_URL
+  const hasKey = !!process.env.LLM_API_KEY
+  const protocol = hasUrl ? getProtocol(process.env.LLM_API_URL!) : 'unknown'
+  console.log('[Health] LLM_API_URL:', hasUrl, 'LLM_API_KEY:', hasKey)
   res.json({
     status: 'ok',
-    configured: !!(process.env.LLM_API_URL && process.env.LLM_API_KEY),
+    configured: hasUrl && hasKey,
     protocol,
     model: process.env.LLM_MODEL,
   })
@@ -995,9 +1009,12 @@ app.patch('/api/memory-enhanced/:userId/actions/:actionId', async (req, res) => 
 
 // Initialize database and start server
 async function startServer() {
+  let dbConnected = false
+
   try {
     await initDatabase()
     console.log('[Server] PostgreSQL database initialized')
+    dbConnected = true
 
     // Initialize GraphRAG schema
     try {
@@ -1008,8 +1025,8 @@ async function startServer() {
       console.warn('[Server] GraphRAG schema init failed (non-fatal):', err)
     }
   } catch (err) {
-    console.error('[Server] Failed to initialize database:', err)
-    process.exit(1)
+    console.warn('[Server] PostgreSQL not available, running in limited mode')
+    console.warn('[Server] Agent chat API will work, but database features are disabled')
   }
 
   app.listen(PORT, () => {
@@ -1018,7 +1035,7 @@ async function startServer() {
     console.log(`LLM configured: ${!!(process.env.LLM_API_URL && process.env.LLM_API_KEY)}`)
     console.log(`Protocol: ${protocol}`)
     console.log(`Model: ${process.env.LLM_MODEL}`)
-    console.log(`Database: PostgreSQL (pgvector)`)
+    console.log(`Database: ${dbConnected ? 'PostgreSQL (connected)' : 'PostgreSQL (not connected - limited mode)'}`)
   })
 }
 

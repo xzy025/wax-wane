@@ -9,6 +9,7 @@ export default {
     ledger: '流水',
     reviews: '复盘',
     analytics: '分析',
+    agent: 'Agent复盘',
   },
   titles: {
     market: '全球行情',
@@ -17,6 +18,7 @@ export default {
     ledger: '交易流水',
     reviews: '交易闭环复盘',
     analytics: '统计分析',
+    agent: 'Agent复盘',
   },
   range: {
     label: '日期范围',
@@ -151,6 +153,14 @@ export default {
     clearChat: '清空对话',
     thinking: '思考中...',
     error: '分析出错，请重试',
+  },
+  agent: {
+    title: 'AI Agent 复盘',
+    description: '智能复盘助手，支持结构化复盘、理论分析、模式识别',
+    featureReview: '一键复盘',
+    featureAnalysis: '理论分析',
+    featureTheory: '模式识别',
+    featureSearch: '经验搜索',
   },
   macro: {
     us10y: '美国10年期国债',

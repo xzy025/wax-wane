@@ -3,12 +3,20 @@ import { useAppState } from '../store'
 
 const SYNC_DEBOUNCE_MS = 5000 // 5 seconds debounce
 
+/**
+ * Auto-sync trade data to RAG vector store.
+ * Silently fails if database is not available.
+ */
 export function useRagSync() {
   const { tradeGroups, reviewNotes } = useAppState()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastSyncRef = useRef<string>('')
+  const dbAvailableRef = useRef<boolean | null>(null) // null = unknown
 
   useEffect(() => {
+    // Skip if we already know DB is not available
+    if (dbAvailableRef.current === false) return
+
     // Create a hash of current data to detect changes
     const dataHash = JSON.stringify({
       groups: tradeGroups.map((g) => ({ id: g.id, pnl: g.pnl, status: g.status })),
@@ -36,10 +44,13 @@ export function useRagSync() {
 
         if (res.ok) {
           const result = await res.json()
+          dbAvailableRef.current = true
           console.log(`[RAG] Synced ${result.documentsAdded} documents, total: ${result.totalDocuments}`)
+        } else {
+          dbAvailableRef.current = false
         }
-      } catch (err) {
-        console.warn('[RAG] Sync failed:', err)
+      } catch {
+        dbAvailableRef.current = false
       }
     }, SYNC_DEBOUNCE_MS)
 
