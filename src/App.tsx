@@ -14,6 +14,7 @@ import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
 import { AgentProvider } from './agent/agentStore'
 import { useRagSync } from './hooks/useRagSync'
+import { useGraphSync } from './hooks/useGraphSync'
 import SegmentedControl from './components/SegmentedControl'
 import MacroBanner from './components/MacroBanner'
 import AShareBanner from './components/AShareBanner'
@@ -52,6 +53,9 @@ function AppLayout() {
 
   // Auto-sync RAG when trade data changes
   useRagSync()
+
+  // Auto-sync GraphRAG when trade data changes
+  useGraphSync()
 
   const activeView = useMemo(() => {
     const path = location.pathname.replace('/', '')

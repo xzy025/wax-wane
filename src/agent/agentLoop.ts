@@ -3,6 +3,7 @@ import type { AgentMessage, AgentEvent, ToolCall } from './types'
 import { toolDefinitions, executeTool } from './tools'
 import { buildSystemPrompt } from './prompts'
 import { streamChat, type LLMConfig } from './llmClient'
+import { compressMessages, compressToolResult } from './contextCompression'
 
 const MAX_ITERATIONS = 10
 
@@ -23,6 +24,16 @@ export async function* runAgent(
     { role: 'user', content: userMessage, images },
   ]
 
+  // Apply context compression if messages are large
+  const compressed = compressMessages(messages)
+  const workingMessages = compressed.summary
+    ? [
+        messages[0], // system prompt
+        { role: 'system' as const, content: `对话摘要:\n${compressed.summary}` },
+        ...compressed.recentMessages.filter((m) => m.role !== 'system'),
+      ]
+    : messages
+
   let iteration = 0
 
   while (iteration < MAX_ITERATIONS) {
@@ -33,7 +44,7 @@ export async function* runAgent(
 
     try {
       signal?.throwIfAborted()
-      const stream = streamChat(messages, toolDefinitions, signal, llmConfig)
+      const stream = streamChat(workingMessages, toolDefinitions, signal, llmConfig)
 
       for await (const chunk of stream) {
         signal?.throwIfAborted()
@@ -62,7 +73,7 @@ export async function* runAgent(
       content,
       tool_calls: toolCalls,
     }
-    messages.push(assistantMessage)
+    workingMessages.push(assistantMessage)
 
     for (const toolCall of toolCalls) {
       yield { type: 'tool_start', toolName: toolCall.function.name, toolId: toolCall.id }
@@ -78,9 +89,12 @@ export async function* runAgent(
 
       yield { type: 'tool_result', toolName: toolCall.function.name, toolId: toolCall.id, result }
 
-      messages.push({
+      // Compress tool result before adding to context
+      const compressedResult = compressToolResult(toolCall.function.name, result)
+
+      workingMessages.push({
         role: 'tool',
-        content: JSON.stringify(result),
+        content: compressedResult,
         tool_call_id: toolCall.id,
       })
     }
@@ -91,7 +105,7 @@ export async function* runAgent(
     signal?.throwIfAborted()
     let finalContent = ''
     const finalMessages: AgentMessage[] = [
-      ...messages,
+      ...workingMessages,
       {
         role: 'user',
         content: 'Please provide your final analysis based on the data you have gathered.',

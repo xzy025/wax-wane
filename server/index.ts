@@ -154,7 +154,7 @@ function toAnthropicRequest(messages: Array<{ role: string; content: string; ima
 }
 
 // Convert Anthropic SSE stream to OpenAI format for frontend consumption
-async function* anthropicToOpenAIStream(reader: ReadableStreamDefaultReader<Uint8Array>) {
+async function* anthropicToOpenAIStream(body: NodeJS.ReadableStream) {
   const decoder = new TextDecoder()
   let buffer = ''
   let currentToolId = ''
@@ -162,10 +162,8 @@ async function* anthropicToOpenAIStream(reader: ReadableStreamDefaultReader<Uint
   let currentToolArgs = ''
   let textContent = ''
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-
+  for await (const chunk of body) {
+    const value = chunk instanceof Uint8Array ? chunk : Buffer.from(chunk)
     buffer += decoder.decode(value, { stream: true })
     const lines = buffer.split('\n')
     buffer = lines.pop() ?? ''
@@ -436,19 +434,17 @@ app.post('/api/agent/chat', async (req, res) => {
       return
     }
 
-    const reader = llmResponse.body!.getReader()
+    const responseBody = llmResponse.body!
 
     if (protocol === 'anthropic') {
       // Convert Anthropic stream to OpenAI format
-      for await (const chunk of anthropicToOpenAIStream(reader)) {
+      for await (const chunk of anthropicToOpenAIStream(responseBody)) {
         res.write(chunk)
       }
     } else {
       // Pass-through OpenAI stream
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        res.write(value)
+      for await (const chunk of responseBody) {
+        res.write(chunk)
       }
     }
 
@@ -673,6 +669,73 @@ app.post('/api/mcp/rag/sync', async (req, res) => {
   }
 })
 
+// ── MCP Routes: GraphRAG ──────────────────────────────────
+
+app.post('/api/mcp/graph/sync', async (req, res) => {
+  const { tradeGroups, reviewNotes } = req.body
+  if (!tradeGroups || !Array.isArray(tradeGroups)) {
+    res.status(400).json({ error: 'Missing tradeGroups array in body' })
+    return
+  }
+  try {
+    const { fullGraphSync } = await import('./graph/graphSync')
+    const result = await fullGraphSync(tradeGroups, reviewNotes || {})
+    res.json(result)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.get('/api/mcp/graph/stats', async (_req, res) => {
+  try {
+    const { getGraphStats } = await import('./graph/graphSchema')
+    const stats = await getGraphStats()
+    res.json(stats)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/mcp/graph/query', async (req, res) => {
+  const { queryType, params } = req.body
+  try {
+    const graphQuery = await import('./graph/graphQuery')
+    let result: unknown
+
+    switch (queryType) {
+      case 'findTradesByMistake':
+        result = await graphQuery.findTradesByMistake(params.mistake)
+        break
+      case 'findTradesByPhase':
+        result = await graphQuery.findTradesByPhase(params.phaseType, params.phaseValue)
+        break
+      case 'findRelatedTrades':
+        result = await graphQuery.findRelatedTrades(params.tradeGroupId, params.relationTypes)
+        break
+      case 'findPatternPath':
+        result = await graphQuery.findPatternPath(params.mistake)
+        break
+      case 'multiHop':
+        result = await graphQuery.multiHopQuery(
+          params.startType,
+          params.startFilter,
+          params.hops,
+        )
+        break
+      default:
+        res.status(400).json({ error: `Unknown query type: ${queryType}` })
+        return
+    }
+
+    res.json(result)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
 // ── MCP Routes: Database ────────────────────────────────────
 
 app.get('/api/db/trades', async (req, res) => {
@@ -829,11 +892,121 @@ app.patch('/api/memory/:userId/summary', async (req, res) => {
   }
 })
 
+// ── MCP Routes: Enhanced Memory ───────────────────────────
+
+app.get('/api/memory-enhanced/:userId', async (req, res) => {
+  try {
+    const { getEnhancedMemory, serializeEnhancedMemory } = await import('./memoryEnhanced')
+    const memory = await getEnhancedMemory(req.params.userId)
+    res.json({
+      ...memory,
+      serialized: serializeEnhancedMemory(memory),
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.patch('/api/memory-enhanced/:userId/profile', async (req, res) => {
+  try {
+    const { updateEnhancedTradingProfile } = await import('./memoryEnhanced')
+    await updateEnhancedTradingProfile(req.params.userId, req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/memory-enhanced/:userId/infer-profile', async (req, res) => {
+  try {
+    const { inferTradingProfile } = await import('./memoryEnhanced')
+    const { tradeGroups } = req.body
+    await inferTradingProfile(req.params.userId, tradeGroups || [])
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/memory-enhanced/:userId/lessons', async (req, res) => {
+  try {
+    const { extractLessonsFromReview } = await import('./memoryExtraction')
+    const { tradeGroupId, reviewNote } = req.body
+    await extractLessonsFromReview(req.params.userId, tradeGroupId, reviewNote)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/memory-enhanced/:userId/patterns', async (req, res) => {
+  try {
+    const { extractPatternsFromTrades } = await import('./memoryExtraction')
+    const { tradeGroups } = req.body
+    await extractPatternsFromTrades(req.params.userId, tradeGroups || [])
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/memory-enhanced/:userId/decisions', async (req, res) => {
+  try {
+    const { addKeyDecision } = await import('./memoryEnhanced')
+    await addKeyDecision(req.params.userId, req.body)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.post('/api/memory-enhanced/:userId/actions', async (req, res) => {
+  try {
+    const { addActionItem } = await import('./memoryEnhanced')
+    await addActionItem(req.params.userId, {
+      ...req.body,
+      id: crypto.randomUUID(),
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    })
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+app.patch('/api/memory-enhanced/:userId/actions/:actionId', async (req, res) => {
+  try {
+    const { completeActionItem } = await import('./memoryEnhanced')
+    await completeActionItem(req.params.userId, req.params.actionId)
+    res.json({ success: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
 // Initialize database and start server
 async function startServer() {
   try {
     await initDatabase()
     console.log('[Server] PostgreSQL database initialized')
+
+    // Initialize GraphRAG schema
+    try {
+      const { initGraphSchema } = await import('./graph/graphSchema')
+      await initGraphSchema()
+      console.log('[Server] GraphRAG schema initialized')
+    } catch (err) {
+      console.warn('[Server] GraphRAG schema init failed (non-fatal):', err)
+    }
   } catch (err) {
     console.error('[Server] Failed to initialize database:', err)
     process.exit(1)

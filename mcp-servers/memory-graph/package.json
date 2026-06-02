@@ -1,0 +1,13 @@
+{
+  "name": "trade-review-memory-graph-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "pg": "^8.21.0"
+  }
+}
