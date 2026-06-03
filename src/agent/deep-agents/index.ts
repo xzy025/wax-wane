@@ -1,6 +1,6 @@
 // DeepAgents Integration
 // Provides a high-level wrapper around the deepagents library
-// that integrates with the existing TradeReview tool system
+// that integrates with the existing Wax Wane tool system
 
 export { createTradeReviewAgent } from './agent'
 export { DeepAgentAdapter } from './adapter'

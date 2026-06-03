@@ -2,14 +2,15 @@
 .macro-banner {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
+  gap: 10px;
+  height: 68px;
+  padding: 14px 16px;
   margin-bottom: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  overflow-x: auto;
-  flex-wrap: wrap;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .macro-item {
@@ -21,6 +22,7 @@
   background: var(--surface-soft);
   white-space: nowrap;
   min-width: 0;
+  flex-shrink: 1;
   cursor: pointer;
   text-decoration: none;
   color: inherit;
@@ -97,13 +99,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 16px;
+  height: 100px;
+  padding: 16px 16px;
   margin-bottom: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  overflow-x: auto;
-  flex-wrap: wrap;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .ashare-index {
@@ -117,7 +120,8 @@
   text-decoration: none;
   color: inherit;
   transition: background 0.15s ease;
-  min-width: 100px;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .ashare-index:hover {
@@ -170,6 +174,8 @@
   align-items: center;
   gap: 8px;
   padding: 4px 10px;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .ashare-stat-icon {
@@ -213,6 +219,8 @@
   padding: 6px 12px;
   border-radius: 6px;
   background: var(--surface-soft);
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .ashare-score.good {
@@ -261,7 +269,8 @@
 .ashare-volume-section {
   display: flex;
   flex-direction: column;
-  min-width: 120px;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .ashare-volume-bars {
@@ -279,6 +288,7 @@
   justify-content: flex-end;
   gap: 1px;
   height: 100%;
+  min-width: 0;
 }
 
 .ashare-volume-bar {

@@ -1,6 +1,6 @@
-# TradeReview MCP Servers
+# Wax Wane MCP Servers
 
-MCP (Model Context Protocol) servers for the TradeReview application. These servers expose trading tools that can be used by any MCP client (Claude Desktop, Cursor, etc.).
+MCP (Model Context Protocol) servers for the Wax Wane application. These servers expose trading tools that can be used by any MCP client (Claude Desktop, Cursor, etc.).
 
 ## Available Servers
 

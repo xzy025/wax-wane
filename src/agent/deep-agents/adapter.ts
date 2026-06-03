@@ -4,7 +4,7 @@ import { toolDefinitions, executeTool } from '../tools'
 import type { DeepAgentConfig, DeepAgentEvent } from './types'
 
 /**
- * Adapter that bridges the existing TradeReview tool system
+ * Adapter that bridges the existing Wax Wane tool system
  * with the DeepAgents framework.
  */
 export class DeepAgentAdapter {

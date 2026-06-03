@@ -6,7 +6,7 @@ import { compressMessages } from '../contextCompression'
 import type { DeepAgentConfig, DeepAgentEvent } from './types'
 
 /**
- * Create a TradeReview agent using DeepAgents-style architecture.
+ * Create a Wax Wane agent using DeepAgents-style architecture.
  *
  * This is a simplified implementation that follows DeepAgents patterns:
  * - Uses existing tools via the tool registry
