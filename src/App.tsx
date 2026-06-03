@@ -78,7 +78,7 @@ function AppLayout() {
             <ChartLineUp size={22} aria-hidden="true" />
           </div>
           <div>
-            <strong>TradeReview</strong>
+            <strong>Wax Wane</strong>
             <span>{t.appSubtitle}</span>
           </div>
         </div>

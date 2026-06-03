@@ -1,7 +1,7 @@
 import type { Translation } from '../types'
 
 export default {
-  appSubtitle: 'TradeReview',
+  appSubtitle: 'Wax Wane',
   nav: {
     market: 'Market',
     dashboard: 'Dashboard',

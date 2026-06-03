@@ -1,7 +1,7 @@
 import type { Translation } from '../types'
 
 export default {
-  appSubtitle: 'TradeReview 交易复盘',
+  appSubtitle: 'Wax Wane 交易复盘',
   nav: {
     market: '行情',
     dashboard: '工作台',

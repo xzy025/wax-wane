@@ -1,7 +1,7 @@
-# TradeReview 架构评审：MCP / Multi-Agent / Memory 规划
+# Wax Wane 架构评审：MCP / Multi-Agent / Memory 规划
 
 > 评审日期：2026-06-01
-> 项目：TradeReview — A 股交易纪律分析平台
+> 项目：Wax Wane — A 股交易纪律分析平台
 > 技术栈：React 19 + TypeScript + Express + PostgreSQL + pgvector
 
 ---
