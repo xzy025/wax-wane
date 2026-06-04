@@ -134,6 +134,11 @@ let cachedData: MacroIndicator[] | null = null
 let cacheTimestamp = 0
 const CACHE_TTL = 30_000
 
+export function clearMacroCache() {
+  cachedData = null
+  cacheTimestamp = 0
+}
+
 export async function fetchMacroData(): Promise<MacroIndicator[]> {
   const now = Date.now()
   if (cachedData && now - cacheTimestamp < CACHE_TTL) {

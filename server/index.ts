@@ -5,12 +5,13 @@ import { SocksProxyAgent } from 'socks-proxy-agent'
 import fetch from 'node-fetch'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
-import { fetchAShareData, fetchStockQuote, fetchIndexTrends } from './ashare'
-import { fetchHKData } from './hk'
-import { fetchUSData } from './us'
-import { fetchHotList } from './hotlist'
+import { fetchAShareData, fetchStockQuote, fetchIndexTrends, clearAShareCache, fetchStockKline, fetchStockFundamentals } from './ashare'
+import { searchWeb, searchStockNews } from './webSearch'
+import { fetchHKData, clearHKCache } from './hk'
+import { fetchUSData, clearUSCache } from './us'
+import { fetchHotList, clearHotListCache } from './hotlist'
 import { fetchNewsFeed } from './news'
-import { fetchMacroData } from './macro'
+import { fetchMacroData, clearMacroCache } from './macro'
 import { searchSimilar, getDocumentCount } from './vectorStore'
 import { syncTradeGroups, resetAndSyncAll } from './ragSync'
 import {
@@ -38,20 +39,29 @@ const __dirname = dirname(__filename)
 
 config({ path: join(__dirname, '.env') })
 
-// Debug: log env vars
-console.log('[Debug] __dirname:', __dirname)
-console.log('[Debug] LLM_API_KEY:', process.env.LLM_API_KEY ? 'set' : 'not set')
-console.log('[Debug] LLM_API_URL:', process.env.LLM_API_URL)
-console.log('[Debug] LLM_MODEL:', process.env.LLM_MODEL)
-
 const app = express()
 const PORT = process.env.PORT ?? 3002
 
-app.use(cors({ origin: true }))
+// CORS: allow dev server and local network access
+const allowedOrigins = process.env.CORS_ORIGINS?.split(',') ?? [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3002',
+]
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(null, true) // Permissive for local dev; tighten for production
+    }
+  },
+}))
 app.use(express.json({ limit: '50mb' }))
 
 // Proxy configuration for Google API access (SOCKS5) - only for foreign APIs
-const socksProxy = process.env.SOCKS_PROXY || 'socks5://127.0.0.1:10808'
+const socksProxy = process.env.SOCKS_PROXY // No default; must be explicitly configured
 let proxyAgent: SocksProxyAgent | undefined
 if (socksProxy) {
   proxyAgent = new SocksProxyAgent(socksProxy)
@@ -418,10 +428,10 @@ app.post('/api/agent/chat', async (req, res) => {
       }
     }
 
-    console.error(`[Agent] Protocol: ${protocol}`)
-    console.error(`[Agent] URL: ${actualUrl}`)
-    console.error(`[Agent] Key: ${apiKey?.substring(0, 10)}...`)
-    console.error(`[Agent] Body preview:`, JSON.stringify(body).substring(0, 200))
+    console.log(`[Agent] Protocol: ${protocol}, URL: ${actualUrl}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Agent] Body preview:`, JSON.stringify(body).substring(0, 200))
+    }
 
     // Debug: log image content in body
     if (hasImages) {
@@ -485,6 +495,16 @@ app.get('/api/health', (_req, res) => {
     protocol,
     model: process.env.LLM_MODEL,
   })
+})
+
+// Clear all market data caches (for refresh button)
+app.post('/api/refresh', (_req, res) => {
+  clearAShareCache()
+  clearHKCache()
+  clearUSCache()
+  clearHotListCache()
+  clearMacroCache()
+  res.json({ ok: true })
 })
 
 // A-share market data
@@ -567,6 +587,78 @@ app.get('/api/mcp/ashare/quote', async (req, res) => {
   }
 })
 
+// Stock K-line history
+app.get('/api/stock/kline', async (req, res) => {
+  const code = req.query.code as string | undefined
+  const period = parseInt(req.query.period as string) || 101
+  const count = parseInt(req.query.count as string) || 30
+  if (!code || !/^\d{6}$/.test(code)) {
+    res.status(400).json({ error: 'Missing or invalid ?code= (6-digit stock code)' })
+    return
+  }
+  try {
+    const data = await fetchStockKline(code, period, count)
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// Stock fundamentals
+app.get('/api/stock/fundamentals', async (req, res) => {
+  const code = req.query.code as string | undefined
+  if (!code || !/^\d{6}$/.test(code)) {
+    res.status(400).json({ error: 'Missing or invalid ?code= (6-digit stock code)' })
+    return
+  }
+  try {
+    const data = await fetchStockFundamentals(code)
+    if (!data) {
+      res.status(404).json({ error: `Stock ${code} not found` })
+      return
+    }
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// Stock news search
+app.get('/api/stock/news', async (req, res) => {
+  const code = req.query.code as string | undefined
+  const count = parseInt(req.query.count as string) || 10
+  if (!code) {
+    res.status(400).json({ error: 'Missing ?code= parameter' })
+    return
+  }
+  try {
+    const data = await searchStockNews(code, count)
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// Web search proxy
+app.get('/api/web/search', async (req, res) => {
+  const query = req.query.q as string | undefined
+  const count = parseInt(req.query.count as string) || 5
+  if (!query) {
+    res.status(400).json({ error: 'Missing ?q= parameter' })
+    return
+  }
+  try {
+    const data = await searchWeb(query, count)
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
 app.get('/api/mcp/ashare/breadth', async (_req, res) => {
   try {
     const data = await fetchAShareData()
@@ -580,6 +672,8 @@ app.get('/api/mcp/ashare/breadth', async (_req, res) => {
       promotedCount: data.promotedCount,
       promotionTotal: data.promotionTotal,
       newHighCount: data.newHighCount,
+      nearHighCount: data.nearHighCount,
+      nearHighStocks: data.nearHighStocks,
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

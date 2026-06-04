@@ -39,7 +39,7 @@ describe('useMacroData', () => {
 
     expect(result.current.data).toEqual(mockData)
     expect(result.current.error).toBeNull()
-    expect(mockFetch).toHaveBeenCalledWith('/api/mcp/macro/indicators')
+    expect(mockFetch).toHaveBeenCalledWith('/api/mcp/macro/indicators', expect.objectContaining({ signal: expect.any(AbortSignal) }))
   })
 
   it('handles fetch error', async () => {

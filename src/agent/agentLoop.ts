@@ -15,8 +15,9 @@ export async function* runAgent(
   signal?: AbortSignal,
   llmConfig?: LLMConfig,
   images?: string[],
+  selectedPatterns?: string[],
 ): AsyncGenerator<AgentEvent> {
-  const systemPrompt = buildSystemPrompt(appState, language)
+  const systemPrompt = buildSystemPrompt(appState, language, selectedPatterns)
 
   const messages: AgentMessage[] = [
     { role: 'system', content: systemPrompt },

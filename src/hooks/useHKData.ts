@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 interface IndexQuote {
   code: string
@@ -86,11 +87,11 @@ export function useHKData(date: string = todayStr()): HKResult {
     cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
   const fetching = useRef(false)
-  const dataRef = useRef(data)
-  dataRef.current = data
 
   // When date changes, load from cache or fetch
   useEffect(() => {
+    let cancelled = false
+
     const entry = getDay(date)
     const cached = entry?.hk as HKData | undefined
 
@@ -119,9 +120,10 @@ export function useHKData(date: string = todayStr()): HKResult {
     setLoading(true)
     ;(async () => {
       try {
-        const res = await fetch('/api/hk')
+        const res = await fetchWithTimeout('/api/hk')
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const result: HKData = await res.json()
+        if (cancelled) return
 
         if (!result.indices || result.indices.length === 0) {
           const mock = getMockData()
@@ -134,25 +136,32 @@ export function useHKData(date: string = todayStr()): HKResult {
         setLastUpdated(new Date())
         setError(null)
       } catch {
-        if (!dataRef.current) {
-          const mock = getMockData()
-          setData(mock)
-          saveDay(date, { hk: mock })
-        }
+        if (cancelled) return
+        const mock = getMockData()
+        setData(mock)
+        saveDay(date, { hk: mock })
         setError('Failed to fetch HK data')
       } finally {
-        setLoading(false)
-        fetching.current = false
+        if (!cancelled) {
+          setLoading(false)
+          fetching.current = false
+        }
       }
     })()
+
+    return () => {
+      cancelled = true
+      fetching.current = false
+    }
   }, [date, isToday])
 
   const refresh = useCallback(async () => {
     if (!isToday || fetching.current) return
     fetching.current = true
     setLoading(true)
+    setError(null)
     try {
-      const res = await fetch('/api/hk')
+      const res = await fetchWithTimeout('/api/hk')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: HKData = await res.json()
 
@@ -167,10 +176,9 @@ export function useHKData(date: string = todayStr()): HKResult {
       setLastUpdated(new Date())
       setError(null)
     } catch {
-      if (!dataRef.current) {
-        const mock = getMockData()
-        setData(mock)
-      }
+      const mock = getMockData()
+      setData(mock)
+      saveDay(date, { hk: mock })
       setError('Failed to fetch HK data')
     } finally {
       setLoading(false)

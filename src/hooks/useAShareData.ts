@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface IndexQuote {
   code: string
@@ -22,6 +23,15 @@ export interface NewHighStock {
   changePct: number
 }
 
+export interface NearHighStock {
+  code: string
+  name: string
+  price: number
+  changePct: number
+  high52w: number
+  gapPct: number
+}
+
 export interface VolumeRecord {
   date: string
   volume: number
@@ -40,6 +50,8 @@ export interface AShareData {
   promotionTotal: number
   newHighCount: number
   newHighStocks: NewHighStock[]
+  nearHighCount?: number
+  nearHighStocks?: NearHighStock[]
   volumeHistory: VolumeRecord[]
 }
 
@@ -152,6 +164,14 @@ function getMockData(): AShareData {
       { code: '688001', name: '华兴源创', price: 82.55, changePct: 2.18 },
       { code: '688110', name: '东芯股份', price: 166.6, changePct: 5.02 },
     ],
+    nearHighCount: 5,
+    nearHighStocks: [
+      { code: '300750', name: '宁德时代', price: 426.42, changePct: -1.72, high52w: 460.0, gapPct: 7.30 },
+      { code: '002594', name: '比亚迪', price: 358.90, changePct: 1.25, high52w: 385.0, gapPct: 6.78 },
+      { code: '600519', name: '贵州茅台', price: 1680.00, changePct: -0.52, high52w: 1800.0, gapPct: 6.67 },
+      { code: '000858', name: '五粮液', price: 168.50, changePct: 0.85, high52w: 178.0, gapPct: 5.34 },
+      { code: '601318', name: '中国平安', price: 52.80, changePct: 0.38, high52w: 55.5, gapPct: 4.86 },
+    ],
     volumeHistory: [
       { date: '05-23', volume: 18234567, turnover: 2876543210000 },
       { date: '05-26', volume: 21123456, turnover: 3234567890000 },
@@ -181,11 +201,11 @@ export function useAShareData(date: string = todayStr()): AShareResult {
     cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
   const fetching = useRef(false)
-  const dataRef = useRef(data)
-  dataRef.current = data
 
   // When date changes, load from cache or fetch
   useEffect(() => {
+    let cancelled = false
+
     const entry = getDay(date)
     const cached = entry?.ashare as AShareData | undefined
 
@@ -213,9 +233,10 @@ export function useAShareData(date: string = todayStr()): AShareResult {
     setLoading(true)
     ;(async () => {
       try {
-        const res = await fetch('/api/ashare')
+        const res = await fetchWithTimeout('/api/ashare')
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const result: AShareData = await res.json()
+        if (cancelled) return
 
         if (!result.indices || result.indices.length === 0) {
           const mock = getMockData()
@@ -228,25 +249,32 @@ export function useAShareData(date: string = todayStr()): AShareResult {
         setLastUpdated(new Date())
         setError(null)
       } catch {
-        if (!dataRef.current) {
-          const mock = getMockData()
-          setData(mock)
-          saveDay(date, { ashare: mock })
-        }
+        if (cancelled) return
+        const mock = getMockData()
+        setData(mock)
+        saveDay(date, { ashare: mock })
         setError('Failed to fetch A-share data')
       } finally {
-        setLoading(false)
-        fetching.current = false
+        if (!cancelled) {
+          setLoading(false)
+          fetching.current = false
+        }
       }
     })()
+
+    return () => {
+      cancelled = true
+      fetching.current = false
+    }
   }, [date, isToday])
 
   const refresh = useCallback(async () => {
     if (!isToday || fetching.current) return
     fetching.current = true
     setLoading(true)
+    setError(null)
     try {
-      const res = await fetch('/api/ashare')
+      const res = await fetchWithTimeout('/api/ashare')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: AShareData = await res.json()
 
@@ -261,10 +289,9 @@ export function useAShareData(date: string = todayStr()): AShareResult {
       setLastUpdated(new Date())
       setError(null)
     } catch {
-      if (!dataRef.current) {
-        const mock = getMockData()
-        setData(mock)
-      }
+      const mock = getMockData()
+      setData(mock)
+      saveDay(date, { ashare: mock })
       setError('Failed to fetch A-share data')
     } finally {
       setLoading(false)

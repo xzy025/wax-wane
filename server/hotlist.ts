@@ -32,6 +32,11 @@ let cachedData: HotListData | null = null
 let cacheTime = 0
 const CACHE_TTL = 60_000
 
+export function clearHotListCache() {
+  cachedData = null
+  cacheTime = 0
+}
+
 // ── 龙虎榜 ─────────────────────────────────────────────
 
 async function fetchDragonTiger(): Promise<DragonTigerStock[]> {

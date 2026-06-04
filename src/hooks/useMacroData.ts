@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface MacroIndicator {
   id: string
@@ -16,10 +17,8 @@ export interface MacroDataResult {
   refresh: () => void
 }
 
-// ── Fetch from backend (no API key exposed to client) ─────
-
 async function fetchFromBackend(): Promise<MacroIndicator[]> {
-  const res = await fetch('/api/mcp/macro/indicators')
+  const res = await fetchWithTimeout('/api/mcp/macro/indicators')
   if (!res.ok) throw new Error(`Macro API: ${res.status}`)
   return res.json()
 }
@@ -42,6 +41,8 @@ export function useMacroData(date: string = todayStr()): MacroDataResult {
 
   // When date changes, load from cache or fetch
   useEffect(() => {
+    let cancelled = false
+
     const entry = getDay(date)
     const cached = entry?.macro as MacroIndicator[] | undefined
 
@@ -70,23 +71,33 @@ export function useMacroData(date: string = todayStr()): MacroDataResult {
     ;(async () => {
       try {
         const result = await fetchFromBackend()
+        if (cancelled) return
         setData(result)
         setLastUpdated(new Date())
         setError(null)
         saveDay(date, { macro: result })
       } catch (e) {
+        if (cancelled) return
         setError(e instanceof Error ? e.message : 'Unknown error')
       } finally {
-        setLoading(false)
-        fetching.current = false
+        if (!cancelled) {
+          setLoading(false)
+          fetching.current = false
+        }
       }
     })()
+
+    return () => {
+      cancelled = true
+      fetching.current = false
+    }
   }, [date, isToday])
 
   const refresh = useCallback(async () => {
     if (!isToday || fetching.current) return
     fetching.current = true
     setLoading(true)
+    setError(null)
     try {
       const result = await fetchFromBackend()
       setData(result)

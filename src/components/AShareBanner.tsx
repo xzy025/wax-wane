@@ -28,8 +28,7 @@ const INDEX_CONFIG: Record<string, { labelKey: keyof Translation['ashare']; char
   '899050': { labelKey: 'bse50', chartUrl: 'https://quote.eastmoney.com/zs899050.html' },
 }
 
-function formatPrice(price: number, code: string): string {
-  if (code === '000001') return price.toFixed(2)
+function formatPrice(price: number): string {
   return price.toFixed(2)
 }
 
@@ -55,6 +54,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
   const { data, loading, error, lastUpdated, refresh } = useAShareData(date)
   const hasData = !!data
   const [newHighExpanded, setNewHighExpanded] = useState(false)
+  const [nearHighExpanded, setNearHighExpanded] = useState(false)
 
   const score = data
     ? calcProfitabilityScore(data.limitUpCount, data.limitDownCount, data.advance, data.decline)
@@ -88,7 +88,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                 rel="noopener noreferrer"
               >
                 <div className="ashare-index-name">{t.ashare[config.labelKey]}</div>
-                <div className={`ashare-index-price ${isUp ? 'up' : 'down'}`}>{formatPrice(idx.price, idx.code)}</div>
+                <div className={`ashare-index-price ${isUp ? 'up' : 'down'}`}>{formatPrice(idx.price)}</div>
                 <div className={`ashare-index-change ${isUp ? 'up' : 'down'}`}>
                   <ChangeIcon size={12} aria-hidden="true" />
                   {isUp ? '+' : ''}
@@ -190,6 +190,31 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               </div>
             </div>
 
+            <div
+              className="ashare-stat"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setNearHighExpanded((v) => !v)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') setNearHighExpanded((v) => !v)
+              }}
+            >
+              <TrendUp size={14} aria-hidden="true" className="ashare-stat-icon" />
+              <div>
+                <div className="ashare-stat-label">{t.ashare.nearHigh}</div>
+                <div className="ashare-stat-value">
+                  {data.nearHighCount ?? 0}
+                  {(data.nearHighStocks?.length ?? 0) > 0 &&
+                    (nearHighExpanded ? (
+                      <CaretUp size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
+                    ) : (
+                      <CaretDown size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
+                    ))}
+                </div>
+              </div>
+            </div>
+
             <div className={`ashare-score ${getProfitabilityClass(score)}`}>
               <Gauge size={14} aria-hidden="true" />
               <div>
@@ -263,6 +288,34 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                 <span className="ashare-newhigh-code">{s.code}</span>
                 <span className="ashare-newhigh-name">{s.name}</span>
                 <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
+                <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
+                  {isUp ? '+' : ''}
+                  {s.changePct.toFixed(2)}%
+                </span>
+              </a>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Near High stock list */}
+      {hasData && nearHighExpanded && (data.nearHighStocks?.length ?? 0) > 0 && (
+        <div className="ashare-newhigh-list">
+          {(data.nearHighStocks ?? []).map((s) => {
+            const isUp = s.changePct >= 0
+            const market = s.code.startsWith('6') ? 'sh' : 'sz'
+            return (
+              <a
+                key={s.code}
+                className="ashare-newhigh-item"
+                href={`https://quote.eastmoney.com/${market}${s.code}.html`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="ashare-newhigh-code">{s.code}</span>
+                <span className="ashare-newhigh-name">{s.name}</span>
+                <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
+                <span className="ashare-newhigh-gap">距高点 {s.gapPct}%</span>
                 <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
                   {isUp ? '+' : ''}
                   {s.changePct.toFixed(2)}%

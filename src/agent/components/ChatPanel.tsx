@@ -10,6 +10,7 @@ import { runAgent } from '../agentLoop'
 import { useAppState } from '../../store'
 import { ChatMessage } from './ChatMessage'
 import { StreamingBubble } from './StreamingBubble'
+import { TradingPatternSelector } from './TradingPatternSelector'
 import type { ConversationMessage, AgentMessage } from '../types'
 import type { Translation } from '../../types'
 
@@ -69,9 +70,35 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   const [llmConfig, setLlmConfig] = useState<LLMConfig>(loadLLMConfig)
   const [showLLMSettings, setShowLLMSettings] = useState(false)
   const [pastedImages, setPastedImages] = useState<string[]>([])
+  const [selectedPatterns, setSelectedPatterns] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('selected-trading-patterns')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const streamingContentRef = useRef('')
+
+  // Resume streaming display when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (streamingContentRef.current) {
+          setStreamingContent(streamingContentRef.current)
+        }
+        // Force scroll to bottom when returning to tab
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        }, 100)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
 
   const quickPrompts = language === 'zh' ? QUICK_PROMPTS_ZH : QUICK_PROMPTS_EN
 
@@ -98,6 +125,16 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
 
   const removeImage = useCallback((index: number) => {
     setPastedImages((prev) => prev.filter((_, i) => i !== index))
+  }, [])
+
+  const handlePatternToggle = useCallback((patternId: string) => {
+    setSelectedPatterns((prev) => {
+      const next = prev.includes(patternId)
+        ? prev.filter((id) => id !== patternId)
+        : [...prev, patternId]
+      localStorage.setItem('selected-trading-patterns', JSON.stringify(next))
+      return next
+    })
   }, [])
 
   const handleLLMChange = useCallback((preset: LLMConfig) => {
@@ -173,13 +210,15 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         }
         const generator = runAgent(text.trim(), appState, llmHistory, language, controller.signal, {
           id: llmConfig.id,
-        }, imagesToSend)
+        }, imagesToSend, selectedPatterns.length > 0 ? selectedPatterns : undefined)
         let fullContent = ''
+        streamingContentRef.current = ''
 
         for await (const event of generator) {
           switch (event.type) {
             case 'token':
               fullContent += event.content
+              streamingContentRef.current = fullContent
               setStreamingContent(fullContent)
               break
 
@@ -234,6 +273,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         })
       } finally {
         abortRef.current = null
+        streamingContentRef.current = ''
         setIsStreaming(false)
         setStreamingContent('')
         agentDispatch({ type: 'SET_PROCESSING', payload: false })
@@ -248,6 +288,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       language,
       pastedImages,
       llmConfig,
+      selectedPatterns,
     ],
   )
 
@@ -337,6 +378,11 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           </div>
         </div>
       )}
+
+      <TradingPatternSelector
+        selectedPatterns={selectedPatterns}
+        onToggle={handlePatternToggle}
+      />
 
       <div className="ai-chat-messages">
         {messages.length === 0 && !isStreaming && (

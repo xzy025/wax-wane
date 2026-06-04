@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { CaretLeft, CaretRight } from 'phosphor-react'
+import { CaretLeft, CaretRight, ArrowClockwise } from 'phosphor-react'
 import { todayStr } from '../utils/marketHistory'
 import type { Translation } from '../types'
 
 interface MarketDatePickerProps {
   selectedDate: string
   onSelect: (date: string) => void
+  onRefresh: () => void
   t: Translation
 }
 
@@ -15,13 +16,9 @@ function daysAgo(n: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function formatDisplay(date: string, t: Translation): string {
-  const today = todayStr()
-  if (date === today) return t.datePicker.today
-  if (date === daysAgo(1)) return t.datePicker.yesterday
-  // Show as MM-DD
+function formatDisplay(date: string): string {
   const parts = date.split('-')
-  return `${parts[1]}-${parts[2]}`
+  return `${parts[0]}-${parts[1]}-${parts[2]}`
 }
 
 function isTradingDay(dateStr: string): boolean {
@@ -32,15 +29,31 @@ function isTradingDay(dateStr: string): boolean {
 }
 
 function isSelectable(date: string): boolean {
-  const today = todayStr()
-  const minDate = daysAgo(30) // 扩大范围到30天
-  return date >= minDate && date <= today && isTradingDay(date)
+  const now = new Date()
+  const hours = now.getHours()
+  const minutes = now.getMinutes()
+  const isBeforePreMarket = hours < 9 || (hours === 9 && minutes < 15)
+
+  // 如果在开盘前，最大可选日期是昨天
+  const maxDate = isBeforePreMarket ? daysAgo(1) : todayStr()
+  const minDate = daysAgo(30)
+  return date >= minDate && date <= maxDate && isTradingDay(date)
 }
 
 export function getLastTradingDay(): string {
-  const today = new Date()
-  let d = new Date(today)
-  // 如果今天是周末，往前找
+  const now = new Date()
+  let d = new Date(now)
+
+  // 如果当前时间在 9:15 之前（盘前集合竞价前），显示上一个交易日
+  const hours = now.getHours()
+  const minutes = now.getMinutes()
+  const isBeforePreMarket = hours < 9 || (hours === 9 && minutes < 15)
+
+  if (isBeforePreMarket) {
+    d.setDate(d.getDate() - 1)
+  }
+
+  // 如果是周末，往前找最近的工作日
   while (d.getDay() === 0 || d.getDay() === 6) {
     d.setDate(d.getDate() - 1)
   }
@@ -85,7 +98,7 @@ function getMonthDays(
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
-export default function MarketDatePicker({ selectedDate, onSelect, t }: MarketDatePickerProps) {
+export default function MarketDatePicker({ selectedDate, onSelect, onRefresh, t }: MarketDatePickerProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -162,7 +175,10 @@ export default function MarketDatePicker({ selectedDate, onSelect, t }: MarketDa
   return (
     <div className="date-picker" ref={ref}>
       <button className="date-picker-btn" type="button" onClick={() => setOpen(!open)}>
-        {formatDisplay(selectedDate, t)}
+        {formatDisplay(selectedDate)}
+      </button>
+      <button className="date-picker-refresh" type="button" onClick={onRefresh} title="刷新数据">
+        <ArrowClockwise size={14} />
       </button>
 
       {open && (

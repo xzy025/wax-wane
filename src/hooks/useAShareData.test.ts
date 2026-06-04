@@ -71,7 +71,7 @@ describe('useAShareData', () => {
 
     expect(result.current.data).toEqual(mockData)
     expect(result.current.error).toBeNull()
-    expect(mockFetch).toHaveBeenCalledWith('/api/ashare')
+    expect(mockFetch).toHaveBeenCalledWith('/api/ashare', expect.objectContaining({ signal: expect.any(AbortSignal) }))
   })
 
   it('uses mock data when API returns empty indices', async () => {
@@ -88,7 +88,7 @@ describe('useAShareData', () => {
 
     // Should fall back to mock data
     expect(result.current.data).not.toBeNull()
-    expect(result.current.data!.indices.length).toBe(3)
+    expect(result.current.data!.indices.length).toBe(5)
   })
 
   it('uses mock data on fetch error', async () => {
