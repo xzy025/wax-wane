@@ -98,15 +98,14 @@
 
 .ashare-banner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
   gap: 12px;
-  height: 100px;
   padding: 16px 16px;
   margin-bottom: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  overflow: hidden;
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -169,6 +168,7 @@
   height: 36px;
   background: var(--line);
   flex-shrink: 0;
+  align-self: stretch;
 }
 
 .ashare-stat {
@@ -257,7 +257,6 @@
 }
 
 .ashare-meta {
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -265,6 +264,7 @@
   font-size: 0.72rem;
   white-space: nowrap;
   flex-shrink: 0;
+  flex-basis: 100%;
 }
 
 /* Volume History */
@@ -272,7 +272,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex-shrink: 1;
+  flex: 1 1 100%;
 }
 
 .ashare-volume-bars {
