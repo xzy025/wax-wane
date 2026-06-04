@@ -1,5 +1,6 @@
 import type { AppState } from '../store'
 import { buildFullContext } from './contextBuilder'
+import { buildPatternContext } from './tradingPatterns'
 
 function getTradingDayInfo(): string {
   const now = new Date()
@@ -88,9 +89,10 @@ function getTradingDayInfo(): string {
 - **操作建议**：具体的买入/卖出建议`
 }
 
-export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh'): string {
+export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh', selectedPatterns?: string[]): string {
   const context = buildFullContext(state)
   const tradingDayInfo = getTradingDayInfo()
+  const patternContext = selectedPatterns?.length ? buildPatternContext(selectedPatterns) : ''
 
   const lang = language === 'zh' ? '请用中文回复。' : 'Please respond in English.'
 
@@ -108,6 +110,29 @@ export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh')
 - You can analyze market using trading theories: Wyckoff Volume-Price, Dow Theory, Al Brooks Price Action, A-Share Board Trading
 - You can identify trade patterns (chasing highs, holding losers, frequent trading, etc.) and link them to theory frameworks
 - You can generate personalized improvement plans based on trading theories
+- You can fetch individual stock K-line history (getStockKline) for technical analysis
+- You can fetch individual stock fundamentals (getStockFundamentals): PE, PB, ROE, market cap
+- You can fetch latest stock-specific news (getStockNews) for sentiment analysis
+- You can search the web (searchWeb) for market news, analysis, and information
+- You can run multi-dimensional stock analysis (runStockAnalysis): parallel technical + fundamental + news analysis
+- You can screen stocks (screenStocks) based on trading patterns
+
+### Stock Analysis (个股分析)
+When the user mentions a specific stock code (e.g., "300750", "002594") or asks to analyze a stock:
+1. **Use runStockAnalysis** tool with the stock code for comprehensive multi-dimensional analysis
+2. This runs 3 parallel agents: Technical (Wyckoff/Dow/Al Brooks), Fundamental, News
+3. Returns a structured report with signals from each dimension
+
+### Stock Screening with Trading Patterns (选股)
+When the user asks to screen stocks ("帮我选股", "今天有什么机会"):
+1. Check if user has selected trading patterns (shown in the system context)
+2. Map selected patterns to screening models:
+   - "2b-buy" → model: "2b"
+   - "strong-dip" → model: "strongDip"
+   - "first-board" → model: "firstBoard"
+   - "morning-dip" → model: "morningDip"
+3. Call screenStocks with the appropriate model(s)
+4. For top candidates, optionally run runStockAnalysis for deeper analysis
 
 ### GraphRAG Capabilities (Knowledge Graph)
 - **graphQuery**: Query the trade relationship graph. Supports multi-hop reasoning to find connections between trades, mistakes, theories, sectors, and market phases.
@@ -309,6 +334,7 @@ Use graphQuery when the user asks about relationships between trades, patterns a
 ---
 
 ${tradingDayInfo}
+${patternContext}
 
 ## Current Portfolio Context
 <context>

@@ -24,7 +24,7 @@ import USBanner from './components/USBanner'
 import HotListBanner from './components/HotListBanner'
 import MarketDatePicker, { getLastTradingDay } from './components/MarketDatePicker'
 import ErrorBoundary from './components/ErrorBoundary'
-import { todayStr } from './utils/marketHistory'
+import { todayStr, clearDay, clearAllDays } from './utils/marketHistory'
 import Dashboard from './views/Dashboard'
 import ImportView from './views/ImportView'
 import LedgerView from './views/LedgerView'
@@ -49,6 +49,7 @@ function AppLayout() {
   const [language, setLanguage] = useState('zh')
   const [range, setRange] = useState('month')
   const [selectedDate, setSelectedDate] = useState(getLastTradingDay())
+  const [refreshKey, setRefreshKey] = useState(0)
   const location = useLocation()
   const t = translations[language]
   const { tradeGroups } = useAppState()
@@ -137,13 +138,26 @@ function AppLayout() {
 
         {activeView === 'market' && (
           <>
-            <MarketDatePicker selectedDate={selectedDate} onSelect={setSelectedDate} t={t} />
-            <ErrorBoundary>
-              <MacroBanner t={t} date={selectedDate} />
-              <AShareBanner t={t} date={selectedDate} />
-              <HKBanner t={t} date={selectedDate} />
-              <USBanner t={t} date={selectedDate} />
-              <HotListBanner t={t} date={selectedDate} />
+            <MarketDatePicker
+              selectedDate={selectedDate}
+              onSelect={setSelectedDate}
+              onRefresh={async () => {
+                clearAllDays()
+                try {
+                  await fetch('/api/refresh', { method: 'POST' })
+                } catch {
+                  // Server may be down; components will handle fetch errors
+                }
+                setRefreshKey((k) => k + 1)
+              }}
+              t={t}
+            />
+            <ErrorBoundary key={refreshKey}>
+              <MacroBanner key={`macro-${refreshKey}`} t={t} date={selectedDate} />
+              <AShareBanner key={`ashare-${refreshKey}`} t={t} date={selectedDate} />
+              <HKBanner key={`hk-${refreshKey}`} t={t} date={selectedDate} />
+              <USBanner key={`us-${refreshKey}`} t={t} date={selectedDate} />
+              <HotListBanner key={`hot-${refreshKey}`} t={t} date={selectedDate} />
             </ErrorBoundary>
           </>
         )}

@@ -187,6 +187,7 @@ export interface Translation {
     profitabilityBad: string
     promotionRate: string
     newHigh: string
+    nearHigh: string
     totalVolume: string
     lastUpdated: string
     loading: string

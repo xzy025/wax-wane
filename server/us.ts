@@ -22,6 +22,11 @@ let cachedData: USData | null = null
 let cacheTime = 0
 const CACHE_TTL = 30_000
 
+export function clearUSCache() {
+  cachedData = null
+  cacheTime = 0
+}
+
 export async function fetchUSData(): Promise<USData> {
   const now = Date.now()
   if (cachedData && now - cacheTime < CACHE_TTL) {

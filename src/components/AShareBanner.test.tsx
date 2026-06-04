@@ -64,6 +64,11 @@ const mockData: AShareData = {
     { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55 },
     { code: '688001', name: 'StockB', price: 82.55, changePct: 2.18 },
   ],
+  volumeHistory: [
+    { date: '05-23', volume: 18234567, turnover: 2876543210000 },
+    { date: '05-26', volume: 21123456, turnover: 3234567890000 },
+    { date: '05-27', volume: 16987654, turnover: 2676543210000 },
+  ],
 }
 
 const defaultResult: AShareResult = {

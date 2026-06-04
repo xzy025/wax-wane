@@ -11,6 +11,7 @@
   background: var(--surface);
   overflow: hidden;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .macro-item {
@@ -107,6 +108,7 @@
   background: var(--surface);
   overflow: hidden;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .ashare-index {
@@ -404,6 +406,14 @@
   color: var(--muted);
 }
 
+.ashare-newhigh-gap {
+  font-weight: 700;
+  color: var(--orange, #f59e0b);
+  min-width: 70px;
+  text-align: right;
+  font-size: 0.72rem;
+}
+
 /* ── Hot Stock List ──────────────────────────────────── */
 
 .hotlist-section {
@@ -412,6 +422,7 @@
   background: var(--surface);
   box-shadow: var(--shadow);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .hotlist-header {
@@ -617,7 +628,28 @@
 .date-picker {
   position: relative;
   display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.date-picker-refresh {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.date-picker-refresh:hover {
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 
 .date-picker-btn {

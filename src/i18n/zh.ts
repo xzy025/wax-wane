@@ -9,7 +9,7 @@ export default {
     ledger: '流水',
     reviews: '复盘',
     analytics: '分析',
-    agent: 'Agent复盘',
+    agent: 'Agent',
   },
   titles: {
     market: '全球行情',
@@ -200,6 +200,7 @@ export default {
     profitabilityBad: '差',
     promotionRate: '连板晋级率',
     newHigh: '趋势新高',
+    nearHigh: '即将历史新高',
     totalVolume: '大盘成交',
     lastUpdated: '更新于',
     loading: '加载中...',

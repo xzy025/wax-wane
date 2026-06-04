@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface HotStock {
   rank: number
@@ -96,10 +97,10 @@ export function useHotList(date: string = todayStr()): HotListResult {
     cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
   const fetching = useRef(false)
-  const dataRef = useRef(data)
-  dataRef.current = data
 
   useEffect(() => {
+    let cancelled = false
+
     const entry = getDay(date)
     const cached = entry?.hotlist as HotListData | undefined
 
@@ -125,9 +126,10 @@ export function useHotList(date: string = todayStr()): HotListResult {
     setLoading(true)
     ;(async () => {
       try {
-        const res = await fetch('/api/hotlist')
+        const res = await fetchWithTimeout('/api/hotlist')
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const result: HotListData = await res.json()
+        if (cancelled) return
 
         if (!result.eastmoney?.length && !result.ths?.length) {
           const mock = getMockData()
@@ -140,25 +142,32 @@ export function useHotList(date: string = todayStr()): HotListResult {
         setLastUpdated(new Date())
         setError(null)
       } catch {
-        if (!dataRef.current) {
-          const mock = getMockData()
-          setData(mock)
-          saveDay(date, { hotlist: mock })
-        }
+        if (cancelled) return
+        const mock = getMockData()
+        setData(mock)
+        saveDay(date, { hotlist: mock })
         setError('Failed to fetch hot list')
       } finally {
-        setLoading(false)
-        fetching.current = false
+        if (!cancelled) {
+          setLoading(false)
+          fetching.current = false
+        }
       }
     })()
+
+    return () => {
+      cancelled = true
+      fetching.current = false
+    }
   }, [date, isToday])
 
   const refresh = useCallback(async () => {
     if (!isToday || fetching.current) return
     fetching.current = true
     setLoading(true)
+    setError(null)
     try {
-      const res = await fetch('/api/hotlist')
+      const res = await fetchWithTimeout('/api/hotlist')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: HotListData = await res.json()
 
@@ -173,10 +182,9 @@ export function useHotList(date: string = todayStr()): HotListResult {
       setLastUpdated(new Date())
       setError(null)
     } catch {
-      if (!dataRef.current) {
-        const mock = getMockData()
-        setData(mock)
-      }
+      const mock = getMockData()
+      setData(mock)
+      saveDay(date, { hotlist: mock })
       setError('Failed to fetch hot list')
     } finally {
       setLoading(false)

@@ -1190,7 +1190,6 @@ textarea:focus {
   .macro-banner {
     gap: 6px;
     padding: 10px 10px;
-    height: 56px;
   }
 
   .macro-item {
@@ -1222,7 +1221,6 @@ textarea:focus {
   .ashare-banner {
     gap: 8px;
     padding: 10px 10px;
-    height: 80px;
   }
 
   .ashare-index {

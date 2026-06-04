@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 interface IndexQuote {
   code: string
@@ -99,11 +100,11 @@ export function useUSData(date: string = todayStr()): USResult {
     cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
   const fetching = useRef(false)
-  const dataRef = useRef(data)
-  dataRef.current = data
 
   // When date changes, load from cache or fetch
   useEffect(() => {
+    let cancelled = false
+
     const entry = getDay(date)
     const cached = entry?.us as USData | undefined
 
@@ -132,9 +133,10 @@ export function useUSData(date: string = todayStr()): USResult {
     setLoading(true)
     ;(async () => {
       try {
-        const res = await fetch('/api/us')
+        const res = await fetchWithTimeout('/api/us')
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const result: USData = await res.json()
+        if (cancelled) return
 
         if (!result.indices || result.indices.length === 0) {
           const mock = getMockData()
@@ -147,25 +149,32 @@ export function useUSData(date: string = todayStr()): USResult {
         setLastUpdated(new Date())
         setError(null)
       } catch {
-        if (!dataRef.current) {
-          const mock = getMockData()
-          setData(mock)
-          saveDay(date, { us: mock })
-        }
+        if (cancelled) return
+        const mock = getMockData()
+        setData(mock)
+        saveDay(date, { us: mock })
         setError('Failed to fetch US data')
       } finally {
-        setLoading(false)
-        fetching.current = false
+        if (!cancelled) {
+          setLoading(false)
+          fetching.current = false
+        }
       }
     })()
+
+    return () => {
+      cancelled = true
+      fetching.current = false
+    }
   }, [date, isToday])
 
   const refresh = useCallback(async () => {
     if (!isToday || fetching.current) return
     fetching.current = true
     setLoading(true)
+    setError(null)
     try {
-      const res = await fetch('/api/us')
+      const res = await fetchWithTimeout('/api/us')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: USData = await res.json()
 
@@ -180,10 +189,9 @@ export function useUSData(date: string = todayStr()): USResult {
       setLastUpdated(new Date())
       setError(null)
     } catch {
-      if (!dataRef.current) {
-        const mock = getMockData()
-        setData(mock)
-      }
+      const mock = getMockData()
+      setData(mock)
+      saveDay(date, { us: mock })
       setError('Failed to fetch US data')
     } finally {
       setLoading(false)

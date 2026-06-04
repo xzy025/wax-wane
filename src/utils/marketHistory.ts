@@ -23,16 +23,20 @@ export interface SaveDayOptions {
 
 let cachedToday: string | null = null
 let cachedTodayTimestamp = 0
+let cachedTodayDateStr: string | null = null
 
 export function todayStr(): string {
   const now = Date.now()
-  // Cache for 1 minute to avoid creating new Date objects on every call
-  if (cachedToday && now - cachedTodayTimestamp < 60_000) {
+  const d = new Date()
+  const dateStr = d.toDateString() // e.g. "Wed Jun 04 2025"
+
+  // Cache for 1 minute, but invalidate if the calendar date has changed (midnight crossing)
+  if (cachedToday && now - cachedTodayTimestamp < 60_000 && cachedTodayDateStr === dateStr) {
     return cachedToday
   }
-  const d = new Date()
   cachedToday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
   cachedTodayTimestamp = now
+  cachedTodayDateStr = dateStr
   return cachedToday
 }
 
@@ -77,4 +81,19 @@ export function saveDay(date: string, partial: SaveDayOptions) {
   const existing = map[date] ?? { timestamp: Date.now() }
   map[date] = { ...existing, ...partial, timestamp: Date.now() }
   writeHistory(pruneOld(map))
+}
+
+export function clearDay(date: string) {
+  const map = readHistory()
+  delete map[date]
+  writeHistory(map)
+}
+
+/** Clear all cached market history from localStorage */
+export function clearAllDays() {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // ignore
+  }
 }
