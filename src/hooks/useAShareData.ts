@@ -274,6 +274,8 @@ export function useAShareData(date: string = todayStr()): AShareResult {
     setLoading(true)
     setError(null)
     try {
+      // Clear server-side cache first
+      try { await fetch('/api/refresh', { method: 'POST' }) } catch { /* ignore */ }
       const res = await fetchWithTimeout('/api/ashare')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: AShareData = await res.json()

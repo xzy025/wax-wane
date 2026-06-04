@@ -64,6 +64,15 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
   return (
     <>
       <div className="ashare-banner">
+        {/* Meta bar - top */}
+        <div className="ashare-meta">
+          {lastUpdated && (
+            <span>
+              {t.ashare.lastUpdated} {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+          {error && hasData && <span style={{ color: 'var(--red)' }}>{t.ashare.error}</span>}
+        </div>
         {/* Index cards */}
         {loading && !hasData ? (
           [1, 2, 3].map((i) => (
@@ -241,13 +250,15 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                   const volInYi = (v.turnover / 1e12).toFixed(1)
                   return (
                     <div key={`${v.date}-${i}`} className="ashare-volume-bar-wrapper">
-                      <div
-                        className="ashare-volume-bar"
-                        style={{
-                          height: `${height}%`,
-                          background: isToday ? (isUp ? 'var(--red)' : 'var(--green)') : (isUp ? 'rgba(245,63,63,0.3)' : 'rgba(0,180,42,0.3)'),
-                        }}
-                      />
+                      <div className="ashare-volume-bar-area">
+                        <div
+                          className="ashare-volume-bar"
+                          style={{
+                            height: `${height}%`,
+                            background: isToday ? (isUp ? 'var(--red)' : 'var(--green)') : (isUp ? 'rgba(245,63,63,0.3)' : 'rgba(0,180,42,0.3)'),
+                          }}
+                        />
+                      </div>
                       <div className="ashare-volume-value" style={{ color: isUp ? 'var(--red)' : 'var(--green)' }}>
                         {volInYi}
                       </div>
@@ -260,71 +271,61 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
           </>
         )}
 
-        {/* Meta bar */}
-        <div className="ashare-meta">
-          {lastUpdated && (
-            <span>
-              {t.ashare.lastUpdated} {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-          {error && hasData && <span style={{ color: 'var(--red)' }}>{t.ashare.error}</span>}
-        </div>
+        {/* New High stock list */}
+        {hasData && newHighExpanded && (data.newHighStocks?.length ?? 0) > 0 && (
+          <div className="ashare-expand-list">
+            {(data.newHighStocks ?? []).map((s) => {
+              const isUp = s.changePct >= 0
+              const market = s.code.startsWith('6') ? 'sh' : 'sz'
+              return (
+                <a
+                  key={s.code}
+                  className="ashare-newhigh-item"
+                  href={`https://quote.eastmoney.com/${market}${s.code}.html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="ashare-newhigh-code">{s.code}</span>
+                  <span className="ashare-newhigh-name">{s.name}</span>
+                  <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
+                  <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
+                    {isUp ? '+' : ''}
+                    {s.changePct.toFixed(2)}%
+                  </span>
+                </a>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Near High stock list */}
+        {hasData && nearHighExpanded && (data.nearHighStocks?.length ?? 0) > 0 && (
+          <div className="ashare-expand-list">
+            {(data.nearHighStocks ?? []).map((s) => {
+              const isUp = s.changePct >= 0
+              const market = s.code.startsWith('6') ? 'sh' : 'sz'
+              return (
+                <a
+                  key={s.code}
+                  className="ashare-newhigh-item"
+                  href={`https://quote.eastmoney.com/${market}${s.code}.html`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="ashare-newhigh-code">{s.code}</span>
+                  <span className="ashare-newhigh-name">{s.name}</span>
+                  <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
+                  <span className="ashare-newhigh-gap">距高点 {s.gapPct}%</span>
+                  <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
+                    {isUp ? '+' : ''}
+                    {s.changePct.toFixed(2)}%
+                  </span>
+                </a>
+              )
+            })}
+          </div>
+        )}
       </div>
-
-      {/* New High stock list */}
-      {hasData && newHighExpanded && (data.newHighStocks?.length ?? 0) > 0 && (
-        <div className="ashare-newhigh-list">
-          {(data.newHighStocks ?? []).map((s) => {
-            const isUp = s.changePct >= 0
-            const market = s.code.startsWith('6') ? 'sh' : 'sz'
-            return (
-              <a
-                key={s.code}
-                className="ashare-newhigh-item"
-                href={`https://quote.eastmoney.com/${market}${s.code}.html`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="ashare-newhigh-code">{s.code}</span>
-                <span className="ashare-newhigh-name">{s.name}</span>
-                <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
-                <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
-                  {isUp ? '+' : ''}
-                  {s.changePct.toFixed(2)}%
-                </span>
-              </a>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Near High stock list */}
-      {hasData && nearHighExpanded && (data.nearHighStocks?.length ?? 0) > 0 && (
-        <div className="ashare-newhigh-list">
-          {(data.nearHighStocks ?? []).map((s) => {
-            const isUp = s.changePct >= 0
-            const market = s.code.startsWith('6') ? 'sh' : 'sz'
-            return (
-              <a
-                key={s.code}
-                className="ashare-newhigh-item"
-                href={`https://quote.eastmoney.com/${market}${s.code}.html`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="ashare-newhigh-code">{s.code}</span>
-                <span className="ashare-newhigh-name">{s.name}</span>
-                <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
-                <span className="ashare-newhigh-gap">距高点 {s.gapPct}%</span>
-                <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
-                  {isUp ? '+' : ''}
-                  {s.changePct.toFixed(2)}%
-                </span>
-              </a>
-            )
-          })}
-        </div>
-      )}
     </>
   )
 }
