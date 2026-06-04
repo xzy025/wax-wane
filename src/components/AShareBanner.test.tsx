@@ -59,16 +59,6 @@ const mockData: AShareData = {
   promotionRate: 35,
   promotedCount: 21,
   promotionTotal: 60,
-  prevHighCount: 1,
-  prevHighStocks: [
-    { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
-    { code: '688001', name: 'StockB', price: 82.55, changePct: 2.18, refHigh: 86.0, gapPct: 4.01 },
-  ],
-  high52wCount: 2,
-  high52wStocks: [
-    { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
-    { code: '002594', name: 'StockC', price: 358.9, changePct: 1.25, refHigh: 360.0, gapPct: 0.31 },
-  ],
   volumeHistory: [
     { date: '05-23', volume: 18234567, turnover: 2876543210000 },
     { date: '05-26', volume: 21123456, turnover: 3234567890000 },
@@ -96,6 +86,31 @@ vi.mock('../hooks/useAShareData', () => ({
     const limitBonus = Math.min(limitUp, 100) / 100
     return Math.round((cappedLimit / 5) * 40 + (cappedAD / 5) * 40 + limitBonus * 20)
   },
+}))
+
+// Highs analysis lives behind its own hook/endpoint; mock it so no real fetch fires.
+vi.mock('../hooks/useHighs', () => ({
+  useHighs: () => ({
+    data: {
+      prevHigh: {
+        count: 1,
+        stocks: [
+          { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
+          { code: '688001', name: 'StockB', price: 82.55, changePct: 2.18, refHigh: 86.0, gapPct: 4.01 },
+        ],
+      },
+      high52w: {
+        count: 2,
+        stocks: [
+          { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
+          { code: '002594', name: 'StockC', price: 358.9, changePct: 1.25, refHigh: 360.0, gapPct: 0.31 },
+        ],
+      },
+    },
+    loading: false,
+    error: null,
+    refresh: vi.fn(),
+  }),
 }))
 
 // Sentiment metrics are merged into the banner; mock the hook so no real fetch fires.

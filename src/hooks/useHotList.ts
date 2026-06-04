@@ -90,27 +90,32 @@ export function useHotList(date: string = todayStr()): HotListResult {
 
     const entry = getDay(date)
     const cached = entry?.hotlist as HotListData | undefined
+    const hasCache = !!(cached && cached.eastmoney?.length > 0)
 
-    if (cached && cached.eastmoney?.length > 0) {
-      setData(cached)
+    // Show cached data immediately if we have it.
+    if (hasCache) {
+      setData(cached!)
       setLastUpdated(entry ? new Date(entry.timestamp) : null)
       setError(null)
-      setLoading(false)
-      return
     }
 
+    // Historical dates: cache (or mock) only — never fetch.
     if (!isToday) {
-      const mock = getMockData()
-      setData(mock)
-      setLastUpdated(null)
-      setError(null)
+      if (!hasCache) {
+        setData(getMockData())
+        setLastUpdated(null)
+        setError(null)
+      }
       setLoading(false)
       return
     }
 
+    // Today: fetch fresh. With cache present this is a background revalidate
+    // (stale-while-revalidate) — cached data stays on screen and is replaced
+    // only when fresh data arrives; a failure keeps the cache intact.
     if (fetching.current) return
     fetching.current = true
-    setLoading(true)
+    if (!hasCache) setLoading(true)
     ;(async () => {
       try {
         const res = await fetchWithTimeout('/api/hotlist')
@@ -119,20 +124,19 @@ export function useHotList(date: string = todayStr()): HotListResult {
         if (cancelled) return
 
         if (!result.eastmoney?.length && !result.ths?.length) {
-          const mock = getMockData()
-          setData(mock)
-          saveDay(date, { hotlist: mock })
+          // Nothing usable — show a placeholder but DO NOT persist it, so a
+          // transient empty response never poisons the cache with mock data.
+          setData((prev) => prev ?? getMockData())
         } else {
           setData(result)
           saveDay(date, { hotlist: result })
+          setLastUpdated(new Date())
         }
-        setLastUpdated(new Date())
         setError(null)
       } catch {
         if (cancelled) return
-        const mock = getMockData()
-        setData(mock)
-        saveDay(date, { hotlist: mock })
+        // Keep the last good (cached) data on failure; never overwrite it.
+        setData((prev) => prev ?? getMockData())
         setError('Failed to fetch hot list')
       } finally {
         if (!cancelled) {
@@ -161,19 +165,16 @@ export function useHotList(date: string = todayStr()): HotListResult {
       const result: HotListData = await res.json()
 
       if (!result.eastmoney?.length && !result.ths?.length) {
-        const mock = getMockData()
-        setData(mock)
-        saveDay(date, { hotlist: mock })
+        setData((prev) => prev ?? getMockData())
       } else {
         setData(result)
         saveDay(date, { hotlist: result })
+        setLastUpdated(new Date())
       }
-      setLastUpdated(new Date())
       setError(null)
     } catch {
-      const mock = getMockData()
-      setData(mock)
-      saveDay(date, { hotlist: mock })
+      // Keep the last good (cached) data on failure; never overwrite it.
+      setData((prev) => prev ?? getMockData())
       setError('Failed to fetch hot list')
     } finally {
       setLoading(false)

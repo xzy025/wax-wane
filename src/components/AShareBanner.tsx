@@ -14,8 +14,9 @@ import {
   CaretDown,
   CaretUp,
 } from 'phosphor-react'
-import { useAShareData, calcProfitabilityScore, type HighStock } from '../hooks/useAShareData'
+import { useAShareData, calcProfitabilityScore } from '../hooks/useAShareData'
 import { useSentiment } from '../hooks/useSentiment'
+import { useHighs, type HighStock } from '../hooks/useHighs'
 import type { Translation } from '../types'
 
 interface AShareBannerProps {
@@ -98,14 +99,17 @@ function tempStyle(temp: number, s: Translation['sentiment']): { color: string; 
 export default function AShareBanner({ t, date }: AShareBannerProps) {
   const { data, loading, error, lastUpdated, refresh } = useAShareData(date)
   const { data: sentiment, refresh: refreshSentiment } = useSentiment(date)
+  const { data: highs, refresh: refreshHighs } = useHighs(date)
   const hasData = !!data
   const [prevHighExpanded, setPrevHighExpanded] = useState(false)
   const [high52wExpanded, setHigh52wExpanded] = useState(false)
 
-  // One refresh button drives both A-share quotes and the merged sentiment metrics.
+  // One refresh button drives A-share quotes, sentiment, and highs (each cheap
+  // call hits its own endpoint; the heavy highs scan stays off /api/ashare).
   const handleRefresh = () => {
     refresh()
     refreshSentiment()
+    refreshHighs()
   }
 
   const score = data
@@ -251,8 +255,8 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               <div>
                 <div className="ashare-stat-label">{t.ashare.prevHigh}</div>
                 <div className="ashare-stat-value">
-                  {data.prevHighCount ?? 0}
-                  {(data.prevHighStocks?.length ?? 0) > 0 &&
+                  {highs?.prevHigh.count ?? 0}
+                  {(highs?.prevHigh.stocks.length ?? 0) > 0 &&
                     (prevHighExpanded ? (
                       <CaretUp size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
                     ) : (
@@ -277,8 +281,8 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               <div>
                 <div className="ashare-stat-label">{t.ashare.high52w}</div>
                 <div className="ashare-stat-value">
-                  {data.high52wCount ?? 0}
-                  {(data.high52wStocks?.length ?? 0) > 0 &&
+                  {highs?.high52w.count ?? 0}
+                  {(highs?.high52w.stocks.length ?? 0) > 0 &&
                     (high52wExpanded ? (
                       <CaretUp size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
                     ) : (
@@ -372,13 +376,13 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
         )}
 
         {/* Prior-swing-high candidate list (最高点) */}
-        {hasData && prevHighExpanded && (data.prevHighStocks?.length ?? 0) > 0 && (
-          <HighList stocks={data.prevHighStocks ?? []} t={t} />
+        {hasData && prevHighExpanded && (highs?.prevHigh.stocks.length ?? 0) > 0 && (
+          <HighList stocks={highs?.prevHigh.stocks ?? []} t={t} />
         )}
 
         {/* 52-week-high candidate list (次高点) */}
-        {hasData && high52wExpanded && (data.high52wStocks?.length ?? 0) > 0 && (
-          <HighList stocks={data.high52wStocks ?? []} t={t} />
+        {hasData && high52wExpanded && (highs?.high52w.stocks.length ?? 0) > 0 && (
+          <HighList stocks={highs?.high52w.stocks ?? []} t={t} />
         )}
       </div>
     </>

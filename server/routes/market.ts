@@ -1,6 +1,6 @@
 // Market data routes: cache refresh + A-share/HK/US/hotlist quotes.
 import { Router } from 'express'
-import { fetchAShareData, clearAShareCache } from '../ashare'
+import { fetchAShareData, clearAShareCache, fetchHighs, clearHighsCache } from '../ashare'
 import { fetchHKData, clearHKCache, fetchHKStockQuotes } from '../hk'
 import { fetchUSData, clearUSCache, fetchUSStockQuotes } from '../us'
 import { fetchHotList, clearHotListCache } from '../hotlist'
@@ -14,6 +14,7 @@ const router = Router()
 // refreshing a single banner doesn't cold-start every upstream fetcher.
 const cacheClearers: Record<string, () => void> = {
   ashare: clearAShareCache,
+  highs: clearHighsCache,
   hk: clearHKCache,
   us: clearUSCache,
   hotlist: clearHotListCache,
@@ -100,6 +101,17 @@ router.get('/api/us/quote', async (req, res) => {
 router.get('/api/hotlist', async (_req, res) => {
   try {
     const data = await fetchHotList()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// Prior-high / 52-week-high analysis (expensive kline scan — separate endpoint)
+router.get('/api/highs', async (_req, res) => {
+  try {
+    const data = await fetchHighs()
     res.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
