@@ -240,7 +240,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                   const isToday = i === (data.volumeHistory?.length ?? 0) - 1
                   const volInYi = (v.turnover / 1e12).toFixed(1)
                   return (
-                    <div key={v.date} className="ashare-volume-bar-wrapper">
+                    <div key={`${v.date}-${i}`} className="ashare-volume-bar-wrapper">
                       <div
                         className="ashare-volume-bar"
                         style={{
