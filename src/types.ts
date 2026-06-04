@@ -186,8 +186,11 @@ export interface Translation {
     profitabilityOk: string
     profitabilityBad: string
     promotionRate: string
-    newHigh: string
-    nearHigh: string
+    prevHigh: string
+    high52w: string
+    highsHint: string
+    atHigh: string
+    gapToHigh: string
     totalVolume: string
     lastUpdated: string
     loading: string
@@ -216,6 +219,25 @@ export interface Translation {
     error: string
     retry: string
     closed: string
+  }
+  sentiment: {
+    title: string
+    temperature: string
+    limitUp: string
+    limitDown: string
+    breakRate: string
+    riseFall: string
+    yestLimitPerf: string
+    cold: string
+    cool: string
+    warm: string
+    hot: string
+    overheated: string
+    source: string
+    lastUpdated: string
+    loading: string
+    error: string
+    retry: string
   }
 }
 

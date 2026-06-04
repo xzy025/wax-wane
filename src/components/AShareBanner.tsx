@@ -9,10 +9,13 @@ import {
   TrendUp,
   TrendDown,
   Gauge,
+  Thermometer,
+  Fire,
   CaretDown,
   CaretUp,
 } from 'phosphor-react'
-import { useAShareData, calcProfitabilityScore } from '../hooks/useAShareData'
+import { useAShareData, calcProfitabilityScore, type HighStock } from '../hooks/useAShareData'
+import { useSentiment } from '../hooks/useSentiment'
 import type { Translation } from '../types'
 
 interface AShareBannerProps {
@@ -50,11 +53,60 @@ function getProfitabilityClass(score: number): string {
   return 'bad'
 }
 
+/** Expandable list of stocks near/above a reference high (shared by both items). */
+function HighList({ stocks, t }: { stocks: HighStock[]; t: Translation }) {
+  return (
+    <div className="ashare-expand-list">
+      {stocks.map((s) => {
+        const isUp = s.changePct >= 0
+        const market = s.code.startsWith('6') ? 'sh' : 'sz'
+        const broke = s.gapPct <= 0
+        return (
+          <a
+            key={s.code}
+            className="ashare-newhigh-item"
+            href={`https://quote.eastmoney.com/${market}${s.code}.html`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="ashare-newhigh-code">{s.code}</span>
+            <span className="ashare-newhigh-name">{s.name}</span>
+            <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
+            <span className="ashare-newhigh-gap" style={broke ? { color: 'var(--red)', fontWeight: 700 } : undefined}>
+              {broke ? t.ashare.atHigh : `${t.ashare.gapToHigh} ${s.gapPct.toFixed(2)}%`}
+            </span>
+            <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
+              {isUp ? '+' : ''}
+              {s.changePct.toFixed(2)}%
+            </span>
+          </a>
+        )
+      })}
+    </div>
+  )
+}
+
+/** Map a 0-100 sentiment temperature to a color + i18n label. */
+function tempStyle(temp: number, s: Translation['sentiment']): { color: string; label: string } {
+  if (temp < 20) return { color: '#3b82f6', label: s.cold }
+  if (temp < 40) return { color: '#22b8cf', label: s.cool }
+  if (temp < 60) return { color: '#f59f00', label: s.warm }
+  if (temp < 80) return { color: '#f53f3f', label: s.hot }
+  return { color: '#c92a2a', label: s.overheated }
+}
+
 export default function AShareBanner({ t, date }: AShareBannerProps) {
   const { data, loading, error, lastUpdated, refresh } = useAShareData(date)
+  const { data: sentiment, refresh: refreshSentiment } = useSentiment(date)
   const hasData = !!data
-  const [newHighExpanded, setNewHighExpanded] = useState(false)
-  const [nearHighExpanded, setNearHighExpanded] = useState(false)
+  const [prevHighExpanded, setPrevHighExpanded] = useState(false)
+  const [high52wExpanded, setHigh52wExpanded] = useState(false)
+
+  // One refresh button drives both A-share quotes and the merged sentiment metrics.
+  const handleRefresh = () => {
+    refresh()
+    refreshSentiment()
+  }
 
   const score = data
     ? calcProfitabilityScore(data.limitUpCount, data.limitDownCount, data.advance, data.decline)
@@ -69,7 +121,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
           <button
             className="macro-refresh-btn"
             type="button"
-            onClick={refresh}
+            onClick={handleRefresh}
             disabled={loading}
             aria-label={t.ashare.retry}
             title={t.ashare.retry}
@@ -122,7 +174,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             <span style={{ color: error ? 'var(--red)' : 'var(--muted)' }}>
               {error ? t.ashare.error : t.ashare.loading}
             </span>
-            <button className="macro-refresh-btn" type="button" onClick={refresh}>
+            <button className="macro-refresh-btn" type="button" onClick={handleRefresh}>
               <ArrowClockwise size={14} aria-hidden="true" />
               {t.ashare.retry}
             </button>
@@ -185,22 +237,23 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             </div>
 
             <div
-              className={`ashare-stat ${newHighExpanded ? 'ashare-stat-expanded' : ''}`}
+              className={`ashare-stat ${prevHighExpanded ? 'ashare-stat-expanded' : ''}`}
               style={{ cursor: 'pointer' }}
-              onClick={() => setNewHighExpanded((v) => !v)}
+              onClick={() => setPrevHighExpanded((v) => !v)}
               role="button"
               tabIndex={0}
+              title={t.ashare.highsHint}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setNewHighExpanded((v) => !v)
+                if (e.key === 'Enter' || e.key === ' ') setPrevHighExpanded((v) => !v)
               }}
             >
               <TrendUp size={14} aria-hidden="true" className="ashare-stat-icon up" />
               <div>
-                <div className="ashare-stat-label">{t.ashare.newHigh}</div>
+                <div className="ashare-stat-label">{t.ashare.prevHigh}</div>
                 <div className="ashare-stat-value">
-                  {data.newHighCount}
-                  {(data.newHighStocks?.length ?? 0) > 0 &&
-                    (newHighExpanded ? (
+                  {data.prevHighCount ?? 0}
+                  {(data.prevHighStocks?.length ?? 0) > 0 &&
+                    (prevHighExpanded ? (
                       <CaretUp size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
                     ) : (
                       <CaretDown size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
@@ -210,22 +263,23 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             </div>
 
             <div
-              className={`ashare-stat ${nearHighExpanded ? 'ashare-stat-expanded' : ''}`}
+              className={`ashare-stat ${high52wExpanded ? 'ashare-stat-expanded' : ''}`}
               style={{ cursor: 'pointer' }}
-              onClick={() => setNearHighExpanded((v) => !v)}
+              onClick={() => setHigh52wExpanded((v) => !v)}
               role="button"
               tabIndex={0}
+              title={t.ashare.highsHint}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setNearHighExpanded((v) => !v)
+                if (e.key === 'Enter' || e.key === ' ') setHigh52wExpanded((v) => !v)
               }}
             >
               <TrendUp size={14} aria-hidden="true" className="ashare-stat-icon" />
               <div>
-                <div className="ashare-stat-label">{t.ashare.nearHigh}</div>
+                <div className="ashare-stat-label">{t.ashare.high52w}</div>
                 <div className="ashare-stat-value">
-                  {data.nearHighCount ?? 0}
-                  {(data.nearHighStocks?.length ?? 0) > 0 &&
-                    (nearHighExpanded ? (
+                  {data.high52wCount ?? 0}
+                  {(data.high52wStocks?.length ?? 0) > 0 &&
+                    (high52wExpanded ? (
                       <CaretUp size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
                     ) : (
                       <CaretDown size={12} style={{ marginLeft: 4, verticalAlign: 'middle' }} />
@@ -246,14 +300,51 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               </div>
             </div>
 
+            {/* Merged sentiment metrics (开盘啦): only the items A-share banner lacked. */}
+            {sentiment && (
+              <>
+                <div className="ashare-stat">
+                  <Fire size={14} aria-hidden="true" className="ashare-stat-icon up" />
+                  <div>
+                    <div className="ashare-stat-label">{t.sentiment.yestLimitPerf}</div>
+                    <div className={`ashare-stat-value ${sentiment.yestLimitPerf >= 0 ? 'up' : 'down'}`}>
+                      {sentiment.yestLimitPerf >= 0 ? '+' : ''}
+                      {sentiment.yestLimitPerf.toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+
+                {(() => {
+                  const { color, label } = tempStyle(sentiment.temperature, t.sentiment)
+                  return (
+                    <div className="ashare-stat" title={t.sentiment.source}>
+                      <Thermometer size={14} aria-hidden="true" className="ashare-stat-icon" style={{ color }} />
+                      <div>
+                        <div className="ashare-stat-label">{t.sentiment.temperature}</div>
+                        <div className="ashare-stat-value" style={{ color }}>
+                          {sentiment.temperature}
+                          <span style={{ marginLeft: 4, fontSize: '0.78rem' }}>{label}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </>
+            )}
+
             {/* Volume History */}
             <div className="ashare-divider" />
             <div className="ashare-volume-section">
-              <div className="ashare-stat-label" style={{ marginBottom: 4 }}>{t.ashare.totalVolume}</div>
+              <div className="ashare-stat-label" style={{ marginBottom: 4 }}>
+                {t.ashare.totalVolume}
+                {data.totalTurnover != null && data.totalTurnover > 0 && (
+                  <span style={{ marginLeft: 6, fontWeight: 600, color: 'var(--text)' }}>
+                    {(data.totalTurnover / 1e12).toFixed(2)} 万亿
+                  </span>
+                )}
+              </div>
               <div className="ashare-volume-bars">
                 {(data.volumeHistory ?? []).map((v, i) => {
-                  const maxVol = Math.max(...(data.volumeHistory ?? []).map((d) => d.turnover))
-                  const height = maxVol > 0 ? (v.turnover / maxVol) * 100 : 0
                   const prevVol = i > 0 ? data.volumeHistory![i - 1].turnover : v.turnover
                   const isUp = v.turnover >= prevVol
                   const isToday = i === (data.volumeHistory?.length ?? 0) - 1
@@ -264,7 +355,6 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                         <div
                           className="ashare-volume-bar"
                           style={{
-                            height: `${height}%`,
                             background: isToday ? (isUp ? 'var(--red)' : 'var(--green)') : (isUp ? 'rgba(245,63,63,0.3)' : 'rgba(0,180,42,0.3)'),
                           }}
                         />
@@ -281,59 +371,14 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
           </>
         )}
 
-        {/* New High stock list */}
-        {hasData && newHighExpanded && (data.newHighStocks?.length ?? 0) > 0 && (
-          <div className="ashare-expand-list">
-            {(data.newHighStocks ?? []).map((s) => {
-              const isUp = s.changePct >= 0
-              const market = s.code.startsWith('6') ? 'sh' : 'sz'
-              return (
-                <a
-                  key={s.code}
-                  className="ashare-newhigh-item"
-                  href={`https://quote.eastmoney.com/${market}${s.code}.html`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="ashare-newhigh-code">{s.code}</span>
-                  <span className="ashare-newhigh-name">{s.name}</span>
-                  <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
-                  <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
-                    {isUp ? '+' : ''}
-                    {s.changePct.toFixed(2)}%
-                  </span>
-                </a>
-              )
-            })}
-          </div>
+        {/* Prior-swing-high candidate list (最高点) */}
+        {hasData && prevHighExpanded && (data.prevHighStocks?.length ?? 0) > 0 && (
+          <HighList stocks={data.prevHighStocks ?? []} t={t} />
         )}
 
-        {/* Near High stock list */}
-        {hasData && nearHighExpanded && (data.nearHighStocks?.length ?? 0) > 0 && (
-          <div className="ashare-expand-list">
-            {(data.nearHighStocks ?? []).map((s) => {
-              const isUp = s.changePct >= 0
-              const market = s.code.startsWith('6') ? 'sh' : 'sz'
-              return (
-                <a
-                  key={s.code}
-                  className="ashare-newhigh-item"
-                  href={`https://quote.eastmoney.com/${market}${s.code}.html`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="ashare-newhigh-code">{s.code}</span>
-                  <span className="ashare-newhigh-name">{s.name}</span>
-                  <span className="ashare-newhigh-price">{s.price.toFixed(2)}</span>
-                  <span className="ashare-newhigh-gap">距高点 {s.gapPct}%</span>
-                  <span className={`ashare-newhigh-change ${isUp ? 'up' : 'down'}`}>
-                    {isUp ? '+' : ''}
-                    {s.changePct.toFixed(2)}%
-                  </span>
-                </a>
-              )
-            })}
-          </div>
+        {/* 52-week-high candidate list (次高点) */}
+        {hasData && high52wExpanded && (data.high52wStocks?.length ?? 0) > 0 && (
+          <HighList stocks={data.high52wStocks ?? []} t={t} />
         )}
       </div>
     </>

@@ -4,6 +4,7 @@ import { fetchAShareData, clearAShareCache } from '../ashare'
 import { fetchHKData, clearHKCache, fetchHKStockQuotes } from '../hk'
 import { fetchUSData, clearUSCache, fetchUSStockQuotes } from '../us'
 import { fetchHotList, clearHotListCache } from '../hotlist'
+import { fetchSentiment, clearSentimentCache } from '../kaipanla'
 import { clearMacroCache } from '../macro'
 
 const router = Router()
@@ -16,6 +17,7 @@ const cacheClearers: Record<string, () => void> = {
   hk: clearHKCache,
   us: clearUSCache,
   hotlist: clearHotListCache,
+  sentiment: clearSentimentCache,
   macro: clearMacroCache,
 }
 
@@ -98,6 +100,17 @@ router.get('/api/us/quote', async (req, res) => {
 router.get('/api/hotlist', async (_req, res) => {
   try {
     const data = await fetchHotList()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// Market sentiment thermometer (开盘啦)
+router.get('/api/sentiment', async (_req, res) => {
+  try {
+    const data = await fetchSentiment()
     res.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

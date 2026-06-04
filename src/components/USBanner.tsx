@@ -10,12 +10,15 @@ interface USBannerProps {
   date?: string
 }
 
+// EastMoney quote-page URLs. US indices use the special symbols DJIA / NDAQ,
+// US stocks use /us/{code}.html (the bare us{code}.html form 404s).
 const INDEX_CONFIG: Record<string, { labelKey: keyof Translation['us']; chartUrl: string }> = {
-  DJI: { labelKey: 'dji', chartUrl: 'https://quote.eastmoney.com/zsDJI.html' },
-  IXIC: { labelKey: 'ixic', chartUrl: 'https://quote.eastmoney.com/zsIXIC.html' },
-  NVDA: { labelKey: 'nvda', chartUrl: 'https://quote.eastmoney.com/usNVDA.html' },
-  LITE: { labelKey: 'lite', chartUrl: 'https://quote.eastmoney.com/usLITE.html' },
-  TSM: { labelKey: 'tsm', chartUrl: 'https://quote.eastmoney.com/usTSM.html' },
+  DJI: { labelKey: 'dji', chartUrl: 'https://quote.eastmoney.com/us/DJIA.html' },
+  IXIC: { labelKey: 'ixic', chartUrl: 'https://quote.eastmoney.com/us/NDAQ.html' },
+  NVDA: { labelKey: 'nvda', chartUrl: 'https://quote.eastmoney.com/us/NVDA.html' },
+  AMD: { labelKey: 'amd', chartUrl: 'https://quote.eastmoney.com/us/AMD.html' },
+  LITE: { labelKey: 'lite', chartUrl: 'https://quote.eastmoney.com/us/LITE.html' },
+  TSM: { labelKey: 'tsm', chartUrl: 'https://quote.eastmoney.com/us/TSM.html' },
 }
 
 const FIXED_CODES = new Set(['DJI', 'IXIC'])
@@ -69,7 +72,7 @@ export default function USBanner({ t, date }: USBannerProps) {
             <BannerStockCard
               key={idx.code}
               idx={idx}
-              chartUrl={`https://quote.eastmoney.com/us${idx.code}.html`}
+              chartUrl={`https://quote.eastmoney.com/us/${idx.code}.html`}
               name={idx.name || idx.code}
               isCustom={true}
               showDollar={true}

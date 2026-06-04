@@ -59,10 +59,15 @@ const mockData: AShareData = {
   promotionRate: 35,
   promotedCount: 21,
   promotionTotal: 60,
-  newHighCount: 3,
-  newHighStocks: [
-    { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55 },
-    { code: '688001', name: 'StockB', price: 82.55, changePct: 2.18 },
+  prevHighCount: 1,
+  prevHighStocks: [
+    { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
+    { code: '688001', name: 'StockB', price: 82.55, changePct: 2.18, refHigh: 86.0, gapPct: 4.01 },
+  ],
+  high52wCount: 2,
+  high52wStocks: [
+    { code: '300196', name: 'StockA', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
+    { code: '002594', name: 'StockC', price: 358.9, changePct: 1.25, refHigh: 360.0, gapPct: 0.31 },
   ],
   volumeHistory: [
     { date: '05-23', volume: 18234567, turnover: 2876543210000 },
@@ -93,6 +98,26 @@ vi.mock('../hooks/useAShareData', () => ({
   },
 }))
 
+// Sentiment metrics are merged into the banner; mock the hook so no real fetch fires.
+vi.mock('../hooks/useSentiment', () => ({
+  useSentiment: () => ({
+    data: {
+      date: '2026-06-04',
+      limitUp: 78,
+      limitDown: 7,
+      breakRate: 19.59,
+      riseCount: 1293,
+      fallCount: 3852,
+      yestLimitPerf: 1.595,
+      temperature: 58,
+    },
+    loading: false,
+    error: null,
+    lastUpdated: new Date('2026-06-04T14:00:00'),
+    refresh: vi.fn(),
+  }),
+}))
+
 describe('AShareBanner', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -112,6 +137,17 @@ describe('AShareBanner', () => {
     expect(screen.getByText('3350.59')).toBeInTheDocument()
     expect(screen.getByText('11121.95')).toBeInTheDocument()
     expect(screen.getByText('2175.66')).toBeInTheDocument()
+  })
+
+  it('renders merged sentiment items: yesterday limit-up performance and temperature', () => {
+    render(<AShareBanner t={t} />)
+    // 昨日涨停表现 from sentiment (1.595 → "+1.59%")
+    expect(screen.getByText(t.sentiment.yestLimitPerf)).toBeInTheDocument()
+    expect(screen.getByText('+1.59%')).toBeInTheDocument()
+    // 情绪温度 = 58 → "Warming" band
+    expect(screen.getByText(t.sentiment.temperature)).toBeInTheDocument()
+    expect(screen.getByText('58')).toBeInTheDocument()
+    expect(screen.getByText(t.sentiment.warm)).toBeInTheDocument()
   })
 
   it('renders change percentages with correct sign', () => {
@@ -191,20 +227,20 @@ describe('AShareBanner', () => {
     expect(screen.getByText((content) => content.startsWith('Updated'))).toBeInTheDocument()
   })
 
-  it('toggles new high stock list on click', async () => {
+  it('toggles prior-high stock list on click', async () => {
     const user = userEvent.setup()
     render(<AShareBanner t={t} />)
 
     // Initially collapsed - stock list should not be visible
-    expect(screen.queryByText('StockA')).not.toBeInTheDocument()
+    expect(screen.queryByText('StockB')).not.toBeInTheDocument()
 
-    // Click the new high stat to expand
-    const newHighStat = screen.getByText('3').closest('[role="button"]')
-    if (newHighStat) {
-      await user.click(newHighStat)
-      expect(screen.getByText('StockA')).toBeInTheDocument()
-      expect(screen.getByText('StockB')).toBeInTheDocument()
-    }
+    // Click the 前期高点 (Prior High) stat to expand its candidate list
+    const prevHighStat = screen.getByText(t.ashare.prevHigh).closest('[role="button"]')
+    expect(prevHighStat).not.toBeNull()
+    await user.click(prevHighStat!)
+    expect(screen.getByText('StockB')).toBeInTheDocument()
+    // gap shown for the not-yet-broken candidate
+    expect(screen.getByText(/4\.01%/)).toBeInTheDocument()
   })
 
   it('renders promotion rate data', () => {

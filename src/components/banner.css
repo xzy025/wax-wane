@@ -415,41 +415,41 @@
 .ashare-volume-section {
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  flex: 1;
+  flex: 0 0 auto;
   margin-left: auto;
 }
 
 .ashare-volume-bars {
   display: flex;
   align-items: flex-end;
-  gap: 4px;
+  gap: 2px;
   height: 52px;
 }
 
 .ashare-volume-bar-wrapper {
-  flex: 1;
+  flex: none;
+  width: 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1px;
   height: 100%;
-  min-width: 0;
 }
 
 .ashare-volume-bar-area {
   flex: 1;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   min-height: 0;
 }
 
 .ashare-volume-bar {
-  width: 100%;
-  border-radius: 2px 2px 0 0;
-  min-height: 2px;
-  transition: height 0.3s ease;
+  width: 25px;
+  height: 25px;
+  flex: none;
+  border-radius: 4px;
 }
 
 .ashare-volume-value {

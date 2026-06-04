@@ -155,7 +155,7 @@ export function useHotList(date: string = todayStr()): HotListResult {
     setError(null)
     try {
       // Clear server-side cache first
-      try { await fetch('/api/refresh', { method: 'POST' }) } catch { /* ignore */ }
+      try { await fetch('/api/refresh?market=hotlist', { method: 'POST' }) } catch { /* ignore */ }
       const res = await fetchWithTimeout('/api/hotlist')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: HotListData = await res.json()

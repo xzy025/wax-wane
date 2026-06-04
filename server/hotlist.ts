@@ -52,26 +52,26 @@ async function fetchEastMoneyHot(): Promise<HotStock[]> {
       body: JSON.stringify({ appId: 'appId01', globalId: '786e4c21-70dc-435a-93bb-38', pageNo: 1, pageSize: 10 }),
       signal: AbortSignal.timeout(5000),
     })
-    if (!res.ok) return []
+    if (!res.ok) {
+      console.warn('[HotList] EastMoney step1 (getAllCurrentList) HTTP', res.status)
+      return []
+    }
     const json = await res.json() as any
-    if (!json.data?.length) return []
+    if (!json.data?.length) {
+      console.warn('[HotList] EastMoney step1 returned no data')
+      return []
+    }
 
-    // Step 2: Get stock details for price/change
+    // Step 1 gave us the real ranked codes. Enrich with name/change in step 2,
+    // but isolate its failure: push2 is flaky in some environments, and a thrown
+    // detail fetch must NOT discard the valid ranking from step 1.
     const secids = json.data.map((d: any) => {
       const code = d.sc?.replace(/^(sh|sz)/i, '') ?? ''
       const prefix = d.sc?.toUpperCase().startsWith('SZ') ? '0' : '1'
       return `${prefix}.${code}`
     }).join(',')
 
-    const detailUrl = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secids}&fields=f2,f3,f12,f14`
-    const detailRes = await fetch(detailUrl, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
-    let detailMap: Record<string, any> = {}
-    if (detailRes.ok) {
-      const detailJson = await detailRes.json() as any
-      for (const d of detailJson.data?.diff ?? []) {
-        detailMap[d.f12] = d
-      }
-    }
+    const detailMap = await fetchEastMoneyDetail(secids)
 
     return json.data.map((d: any, i: number) => {
       const code = d.sc?.replace(/^(sh|sz)/i, '') ?? ''
@@ -84,9 +84,35 @@ async function fetchEastMoneyHot(): Promise<HotStock[]> {
         tags: [],
       }
     })
-  } catch {
+  } catch (err) {
+    console.warn('[HotList] EastMoney hot search failed:', err instanceof Error ? err.message : err)
     return []
   }
+}
+
+/**
+ * Fetch name/change details for a comma-separated secids list. Tries push2 then
+ * the more reliable push2delay mirror. Always resolves to a (possibly empty) map
+ * so the caller's ranking survives even when both hosts are unreachable.
+ */
+async function fetchEastMoneyDetail(secids: string): Promise<Record<string, any>> {
+  const hosts = ['push2.eastmoney.com', 'push2delay.eastmoney.com']
+  for (const host of hosts) {
+    try {
+      const url = `https://${host}/api/qt/ulist.np/get?fltt=2&secids=${secids}&fields=f2,f3,f12,f14`
+      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+      if (!res.ok) continue
+      const json = await res.json() as any
+      const diff = json.data?.diff ?? []
+      if (!diff.length) continue
+      const map: Record<string, any> = {}
+      for (const d of diff) map[d.f12] = d
+      return map
+    } catch (err) {
+      console.warn(`[HotList] detail fetch via ${host} failed:`, err instanceof Error ? err.message : err)
+    }
+  }
+  return {}
 }
 
 // ── 同花顺 热榜 ─────────────────────────────────────────

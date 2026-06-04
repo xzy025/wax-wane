@@ -33,20 +33,13 @@ export interface LimitStock {
   industry: string
 }
 
-export interface NewHighStock {
+export interface HighStock {
   code: string
   name: string
   price: number
   changePct: number
-}
-
-export interface NearHighStock {
-  code: string
-  name: string
-  price: number
-  changePct: number
-  high52w: number      // 52周最高价
-  gapPct: number       // 距最高价的差距百分比
+  refHigh: number      // 参考高点价格（前期高点 或 52周高点）
+  gapPct: number       // 距该参考高点的百分比；<=0 表示已突破
 }
 
 export interface VolumeRecord {
@@ -67,11 +60,13 @@ export interface AShareData {
   promotionRate: number
   promotedCount: number
   promotionTotal: number
-  newHighCount: number
-  newHighStocks: NewHighStock[]
-  nearHighCount: number
-  nearHighStocks: NearHighStock[]
+  prevHighCount: number          // 候选中已突破前期高点(最高点)的家数
+  prevHighStocks: HighStock[]    // 接近/突破前期高点的候选股
+  high52wCount: number           // 候选中已突破52周高点(次高点)的家数
+  high52wStocks: HighStock[]     // 接近/突破52周高点的候选股
   volumeHistory: VolumeRecord[]
+  /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指 turnover. 0 if unavailable. */
+  totalTurnover: number
 }
 
 // ── Cache (market-aware) ───────────────────────────────────
@@ -431,68 +426,147 @@ async function fetchLimitPoolRaw(date: string): Promise<LimitStock[]> {
   }))
 }
 
-// ── New high count (趋势新高) ──────────────────────────
+// ── Highs analysis: prior swing high (前期高点) + 52-week high (52周高点) ──
+//
+// EM's realtime list APIs only expose the *intraday* high (f15), never the
+// 52-week / historical high. So we take a bounded candidate set (today's top
+// gainers) and pull each one's daily kline to derive real reference highs.
+// All math lives in the pure helpers below so it can be unit-tested.
 
-async function fetchNewHighStocks(): Promise<{ count: number; stocks: NewHighStock[] }> {
-  // Fetch all A-shares and find stocks where current price === 52-week high
-  const fields = 'f2,f3,f12,f14,f15'
-  const fs = 'm:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23'
-  const url = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=6000&po=1&np=1&fltt=2&invt=2&fid=f3&fs=${encodeURIComponent(fs)}&fields=${fields}`
-  const res = await fetch(url, { headers: EM_HEADERS })
-  if (!res.ok) return { count: 0, stocks: [] }
-  const json = await res.json()
-  const diff = (json?.data?.diff ?? []) as EMNewHighItem[]
-  const matched = diff.filter((s) => s.f2 != null && s.f15 != null && s.f2 === s.f15)
-  const stocks: NewHighStock[] = matched.map((s) => ({
-    code: toStr(s.f12),
-    name: toStr(s.f14),
-    price: toNum(s.f2),
-    changePct: toNum(s.f3),
-  }))
-  return { count: stocks.length, stocks }
+const HIGHS_CANDIDATES = 150 // top-N by today's change to enrich with kline
+const HIGHS_KLINE_LMT = 520 // ~2 trading years of daily bars
+const HIGHS_WINDOW_52W = 250 // ~52 trading weeks
+const HIGHS_PIVOT_W = 10 // swing-high pivot half-window
+const HIGHS_NEAR_PCT = 5 // list stocks within this % below the reference
+const HIGHS_LIST_MAX = 50
+const HIGHS_CONCURRENCY = 15
+
+const round2 = (n: number) => Math.round(n * 100) / 100
+
+/** 52-week high = max high over the most recent ~250 bars (次高点). */
+export function max52w(highs: number[]): number {
+  if (highs.length === 0) return 0
+  return Math.max(...highs.slice(-HIGHS_WINDOW_52W))
 }
 
-// ── Near all-time high (即将历史新高) ────────────────────
+/**
+ * Prior swing high (前期高点 / 最高点): the nearest swing-high pivot that sits
+ * ABOVE the 52-week high — i.e. the next major resistance from an earlier peak.
+ * A swing high is a local max within ±w bars. If no older peak exceeds the
+ * 52-week high (the stock is at/near its multi-year top), falls back to the
+ * 52-week high, so prevHigh >= high52w always holds.
+ */
+export function detectPrevSwingHigh(highs: number[], _price: number): number {
+  const n = highs.length
+  if (n === 0) return 0
+  const w = HIGHS_PIVOT_W
+  const h52 = max52w(highs)
+  const pivots: number[] = []
+  for (let i = 0; i < n; i++) {
+    const lo = Math.max(0, i - w)
+    const hi = Math.min(n - 1, i + w)
+    let isMax = true
+    for (let j = lo; j <= hi; j++) {
+      if (highs[j] > highs[i]) { isMax = false; break }
+    }
+    if (isMax) pivots.push(highs[i])
+  }
+  const above = pivots.filter((p) => p > h52 * 1.0001)
+  if (above.length > 0) return Math.min(...above) // nearest peak above the 52-week high
+  return h52
+}
 
-async function fetchNearHighStocks(): Promise<{ count: number; stocks: NearHighStock[] }> {
-  // Find stocks within 10% of their 52-week high
-  const fields = 'f2,f3,f12,f14,f15'
+/** Gap from price up to a reference high, in %. <=0 means price broke above it. */
+export function gapPct(ref: number, price: number): number {
+  if (ref <= 0) return 0
+  return round2(((ref - price) / ref) * 100)
+}
+
+/** Run an async fn over items with a bounded concurrency. */
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length)
+  let idx = 0
+  async function worker() {
+    while (idx < items.length) {
+      const cur = idx++
+      results[cur] = await fn(items[cur])
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  return results
+}
+
+/** Fetch a stock's daily highs (front-adjusted, oldest→newest) from EM kline. */
+async function fetchKlineHighs(secid: string, lmt: number = HIGHS_KLINE_LMT): Promise<number[]> {
+  const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=1&end=20500101&lmt=${lmt}`
+  try {
+    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+    if (!res.ok) return []
+    const json = await res.json()
+    const klines = json?.data?.klines as string[] | undefined
+    if (!Array.isArray(klines)) return []
+    // kline line: date,open,close,high,low,volume,turnover → high = index 3
+    return klines.map((line) => parseFloat(line.split(',')[3]) || 0).filter((h) => h > 0)
+  } catch {
+    return []
+  }
+}
+
+/** EM secid prefix: Shanghai (6xxxxx) = 1, everything else (SZ/BJ) = 0. */
+function toSecid(code: string): string {
+  return `${code.startsWith('6') ? '1' : '0'}.${code}`
+}
+
+export interface HighsAnalysis {
+  prevHigh: { count: number; stocks: HighStock[] }
+  high52w: { count: number; stocks: HighStock[] }
+}
+
+async function fetchHighsAnalysis(): Promise<HighsAnalysis> {
+  const empty: HighsAnalysis = { prevHigh: { count: 0, stocks: [] }, high52w: { count: 0, stocks: [] } }
+
+  // 1. Candidate universe: today's top gainers (clist already sorted by f3 desc).
+  const fields = 'f2,f3,f12,f14'
   const fs = 'm:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23'
   const url = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=6000&po=1&np=1&fltt=2&invt=2&fid=f3&fs=${encodeURIComponent(fs)}&fields=${fields}`
-  const res = await fetch(url, { headers: EM_HEADERS })
-  if (!res.ok) return { count: 0, stocks: [] }
-  const json = await res.json()
-  const diff = (json?.data?.diff ?? []) as EMNewHighItem[]
+  let candidates: { code: string; name: string; price: number; changePct: number }[] = []
+  try {
+    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+    if (!res.ok) return empty
+    const json = await res.json()
+    const diff = (json?.data?.diff ?? []) as EMNewHighItem[]
+    candidates = diff
+      .map((s) => ({ code: toStr(s.f12), name: toStr(s.f14), price: toNum(s.f2), changePct: toNum(s.f3) }))
+      .filter((s) => s.price > 0 && s.code)
+      .slice(0, HIGHS_CANDIDATES)
+  } catch {
+    return empty
+  }
+  if (candidates.length === 0) return empty
 
-  // Filter: price within 10% of 52-week high, but NOT at the high (those are in newHighStocks)
-  const matched = diff.filter((s) => {
-    const price = toNum(s.f2)
-    const high = toNum(s.f15)
-    if (price <= 0 || high <= 0) return false
-    const gapPct = ((high - price) / high) * 100
-    return gapPct > 0 && gapPct <= 10
+  // 2. Enrich each candidate with its real reference highs via kline.
+  const enriched = await mapLimit(candidates, HIGHS_CONCURRENCY, async (s) => {
+    const highs = await fetchKlineHighs(toSecid(s.code))
+    if (highs.length === 0) return null
+    return { ...s, h52: max52w(highs), prev: detectPrevSwingHigh(highs, s.price) }
   })
+  const ok = enriched.filter((x): x is NonNullable<typeof x> => x != null)
+  if (ok.length === 0) return empty
 
-  // Sort by gap percentage (closest to high first)
-  matched.sort((a, b) => {
-    const gapA = ((toNum(a.f15) - toNum(a.f2)) / toNum(a.f15)) * 100
-    const gapB = ((toNum(b.f15) - toNum(b.f2)) / toNum(b.f15)) * 100
-    return gapA - gapB
-  })
+  // 3. Build the two reference views (list = within HIGHS_NEAR_PCT incl. broken).
+  const build = (refOf: (s: (typeof ok)[number]) => number): { count: number; stocks: HighStock[] } => {
+    const stocks: HighStock[] = ok
+      .map((s) => {
+        const ref = refOf(s)
+        return { code: s.code, name: s.name, price: s.price, changePct: s.changePct, refHigh: round2(ref), gapPct: gapPct(ref, s.price) }
+      })
+      .filter((x) => x.refHigh > 0 && x.gapPct <= HIGHS_NEAR_PCT)
+      .sort((a, b) => a.gapPct - b.gapPct)
+    const count = stocks.filter((x) => x.gapPct <= 0).length
+    return { count, stocks: stocks.slice(0, HIGHS_LIST_MAX) }
+  }
 
-  const stocks: NearHighStock[] = matched.slice(0, 50).map((s) => {
-    const price = toNum(s.f2)
-    const high52w = toNum(s.f15)
-    return {
-      code: toStr(s.f12),
-      name: toStr(s.f14),
-      price,
-      changePct: toNum(s.f3),
-      high52w,
-      gapPct: Math.round(((high52w - price) / high52w) * 10000) / 100,
-    }
-  })
-  return { count: matched.length, stocks }
+  return { prevHigh: build((s) => s.prev), high52w: build((s) => s.h52) }
 }
 
 // ── Index intraday trends (分时数据) ───────────────────────
@@ -886,59 +960,95 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
 
 // ── Volume history (past 7 trading days) ──────────────────
 
-async function fetchVolumeHistory(): Promise<VolumeRecord[]> {
-  // Try East Money kline API first
+// Full-market daily turnover = Shanghai Composite (1.000001, covers all SH incl.
+// STAR board) + Shenzhen Component (0.399001, covers all SZ incl. ChiNext). These
+// two indices' turnover fields equal the whole-exchange totals, so summing them
+// gives the standard 沪深两市成交额 with no double counting. (北证 excluded by design.)
+const VOLUME_MARKETS_EM = ['1.000001', '0.399001'] as const
+const VOLUME_MARKETS_SINA = ['sh000001', 'sz399001'] as const
+
+/** Fetch one index's 7-day kline from East Money → date → {volume, turnover}. */
+async function fetchEMKline(secid: string): Promise<Map<string, { volume: number; turnover: number }>> {
+  const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=0&end=20500101&lmt=7`
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 5000)
   try {
-    const url = 'https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.000001&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=0&end=20500101&lmt=7'
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
     const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
-    clearTimeout(timeout)
-    if (!res.ok) throw new Error(`EM kline: ${res.status}`)
+    if (!res.ok) throw new Error(`EM kline ${secid}: ${res.status}`)
     const json = await res.json()
     const klines = json?.data?.klines as string[] | undefined
-    if (klines && klines.length > 0) {
-      console.log('[Volume] East Money kline: got', klines.length, 'records')
-      return klines.map((line) => {
-        const parts = line.split(',')
-        const dateStr = parts[0] ?? ''
-        const volume = parseFloat(parts[5]) || 0
-        const turnover = parseFloat(parts[6]) || 0
-        const dateParts = dateStr.split('-')
-        const displayDate = `${dateParts[1]}-${dateParts[2]}`
-        return { date: displayDate, volume, turnover }
+    if (!klines || klines.length === 0) throw new Error(`EM kline ${secid}: empty`)
+    const map = new Map<string, { volume: number; turnover: number }>()
+    for (const line of klines) {
+      const parts = line.split(',')
+      map.set(parts[0] ?? '', {
+        volume: parseFloat(parts[5]) || 0,
+        turnover: parseFloat(parts[6]) || 0,
       })
     }
-    console.log('[Volume] East Money kline: no klines in response')
+    return map
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+/** Fetch one index's 7-day kline from Sina (no turnover → estimate via avg price). */
+async function fetchSinaKline(symbol: string): Promise<Map<string, { volume: number; turnover: number }>> {
+  const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${symbol}&scale=240&ma=no&datalen=7`
+  const res = await fetch(url, { headers: SINA_HEADERS })
+  if (!res.ok) throw new Error(`Sina ${symbol}: ${res.status}`)
+  const data = await res.json() as Array<{ day: string; open: string; close: string; volume: string }>
+  if (!Array.isArray(data) || data.length === 0) throw new Error(`Sina ${symbol}: empty`)
+  const map = new Map<string, { volume: number; turnover: number }>()
+  for (const item of data) {
+    const volume = parseFloat(item.volume) || 0
+    const avgPrice = ((parseFloat(item.open) || 0) + (parseFloat(item.close) || 0)) / 2
+    map.set(item.day, { volume, turnover: volume * avgPrice })
+  }
+  return map
+}
+
+/** Merge per-market kline maps, summing volume+turnover per date (full date key). */
+function mergeKlineMaps(maps: Map<string, { volume: number; turnover: number }>[]): VolumeRecord[] {
+  const dates = new Set<string>()
+  for (const m of maps) for (const d of m.keys()) dates.add(d)
+  return [...dates]
+    .sort()
+    .map((fullDate) => {
+      let volume = 0
+      let turnover = 0
+      for (const m of maps) {
+        const v = m.get(fullDate)
+        if (v) {
+          volume += v.volume
+          turnover += v.turnover
+        }
+      }
+      const dateParts = fullDate.split('-')
+      return { date: `${dateParts[1]}-${dateParts[2]}`, volume, turnover }
+    })
+}
+
+async function fetchVolumeHistory(): Promise<VolumeRecord[]> {
+  // Try East Money kline API first (sum SH + SZ for the two-market total).
+  try {
+    const maps = await Promise.all(VOLUME_MARKETS_EM.map((s) => fetchEMKline(s)))
+    const merged = mergeKlineMaps(maps)
+    if (merged.length > 0) {
+      console.log('[Volume] East Money kline: merged', merged.length, 'days across', maps.length, 'markets')
+      return merged
+    }
   } catch (err) {
     console.log('[Volume] East Money kline failed:', err instanceof Error ? err.message : err)
   }
 
-  // Fallback: Sina API (no turnover field, estimate from volume × avg price)
+  // Fallback: Sina API (no turnover field, estimated from volume × avg price).
   try {
-    const url = 'https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh000001&scale=240&ma=no&datalen=7'
     console.log('[Volume] Trying Sina fallback...')
-    const res = await fetch(url, { headers: SINA_HEADERS })
-    if (!res.ok) {
-      console.log('[Volume] Sina API error:', res.status)
-      return []
-    }
-    const data = await res.json() as Array<{ day: string; open: string; close: string; volume: string }>
-    if (!Array.isArray(data) || data.length === 0) {
-      console.log('[Volume] Sina API: empty data')
-      return []
-    }
-
-    console.log('[Volume] Sina fallback: got', data.length, 'records')
-    return data.map((item) => {
-      const dateParts = item.day.split('-')
-      const displayDate = `${dateParts[1]}-${dateParts[2]}`
-      const volume = parseFloat(item.volume) || 0
-      const avgPrice = ((parseFloat(item.open) || 0) + (parseFloat(item.close) || 0)) / 2
-      // Estimate turnover: volume (shares) × average price
-      const turnover = volume * avgPrice
-      return { date: displayDate, volume, turnover }
-    })
+    const maps = await Promise.all(VOLUME_MARKETS_SINA.map((s) => fetchSinaKline(s)))
+    const merged = mergeKlineMaps(maps)
+    console.log('[Volume] Sina fallback: merged', merged.length, 'days across', maps.length, 'markets')
+    return merged
   } catch (err) {
     console.log('[Volume] Sina fallback failed:', err instanceof Error ? err.message : err)
     return []
@@ -953,7 +1063,7 @@ export async function fetchAShareData(): Promise<AShareData> {
 
 async function fetchAShareDataFresh(): Promise<AShareData> {
   // Fetch indices+breadth from East Money (reliable), limit pools with EM primary + Sina fallback
-  const [breadthResult, limitUpResult, limitDownResult, promoResult, newHighResult, nearHighResult, volumeResult] = await Promise.allSettled([
+  const [breadthResult, limitUpResult, limitDownResult, promoResult, highsResult, volumeResult] = await Promise.allSettled([
     fetchIndicesAndBreadth(),
     fetchLimitPool('up').then((r) => {
       if (r.count === 0) throw new Error('EM limit-up empty')
@@ -964,8 +1074,7 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
       return r
     }).catch(() => fetchSinaLimitPool('down')),
     fetchPromotionRate(),
-    fetchNewHighStocks(),
-    fetchNearHighStocks(),
+    fetchHighsAnalysis(),
     fetchVolumeHistory(),
   ])
 
@@ -973,8 +1082,8 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
   const limitUp = limitUpResult.status === 'fulfilled' ? limitUpResult.value : { count: 0, stocks: [] }
   const limitDown = limitDownResult.status === 'fulfilled' ? limitDownResult.value : { count: 0, stocks: [] }
   const promo = promoResult.status === 'fulfilled' ? promoResult.value : { rate: 0, promoted: 0, total: 0 }
-  const newHigh = newHighResult.status === 'fulfilled' ? newHighResult.value : { count: 0, stocks: [] }
-  const nearHigh = nearHighResult.status === 'fulfilled' ? nearHighResult.value : { count: 0, stocks: [] }
+  const highs: HighsAnalysis = highsResult.status === 'fulfilled' ? highsResult.value
+    : { prevHigh: { count: 0, stocks: [] }, high52w: { count: 0, stocks: [] } }
   const volumeHistory = volumeResult.status === 'fulfilled' ? volumeResult.value : []
 
   const data: AShareData = {
@@ -989,11 +1098,16 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
     promotionRate: promo.rate,
     promotedCount: promo.promoted,
     promotionTotal: promo.total,
-    newHighCount: newHigh.count,
-    newHighStocks: newHigh.stocks,
-    nearHighCount: nearHigh.count,
-    nearHighStocks: nearHigh.stocks,
+    prevHighCount: highs.prevHigh.count,
+    prevHighStocks: highs.prevHigh.stocks,
+    high52wCount: highs.high52w.count,
+    high52wStocks: highs.high52w.stocks,
     volumeHistory,
+    // Two-market total = Shanghai Composite (000001) + Shenzhen Component (399001).
+    // ChiNext (399006) is a subset of Shenzhen, so it is excluded to avoid double counting.
+    totalTurnover: breadth.indices
+      .filter((i) => i.code === '000001' || i.code === '399001')
+      .reduce((sum, i) => sum + (i.turnover || 0), 0),
   }
 
   return data

@@ -8,6 +8,7 @@ import {
   toOpenAIRequest,
   anthropicToOpenAIStream,
 } from '../lib/llm'
+import { isDbReady } from '../pgDatabase'
 
 const router = Router()
 
@@ -167,6 +168,7 @@ router.get('/api/health', (_req, res) => {
     configured: hasUrl && hasKey,
     protocol,
     model: process.env.LLM_MODEL,
+    db: isDbReady(),
   })
 })
 
