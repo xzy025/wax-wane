@@ -131,11 +131,13 @@ describe('useAShareData', () => {
       expect(result.current.loading).toBe(false)
     })
 
-    // Call refresh
+    // Call refresh — it POSTs /api/refresh then re-fetches /api/ashare, so
+    // assert the data endpoint was hit again rather than a brittle total count.
     await result.current.refresh()
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledTimes(2)
+      const ashareCalls = mockFetch.mock.calls.filter((c) => c[0] === '/api/ashare').length
+      expect(ashareCalls).toBeGreaterThanOrEqual(2)
     })
   })
 })

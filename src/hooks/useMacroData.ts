@@ -99,8 +99,8 @@ export function useMacroData(date: string = todayStr()): MacroDataResult {
     setLoading(true)
     setError(null)
     try {
-      // Clear server-side cache first
-      try { await fetch('/api/refresh', { method: 'POST' }) } catch { /* ignore */ }
+      // Clear only the macro server cache first
+      try { await fetch('/api/refresh?market=macro', { method: 'POST' }) } catch { /* ignore */ }
       const result = await fetchFromBackend()
       setData(result)
       setLastUpdated(new Date())

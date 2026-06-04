@@ -250,9 +250,8 @@ export function useAShareData(date: string = todayStr()): AShareResult {
         setError(null)
       } catch {
         if (cancelled) return
-        const mock = getMockData()
-        setData(mock)
-        saveDay(date, { ashare: mock })
+        // Don't overwrite good data with mock; only placeholder if empty.
+        setData((prev) => prev ?? getMockData())
         setError('Failed to fetch A-share data')
       } finally {
         if (!cancelled) {
@@ -274,8 +273,8 @@ export function useAShareData(date: string = todayStr()): AShareResult {
     setLoading(true)
     setError(null)
     try {
-      // Clear server-side cache first
-      try { await fetch('/api/refresh', { method: 'POST' }) } catch { /* ignore */ }
+      // Clear only the A-share server cache first
+      try { await fetch('/api/refresh?market=ashare', { method: 'POST' }) } catch { /* ignore */ }
       const res = await fetchWithTimeout('/api/ashare')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: AShareData = await res.json()
@@ -291,9 +290,8 @@ export function useAShareData(date: string = todayStr()): AShareResult {
       setLastUpdated(new Date())
       setError(null)
     } catch {
-      const mock = getMockData()
-      setData(mock)
-      saveDay(date, { ashare: mock })
+      // Keep the last good data; just surface the error (e.g. rate-limited).
+      setData((prev) => prev ?? getMockData())
       setError('Failed to fetch A-share data')
     } finally {
       setLoading(false)

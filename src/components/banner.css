@@ -97,7 +97,9 @@
 
 /* ── A-Share Banner ────────────────────────────────────── */
 
-.ashare-banner {
+.ashare-banner,
+.hk-banner,
+.us-banner {
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -164,6 +166,139 @@
   color: var(--muted);
 }
 
+/* Custom stock card */
+.ashare-index-custom {
+  position: relative;
+  background: var(--blue-soft);
+  border: 1px dashed var(--blue);
+}
+
+.ashare-index-custom:hover {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+}
+
+.ashare-index-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: var(--muted);
+  color: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  padding: 0;
+}
+
+.ashare-index-custom:hover .ashare-index-remove {
+  opacity: 1;
+}
+
+.ashare-index-remove:hover {
+  background: var(--red);
+}
+
+/* Add stock input */
+.ashare-index-add {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px dashed var(--line);
+  min-width: 120px;
+}
+
+.ashare-index-add input {
+  width: 70px;
+  border: none;
+  background: transparent;
+  font-size: 0.78rem;
+  color: var(--ink);
+  outline: none;
+  padding: 4px 0;
+}
+
+.ashare-index-add input::placeholder {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.ashare-index-add button {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: var(--blue);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+  padding: 0;
+}
+
+.ashare-index-add button:hover {
+  background: var(--blue-hover, #1a6fdf);
+}
+
+/* Meta bar add stock input */
+.ashare-meta-add {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.ashare-meta-add input {
+  width: 70px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 0.72rem;
+  color: var(--ink);
+  outline: none;
+  padding: 3px 6px;
+  transition: border-color 0.15s ease;
+}
+
+.ashare-meta-add input:focus {
+  border-color: var(--blue);
+}
+
+.ashare-meta-add input::placeholder {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.ashare-meta-add button {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: none;
+  background: var(--blue);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.ashare-meta-add button:hover {
+  background: var(--blue-hover, #1a6fdf);
+}
+
 .ashare-divider {
   width: 1px;
   height: 36px;
@@ -179,6 +314,13 @@
   padding: 4px 10px;
   min-width: 0;
   flex-shrink: 1;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.ashare-stat-expanded {
+  background: var(--surface-soft);
+  border-radius: 6px 6px 0 0;
 }
 
 .ashare-stat-icon {
@@ -356,12 +498,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 8px 0 4px;
+  padding: 8px 10px 4px;
   flex-basis: 100%;
   max-height: 320px;
   overflow-y: auto;
-  border-top: 1px solid var(--line);
-  margin-top: 8px;
+  background: var(--surface-soft);
+  border-radius: 0 0 6px 6px;
+  margin-top: -4px;
 }
 
 .ashare-newhigh-list {

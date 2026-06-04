@@ -18,6 +18,7 @@ function makeProps(overrides: Partial<Parameters<typeof MarketDatePicker>[0]> = 
   return {
     selectedDate: '2026-05-26',
     onSelect: vi.fn(),
+    onRefresh: vi.fn(),
     t,
     ...overrides,
   }
@@ -28,25 +29,25 @@ describe('MarketDatePicker', () => {
     vi.clearAllMocks()
   })
 
-  it('renders the button with today label when selectedDate is today', () => {
+  it('renders the selected date on the trigger button', () => {
     render(<MarketDatePicker {...makeProps()} />)
-    expect(screen.getByRole('button', { name: 'Today' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2026-05-26' })).toBeInTheDocument()
   })
 
-  it('renders the button with yesterday label for the previous day', () => {
+  it('renders the selected date for a previous day', () => {
     render(<MarketDatePicker {...makeProps({ selectedDate: '2026-05-25' })} />)
-    expect(screen.getByRole('button', { name: 'Yesterday' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2026-05-25' })).toBeInTheDocument()
   })
 
-  it('renders MM-DD format for other dates', () => {
+  it('renders the full date for other dates', () => {
     render(<MarketDatePicker {...makeProps({ selectedDate: '2026-05-20' })} />)
-    expect(screen.getByRole('button', { name: '05-20' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2026-05-20' })).toBeInTheDocument()
   })
 
   it('opens the calendar popup when button is clicked', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps()} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
     // Calendar should show month/year header
     expect(screen.getByText(/2026.*5.*月/)).toBeInTheDocument()
   })
@@ -54,7 +55,7 @@ describe('MarketDatePicker', () => {
   it('displays weekday headers in Chinese', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps()} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
     const weekdays = ['日', '一', '二', '三', '四', '五', '六']
     for (const day of weekdays) {
       expect(screen.getByText(day)).toBeInTheDocument()
@@ -64,7 +65,7 @@ describe('MarketDatePicker', () => {
   it('shows navigation buttons for prev/next month', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps()} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
     // There should be two nav buttons (chevron left and right)
     const navButtons = screen.getAllByRole('button', { name: '' })
     // At minimum, the nav buttons exist alongside day buttons
@@ -75,7 +76,7 @@ describe('MarketDatePicker', () => {
     const user = userEvent.setup()
     const onSelect = vi.fn()
     render(<MarketDatePicker {...makeProps({ onSelect })} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
 
     // Find a selectable day button (not disabled, within the recent range)
     // Today is 2026-05-26, so day 26 should be selectable
@@ -90,7 +91,7 @@ describe('MarketDatePicker', () => {
   it('closes popup when Escape is pressed', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps()} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
     expect(screen.getByText(/2026.*5.*月/)).toBeInTheDocument()
 
     await user.keyboard('{Escape}')
@@ -100,7 +101,7 @@ describe('MarketDatePicker', () => {
   it('disables dates outside the selectable range', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps()} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
 
     // Days from previous month should be disabled (they are outside the 6-day range)
     const disabledButtons = screen.getAllByRole('button', { disabled: true })
@@ -110,7 +111,7 @@ describe('MarketDatePicker', () => {
   it('highlights the selected date', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps({ selectedDate: '2026-05-26' })} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
 
     // Day 26 should have the 'selected' class
     const dayButtons = screen.getAllByRole('button')
@@ -123,7 +124,7 @@ describe('MarketDatePicker', () => {
   it('marks today with a special class', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps()} />)
-    await user.click(screen.getByRole('button', { name: 'Today' }))
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
 
     const dayButtons = screen.getAllByRole('button')
     const todayDay = dayButtons.find(

@@ -1,10 +1,8 @@
 // Hot Stock Rankings
 // Sources: 东方财富 + 同花顺 + 龙虎榜 + 淘股吧
 
-const EM_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-  'Referer': 'https://quote.eastmoney.com/',
-}
+import { EM_HEADERS } from './lib/emHeaders'
+import { createCache, sessionTtl } from './lib/cache'
 
 export interface HotStock {
   rank: number
@@ -32,13 +30,14 @@ export interface HotListData {
   dragonTiger: DragonTigerStock[]
 }
 
-let cachedData: HotListData | null = null
-let cacheTime = 0
-const CACHE_TTL = 60_000
+const hotListCache = createCache<HotListData>({
+  name: 'HotList',
+  ttl: sessionTtl(60_000, 30 * 60_000),
+  fetcher: fetchHotListFresh,
+})
 
 export function clearHotListCache() {
-  cachedData = null
-  cacheTime = 0
+  hotListCache.clear()
 }
 
 // ── 东方财富 热搜榜 ─────────────────────────────────────
@@ -149,11 +148,10 @@ async function fetchDragonTiger(): Promise<DragonTigerStock[]> {
 // ── Main export ─────────────────────────────────────────
 
 export async function fetchHotList(): Promise<HotListData> {
-  const now = Date.now()
-  if (cachedData && now - cacheTime < CACHE_TTL) {
-    return cachedData
-  }
+  return hotListCache.get()
+}
 
+async function fetchHotListFresh(): Promise<HotListData> {
   console.log('[HotList] Fetching hot stock rankings...')
 
   const [eastmoney, ths, dragonTiger] = await Promise.allSettled([
@@ -166,13 +164,11 @@ export async function fetchHotList(): Promise<HotListData> {
   const thsData = ths.status === 'fulfilled' ? ths.value : []
   const dtData = dragonTiger.status === 'fulfilled' ? dragonTiger.value : []
 
-  cachedData = {
+  return {
     eastmoney: emData.length > 0 ? emData : getMockEastMoney(),
     ths: thsData.length > 0 ? thsData : getMockTHS(),
     dragonTiger: dtData.length > 0 ? dtData : getMockDragonTiger(),
   }
-  cacheTime = now
-  return cachedData
 }
 
 // ── Mock data ──────────────────────────────────────────

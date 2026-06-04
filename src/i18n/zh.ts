@@ -218,6 +218,8 @@ export default {
     closed: '休市',
   },
   us: {
+    dji: '道琼斯',
+    ixic: '纳斯达克',
     nvda: '英伟达',
     lite: 'Lumentum',
     amd: 'AMD',

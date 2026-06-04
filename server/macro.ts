@@ -1,5 +1,7 @@
 // Macroeconomic data fetching from Twelve Data + ExchangeRate-API
 
+import { createCache } from './lib/cache'
+
 const TWELVEDATA_BASE = 'https://api.twelvedata.com'
 const EXCHANGERATE_BASE = 'https://open.er-api.com/v6/latest/USD'
 
@@ -130,25 +132,18 @@ async function fetchAllData(apiKey: string): Promise<MacroIndicator[]> {
 
 // ── Cache (30s) ──────────────────────────────────────────
 
-let cachedData: MacroIndicator[] | null = null
-let cacheTimestamp = 0
-const CACHE_TTL = 30_000
+// Twelve Data's free tier is tightly rate-limited (≈8 calls/min, 800/day),
+// so cache for 5 minutes regardless of session.
+const macroCache = createCache<MacroIndicator[]>({
+  name: 'Macro',
+  ttl: 5 * 60_000,
+  fetcher: () => fetchAllData(process.env.TWELVE_DATA_API_KEY ?? ''),
+})
 
 export function clearMacroCache() {
-  cachedData = null
-  cacheTimestamp = 0
+  macroCache.clear()
 }
 
 export async function fetchMacroData(): Promise<MacroIndicator[]> {
-  const now = Date.now()
-  if (cachedData && now - cacheTimestamp < CACHE_TTL) {
-    return cachedData
-  }
-
-  const apiKey = process.env.TWELVE_DATA_API_KEY ?? ''
-  const data = await fetchAllData(apiKey)
-
-  cachedData = data
-  cacheTimestamp = now
-  return data
+  return macroCache.get()
 }

@@ -156,8 +156,8 @@ describe('Dashboard', () => {
   it('computes and displays positive total PnL', () => {
     render(<Dashboard t={t} />)
     // Closed groups: CATL (8460) + Moutai (-3920) + BYD (5260) = 9800
-    // The status pill should show the total
-    expect(screen.getByText('+¥9,800')).toBeInTheDocument()
+    // The total appears in both the metric card and the status pill.
+    expect(screen.getAllByText('+¥9,800').length).toBeGreaterThan(0)
   })
 
   it('renders the equity chart container', () => {

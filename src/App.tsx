@@ -142,13 +142,15 @@ function AppLayout() {
               selectedDate={selectedDate}
               onSelect={setSelectedDate}
               onRefresh={async () => {
+                // Drop local cache + all server caches, then remount the banners
+                // (via refreshKey) so each re-fetches fresh — no full page reload.
                 clearAllDays()
                 try {
                   await fetch('/api/refresh', { method: 'POST' })
                 } catch {
                   // Server may be down; components will handle fetch errors
                 }
-                window.location.reload()
+                setRefreshKey((k) => k + 1)
               }}
               t={t}
             />

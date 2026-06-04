@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Translation, TradeGroup, ReviewNote } from '../types'
 import en from '../i18n/en'
@@ -52,11 +52,6 @@ vi.mock('../store', () => ({
   useAppState: () => mockState,
   useAppDispatch: () => mockDispatch,
   StoreProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
-
-// Mock ChatPanel - completely replace to avoid agent dependencies
-vi.mock('../agent/components/ChatPanel', () => ({
-  ChatPanel: () => <div data-testid="chat-panel">AI Review Assistant</div>,
 }))
 
 // Dynamic import after mocks
@@ -237,11 +232,14 @@ describe('ReviewView', () => {
       'Price pulled back to prior support with volume contraction.',
     )
     await user.type(buyReasonTextarea, 'A')
-    expect(mockDispatch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'UPDATE_REVIEW_NOTE',
-        payload: expect.objectContaining({ groupId: 'tg-001' }),
-      }),
+    // Dispatch is debounced (~500ms), so wait for it to fire.
+    await waitFor(() =>
+      expect(mockDispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'UPDATE_REVIEW_NOTE',
+          payload: expect.objectContaining({ groupId: 'tg-001' }),
+        }),
+      ),
     )
   })
 
@@ -280,18 +278,6 @@ describe('ReviewView', () => {
       />,
     )
     expect(screen.getByText('No mistake tag')).toBeInTheDocument()
-  })
-
-  it('renders the AI agent chat section', () => {
-    render(
-      <ReviewView
-        t={t}
-        selectedGroup={selectedGroup}
-        selectedGroupId="tg-001"
-        onSelectGroup={vi.fn()}
-      />,
-    )
-    expect(screen.getByText('AI Review Assistant')).toBeInTheDocument()
   })
 
   it('shows open status for groups without close date', () => {
