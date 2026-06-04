@@ -16,20 +16,13 @@ export interface IndexQuote {
   prevClose: number
 }
 
-export interface NewHighStock {
+export interface HighStock {
   code: string
   name: string
   price: number
   changePct: number
-}
-
-export interface NearHighStock {
-  code: string
-  name: string
-  price: number
-  changePct: number
-  high52w: number
-  gapPct: number
+  refHigh: number   // 参考高点价格（前期高点 或 52周高点）
+  gapPct: number    // 距该高点 %；<=0 表示已突破
 }
 
 export interface VolumeRecord {
@@ -48,11 +41,13 @@ export interface AShareData {
   promotionRate: number
   promotedCount: number
   promotionTotal: number
-  newHighCount: number
-  newHighStocks: NewHighStock[]
-  nearHighCount?: number
-  nearHighStocks?: NearHighStock[]
+  prevHighCount?: number
+  prevHighStocks?: HighStock[]
+  high52wCount?: number
+  high52wStocks?: HighStock[]
   volumeHistory: VolumeRecord[]
+  /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指. May be absent in cached older data. */
+  totalTurnover?: number
 }
 
 export interface AShareResult {
@@ -158,19 +153,16 @@ function getMockData(): AShareData {
     promotionRate: 35,
     promotedCount: 21,
     promotionTotal: 60,
-    newHighCount: 3,
-    newHighStocks: [
-      { code: '300196', name: '长海股份', price: 23.92, changePct: 3.55 },
-      { code: '688001', name: '华兴源创', price: 82.55, changePct: 2.18 },
-      { code: '688110', name: '东芯股份', price: 166.6, changePct: 5.02 },
+    prevHighCount: 1,
+    prevHighStocks: [
+      { code: '688110', name: '东芯股份', price: 166.6, changePct: 5.02, refHigh: 166.6, gapPct: 0 },
+      { code: '300750', name: '宁德时代', price: 426.42, changePct: -1.72, refHigh: 440.0, gapPct: 3.09 },
     ],
-    nearHighCount: 5,
-    nearHighStocks: [
-      { code: '300750', name: '宁德时代', price: 426.42, changePct: -1.72, high52w: 460.0, gapPct: 7.30 },
-      { code: '002594', name: '比亚迪', price: 358.90, changePct: 1.25, high52w: 385.0, gapPct: 6.78 },
-      { code: '600519', name: '贵州茅台', price: 1680.00, changePct: -0.52, high52w: 1800.0, gapPct: 6.67 },
-      { code: '000858', name: '五粮液', price: 168.50, changePct: 0.85, high52w: 178.0, gapPct: 5.34 },
-      { code: '601318', name: '中国平安', price: 52.80, changePct: 0.38, high52w: 55.5, gapPct: 4.86 },
+    high52wCount: 2,
+    high52wStocks: [
+      { code: '300196', name: '长海股份', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
+      { code: '688001', name: '华兴源创', price: 82.55, changePct: 2.18, refHigh: 82.55, gapPct: 0 },
+      { code: '000858', name: '五粮液', price: 168.5, changePct: 0.85, refHigh: 176.0, gapPct: 4.26 },
     ],
     volumeHistory: [
       { date: '05-23', volume: 18234567, turnover: 2876543210000 },

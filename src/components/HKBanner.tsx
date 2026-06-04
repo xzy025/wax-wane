@@ -10,10 +10,13 @@ interface HKBannerProps {
   date?: string
 }
 
+// EastMoney quote-page URLs. HK indices live under /gb/zs{SYMBOL}.html; HK stocks
+// under /hk/{code}.html (the bare hk{code}.html / zs{SYMBOL}.html forms 404).
+// 中概互联 has no EM HK-index page, so it links to the A-share 中概互联网ETF (513050).
 const INDEX_CONFIG: Record<string, { labelKey: keyof Translation['hk']; chartUrl: string }> = {
-  HSI: { labelKey: 'hsi', chartUrl: 'https://quote.eastmoney.com/zsHSI.html' },
-  HSTECH: { labelKey: 'hstech', chartUrl: 'https://quote.eastmoney.com/zsHSTECH.html' },
-  HCINT: { labelKey: 'chinaInternet', chartUrl: 'https://quote.eastmoney.com/zsHCINT.html' },
+  HSI: { labelKey: 'hsi', chartUrl: 'https://quote.eastmoney.com/gb/zsHSI.html' },
+  HSTECH: { labelKey: 'hstech', chartUrl: 'https://quote.eastmoney.com/gb/zsHSTECH.html' },
+  HCINT: { labelKey: 'chinaInternet', chartUrl: 'https://quote.eastmoney.com/sh513050.html' },
 }
 
 export default function HKBanner({ t, date }: HKBannerProps) {
@@ -63,7 +66,7 @@ export default function HKBanner({ t, date }: HKBannerProps) {
             <BannerStockCard
               key={idx.code}
               idx={idx}
-              chartUrl={`https://quote.eastmoney.com/hk${idx.code}.html`}
+              chartUrl={`https://quote.eastmoney.com/hk/${idx.code}.html`}
               name={idx.name || idx.code}
               isCustom={true}
               onRemove={() => handleRemove(idx.code)}

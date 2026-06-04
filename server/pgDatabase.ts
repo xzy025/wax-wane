@@ -14,6 +14,15 @@ const pool = new Pool({
   password: process.env.PG_PASSWORD ?? 'postgres',
 })
 
+// ── Connection State ───────────────────────────────────────
+
+let dbReady = false
+
+/** Whether the PostgreSQL connection initialized successfully (write-through enabled). */
+export function isDbReady(): boolean {
+  return dbReady
+}
+
 // ── Schema Initialization ──────────────────────────────────
 
 export async function initDatabase(): Promise<void> {
@@ -117,6 +126,7 @@ export async function initDatabase(): Promise<void> {
     await client.query('CREATE INDEX IF NOT EXISTS idx_trade_groups_status ON trade_groups(status)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_review_notes_group ON review_notes(trade_group_id)')
 
+    dbReady = true
     console.log('[PostgreSQL] Database initialized successfully')
   } finally {
     client.release()
