@@ -66,6 +66,16 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
       <div className="ashare-banner">
         {/* Meta bar - top */}
         <div className="ashare-meta">
+          <button
+            className="macro-refresh-btn"
+            type="button"
+            onClick={refresh}
+            disabled={loading}
+            aria-label={t.ashare.retry}
+            title={t.ashare.retry}
+          >
+            <ArrowClockwise size={14} aria-hidden="true" />
+          </button>
           {lastUpdated && (
             <span>
               {t.ashare.lastUpdated} {lastUpdated.toLocaleTimeString()}
@@ -175,7 +185,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             </div>
 
             <div
-              className="ashare-stat"
+              className={`ashare-stat ${newHighExpanded ? 'ashare-stat-expanded' : ''}`}
               style={{ cursor: 'pointer' }}
               onClick={() => setNewHighExpanded((v) => !v)}
               role="button"
@@ -200,7 +210,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             </div>
 
             <div
-              className="ashare-stat"
+              className={`ashare-stat ${nearHighExpanded ? 'ashare-stat-expanded' : ''}`}
               style={{ cursor: 'pointer' }}
               onClick={() => setNearHighExpanded((v) => !v)}
               role="button"

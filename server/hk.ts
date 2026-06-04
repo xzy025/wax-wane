@@ -1,5 +1,8 @@
 // Hong Kong Market Data Fetcher
 
+import { EM_HEADERS } from './lib/emHeaders'
+import { createCache } from './lib/cache'
+
 interface IndexQuote {
   code: string
   name: string
@@ -18,26 +21,51 @@ export interface HKData {
   indices: IndexQuote[]
 }
 
-let cachedData: HKData | null = null
-let cacheTime = 0
-const CACHE_TTL = 30_000
+// HK indices are not yet wired to a live upstream (returns mock); cache long.
+const hkCache = createCache<HKData>({
+  name: 'HK',
+  ttl: 5 * 60_000,
+  fetcher: async () => {
+    // TODO: When API is accessible, fetch from East Money
+    console.log('[HK] Using mock data')
+    return getMockHKData()
+  },
+})
 
 export function clearHKCache() {
-  cachedData = null
-  cacheTime = 0
+  hkCache.clear()
 }
 
 export async function fetchHKData(): Promise<HKData> {
-  const now = Date.now()
-  if (cachedData && now - cacheTime < CACHE_TTL) {
-    return cachedData
-  }
+  return hkCache.get()
+}
 
-  // TODO: When API is accessible, fetch from East Money
-  console.log('[HK] Using cached/mock data')
-  cachedData = getMockHKData()
-  cacheTime = now
-  return cachedData
+export async function fetchHKStockQuotes(codes: string[]): Promise<IndexQuote[]> {
+  const secids = codes.map((code) => `116.${code}`).join(',')
+  const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secids}&fields=f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18`
+
+  try {
+    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+    if (!res.ok) return []
+    const json = await res.json() as any
+    if (!json.data?.diff) return []
+
+    return json.data.diff.map((d: any) => ({
+      code: d.f12,
+      name: d.f14,
+      price: d.f2 ?? 0,
+      changePct: d.f3 ?? 0,
+      changeAmt: d.f4 ?? 0,
+      volume: d.f5 ?? 0,
+      turnover: d.f6 ?? 0,
+      high: d.f15 ?? 0,
+      low: d.f16 ?? 0,
+      open: d.f17 ?? 0,
+      prevClose: d.f18 ?? 0,
+    }))
+  } catch {
+    return []
+  }
 }
 
 function getMockHKData(): HKData {

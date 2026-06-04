@@ -205,6 +205,8 @@ export interface Translation {
     closed: string
   }
   us: {
+    dji: string
+    ixic: string
     nvda: string
     lite: string
     amd: string

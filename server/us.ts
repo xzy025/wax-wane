@@ -1,5 +1,8 @@
 // US Market Data Fetcher
 
+import { EM_HEADERS } from './lib/emHeaders'
+import { createCache } from './lib/cache'
+
 interface IndexQuote {
   code: string
   name: string
@@ -18,27 +21,51 @@ export interface USData {
   indices: IndexQuote[]
 }
 
-let cachedData: USData | null = null
-let cacheTime = 0
-const CACHE_TTL = 30_000
+// US indices are not yet wired to a live upstream (returns mock); cache long.
+const usCache = createCache<USData>({
+  name: 'US',
+  ttl: 5 * 60_000,
+  fetcher: async () => {
+    // TODO: When API is accessible, fetch from East Money
+    console.log('[US] Using mock data')
+    return getMockUSData()
+  },
+})
 
 export function clearUSCache() {
-  cachedData = null
-  cacheTime = 0
+  usCache.clear()
 }
 
 export async function fetchUSData(): Promise<USData> {
-  const now = Date.now()
-  if (cachedData && now - cacheTime < CACHE_TTL) {
-    return cachedData
-  }
+  return usCache.get()
+}
 
-  // TODO: When API is accessible, fetch from East Money
-  // const res = await fetch(`http://push2.eastmoney.com/api/qt/stock/get?secid=105.NVDA&fields=...`)
-  console.log('[US] Using cached/mock data')
-  cachedData = getMockUSData()
-  cacheTime = now
-  return cachedData
+export async function fetchUSStockQuotes(codes: string[]): Promise<IndexQuote[]> {
+  const secids = codes.map((code) => `105.${code}`).join(',')
+  const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secids}&fields=f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18`
+
+  try {
+    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+    if (!res.ok) return []
+    const json = await res.json() as any
+    if (!json.data?.diff) return []
+
+    return json.data.diff.map((d: any) => ({
+      code: d.f12,
+      name: d.f14,
+      price: d.f2 ?? 0,
+      changePct: d.f3 ?? 0,
+      changeAmt: d.f4 ?? 0,
+      volume: d.f5 ?? 0,
+      turnover: d.f6 ?? 0,
+      high: d.f15 ?? 0,
+      low: d.f16 ?? 0,
+      open: d.f17 ?? 0,
+      prevClose: d.f18 ?? 0,
+    }))
+  } catch {
+    return []
+  }
 }
 
 function getMockUSData(): USData {

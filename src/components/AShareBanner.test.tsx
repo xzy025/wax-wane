@@ -132,7 +132,9 @@ describe('AShareBanner', () => {
 
   it('renders advance/decline counts', () => {
     render(<AShareBanner t={t} />)
-    expect(screen.getByText('2800/2100')).toBeInTheDocument()
+    // Advance and decline are rendered in separate <span>s split by "/".
+    expect(screen.getByText('2800')).toBeInTheDocument()
+    expect(screen.getByText('2100')).toBeInTheDocument()
   })
 
   it('renders A/D ratio', () => {

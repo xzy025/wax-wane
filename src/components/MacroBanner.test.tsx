@@ -116,25 +116,9 @@ describe('MacroBanner', () => {
     expect(screen.getByText((content) => content.startsWith('Updated'))).toBeInTheDocument()
   })
 
-  it('shows demo badge when no API key is set', () => {
-    render(<MacroBanner t={t} />)
-    expect(screen.getByText('Using demo data')).toBeInTheDocument()
-  })
-
-  it('does not show demo badge when API key exists', () => {
-    localStorage.setItem('macro-api-key', 'test-key')
-    render(<MacroBanner t={t} />)
-    expect(screen.queryByText('Using demo data')).not.toBeInTheDocument()
-  })
-
-  it('opens settings panel when settings button is clicked', async () => {
-    const user = userEvent.setup()
-    render(<MacroBanner t={t} />)
-    // The settings button has title="Twelve Data API Key"
-    const settingsBtn = screen.getByTitle('Twelve Data API Key')
-    await user.click(settingsBtn)
-    expect(screen.getByText('Twelve Data API Key')).toBeInTheDocument()
-  })
+  // Note: the client-side API-key settings panel and "demo data" badge were
+  // removed — macro data now comes from the backend (/api/mcp/macro/indicators).
+  // Tests for that removed UI have been dropped.
 
   it('renders links to TradingView for each indicator', () => {
     render(<MacroBanner t={t} />)

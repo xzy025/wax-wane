@@ -201,6 +201,7 @@ export default {
     profitabilityBad: 'Bad',
     promotionRate: 'Promotion Rate',
     newHigh: 'New High',
+    nearHigh: 'Near High',
     totalVolume: 'Total Volume',
     lastUpdated: 'Updated',
     loading: 'Loading...',
@@ -218,6 +219,8 @@ export default {
     closed: 'Closed',
   },
   us: {
+    dji: 'Dow Jones',
+    ixic: 'NASDAQ',
     nvda: 'NVIDIA',
     lite: 'Lumentum',
     amd: 'AMD',

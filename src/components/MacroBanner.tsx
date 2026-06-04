@@ -76,6 +76,16 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
     <>
       <div className="macro-banner">
         <div className="macro-banner-meta">
+          <button
+            className="macro-refresh-btn"
+            type="button"
+            onClick={refresh}
+            disabled={loading}
+            aria-label={t.macro.retry}
+            title={t.macro.retry}
+          >
+            <ArrowClockwise size={14} aria-hidden="true" />
+          </button>
           {lastUpdated && (
             <span>
               {t.macro.lastUpdated} {lastUpdated.toLocaleTimeString()}

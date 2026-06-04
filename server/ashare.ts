@@ -1,14 +1,7 @@
 // A-share market data fetching from East Money APIs (Sina fallback for limit pools)
 
-const EM_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Referer': 'https://quote.eastmoney.com/',
-}
-
-const SINA_HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Referer': 'https://finance.sina.com.cn/',
-}
+import { EM_HEADERS, SINA_HEADERS } from './lib/emHeaders'
+import { createCache, sessionTtl } from './lib/cache'
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -81,15 +74,19 @@ export interface AShareData {
   volumeHistory: VolumeRecord[]
 }
 
-// ── Cache (30s throttle) ───────────────────────────────────
+// ── Cache (market-aware) ───────────────────────────────────
+// 60s during the trading session, 30min after close/weekends. A single
+// /api/ashare call fans out to ~10 upstream requests, so a long off-hours TTL
+// is what keeps this review app under the free-API rate limits.
 
-let cachedData: AShareData | null = null
-let cacheTimestamp = 0
-const CACHE_TTL = 30_000
+const ashareCache = createCache<AShareData>({
+  name: 'AShare',
+  ttl: sessionTtl(60_000, 30 * 60_000),
+  fetcher: fetchAShareDataFresh,
+})
 
 export function clearAShareCache() {
-  cachedData = null
-  cacheTimestamp = 0
+  ashareCache.clear()
 }
 
 // ── Typed API response shapes ─────────────────────────────
@@ -951,11 +948,10 @@ async function fetchVolumeHistory(): Promise<VolumeRecord[]> {
 // ── Main export ────────────────────────────────────────────
 
 export async function fetchAShareData(): Promise<AShareData> {
-  const now = Date.now()
-  if (cachedData && now - cacheTimestamp < CACHE_TTL) {
-    return cachedData
-  }
+  return ashareCache.get()
+}
 
+async function fetchAShareDataFresh(): Promise<AShareData> {
   // Fetch indices+breadth from East Money (reliable), limit pools with EM primary + Sina fallback
   const [breadthResult, limitUpResult, limitDownResult, promoResult, newHighResult, nearHighResult, volumeResult] = await Promise.allSettled([
     fetchIndicesAndBreadth(),
@@ -1000,7 +996,5 @@ export async function fetchAShareData(): Promise<AShareData> {
     volumeHistory,
   }
 
-  cachedData = data
-  cacheTimestamp = now
   return data
 }

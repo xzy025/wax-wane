@@ -1,9 +1,8 @@
-import {
-  ArrowClockwise,
-  TrendUp,
-  TrendDown,
-} from 'phosphor-react'
+import { useState } from 'react'
+import { ArrowClockwise, Plus } from 'phosphor-react'
 import { useHKData } from '../hooks/useHKData'
+import { addCustomStock, removeCustomStock } from '../utils/customStocks'
+import BannerStockCard from './BannerStockCard'
 import type { Translation } from '../types'
 
 interface HKBannerProps {
@@ -18,11 +17,26 @@ const INDEX_CONFIG: Record<string, { labelKey: keyof Translation['hk']; chartUrl
 }
 
 export default function HKBanner({ t, date }: HKBannerProps) {
-  const { data, loading, error, lastUpdated, refresh } = useHKData(date)
+  const { data, loading, error, lastUpdated, refresh, refreshCustom } = useHKData(date)
   const hasData = !!data && data.indices.length > 0
+  const [addCode, setAddCode] = useState('')
+
+  const handleAdd = () => {
+    const code = addCode.trim()
+    if (!code) return
+    if (addCustomStock('hk', code)) {
+      setAddCode('')
+      refreshCustom()
+    }
+  }
+
+  const handleRemove = (code: string) => {
+    removeCustomStock('hk', code)
+    refreshCustom()
+  }
 
   return (
-    <div className="ashare-banner">
+    <div className="hk-banner">
       {loading && !hasData ? (
         [1, 2, 3].map((i) => (
           <div className="ashare-index" key={i}>
@@ -31,32 +45,31 @@ export default function HKBanner({ t, date }: HKBannerProps) {
           </div>
         ))
       ) : hasData ? (
-        data!.indices.map((idx) => {
-          const config = INDEX_CONFIG[idx.code]
-          if (!config) return null
-          const isUp = idx.changePct >= 0
-          const ChangeIcon = isUp ? TrendUp : TrendDown
-
-          return (
-            <a
-              className="ashare-index"
+        <>
+          {data!.indices.map((idx) => {
+            const config = INDEX_CONFIG[idx.code]
+            if (!config) return null
+            return (
+              <BannerStockCard
+                key={idx.code}
+                idx={idx}
+                chartUrl={config.chartUrl}
+                name={t.hk[config.labelKey]}
+                isCustom={false}
+              />
+            )
+          })}
+          {data!.customStocks?.map((idx) => (
+            <BannerStockCard
               key={idx.code}
-              href={config.chartUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="ashare-index-name">{t.hk[config.labelKey]}</div>
-              <div className={`ashare-index-price ${isUp ? 'up' : 'down'}`}>
-                {idx.price.toFixed(2)}
-              </div>
-              <div className={`ashare-index-change ${isUp ? 'up' : 'down'}`}>
-                <ChangeIcon size={12} aria-hidden="true" />
-                {isUp ? '+' : ''}
-                {idx.changePct.toFixed(2)}%
-              </div>
-            </a>
-          )
-        })
+              idx={idx}
+              chartUrl={`https://quote.eastmoney.com/hk${idx.code}.html`}
+              name={idx.name || idx.code}
+              isCustom={true}
+              onRemove={() => handleRemove(idx.code)}
+            />
+          ))}
+        </>
       ) : (
         <div className="ashare-empty">
           <span style={{ color: error ? 'var(--red)' : 'var(--muted)' }}>
@@ -70,6 +83,21 @@ export default function HKBanner({ t, date }: HKBannerProps) {
       )}
 
       <div className="ashare-meta">
+        {hasData && (
+          <div className="ashare-meta-add">
+            <input
+              type="text"
+              value={addCode}
+              onChange={(e) => setAddCode(e.target.value)}
+              placeholder="港股代码"
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+              maxLength={6}
+            />
+            <button onClick={handleAdd} title="添加个股">
+              <Plus size={12} />
+            </button>
+          </div>
+        )}
         {lastUpdated && (
           <span>
             {t.hk.lastUpdated} {lastUpdated.toLocaleTimeString()}
