@@ -1,4 +1,4 @@
-import { ArrowClockwise, Fire, Lightning, ShieldStar } from 'phosphor-react'
+import { ArrowClockwise, Fire, ShieldStar } from 'phosphor-react'
 import { useHotList, type HotStock, type DragonTigerStock } from '../hooks/useHotList'
 import type { Translation } from '../types'
 
@@ -70,7 +70,7 @@ export default function HotListBanner({ t, date }: HotListBannerProps) {
   const { data, loading, error, lastUpdated, refresh } = useHotList(date)
   const hasData = !!data && (
     data.eastmoney.length > 0 || data.ths.length > 0 ||
-    data.taoguba.length > 0 || data.dragonTiger.length > 0
+    data.dragonTiger.length > 0
   )
 
   return (
@@ -118,19 +118,6 @@ export default function HotListBanner({ t, date }: HotListBannerProps) {
             <div className="hotlist-list">
               {data!.ths.map((stock) => (
                 <StockRow key={`ths-${stock.code}`} stock={stock} source="ths" />
-              ))}
-            </div>
-          </div>
-
-          {/* 淘股吧 */}
-          <div className="hotlist-panel">
-            <div className="hotlist-panel-title">
-              <Lightning size={14} weight="fill" style={{ color: 'var(--cyan)' }} />
-              淘股吧 热榜
-            </div>
-            <div className="hotlist-list">
-              {(data!.taoguba ?? []).map((stock) => (
-                <StockRow key={`tgb-${stock.code}`} stock={stock} source="tgb" />
               ))}
             </div>
           </div>

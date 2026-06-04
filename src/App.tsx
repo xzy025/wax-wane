@@ -148,7 +148,7 @@ function AppLayout() {
                 } catch {
                   // Server may be down; components will handle fetch errors
                 }
-                setRefreshKey((k) => k + 1)
+                window.location.reload()
               }}
               t={t}
             />

@@ -75,6 +75,14 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
   return (
     <>
       <div className="macro-banner">
+        <div className="macro-banner-meta">
+          {lastUpdated && (
+            <span>
+              {t.macro.lastUpdated} {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+          {error && hasData && <span style={{ color: 'var(--red)' }}>{t.macro.error}</span>}
+        </div>
         {!hasData && !loading ? (
           <div className="macro-banner-empty">
             <span style={{ color: error ? 'var(--red)' : 'var(--muted)' }}>
@@ -135,14 +143,6 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
             )
           })
         )}
-        <div className="macro-banner-meta">
-          {lastUpdated && (
-            <span>
-              {t.macro.lastUpdated} {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-          {error && hasData && <span style={{ color: 'var(--red)' }}>{t.macro.error}</span>}
-        </div>
       </div>
     </>
   )
