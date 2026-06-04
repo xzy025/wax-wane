@@ -60,10 +60,6 @@ export interface AShareData {
   promotionRate: number
   promotedCount: number
   promotionTotal: number
-  prevHighCount: number          // 候选中已突破前期高点(最高点)的家数
-  prevHighStocks: HighStock[]    // 接近/突破前期高点的候选股
-  high52wCount: number           // 候选中已突破52周高点(次高点)的家数
-  high52wStocks: HighStock[]     // 接近/突破52周高点的候选股
   volumeHistory: VolumeRecord[]
   /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指 turnover. 0 if unavailable. */
   totalTurnover: number
@@ -82,6 +78,23 @@ const ashareCache = createCache<AShareData>({
 
 export function clearAShareCache() {
   ashareCache.clear()
+}
+
+// Highs analysis is expensive (per-stock kline scan) so it has its own cache and
+// endpoint (/api/highs), keeping /api/ashare fast. fetchHighsAnalysis is defined
+// further down (function declarations are hoisted).
+const highsCache = createCache<HighsAnalysis>({
+  name: 'Highs',
+  ttl: sessionTtl(120_000, 30 * 60_000),
+  fetcher: fetchHighsAnalysis,
+})
+
+export function fetchHighs(): Promise<HighsAnalysis> {
+  return highsCache.get()
+}
+
+export function clearHighsCache() {
+  highsCache.clear()
 }
 
 // ── Typed API response shapes ─────────────────────────────
@@ -433,8 +446,9 @@ async function fetchLimitPoolRaw(date: string): Promise<LimitStock[]> {
 // gainers) and pull each one's daily kline to derive real reference highs.
 // All math lives in the pure helpers below so it can be unit-tested.
 
-const HIGHS_CANDIDATES = 150 // top-N by today's change to enrich with kline
+const HIGHS_CANDIDATES = 80 // top-N by today's change to enrich with kline
 const HIGHS_KLINE_LMT = 520 // ~2 trading years of daily bars
+const HIGHS_KLINE_TIMEOUT = 3500 // per-kline abort (ms)
 const HIGHS_WINDOW_52W = 250 // ~52 trading weeks
 const HIGHS_PIVOT_W = 10 // swing-high pivot half-window
 const HIGHS_NEAR_PCT = 5 // list stocks within this % below the reference
@@ -500,7 +514,7 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promis
 async function fetchKlineHighs(secid: string, lmt: number = HIGHS_KLINE_LMT): Promise<number[]> {
   const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=1&end=20500101&lmt=${lmt}`
   try {
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(HIGHS_KLINE_TIMEOUT) })
     if (!res.ok) return []
     const json = await res.json()
     const klines = json?.data?.klines as string[] | undefined
@@ -1063,7 +1077,10 @@ export async function fetchAShareData(): Promise<AShareData> {
 
 async function fetchAShareDataFresh(): Promise<AShareData> {
   // Fetch indices+breadth from East Money (reliable), limit pools with EM primary + Sina fallback
-  const [breadthResult, limitUpResult, limitDownResult, promoResult, highsResult, volumeResult] = await Promise.allSettled([
+  // NOTE: highs analysis (per-stock kline scan) is intentionally NOT here — it is
+  // slow and lives behind its own /api/highs endpoint so it can never delay or
+  // time out the core market data below.
+  const [breadthResult, limitUpResult, limitDownResult, promoResult, volumeResult] = await Promise.allSettled([
     fetchIndicesAndBreadth(),
     fetchLimitPool('up').then((r) => {
       if (r.count === 0) throw new Error('EM limit-up empty')
@@ -1074,7 +1091,6 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
       return r
     }).catch(() => fetchSinaLimitPool('down')),
     fetchPromotionRate(),
-    fetchHighsAnalysis(),
     fetchVolumeHistory(),
   ])
 
@@ -1082,8 +1098,6 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
   const limitUp = limitUpResult.status === 'fulfilled' ? limitUpResult.value : { count: 0, stocks: [] }
   const limitDown = limitDownResult.status === 'fulfilled' ? limitDownResult.value : { count: 0, stocks: [] }
   const promo = promoResult.status === 'fulfilled' ? promoResult.value : { rate: 0, promoted: 0, total: 0 }
-  const highs: HighsAnalysis = highsResult.status === 'fulfilled' ? highsResult.value
-    : { prevHigh: { count: 0, stocks: [] }, high52w: { count: 0, stocks: [] } }
   const volumeHistory = volumeResult.status === 'fulfilled' ? volumeResult.value : []
 
   const data: AShareData = {
@@ -1098,10 +1112,6 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
     promotionRate: promo.rate,
     promotedCount: promo.promoted,
     promotionTotal: promo.total,
-    prevHighCount: highs.prevHigh.count,
-    prevHighStocks: highs.prevHigh.stocks,
-    high52wCount: highs.high52w.count,
-    high52wStocks: highs.high52w.stocks,
     volumeHistory,
     // Two-market total = Shanghai Composite (000001) + Shenzhen Component (399001).
     // ChiNext (399006) is a subset of Shenzhen, so it is excluded to avoid double counting.

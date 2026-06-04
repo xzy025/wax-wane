@@ -8,6 +8,7 @@ interface DayEntry {
   us?: unknown
   hotlist?: unknown
   sentiment?: unknown
+  highs?: unknown
   timestamp: number
 }
 
@@ -21,6 +22,7 @@ export interface SaveDayOptions {
   us?: unknown
   hotlist?: unknown
   sentiment?: unknown
+  highs?: unknown
 }
 
 let cachedToday: string | null = null

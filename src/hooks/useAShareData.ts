@@ -16,15 +16,6 @@ export interface IndexQuote {
   prevClose: number
 }
 
-export interface HighStock {
-  code: string
-  name: string
-  price: number
-  changePct: number
-  refHigh: number   // 参考高点价格（前期高点 或 52周高点）
-  gapPct: number    // 距该高点 %；<=0 表示已突破
-}
-
 export interface VolumeRecord {
   date: string
   volume: number
@@ -41,10 +32,6 @@ export interface AShareData {
   promotionRate: number
   promotedCount: number
   promotionTotal: number
-  prevHighCount?: number
-  prevHighStocks?: HighStock[]
-  high52wCount?: number
-  high52wStocks?: HighStock[]
   volumeHistory: VolumeRecord[]
   /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指. May be absent in cached older data. */
   totalTurnover?: number
@@ -153,17 +140,6 @@ function getMockData(): AShareData {
     promotionRate: 35,
     promotedCount: 21,
     promotionTotal: 60,
-    prevHighCount: 1,
-    prevHighStocks: [
-      { code: '688110', name: '东芯股份', price: 166.6, changePct: 5.02, refHigh: 166.6, gapPct: 0 },
-      { code: '300750', name: '宁德时代', price: 426.42, changePct: -1.72, refHigh: 440.0, gapPct: 3.09 },
-    ],
-    high52wCount: 2,
-    high52wStocks: [
-      { code: '300196', name: '长海股份', price: 23.92, changePct: 3.55, refHigh: 23.92, gapPct: 0 },
-      { code: '688001', name: '华兴源创', price: 82.55, changePct: 2.18, refHigh: 82.55, gapPct: 0 },
-      { code: '000858', name: '五粮液', price: 168.5, changePct: 0.85, refHigh: 176.0, gapPct: 4.26 },
-    ],
     volumeHistory: [
       { date: '05-23', volume: 18234567, turnover: 2876543210000 },
       { date: '05-26', volume: 21123456, turnover: 3234567890000 },
@@ -231,14 +207,13 @@ export function useAShareData(date: string = todayStr()): AShareResult {
         if (cancelled) return
 
         if (!result.indices || result.indices.length === 0) {
-          const mock = getMockData()
-          setData(mock)
-          saveDay(date, { ashare: mock })
+          // Placeholder only; do not persist mock so the cache stays clean.
+          setData((prev) => prev ?? getMockData())
         } else {
           setData(result)
           saveDay(date, { ashare: result })
+          setLastUpdated(new Date())
         }
-        setLastUpdated(new Date())
         setError(null)
       } catch {
         if (cancelled) return
@@ -272,14 +247,12 @@ export function useAShareData(date: string = todayStr()): AShareResult {
       const result: AShareData = await res.json()
 
       if (!result.indices || result.indices.length === 0) {
-        const mock = getMockData()
-        setData(mock)
-        saveDay(date, { ashare: mock })
+        setData((prev) => prev ?? getMockData())
       } else {
         setData(result)
         saveDay(date, { ashare: result })
+        setLastUpdated(new Date())
       }
-      setLastUpdated(new Date())
       setError(null)
     } catch {
       // Keep the last good data; just surface the error (e.g. rate-limited).
