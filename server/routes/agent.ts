@@ -8,7 +8,7 @@ import {
   toOpenAIRequest,
   anthropicToOpenAIStream,
 } from '../lib/llm'
-import { isDbReady } from '../pgDatabase'
+import { isDbReady } from '../db/pgDatabase'
 
 const router = Router()
 

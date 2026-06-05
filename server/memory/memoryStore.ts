@@ -1,5 +1,5 @@
 // Agent Memory Store - PostgreSQL implementation
-import { getAgentMemory, upsertAgentMemory } from './pgDatabase'
+import { getAgentMemory, upsertAgentMemory } from '../db/pgDatabase'
 
 export interface AgentMemory {
   id: string

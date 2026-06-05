@@ -1,5 +1,5 @@
 // Enhanced Memory Store — Extended types and operations
-import { getAgentMemory, upsertAgentMemory } from './pgDatabase'
+import { getAgentMemory, upsertAgentMemory } from '../db/pgDatabase'
 
 // ── Enhanced Types ────────────────────────────────────────
 

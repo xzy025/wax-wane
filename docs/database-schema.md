@@ -278,9 +278,9 @@ CREATE INDEX idx_rag_documents_stock ON rag_documents(stock_code);
 
 Market data is cached in-memory on the server with 30-second TTL:
 
-- Macro indicators: `server/macro.ts`
-- A-share breadth/limit pool: `server/ashare.ts`
-- News RSS: `server/news.ts`
+- Macro indicators: `server/services/macro.ts`
+- A-share breadth/limit pool: `server/services/ashare.ts`
+- News RSS: `server/services/news.ts`
 
 Client-side cache uses `localStorage` with `market-history` key (7-day retention).
 

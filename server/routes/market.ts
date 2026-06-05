@@ -1,11 +1,11 @@
 // Market data routes: cache refresh + A-share/HK/US/hotlist quotes.
 import { Router } from 'express'
-import { fetchAShareData, clearAShareCache, fetchHighs, clearHighsCache } from '../ashare'
-import { fetchHKData, clearHKCache, fetchHKStockQuotes } from '../hk'
-import { fetchUSData, clearUSCache, fetchUSStockQuotes } from '../us'
-import { fetchHotList, clearHotListCache } from '../hotlist'
-import { fetchSentiment, clearSentimentCache } from '../kaipanla'
-import { clearMacroCache } from '../macro'
+import { fetchAShareData, clearAShareCache, fetchHighs, clearHighsCache } from '../services/ashare'
+import { fetchHKData, clearHKCache, fetchHKStockQuotes } from '../services/hk'
+import { fetchUSData, clearUSCache, fetchUSStockQuotes } from '../services/us'
+import { fetchHotList, clearHotListCache } from '../services/hotlist'
+import { fetchSentiment, clearSentimentCache } from '../services/kaipanla'
+import { clearMacroCache } from '../services/macro'
 
 const router = Router()
 

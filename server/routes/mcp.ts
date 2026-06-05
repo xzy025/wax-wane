@@ -7,12 +7,12 @@ import {
   fetchIndexTrends,
   fetchStockKline,
   fetchStockFundamentals,
-} from '../ashare'
-import { searchWeb, searchStockNews } from '../webSearch'
-import { fetchNewsFeed } from '../news'
-import { fetchMacroData } from '../macro'
-import { searchSimilar, getDocumentCount } from '../vectorStore'
-import { syncTradeGroups, resetAndSyncAll } from '../ragSync'
+} from '../services/ashare'
+import { searchWeb, searchStockNews } from '../services/webSearch'
+import { fetchNewsFeed } from '../services/news'
+import { fetchMacroData } from '../services/macro'
+import { searchSimilar, getDocumentCount } from '../rag/vectorStore'
+import { syncTradeGroups, resetAndSyncAll } from '../rag/ragSync'
 
 const router = Router()
 

@@ -1,7 +1,7 @@
 // US Market Data Fetcher
 
-import { EM_HEADERS } from './lib/emHeaders'
-import { createCache } from './lib/cache'
+import { EM_HEADERS } from '../lib/emHeaders'
+import { createCache } from '../lib/cache'
 
 interface IndexQuote {
   code: string

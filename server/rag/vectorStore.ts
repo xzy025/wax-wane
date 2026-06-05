@@ -6,7 +6,7 @@ import {
   updateTradeGroupEmbedding,
   updateReviewNoteEmbedding,
   pool,
-} from './pgDatabase'
+} from '../db/pgDatabase'
 
 export interface VectorDocument {
   id: string

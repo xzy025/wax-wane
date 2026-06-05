@@ -5,7 +5,7 @@
 // limit-up metrics behind 开盘啦's "情绪温度计"; the 0-100 temperature itself is
 // a documented heuristic we compute here, NOT an official value from the app.
 
-import { createCache, sessionTtl } from './lib/cache'
+import { createCache, sessionTtl } from '../lib/cache'
 
 export interface SentimentData {
   date: string

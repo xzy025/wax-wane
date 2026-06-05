@@ -30,8 +30,8 @@
 | System Prompt | `src/agent/prompts.ts` | 复盘流程、理论分析、K线识别 |
 | LLM Client | `src/agent/llmClient.ts` | SSE streaming，支持 OpenAI / Anthropic / MiMo |
 | 后端入口 | `server/index.ts` | Express 路由、LLM 代理、MCP 风格 API |
-| Memory Store | `server/memoryStore.ts` | 用户画像、改进计划、市场分析、对话摘要 |
-| 向量搜索 | `server/vectorStore.ts` | RAG 语义搜索 |
+| Memory Store | `server/memory/memoryStore.ts` | 用户画像、改进计划、市场分析、对话摘要 |
+| 向量搜索 | `server/rag/vectorStore.ts` | RAG 语义搜索 |
 | 知识库 | `server/knowledge/` | Wyckoff / Dow Theory / Price Action / A股板学 |
 
 ### 现有 Agent Tools（16 个）
@@ -92,12 +92,12 @@ market-data-mcp-server/
 ```
 
 **迁移来源**：
-- `server/ashare.ts` → A股数据
-- `server/hk.ts` → 港股数据
-- `server/us.ts` → 美股数据
-- `server/macro.ts` → 宏观数据
-- `server/news.ts` → 新闻数据
-- `server/hotlist.ts` → 热股排行
+- `server/services/ashare.ts` → A股数据
+- `server/services/hk.ts` → 港股数据
+- `server/services/us.ts` → 美股数据
+- `server/services/macro.ts` → 宏观数据
+- `server/services/news.ts` → 新闻数据
+- `server/services/hotlist.ts` → 热股排行
 
 **理由**：这些数据源无状态、可复用，做成 MCP 后可被任何 Agent 框架调用。
 
@@ -118,9 +118,9 @@ rag-mcp-server/
 ```
 
 **迁移来源**：
-- `server/vectorStore.ts` → 向量存储
-- `server/ragSync.ts` → 同步逻辑
-- `server/embedding.ts` → 嵌入服务
+- `server/rag/vectorStore.ts` → 向量存储
+- `server/rag/ragSync.ts` → 同步逻辑
+- `server/rag/embedding.ts` → 嵌入服务
 
 **理由**：RAG 是独立能力，做成 MCP 后任何 Agent 都能搜索交易经验库。
 
@@ -143,7 +143,7 @@ trade-database-mcp-server/
 ```
 
 **迁移来源**：
-- `server/pgDatabase.ts` → 数据库操作
+- `server/db/pgDatabase.ts` → 数据库操作
 
 ### 2.4 Agent Memory MCP Server（🟡 中优先级）
 
@@ -163,7 +163,7 @@ memory-mcp-server/
 ```
 
 **迁移来源**：
-- `server/memoryStore.ts` → Memory 存储
+- `server/memory/memoryStore.ts` → Memory 存储
 
 **理由**：做成 MCP 后可跨 Agent 共享用户画像。
 
@@ -481,7 +481,7 @@ Agent C ──read("macroPhase")─────────────→ "easi
 
 ### 当前实现
 
-`server/memoryStore.ts` 已实现：
+`server/memory/memoryStore.ts` 已实现：
 
 ```typescript
 interface AgentMemory {

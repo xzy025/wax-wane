@@ -8,7 +8,7 @@ import {
   updateImprovementPlan,
   updateMarketAnalysis,
   updateConversationSummary,
-} from '../memoryStore'
+} from '../memory/memoryStore'
 
 const router = Router()
 
@@ -89,7 +89,7 @@ router.patch('/api/memory/:userId/summary', async (req, res) => {
 
 router.get('/api/memory-enhanced/:userId', async (req, res) => {
   try {
-    const { getEnhancedMemory, serializeEnhancedMemory } = await import('../memoryEnhanced')
+    const { getEnhancedMemory, serializeEnhancedMemory } = await import('../memory/memoryEnhanced')
     const memory = await getEnhancedMemory(req.params.userId)
     res.json({
       ...memory,
@@ -103,7 +103,7 @@ router.get('/api/memory-enhanced/:userId', async (req, res) => {
 
 router.patch('/api/memory-enhanced/:userId/profile', async (req, res) => {
   try {
-    const { updateEnhancedTradingProfile } = await import('../memoryEnhanced')
+    const { updateEnhancedTradingProfile } = await import('../memory/memoryEnhanced')
     await updateEnhancedTradingProfile(req.params.userId, req.body)
     res.json({ success: true })
   } catch (err) {
@@ -114,7 +114,7 @@ router.patch('/api/memory-enhanced/:userId/profile', async (req, res) => {
 
 router.post('/api/memory-enhanced/:userId/infer-profile', async (req, res) => {
   try {
-    const { inferTradingProfile } = await import('../memoryEnhanced')
+    const { inferTradingProfile } = await import('../memory/memoryEnhanced')
     const { tradeGroups } = req.body
     await inferTradingProfile(req.params.userId, tradeGroups || [])
     res.json({ success: true })
@@ -126,7 +126,7 @@ router.post('/api/memory-enhanced/:userId/infer-profile', async (req, res) => {
 
 router.post('/api/memory-enhanced/:userId/lessons', async (req, res) => {
   try {
-    const { extractLessonsFromReview } = await import('../memoryExtraction')
+    const { extractLessonsFromReview } = await import('../memory/memoryExtraction')
     const { tradeGroupId, reviewNote } = req.body
     await extractLessonsFromReview(req.params.userId, tradeGroupId, reviewNote)
     res.json({ success: true })
@@ -138,7 +138,7 @@ router.post('/api/memory-enhanced/:userId/lessons', async (req, res) => {
 
 router.post('/api/memory-enhanced/:userId/patterns', async (req, res) => {
   try {
-    const { extractPatternsFromTrades } = await import('../memoryExtraction')
+    const { extractPatternsFromTrades } = await import('../memory/memoryExtraction')
     const { tradeGroups } = req.body
     await extractPatternsFromTrades(req.params.userId, tradeGroups || [])
     res.json({ success: true })
@@ -150,7 +150,7 @@ router.post('/api/memory-enhanced/:userId/patterns', async (req, res) => {
 
 router.post('/api/memory-enhanced/:userId/decisions', async (req, res) => {
   try {
-    const { addKeyDecision } = await import('../memoryEnhanced')
+    const { addKeyDecision } = await import('../memory/memoryEnhanced')
     await addKeyDecision(req.params.userId, req.body)
     res.json({ success: true })
   } catch (err) {
@@ -161,7 +161,7 @@ router.post('/api/memory-enhanced/:userId/decisions', async (req, res) => {
 
 router.post('/api/memory-enhanced/:userId/actions', async (req, res) => {
   try {
-    const { addActionItem } = await import('../memoryEnhanced')
+    const { addActionItem } = await import('../memory/memoryEnhanced')
     await addActionItem(req.params.userId, {
       ...req.body,
       id: crypto.randomUUID(),
@@ -177,7 +177,7 @@ router.post('/api/memory-enhanced/:userId/actions', async (req, res) => {
 
 router.patch('/api/memory-enhanced/:userId/actions/:actionId', async (req, res) => {
   try {
-    const { completeActionItem } = await import('../memoryEnhanced')
+    const { completeActionItem } = await import('../memory/memoryEnhanced')
     await completeActionItem(req.params.userId, req.params.actionId)
     res.json({ success: true })
   } catch (err) {

@@ -1,7 +1,7 @@
 // A-share market data fetching from East Money APIs (Sina fallback for limit pools)
 
-import { EM_HEADERS, SINA_HEADERS } from './lib/emHeaders'
-import { createCache, sessionTtl } from './lib/cache'
+import { EM_HEADERS, SINA_HEADERS } from '../lib/emHeaders'
+import { createCache, sessionTtl } from '../lib/cache'
 
 // ── Types ──────────────────────────────────────────────────
 
