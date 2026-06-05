@@ -1,8 +1,8 @@
 // Hot Stock Rankings
 // Sources: 东方财富 + 同花顺 + 龙虎榜 + 淘股吧
 
-import { EM_HEADERS } from './lib/emHeaders'
-import { createCache, sessionTtl } from './lib/cache'
+import { EM_HEADERS } from '../lib/emHeaders'
+import { createCache, sessionTtl } from '../lib/cache'
 
 export interface HotStock {
   rank: number

@@ -216,8 +216,8 @@ Orchestrator → [Wyckoff | Dow | AlBrooks | Sentiment] → Synthesizer → Repo
 ### 3.9 Memory 增强 (Phase 6)
 
 ```
-server/memoryEnhanced.ts
-server/memoryExtraction.ts
+server/memory/memoryEnhanced.ts
+server/memory/memoryExtraction.ts
 ```
 
 **增强 Memory 结构**：

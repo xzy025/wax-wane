@@ -1,6 +1,6 @@
 // Macroeconomic data fetching from Twelve Data + ExchangeRate-API
 
-import { createCache } from './lib/cache'
+import { createCache } from '../lib/cache'
 
 const TWELVEDATA_BASE = 'https://api.twelvedata.com'
 const EXCHANGERATE_BASE = 'https://open.er-api.com/v6/latest/USD'

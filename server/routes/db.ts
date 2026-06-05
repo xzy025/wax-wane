@@ -8,7 +8,7 @@ import {
   getTradeGroups,
   upsertReviewNote,
   getReviewNote,
-} from '../pgDatabase'
+} from '../db/pgDatabase'
 
 const router = Router()
 
