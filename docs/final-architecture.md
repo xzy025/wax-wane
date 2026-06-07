@@ -155,10 +155,14 @@ BELONGS_TO, INVOLVES, HAS_MISTAKE, USED_STRATEGY, OCCURRED_DURING, GENERATED, VI
 - `findPatternPath` — 错误→理论推理路径
 - `hybridSearch` — 向量+图混合搜索
 
-### 3.6 Nest + LangChain (Phase 3)
+### 3.6 Nest + LangChain (Phase 3) — ⛔ 已放弃 (2026-06-07)
+
+> 脚手架 `apps/server/` 已删除。本 app 工具在客户端执行（`src/agent/agentLoop.ts`），
+> 服务端仅为 LLM 流式代理，与「服务端 LangChain 执行工具」的设想不匹配。详见
+> `refactoring-roadmap.md` Phase 3 顶部说明。下表仅作历史记录。
 
 ```
-apps/server/
+apps/server/   (已删除)
 ```
 
 | 模块 | 职责 |

@@ -19,8 +19,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
-    // Frontend tests live in src/. Exclude apps/server (NestJS specs that need
-    // their own Node/Nest test runner, not jsdom).
+    // Frontend tests live in src/ and run under jsdom. Server tests
+    // (server/**/*.test.ts) use their own Node runner, so scope vitest to src/.
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 })
