@@ -215,6 +215,13 @@ Phase 4 (MCP)      Phase 5 (Multi-Agent)
 
 ## Phase 3: Nest + LangChain 后端重构（2.5 周）
 
+> **⛔ 已放弃（2026-06-07）。** 脚手架 `apps/server/` 已删除，不再迁移。
+>
+> 原因：本 app 的 agent 工具在**客户端**对 `appState`（用户本地交易数据）执行（见 `src/agent/agentLoop.ts`），服务端只是 LLM 流式代理 + 协议转换（Anthropic↔OpenAI）。脚手架假设「服务端用 LangChain `bindTools` 执行工具」，与该架构根本不匹配——服务端拿不到 appState，工具无法在服务端运行。LangChain 在纯代理场景下也只会用抽象层换掉已处理好各厂商 quirk（MiMo/Gemini/图片自动切换）的手写代理，属负优化。
+>
+> 模块/DI 的组织收益已通过 Express 后端按领域归类（`services/`、`rag/`、`memory/`、`db/`、`lib/`）兑现，无需 Nest。以下小节仅作历史记录保留。
+
+
 ### P3-1 Nest 项目脚手架（3d）
 
 **目标**：模块化项目结构
