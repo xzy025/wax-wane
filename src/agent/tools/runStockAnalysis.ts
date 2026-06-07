@@ -1,5 +1,4 @@
 import type { ToolModule } from '../types'
-import { StockAnalysisOrchestrator } from '../multi-agent/orchestrators/stock-analysis.orchestrator'
 
 export const runStockAnalysis: ToolModule = {
   schema: {
@@ -26,6 +25,11 @@ export const runStockAnalysis: ToolModule = {
       return { error: '请提供6位股票代码，如 "300750"' }
     }
 
+    // Lazy-load the multi-agent subsystem so it ships in a separate chunk,
+    // loaded only when this tool actually runs.
+    const { StockAnalysisOrchestrator } = await import(
+      '../multi-agent/orchestrators/stock-analysis.orchestrator'
+    )
     const orchestrator = new StockAnalysisOrchestrator()
     const results: string[] = []
 

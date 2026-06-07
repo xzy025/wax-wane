@@ -1,5 +1,4 @@
 import type { ToolModule } from '../types'
-import { TheoryReviewOrchestrator } from '../multi-agent/orchestrators/theory-review.orchestrator'
 
 export const runTheoryReview: ToolModule = {
   schema: {
@@ -12,6 +11,11 @@ export const runTheoryReview: ToolModule = {
   },
 
   execute: async (_args, state) => {
+    // Lazy-load the multi-agent subsystem so it ships in a separate chunk,
+    // loaded only when this tool actually runs.
+    const { TheoryReviewOrchestrator } = await import(
+      '../multi-agent/orchestrators/theory-review.orchestrator'
+    )
     const orchestrator = new TheoryReviewOrchestrator()
     const results: string[] = []
 
