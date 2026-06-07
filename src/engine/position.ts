@@ -1,4 +1,4 @@
-import type { ParsedTrade, PositionSnapshot } from '../types'
+import type { ParsedTrade } from '../types'
 
 export interface PositionState {
   quantity: number
@@ -94,59 +94,4 @@ export function reconstructPositions(trades: readonly ParsedTrade[]): Map<string
   }
 
   return positions
-}
-
-export function getPositionSnapshots(trades: readonly ParsedTrade[]): PositionSnapshot[] {
-  const snapshots: PositionSnapshot[] = []
-  const positions = new Map<string, PositionState>()
-
-  const sorted = [...trades].sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
-
-  for (const trade of sorted) {
-    const pos = positions.get(trade.stockCode) ?? createEmptyPosition()
-
-    const fees = trade.commission + trade.stampTax + trade.transferFee + trade.otherFee
-
-    if (trade.side === 'buy') {
-      const newQuantity = pos.quantity + trade.quantity
-      const newCostBasis = pos.costBasis + trade.grossAmount + fees
-      const newAvgCost = newQuantity > 0 ? newCostBasis / newQuantity : 0
-
-      positions.set(trade.stockCode, {
-        quantity: newQuantity,
-        avgCost: newAvgCost,
-        costBasis: newCostBasis,
-        realizedPnl: pos.realizedPnl,
-        totalFees: pos.totalFees + fees,
-      })
-    } else {
-      const costRemoved = pos.avgCost * trade.quantity
-      const sellProceeds = trade.grossAmount - fees
-      const realizedPnlDelta = sellProceeds - costRemoved
-      const newQuantity = pos.quantity - trade.quantity
-      const newCostBasis = newQuantity > 0 ? pos.avgCost * newQuantity : 0
-
-      positions.set(trade.stockCode, {
-        quantity: newQuantity,
-        avgCost: newQuantity > 0 ? pos.avgCost : 0,
-        costBasis: newCostBasis,
-        realizedPnl: pos.realizedPnl + realizedPnlDelta,
-        totalFees: pos.totalFees + fees,
-      })
-    }
-
-    const updated = positions.get(trade.stockCode)
-    if (!updated) continue
-    snapshots.push({
-      stockCode: trade.stockCode,
-      stockName: trade.stockName,
-      quantity: updated.quantity,
-      avgCost: updated.avgCost,
-      costBasis: updated.costBasis,
-      realizedPnl: updated.realizedPnl,
-      totalFees: updated.totalFees,
-    })
-  }
-
-  return snapshots
 }
