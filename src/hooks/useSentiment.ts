@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { getLastTradingDay, getDay, saveDay } from '../utils/marketHistory'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface SentimentData {
@@ -26,8 +26,8 @@ export interface SentimentResult {
  * Mirrors useHotList: localStorage day-cache + on-demand fetch for today,
  * with a server-cache-clearing refresh.
  */
-export function useSentiment(date: string = todayStr()): SentimentResult {
-  const isToday = date === todayStr()
+export function useSentiment(date: string = getLastTradingDay()): SentimentResult {
+  const isLatest = date === getLastTradingDay()
 
   const cachedEntry = getDay(date)
   const cachedData = cachedEntry?.sentiment as SentimentData | undefined
@@ -53,7 +53,7 @@ export function useSentiment(date: string = todayStr()): SentimentResult {
     }
 
     // Sentiment is an intraday metric; only fetch for the current day.
-    if (!isToday) {
+    if (!isLatest) {
       setData(null)
       setLastUpdated(null)
       setError(null)
@@ -89,10 +89,10 @@ export function useSentiment(date: string = todayStr()): SentimentResult {
       cancelled = true
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   const refresh = useCallback(async () => {
-    if (!isToday || fetching.current) return
+    if (!isLatest || fetching.current) return
     fetching.current = true
     setLoading(true)
     setError(null)
@@ -111,7 +111,7 @@ export function useSentiment(date: string = todayStr()): SentimentResult {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   return { data, loading, error, lastUpdated, refresh }
 }

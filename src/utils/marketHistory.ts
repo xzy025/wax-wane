@@ -44,6 +44,31 @@ export function todayStr(): string {
   return cachedToday
 }
 
+/**
+ * The most recent tradeable day — the date whose data the backend can still
+ * fetch live. Before pre-market auction (09:15) it falls back to the previous
+ * day, and weekends step back to the nearest weekday. Market hooks use this
+ * (not `todayStr`) to decide whether to fetch/revalidate vs. serve cache only.
+ */
+export function getLastTradingDay(): string {
+  const now = new Date()
+  const d = new Date(now)
+
+  // Before pre-market auction (09:15), the latest tradeable day is yesterday.
+  const hours = now.getHours()
+  const minutes = now.getMinutes()
+  const isBeforePreMarket = hours < 9 || (hours === 9 && minutes < 15)
+  if (isBeforePreMarket) {
+    d.setDate(d.getDate() - 1)
+  }
+
+  // Skip weekends back to the nearest weekday.
+  while (d.getDay() === 0 || d.getDay() === 6) {
+    d.setDate(d.getDate() - 1)
+  }
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 function readHistory(): HistoryMap {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)

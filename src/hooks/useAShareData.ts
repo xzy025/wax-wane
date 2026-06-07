@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { getLastTradingDay, getDay, saveDay } from '../utils/marketHistory'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface IndexQuote {
@@ -154,8 +154,8 @@ function getMockData(): AShareData {
 
 // ── Hook ───────────────────────────────────────────────────
 
-export function useAShareData(date: string = todayStr()): AShareResult {
-  const isToday = date === todayStr()
+export function useAShareData(date: string = getLastTradingDay()): AShareResult {
+  const isLatest = date === getLastTradingDay()
 
   // Initialize from cache (works for both today and past dates)
   const cachedEntry = getDay(date)
@@ -163,7 +163,7 @@ export function useAShareData(date: string = todayStr()): AShareResult {
   const [data, setData] = useState<AShareData | null>(cachedData ?? null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(
-    !cachedData && !isToday ? 'No data for this date' : null,
+    !cachedData && !isLatest ? 'No data for this date' : null,
   )
   const [lastUpdated, setLastUpdated] = useState<Date | null>(
     cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
@@ -187,7 +187,7 @@ export function useAShareData(date: string = todayStr()): AShareResult {
     }
 
     // Past date without cache: no data
-    if (!isToday) {
+    if (!isLatest) {
       setData(null)
       setLastUpdated(null)
       setError('No data for this date')
@@ -232,10 +232,10 @@ export function useAShareData(date: string = todayStr()): AShareResult {
       cancelled = true
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   const refresh = useCallback(async () => {
-    if (!isToday || fetching.current) return
+    if (!isLatest || fetching.current) return
     fetching.current = true
     setLoading(true)
     setError(null)
@@ -262,7 +262,7 @@ export function useAShareData(date: string = todayStr()): AShareResult {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   return { data, loading, error, lastUpdated, refresh }
 }

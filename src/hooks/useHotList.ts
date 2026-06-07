@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { getLastTradingDay, getDay, saveDay } from '../utils/marketHistory'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface HotStock {
@@ -72,8 +72,8 @@ function getMockData(): HotListData {
   }
 }
 
-export function useHotList(date: string = todayStr()): HotListResult {
-  const isToday = date === todayStr()
+export function useHotList(date: string = getLastTradingDay()): HotListResult {
+  const isLatest = date === getLastTradingDay()
 
   const cachedEntry = getDay(date)
   const cachedData = cachedEntry?.hotlist as HotListData | undefined
@@ -100,7 +100,7 @@ export function useHotList(date: string = todayStr()): HotListResult {
     }
 
     // Historical dates: cache (or mock) only — never fetch.
-    if (!isToday) {
+    if (!isLatest) {
       if (!hasCache) {
         setData(getMockData())
         setLastUpdated(null)
@@ -150,10 +150,10 @@ export function useHotList(date: string = todayStr()): HotListResult {
       cancelled = true
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   const refresh = useCallback(async () => {
-    if (!isToday || fetching.current) return
+    if (!isLatest || fetching.current) return
     fetching.current = true
     setLoading(true)
     setError(null)
@@ -180,7 +180,7 @@ export function useHotList(date: string = todayStr()): HotListResult {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   return { data, loading, error, lastUpdated, refresh }
 }
