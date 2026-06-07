@@ -1,4 +1,4 @@
-import { todayStr } from '../utils/marketHistory'
+import { getLastTradingDay } from '../utils/marketHistory'
 import { useMarketData, type IndexQuote, type MarketData, type MarketResult } from './useMarketData'
 
 export type USData = MarketData
@@ -17,7 +17,7 @@ function getMockData(): USData {
   }
 }
 
-export function useUSData(date: string = todayStr()): USResult {
+export function useUSData(date: string = getLastTradingDay()): USResult {
   return useMarketData<USData>({ market: 'us', getMock: getMockData }, date)
 }
 

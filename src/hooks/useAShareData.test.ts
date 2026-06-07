@@ -9,6 +9,7 @@ global.fetch = mockFetch
 // Mock marketHistory utils
 vi.mock('../utils/marketHistory', () => ({
   todayStr: () => '2026-05-29',
+  getLastTradingDay: () => '2026-05-29',
   getDay: vi.fn(() => null),
   saveDay: vi.fn(),
 }))

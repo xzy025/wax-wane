@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { todayStr, getDay, saveDay, type SaveDayOptions } from '../utils/marketHistory'
+import { getLastTradingDay, getDay, saveDay, type SaveDayOptions } from '../utils/marketHistory'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 import { getCustomStocks } from '../utils/customStocks'
 
@@ -49,11 +49,11 @@ export interface MarketConfig<T extends MarketData> {
  */
 export function useMarketData<T extends MarketData>(
   config: MarketConfig<T>,
-  date: string = todayStr(),
+  date: string = getLastTradingDay(),
 ): MarketResult<T> {
   const { market, getMock } = config
   const endpoint = `/api/${market}`
-  const isToday = date === todayStr()
+  const isLatest = date === getLastTradingDay()
 
   const writeCache = (d: string, value: T) =>
     saveDay(d, { [market]: value } as SaveDayOptions)
@@ -123,7 +123,7 @@ export function useMarketData<T extends MarketData>(
     }
 
     // Past date without cache: show mock placeholder (no live history available).
-    if (!isToday) {
+    if (!isLatest) {
       setData(getMock())
       setLastUpdated(null)
       setError(null)
@@ -155,10 +155,10 @@ export function useMarketData<T extends MarketData>(
       fetching.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, isToday])
+  }, [date, isLatest])
 
   const refresh = useCallback(async () => {
-    if (!isToday || fetching.current) return
+    if (!isLatest || fetching.current) return
     fetching.current = true
     setLoading(true)
     setError(null)
@@ -173,7 +173,7 @@ export function useMarketData<T extends MarketData>(
       fetching.current = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isToday, load, market])
+  }, [isLatest, load, market])
 
   const refreshCustom = useCallback(async () => {
     const customQuotes = await fetchCustomStocks()

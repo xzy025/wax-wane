@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { CaretLeft, CaretRight, ArrowClockwise } from 'phosphor-react'
-import { todayStr } from '../utils/marketHistory'
+import { todayStr, getLastTradingDay } from '../utils/marketHistory'
 import type { Translation } from '../types'
+
+export { getLastTradingDay }
 
 interface MarketDatePickerProps {
   selectedDate: string
@@ -38,26 +40,6 @@ function isSelectable(date: string): boolean {
   const maxDate = isBeforePreMarket ? daysAgo(1) : todayStr()
   const minDate = daysAgo(30)
   return date >= minDate && date <= maxDate && isTradingDay(date)
-}
-
-export function getLastTradingDay(): string {
-  const now = new Date()
-  let d = new Date(now)
-
-  // 如果当前时间在 9:15 之前（盘前集合竞价前），显示上一个交易日
-  const hours = now.getHours()
-  const minutes = now.getMinutes()
-  const isBeforePreMarket = hours < 9 || (hours === 9 && minutes < 15)
-
-  if (isBeforePreMarket) {
-    d.setDate(d.getDate() - 1)
-  }
-
-  // 如果是周末，往前找最近的工作日
-  while (d.getDay() === 0 || d.getDay() === 6) {
-    d.setDate(d.getDate() - 1)
-  }
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 function getMonthDays(

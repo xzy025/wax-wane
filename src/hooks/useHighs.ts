@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { getLastTradingDay, getDay, saveDay } from '../utils/marketHistory'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface HighStock {
@@ -35,8 +35,8 @@ const HIGHS_TIMEOUT = 20_000
  * blocks or times out the core market banner. localStorage day-cache + on-demand
  * fetch for today, mirroring useSentiment.
  */
-export function useHighs(date: string = todayStr()): HighsResult {
-  const isToday = date === todayStr()
+export function useHighs(date: string = getLastTradingDay()): HighsResult {
+  const isLatest = date === getLastTradingDay()
 
   const cachedEntry = getDay(date)
   const cachedData = cachedEntry?.highs as HighsData | undefined
@@ -57,7 +57,7 @@ export function useHighs(date: string = todayStr()): HighsResult {
       return
     }
 
-    if (!isToday) {
+    if (!isLatest) {
       setData(null)
       setError(null)
       setLoading(false)
@@ -92,10 +92,10 @@ export function useHighs(date: string = todayStr()): HighsResult {
       cancelled = true
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   const refresh = useCallback(async () => {
-    if (!isToday || fetching.current) return
+    if (!isLatest || fetching.current) return
     fetching.current = true
     setLoading(true)
     setError(null)
@@ -113,7 +113,7 @@ export function useHighs(date: string = todayStr()): HighsResult {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   return { data, loading, error, refresh }
 }

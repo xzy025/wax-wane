@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { todayStr, getDay, saveDay } from '../utils/marketHistory'
+import { getLastTradingDay, getDay, saveDay } from '../utils/marketHistory'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface MacroIndicator {
@@ -25,8 +25,8 @@ async function fetchFromBackend(): Promise<MacroIndicator[]> {
 
 // ── Hook ───────────────────────────────────────────────────────
 
-export function useMacroData(date: string = todayStr()): MacroDataResult {
-  const isToday = date === todayStr()
+export function useMacroData(date: string = getLastTradingDay()): MacroDataResult {
+  const isLatest = date === getLastTradingDay()
 
   // Initialize from cache (works for both today and past dates)
   const cachedEntry = getDay(date)
@@ -56,7 +56,7 @@ export function useMacroData(date: string = todayStr()): MacroDataResult {
     }
 
     // Past date without cache: no data
-    if (!isToday) {
+    if (!isLatest) {
       setData([])
       setLastUpdated(null)
       setError('No data for this date')
@@ -91,10 +91,10 @@ export function useMacroData(date: string = todayStr()): MacroDataResult {
       cancelled = true
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   const refresh = useCallback(async () => {
-    if (!isToday || fetching.current) return
+    if (!isLatest || fetching.current) return
     fetching.current = true
     setLoading(true)
     setError(null)
@@ -112,7 +112,7 @@ export function useMacroData(date: string = todayStr()): MacroDataResult {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isToday])
+  }, [date, isLatest])
 
   return { data, loading, error, lastUpdated, refresh }
 }
