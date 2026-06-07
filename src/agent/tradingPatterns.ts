@@ -166,16 +166,6 @@ export const TRADING_PATTERNS: TradingPattern[] = [
   },
 ]
 
-/** Get pattern by ID */
-export function getPatternById(id: string): TradingPattern | undefined {
-  return TRADING_PATTERNS.find((p) => p.id === id)
-}
-
-/** Get patterns by category */
-export function getPatternsByCategory(category: 'teacher' | 'theory'): TradingPattern[] {
-  return TRADING_PATTERNS.filter((p) => p.category === category)
-}
-
 /** Build pattern context string for system prompt injection */
 export function buildPatternContext(selectedIds: string[]): string {
   const selected = TRADING_PATTERNS.filter((p) => selectedIds.includes(p.id))

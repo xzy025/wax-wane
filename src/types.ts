@@ -53,26 +53,6 @@ export interface MetricCard {
   readonly icon: React.ComponentType<Record<string, unknown>>
 }
 
-/**
- * A single row in the trade ledger table.
- * Indices: 0=date, 1=code, 2=name, 3=side, 4=qty, 5=price, 6=amount, 7=fees
- */
-export type LedgerRow = readonly [
-  date: string,
-  code: string,
-  name: string,
-  side: string,
-  qty: string,
-  price: string,
-  amount: string,
-  fees: string,
-]
-
-/**
- * A mistake statistic entry: [mistake tag, occurrence count, total PnL impact].
- */
-export type MistakeStat = readonly [tag: string, count: number, pnl: number]
-
 export interface Translation {
   appSubtitle: string
   nav: Record<string, string>
@@ -264,14 +244,4 @@ export interface ParsedTrade {
   readonly raw: Readonly<Record<string, string>>
   readonly validationStatus?: 'valid' | 'warning' | 'error'
   readonly validationMessage?: string
-}
-
-export interface PositionSnapshot {
-  readonly stockCode: string
-  readonly stockName: string
-  readonly quantity: number
-  readonly avgCost: number
-  readonly costBasis: number
-  readonly realizedPnl: number
-  readonly totalFees: number
 }
