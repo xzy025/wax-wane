@@ -3,8 +3,12 @@ import {
   buildFundamentalPrompt,
   partitionFundamentals,
   makeDeltaAccumulator,
+  renderProfileBlock,
+  renderHistoryBlock,
+  renderHoldersBlock,
 } from './analysisPrompt'
 import type { StockFundamentals } from '../services/ashare'
+import type { CompanyProfile, AnnualFinancials, TopHolders } from '../services/f10'
 import type { CnFinanceKnowledge } from './analysisPrompt'
 
 // A realistic East Money fundamentals object: only pe/pb/roe/marketCap/eps/bvps
@@ -32,8 +36,52 @@ function makeFundamentals(overrides: Partial<StockFundamentals> = {}): StockFund
     turnoverRate: 0,
     volumeRatio: 0,
     amplitude: 2.3,
+    debtRatio: 0,
     ...overrides,
   }
+}
+
+const PROFILE: CompanyProfile = {
+  orgName: '宁德时代新能源科技股份有限公司',
+  industryEM: '电力设备-电池-锂电池',
+  industryCSRC: '制造业-电气机械和器材制造业',
+  actualHolder: '曾毓群',
+  chairman: '曾毓群',
+  employees: 185839,
+  province: '福建',
+  regAddress: '中国福建省宁德市蕉城区漳湾镇新港路2号',
+  listingDate: '2018-06-11',
+  foundDate: '2011-12-16',
+  mainBusiness: '从事动力电池、储能电池的研发、生产、销售',
+}
+
+const HISTORY: AnnualFinancials[] = [
+  {
+    year: 2025,
+    revenue: 423701834000,
+    revenueYoy: 17.04,
+    netProfit: 72201282000,
+    netProfitYoy: 42.28,
+    deductedProfit: 64507864000,
+    deductedProfitYoy: 43.37,
+    roeWeighted: 24.91,
+    grossMargin: 26.27,
+    netMargin: 18.12,
+    debtRatio: 61.94,
+    eps: 16.14,
+    bps: 73.87,
+    ocfPerShare: 29.19,
+    rdExpense: 22146581000,
+  },
+]
+
+const HOLDERS: TopHolders = {
+  endDate: '2026-03-31',
+  holders: [
+    { rank: 1, name: '厦门瑞庭投资有限公司', ratio: 22.45 },
+    { rank: 2, name: '香港中央结算有限公司', ratio: 16.68 },
+  ],
+  totalRatio: 39.13,
 }
 
 const KNOWLEDGE: CnFinanceKnowledge = {
@@ -85,6 +133,73 @@ describe('buildFundamentalPrompt', () => {
     expect(user).toContain('宁德时代')
     expect(user).toContain('毛利率')
     expect(user).toMatch(/已获取 \d+ 项 \/ 待接入 \d+ 项/)
+  })
+
+  it('omits F10 sections when no data is passed', () => {
+    const { user } = buildFundamentalPrompt({ fundamentals: makeFundamentals(), knowledge: KNOWLEDGE })
+    expect(user).not.toContain('## 公司资料')
+    expect(user).not.toContain('## 近年年报核心财务')
+    expect(user).not.toContain('## 前十大股东')
+  })
+
+  it('embeds profile, history table and holders when provided', () => {
+    const { user } = buildFundamentalPrompt({
+      fundamentals: makeFundamentals(),
+      knowledge: KNOWLEDGE,
+      profile: PROFILE,
+      history: HISTORY,
+      holders: HOLDERS,
+    })
+    expect(user).toContain('## 公司资料（数据源：东方财富 F10）')
+    expect(user).toContain('实际控制人: 曾毓群')
+    expect(user).toContain('## 近年年报核心财务（数据源：东方财富 F10）')
+    expect(user).toContain('| 2025 | 4237.0 |')
+    expect(user).toContain('## 前十大股东（截至 2026-03-31）')
+    expect(user).toContain('厦门瑞庭投资有限公司: 22.45%')
+  })
+})
+
+describe('renderProfileBlock', () => {
+  it('renders provided fields and omits empty ones', () => {
+    const block = renderProfileBlock({ ...PROFILE, regAddress: '', mainBusiness: '' })
+    expect(block).toContain('- 实际控制人: 曾毓群')
+    expect(block).toContain('- 员工总数: 185839 人')
+    expect(block).toContain('- 上市日期: 2018-06-11')
+    expect(block).not.toContain('注册地')
+    expect(block).not.toContain('主营业务')
+  })
+
+  it('returns empty string for null', () => {
+    expect(renderProfileBlock(null)).toBe('')
+    expect(renderProfileBlock(undefined)).toBe('')
+  })
+})
+
+describe('renderHistoryBlock', () => {
+  it('renders a markdown table with 亿-scaled money columns', () => {
+    const block = renderHistoryBlock(HISTORY)
+    expect(block).toContain('| 年份 |')
+    expect(block).toContain('| 2025 | 4237.0 | 17.04 | 722.0 |')
+    expect(block).toContain('| 16.14 | 221.5 |') // EPS + 研发(亿)
+  })
+
+  it('returns empty string for empty input', () => {
+    expect(renderHistoryBlock([])).toBe('')
+    expect(renderHistoryBlock(null)).toBe('')
+  })
+})
+
+describe('renderHoldersBlock', () => {
+  it('lists ranked holders and the total ratio', () => {
+    const block = renderHoldersBlock(HOLDERS)
+    expect(block).toContain('1. 厦门瑞庭投资有限公司: 22.45%')
+    expect(block).toContain('2. 香港中央结算有限公司: 16.68%')
+    expect(block).toContain('已披露股东合计持股: 39.13%')
+  })
+
+  it('returns empty string for null/empty', () => {
+    expect(renderHoldersBlock(null)).toBe('')
+    expect(renderHoldersBlock({ endDate: '2026-03-31', holders: [], totalRatio: 0 })).toBe('')
   })
 })
 

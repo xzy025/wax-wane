@@ -13,6 +13,7 @@ import {
   anthropicToOpenAIStream,
 } from '../lib/llm'
 import { fetchStockFundamentals } from '../services/ashare'
+import { fetchCompanyProfile, fetchFinancialHistory, fetchTopHolders } from '../services/f10'
 import { resolveStock } from '../services/stockSearch'
 import { isDbReady, addFundamentalReport, getLatestFundamentalReport } from '../db/pgDatabase'
 import { embedText } from '../rag/embedding'
@@ -197,7 +198,14 @@ router.post('/api/analysis/fundamental', async (req, res) => {
       name = hit.name || name
     }
 
-    const fundamentals = await fetchStockFundamentals(code)
+    // F10 fetchers never throw (internal catch → null/[]), so a flaky
+    // datacenter call degrades that section to「数据待接入」instead of failing.
+    const [fundamentals, profile, history, holders] = await Promise.all([
+      fetchStockFundamentals(code),
+      fetchCompanyProfile(code),
+      fetchFinancialHistory(code),
+      fetchTopHolders(code),
+    ])
     if (!fundamentals) {
       res.write(`data: ${JSON.stringify({ error: `无法获取 ${code} 的行情/基本面数据` })}\n\n`)
       res.write('data: [DONE]\n\n')
@@ -207,7 +215,7 @@ router.post('/api/analysis/fundamental', async (req, res) => {
     // Prefer a resolved/caller-provided name (the trade record's name) over the fetched one.
     if (name) fundamentals.name = name
 
-    const { system, user } = buildFundamentalPrompt({ fundamentals, knowledge })
+    const { system, user } = buildFundamentalPrompt({ fundamentals, knowledge, profile, history, holders })
     const messages = [
       { role: 'system', content: system },
       { role: 'user', content: user },
