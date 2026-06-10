@@ -24,6 +24,7 @@ import { runStructuredReview } from './runStructuredReview'
 import { runTheoryReview } from './runTheoryReview'
 import { getStockKline } from './getStockKline'
 import { getStockFundamentals } from './getStockFundamentals'
+import { getFundamentalReport } from './getFundamentalReport'
 import { searchWeb } from './searchWeb'
 import { getStockNews } from './getStockNews'
 import { runStockAnalysis } from './runStockAnalysis'
@@ -53,6 +54,7 @@ const toolRegistry: Record<string, ToolModule> = {
   runTheoryReview: runTheoryReview,
   getStockKline: getStockKline,
   getStockFundamentals: getStockFundamentals,
+  getFundamentalReport: getFundamentalReport,
   searchWeb: searchWeb,
   getStockNews: getStockNews,
   runStockAnalysis: runStockAnalysis,

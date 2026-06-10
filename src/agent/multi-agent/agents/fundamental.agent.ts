@@ -1,10 +1,12 @@
 import { BaseAgent } from './base.agent'
 import { extractStockCode } from '../../utils'
-import type { AgentContext } from '../types'
+import { buildDeepReportSection } from './fundamental.helpers'
+import type { AgentContext, AgentResult } from '../types'
 
 /**
  * Fundamental Analysis Agent
  * Analyzes stock fundamentals: PE, PB, ROE, market cap, industry.
+ * Also surfaces the latest archived deep fundamental report (if any).
  */
 export class FundamentalAgent extends BaseAgent {
   readonly id = 'fundamental'
@@ -15,6 +17,46 @@ export class FundamentalAgent extends BaseAgent {
   protected getToolArgs(context: AgentContext): Record<string, unknown> {
     const code = extractStockCode(context.userMessage)
     return { stockCode: code }
+  }
+
+  override async execute(context: AgentContext): Promise<AgentResult> {
+    const startTime = Date.now()
+
+    try {
+      const { executeTool } = await import('../../tools')
+      const code = extractStockCode(context.userMessage)
+      // With no code in the message, let the server-side resolver try the raw
+      // text; a failed lookup degrades to the "generate one" hint.
+      const reportArgs = code ? { stockCode: code } : { query: context.userMessage }
+      const [fundamentals, report] = await Promise.all([
+        executeTool(this.toolName, { stockCode: code }, context.appState),
+        executeTool('getFundamentalReport', reportArgs, context.appState),
+      ])
+      const content = [
+        this.postProcess(fundamentals),
+        '',
+        buildDeepReportSection(report),
+      ].join('\n')
+
+      return {
+        agentId: this.id,
+        agentName: this.name,
+        stepName: this.stepName,
+        content,
+        success: true,
+        duration: Date.now() - startTime,
+      }
+    } catch (err) {
+      return {
+        agentId: this.id,
+        agentName: this.name,
+        stepName: this.stepName,
+        content: '',
+        success: false,
+        error: err instanceof Error ? err.message : 'Unknown error',
+        duration: Date.now() - startTime,
+      }
+    }
   }
 
   protected override postProcess(result: unknown): string {

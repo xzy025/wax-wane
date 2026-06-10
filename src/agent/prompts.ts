@@ -112,6 +112,7 @@ export function buildSystemPrompt(state: AppState, language: 'zh' | 'en' = 'zh',
 - You can generate personalized improvement plans based on trading theories
 - You can fetch individual stock K-line history (getStockKline) for technical analysis
 - You can fetch individual stock fundamentals (getStockFundamentals): PE, PB, ROE, market cap
+- You can retrieve the latest archived deep fundamental report (getFundamentalReport) by stock code or name — use it when the user asks to see, cite, or discuss a previously generated 基本面分析 report; it reads the archive only and never generates a new one
 - You can fetch latest stock-specific news (getStockNews) for sentiment analysis
 - You can search the web (searchWeb) for market news, analysis, and information
 - You can run multi-dimensional stock analysis (runStockAnalysis): parallel technical + fundamental + news analysis
@@ -122,6 +123,7 @@ When the user mentions a specific stock code (e.g., "300750", "002594") or asks 
 1. **Use runStockAnalysis** tool with the stock code for comprehensive multi-dimensional analysis
 2. This runs 3 parallel agents: Technical (Wyckoff/Dow/Al Brooks), Fundamental, News
 3. Returns a structured report with signals from each dimension
+4. If the report's 基本面 section mentions a 深度报告 archive, you can fetch its full text with getFundamentalReport when the user wants details
 
 ### Stock Screening with Trading Patterns (选股)
 When the user asks to screen stocks ("帮我选股", "今天有什么机会"):

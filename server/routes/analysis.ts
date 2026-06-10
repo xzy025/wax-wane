@@ -2,7 +2,7 @@
 // built from the vendored cn-finance methodology + East Money data, then
 // dual-archives the finished report (markdown file + RAG vector row).
 import { Router } from 'express'
-import { readFileSync, mkdirSync, writeFileSync } from 'fs'
+import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import {
@@ -14,13 +14,18 @@ import {
 } from '../lib/llm'
 import { fetchStockFundamentals } from '../services/ashare'
 import { resolveStock } from '../services/stockSearch'
-import { isDbReady, addFundamentalReport } from '../db/pgDatabase'
+import { isDbReady, addFundamentalReport, getLatestFundamentalReport } from '../db/pgDatabase'
 import { embedText } from '../rag/embedding'
 import {
   buildFundamentalPrompt,
   makeDeltaAccumulator,
   type CnFinanceKnowledge,
 } from './analysisPrompt'
+import {
+  pickLatestReportFile,
+  extractStockNameFromReport,
+  summarizeReport,
+} from './fundamentalArchive'
 
 const router = Router()
 
@@ -117,7 +122,7 @@ async function archiveReport(args: {
     return { archived: !warning, warning: warning ?? 'DB 未就绪，仅保存了 markdown，未写入向量库。' }
   }
   try {
-    const summary = reportMd.replace(/\s+/g, ' ').slice(0, 280)
+    const summary = summarizeReport(reportMd)
     const embedding = await embedText(`${stockName} ${stockCode} 基本面速览 ${summary}`)
     await addFundamentalReport({
       id: crypto.randomUUID(),
@@ -269,6 +274,76 @@ router.post('/api/analysis/fundamental', async (req, res) => {
     }
   }
   res.end()
+})
+
+// Latest archived report for a stock, full text. DB row preferred (has the
+// caller-facing summary); falls back to the markdown archive so reports stay
+// retrievable when Postgres is down. `{found:false}` is a normal 200 answer.
+router.get('/api/analysis/fundamental/latest', async (req, res) => {
+  const raw = String(req.query.query ?? '').trim()
+  if (!raw) {
+    res.status(400).json({ error: 'query 不能为空' })
+    return
+  }
+
+  let code = raw
+  let resolvedName: string | undefined
+  if (!/^\d{6}$/.test(raw)) {
+    const hit = await resolveStock(raw)
+    if (!hit) {
+      res.json({ found: false, reason: `无法识别标的「${raw}」，请输入 6 位代码或准确名称` })
+      return
+    }
+    code = hit.code
+    resolvedName = hit.name || undefined
+  }
+
+  if (isDbReady()) {
+    try {
+      const row = await getLatestFundamentalReport(code)
+      if (row?.report_md) {
+        res.json({
+          found: true,
+          stockCode: row.stock_code,
+          stockName: row.stock_name ?? resolvedName ?? code,
+          reportMd: row.report_md,
+          summary: row.summary ?? summarizeReport(row.report_md),
+          createdAt: row.created_at,
+          source: 'db',
+        })
+        return
+      }
+    } catch (err) {
+      console.warn(`[Analysis] DB report lookup failed, falling back to files: ${err instanceof Error ? err.message : err}`)
+    }
+  }
+
+  let files: string[] = []
+  try {
+    files = readdirSync(FUNDAMENTALS_DIR)
+  } catch {
+    // Directory does not exist yet — nothing archived.
+  }
+  const ref = pickLatestReportFile(files, code)
+  if (ref) {
+    try {
+      const reportMd = readFileSync(join(FUNDAMENTALS_DIR, ref.filename), 'utf8')
+      res.json({
+        found: true,
+        stockCode: code,
+        stockName: extractStockNameFromReport(reportMd) ?? resolvedName ?? code,
+        reportMd,
+        summary: summarizeReport(reportMd),
+        createdAt: ref.date,
+        source: 'file',
+      })
+      return
+    } catch (err) {
+      console.warn(`[Analysis] failed to read ${ref.filename}: ${err instanceof Error ? err.message : err}`)
+    }
+  }
+
+  res.json({ found: false, stockCode: code, stockName: resolvedName })
 })
 
 export default router
