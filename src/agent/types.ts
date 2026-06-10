@@ -84,6 +84,7 @@ export interface ConversationMessage {
   readonly timestamp: number
   readonly toolCalls?: readonly ToolCallInfo[]
   readonly images?: readonly string[]  // base64 encoded images
+  readonly isMarkdown?: boolean  // render content via react-markdown (e.g. fundamental reports)
 }
 
 export interface ToolCallInfo {
