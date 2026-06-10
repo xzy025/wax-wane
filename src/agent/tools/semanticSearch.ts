@@ -14,8 +14,8 @@ export const semanticSearch: ToolModule = {
         },
         type: {
           type: 'string',
-          enum: ['trade_group', 'review_note', 'lesson', 'all'],
-          description: '检索类型：trade_group(交易记录)、review_note(复盘笔记)、lesson(教训)、all(全部)',
+          enum: ['trade_group', 'review_note', 'lesson', 'fundamental_report', 'all'],
+          description: '检索类型：trade_group(交易记录)、review_note(复盘笔记)、lesson(教训)、fundamental_report(基本面分析存档)、all(全部)',
         },
         topK: {
           type: 'number',

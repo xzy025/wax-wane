@@ -1,0 +1,30 @@
+{
+  "source": "D:/AI/claude-for-cn-finance",
+  "sourceCommit": "637153a9a02e59f5aa2c39ed47e896a5a56987ba",
+  "syncedAt": "2026-06-10T12:12:10.148Z",
+  "files": [
+    {
+      "upstream": "plugins/vertical-plugins/a-share-research/skills/company-profile/SKILL.md",
+      "local": "company-profile.md"
+    },
+    {
+      "upstream": "plugins/vertical-plugins/financial-analysis/skills/financial-statements/SKILL.md",
+      "local": "financial-statements.md"
+    },
+    {
+      "upstream": "plugins/vertical-plugins/financial-analysis/skills/valuation-models/SKILL.md",
+      "local": "valuation-models.md"
+    }
+  ],
+  "upstreamSkillsLock": {
+    "version": 1,
+    "skills": {
+      "tushare": {
+        "source": "waditu-tushare/skills",
+        "sourceType": "github",
+        "skillPath": "tushare/SKILL.md",
+        "computedHash": "4dc6e955be773fa84f9c9989c487b75eac026752b4a54fba29c5e0be966838c5"
+      }
+    }
+  }
+}

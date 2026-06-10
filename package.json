@@ -12,7 +12,8 @@
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync:cn-finance": "node scripts/sync-cn-finance.mjs"
   },
   "dependencies": {
     "@types/pg": "^8.20.0",
@@ -22,8 +23,10 @@
     "phosphor-react": "^1.4.1",
     "react": "^19.1.1",
     "react-dom": "^19.2.6",
+    "react-markdown": "^9.1.0",
     "react-router-dom": "^7.6.1",
     "recharts": "^2.15.4",
+    "remark-gfm": "^4.0.1",
     "sql.js": "^1.14.1",
     "vectra": "^0.12.3",
     "xlsx": "^0.18.5"

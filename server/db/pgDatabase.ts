@@ -119,12 +119,25 @@ export async function initDatabase(): Promise<void> {
       )
     `)
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS fundamental_reports (
+        id TEXT PRIMARY KEY,
+        stock_code TEXT,
+        stock_name TEXT,
+        report_md TEXT,
+        summary TEXT,
+        created_at TEXT,
+        embedding VECTOR(1536)
+      )
+    `)
+
     // Create indexes
     await client.query('CREATE INDEX IF NOT EXISTS idx_trades_date ON trades(trade_date)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_trades_stock ON trades(stock_code, trade_date)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_trade_groups_stock ON trade_groups(stock_code)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_trade_groups_status ON trade_groups(status)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_review_notes_group ON review_notes(trade_group_id)')
+    await client.query('CREATE INDEX IF NOT EXISTS idx_fundamental_stock ON fundamental_reports(stock_code)')
 
     dbReady = true
     console.log('[PostgreSQL] Database initialized successfully')
@@ -364,6 +377,42 @@ export async function searchSimilarReviewNotes(queryEmbedding: number[], topK: n
     SELECT id, trade_group_id, buy_reason, sell_reason, execution_review, lesson,
            embedding <-> $1::vector AS distance
     FROM review_notes
+    WHERE embedding IS NOT NULL
+    ORDER BY distance
+    LIMIT $2
+  `, [JSON.stringify(queryEmbedding), topK])
+
+  return result.rows
+}
+
+// ── Fundamental Reports ────────────────────────────────────
+
+export async function addFundamentalReport(report: {
+  id: string
+  stockCode: string
+  stockName: string
+  reportMd: string
+  summary: string
+  embedding?: number[]
+}): Promise<void> {
+  const now = new Date().toISOString()
+  const embeddingStr = report.embedding ? JSON.stringify(report.embedding) : null
+
+  await pool.query(
+    `INSERT INTO fundamental_reports (id, stock_code, stock_name, report_md, summary, created_at, embedding)
+     VALUES ($1, $2, $3, $4, $5, $6, $7::vector)`,
+    [
+      report.id, report.stockCode, report.stockName, report.reportMd,
+      report.summary, now, embeddingStr,
+    ],
+  )
+}
+
+export async function searchSimilarFundamentalReports(queryEmbedding: number[], topK: number = 5): Promise<Record<string, unknown>[]> {
+  const result = await pool.query(`
+    SELECT id, stock_code, stock_name, summary, created_at,
+           embedding <-> $1::vector AS distance
+    FROM fundamental_reports
     WHERE embedding IS NOT NULL
     ORDER BY distance
     LIMIT $2
