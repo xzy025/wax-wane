@@ -863,6 +863,7 @@ export interface StockFundamentals {
   turnoverRate: number // 换手率
   volumeRatio: number // 量比
   amplitude: number // 振幅
+  debtRatio: number // 资产负债率
 }
 
 export async function fetchStockFundamentals(stockCode: string): Promise<StockFundamentals | null> {
@@ -908,18 +909,18 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
     // Continue
   }
 
-  // Try EastMoney for PE/PB/ROE
-  let pe = 0
-  let pb = 0
-  let roe = 0
-  let marketCap = 0
-  let industry = '未知'
-
+  // EastMoney single-stock snapshot. fltt=2 returns clean decimals.
+  // f55 EPS, f50 量比, f84/f85 总/流通股本, f92 BVPS, f116/f117 总/流通市值,
+  // f127 行业, f128 地区, f162 PE(动), f164 PE(TTM), f167 PB, f168 换手率,
+  // f173 ROE(最新期), f184 营收同比, f185 净利同比, f186 毛利率, f187 净利率,
+  // f188 资产负债率
+  let em: Record<string, unknown> = {}
   try {
     const prefix = stockCode.startsWith('6') ? '1' : '0'
     const secid = `${prefix}.${stockCode}`
-    const fields = 'f9,f12,f14,f20,f23,f37,f140'
-    const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secid}&fields=${fields}`
+    const fields =
+      'f50,f55,f58,f84,f85,f92,f116,f117,f127,f128,f162,f164,f167,f168,f173,f184,f185,f186,f187,f188'
+    const url = `https://push2.eastmoney.com/api/qt/stock/get?fltt=2&secid=${secid}&fields=${fields}`
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
     const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
@@ -927,14 +928,10 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
 
     if (res.ok) {
       const json = await res.json()
-      const items = json?.data?.diff as EMIndexItem[] | undefined
-      if (items && items.length > 0) {
-        const d = items[0]
-        pe = toNum(d.f9)
-        pb = toNum(d.f23)
-        roe = toNum(d.f37)
-        marketCap = toNum(d.f20)
-        if (!name) name = toStr(d.f14)
+      if (json?.data && typeof json.data === 'object') {
+        em = json.data as Record<string, unknown>
+        // Prefer EM's UTF-8 name: the Sina quote is GBK and decodes to mojibake.
+        if (toStr(em.f58)) name = toStr(em.f58)
       }
     }
   } catch {
@@ -945,30 +942,32 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
 
   const changePct = prevClose ? ((price - prevClose) / prevClose) * 100 : 0
   const amplitude = prevClose ? ((high - low) / prevClose) * 100 : 0
-  const turnoverRate = 0 // Not available from Sina directly
+  const pe = toNum(em.f164) || toNum(em.f162)
+  const pb = toNum(em.f167)
 
   return {
     code: stockCode,
     name,
     pe,
     pb,
-    ps: 0,
-    roe,
-    grossMargin: 0,
-    netMargin: 0,
-    revenueGrowth: 0,
-    profitGrowth: 0,
-    marketCap,
-    circulatingMarketCap: 0,
-    totalShares: 0,
-    circulatingShares: 0,
-    eps: pe ? price / pe : 0, // Approximate EPS from PE
-    bvps: pb ? price / pb : 0, // Approximate BVPS from PB
-    industry,
-    region: '未知',
-    turnoverRate,
-    volumeRatio: 0,
+    ps: 0, // No direct EM field; left for a future source
+    roe: toNum(em.f173),
+    grossMargin: toNum(em.f186),
+    netMargin: toNum(em.f187),
+    revenueGrowth: toNum(em.f184),
+    profitGrowth: toNum(em.f185),
+    marketCap: toNum(em.f116),
+    circulatingMarketCap: toNum(em.f117),
+    totalShares: toNum(em.f84),
+    circulatingShares: toNum(em.f85),
+    eps: toNum(em.f55) || (pe ? price / pe : 0),
+    bvps: toNum(em.f92) || (pb ? price / pb : 0),
+    industry: toStr(em.f127) || '未知',
+    region: toStr(em.f128).replace(/板块$/, '') || '未知',
+    turnoverRate: toNum(em.f168),
+    volumeRatio: toNum(em.f50),
     amplitude,
+    debtRatio: toNum(em.f188),
   }
 }
 
