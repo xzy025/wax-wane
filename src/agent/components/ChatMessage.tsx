@@ -1,4 +1,6 @@
 import { Robot, User } from 'phosphor-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { ConversationMessage } from '../types'
 import { ToolCallCard } from './ToolCallCard'
 
@@ -35,9 +37,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
             ))}
           </div>
         )}
-        {(hasContent || isUser || !hasToolCalls) && (
-          <div className="ai-msg-content">{message.content}</div>
-        )}
+        {(hasContent || isUser || !hasToolCalls) &&
+          (message.isMarkdown && !isUser ? (
+            <div className="ai-msg-content ai-markdown">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+            </div>
+          ) : (
+            <div className="ai-msg-content">{message.content}</div>
+          ))}
       </div>
     </div>
   )

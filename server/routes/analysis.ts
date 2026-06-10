@@ -13,6 +13,7 @@ import {
   anthropicToOpenAIStream,
 } from '../lib/llm'
 import { fetchStockFundamentals } from '../services/ashare'
+import { resolveStock } from '../services/stockSearch'
 import { isDbReady, addFundamentalReport } from '../db/pgDatabase'
 import { embedText } from '../rag/embedding'
 import {
@@ -136,14 +137,19 @@ async function archiveReport(args: {
 }
 
 router.post('/api/analysis/fundamental', async (req, res) => {
-  const { stockCode, stockName, llmConfig } = req.body as {
+  const { query, stockCode, stockName, llmConfig } = req.body as {
+    query?: string
     stockCode?: string
     stockName?: string
     llmConfig?: { id?: string }
   }
 
-  if (!stockCode || typeof stockCode !== 'string') {
-    res.status(400).json({ error: 'stockCode is required' })
+  // Accept either a 6-digit code (legacy callers) or a free-text query
+  // (code OR name) from the Agent-tab chat. Resolution is deferred until after
+  // the SSE stream opens so failures surface as a streamed error frame.
+  const rawInput = (query ?? stockCode ?? stockName ?? '').trim()
+  if (!rawInput) {
+    res.status(400).json({ error: 'query 或 stockCode 不能为空' })
     return
   }
   if (!knowledge) {
@@ -167,17 +173,34 @@ router.post('/api/analysis/fundamental', async (req, res) => {
 
   const acc = makeDeltaAccumulator()
   let hadError = false
+  // Hoisted so the archive step (after the try/catch) can see the resolved values.
+  let code = (stockCode ?? '').trim()
+  let name = stockName
 
   try {
-    const fundamentals = await fetchStockFundamentals(stockCode)
+    // Resolve code/name. A bare 6-digit stockCode is used directly; anything
+    // else (incl. a Chinese name) goes through the East Money suggest resolver.
+    if (!/^\d{6}$/.test(code)) {
+      const hit = await resolveStock(rawInput)
+      if (!hit) {
+        res.write(`data: ${JSON.stringify({ error: `无法识别标的「${rawInput}」，请输入 6 位代码或准确名称` })}\n\n`)
+        res.write('data: [DONE]\n\n')
+        res.end()
+        return
+      }
+      code = hit.code
+      name = hit.name || name
+    }
+
+    const fundamentals = await fetchStockFundamentals(code)
     if (!fundamentals) {
-      res.write(`data: ${JSON.stringify({ error: `无法获取 ${stockCode} 的行情/基本面数据` })}\n\n`)
+      res.write(`data: ${JSON.stringify({ error: `无法获取 ${code} 的行情/基本面数据` })}\n\n`)
       res.write('data: [DONE]\n\n')
       res.end()
       return
     }
-    // Prefer a caller-provided name (the trade record's name) over the fetched one.
-    if (stockName) fundamentals.name = stockName
+    // Prefer a resolved/caller-provided name (the trade record's name) over the fetched one.
+    if (name) fundamentals.name = name
 
     const { system, user } = buildFundamentalPrompt({ fundamentals, knowledge })
     const messages = [
@@ -186,7 +209,7 @@ router.post('/api/analysis/fundamental', async (req, res) => {
     ]
 
     const { actualUrl, headers, body, protocol } = buildLLMRequest(messages, preset)
-    console.log(`[Analysis] ${fundamentals.name}(${stockCode}) protocol=${protocol} url=${actualUrl}`)
+    console.log(`[Analysis] ${fundamentals.name}(${code}) protocol=${protocol} url=${actualUrl}`)
 
     const llmResponse = await fetchWithProxy(actualUrl, {
       method: 'POST',
@@ -235,8 +258,8 @@ router.post('/api/analysis/fundamental', async (req, res) => {
   const reportMd = acc.get()
   if (!hadError && reportMd.trim().length >= MIN_ARCHIVE_LENGTH) {
     const { warning } = await archiveReport({
-      stockCode,
-      stockName: stockName || stockCode,
+      stockCode: code,
+      stockName: name || code,
       reportMd,
     })
     if (warning) {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { PaperPlaneRight, Trash, Sparkle, CircleNotch, Square, ClipboardText, Gear, Check } from 'phosphor-react'
+import { PaperPlaneRight, Trash, Sparkle, CircleNotch, Square, ClipboardText, Gear, Check, CheckSquare, ChartLineUp } from 'phosphor-react'
 import {
   useAgentState,
   useAgentDispatch,
@@ -43,6 +43,14 @@ function saveLLMConfig(config: LLMConfig) {
   localStorage.setItem('llm-config', JSON.stringify(config))
 }
 
+function loadFundamentalMode(): boolean {
+  try {
+    return localStorage.getItem('fundamental-mode') === '1'
+  } catch {
+    return false
+  }
+}
+
 const QUICK_PROMPTS_ZH = [
   '分析我最差的交易',
   '我的交易有什么模式？',
@@ -69,6 +77,8 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
   const [isStreaming, setIsStreaming] = useState(false)
   const [llmConfig, setLlmConfig] = useState<LLMConfig>(loadLLMConfig)
   const [showLLMSettings, setShowLLMSettings] = useState(false)
+  const [fundamentalMode, setFundamentalMode] = useState<boolean>(loadFundamentalMode)
+  const [streamingMarkdown, setStreamingMarkdown] = useState(false)
   const [pastedImages, setPastedImages] = useState<string[]>([])
   const [selectedPatterns, setSelectedPatterns] = useState<string[]>(() => {
     try {
@@ -143,6 +153,18 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
     setShowLLMSettings(false)
   }, [])
 
+  const handleFundamentalToggle = useCallback(() => {
+    setFundamentalMode((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem('fundamental-mode', next ? '1' : '0')
+      } catch {
+        /* ignore */
+      }
+      return next
+    })
+  }, [])
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -155,8 +177,114 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
     }
   }, [agentState.activeConversationId, agentDispatch])
 
+  // Fundamental-analysis mode: bypass the agent loop and stream a one-page
+  // report from /api/analysis/fundamental into a single markdown assistant
+  // message. Intentionally does NOT touch historyRef so the (large) report
+  // doesn't pollute the agent's LLM context.
+  const sendFundamental = useCallback(
+    async (query: string) => {
+      const q = query.trim()
+      if (!q || agentState.isProcessing) return
+
+      const userMsg: ConversationMessage = {
+        id: `msg-${Date.now()}`,
+        role: 'user',
+        content: q,
+        timestamp: Date.now(),
+      }
+      agentDispatch({ type: 'ADD_USER_MESSAGE', payload: userMsg })
+      agentDispatch({ type: 'SET_PROCESSING', payload: true })
+      setInput('')
+
+      const assistantMsgId = `msg-${Date.now() + 1}`
+      const assistantMsg: ConversationMessage = {
+        id: assistantMsgId,
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+        isMarkdown: true,
+      }
+      agentDispatch({ type: 'ADD_ASSISTANT_MESSAGE', payload: assistantMsg })
+
+      setIsStreaming(true)
+      setStreamingMarkdown(true)
+      setStreamingContent('')
+      streamingContentRef.current = ''
+
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      let full = ''
+      const setFull = (s: string) => {
+        full = s
+        streamingContentRef.current = s
+        setStreamingContent(s)
+      }
+
+      try {
+        const res = await fetch('/api/analysis/fundamental', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q, llmConfig: { id: llmConfig.id } }),
+          signal: controller.signal,
+        })
+        if (!res.ok) throw new Error(`请求失败 (${res.status}): ${await res.text()}`)
+        if (!res.body) throw new Error('响应体为空')
+
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+        let buffer = ''
+        // Keep reading past [DONE]; the server appends archive-status frames.
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
+          for (const line of lines) {
+            const trimmed = line.trim()
+            if (!trimmed.startsWith('data:')) continue
+            const data = trimmed.slice(5).trim()
+            if (!data || data === '[DONE]') continue
+            let json: Record<string, unknown>
+            try {
+              json = JSON.parse(data)
+            } catch {
+              continue
+            }
+            if (typeof json.error === 'string') {
+              setFull(full || `⚠ ${json.error}`)
+              continue
+            }
+            if (json.archived || typeof json.archiveWarning === 'string') continue
+            const delta = (json as { choices?: Array<{ delta?: { content?: string } }> }).choices?.[0]
+              ?.delta?.content
+            if (typeof delta === 'string') setFull(full + delta)
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          full = full || `⚠ ${(err as Error).message}`
+        }
+      } finally {
+        agentDispatch({ type: 'STREAM_TOKEN', payload: { messageId: assistantMsgId, token: full } })
+        abortRef.current = null
+        streamingContentRef.current = ''
+        setIsStreaming(false)
+        setStreamingMarkdown(false)
+        setStreamingContent('')
+        agentDispatch({ type: 'SET_PROCESSING', payload: false })
+      }
+    },
+    [agentState.isProcessing, agentDispatch, llmConfig],
+  )
+
   const sendMessage = useCallback(
     async (text: string) => {
+      if (fundamentalMode) {
+        await sendFundamental(text)
+        return
+      }
       if ((!text.trim() && pastedImages.length === 0) || agentState.isProcessing) return
 
       const userMsg: ConversationMessage = {
@@ -289,6 +417,8 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
       pastedImages,
       llmConfig,
       selectedPatterns,
+      fundamentalMode,
+      sendFundamental,
     ],
   )
 
@@ -379,6 +509,19 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         </div>
       )}
 
+      <div className="ai-mode-row">
+        <button
+          type="button"
+          className={`tp-chip ${fundamentalMode ? 'tp-chip-active' : ''}`}
+          onClick={handleFundamentalToggle}
+          title="勾选后，输入股票代码或名称并发送，即生成基本面分析报告"
+        >
+          {fundamentalMode ? <CheckSquare size={15} weight="fill" /> : <Square size={15} />}
+          <ChartLineUp size={14} aria-hidden="true" />
+          基本面分析
+        </button>
+      </div>
+
       <TradingPatternSelector
         selectedPatterns={selectedPatterns}
         onToggle={handlePatternToggle}
@@ -409,7 +552,7 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
         ))}
 
         {isStreaming && streamingContent && (
-          <StreamingBubble content={streamingContent} isStreaming={true} />
+          <StreamingBubble content={streamingContent} isStreaming={true} isMarkdown={streamingMarkdown} />
         )}
 
         {isStreaming && !streamingContent && (
@@ -450,7 +593,13 @@ export function ChatPanel({ t, language }: ChatPanelProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onPaste={handlePaste}
-          placeholder={pastedImages.length > 0 ? '添加说明或直接发送...' : (t.ai?.inputPlaceholder ?? 'Ask a question... (Ctrl+V to paste image)')}
+          placeholder={
+            fundamentalMode
+              ? '输入股票代码或名称，如 300750 / 宁德时代'
+              : pastedImages.length > 0
+                ? '添加说明或直接发送...'
+                : (t.ai?.inputPlaceholder ?? 'Ask a question... (Ctrl+V to paste image)')
+          }
           disabled={agentState.isProcessing}
         />
         {isStreaming ? (
