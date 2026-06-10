@@ -3,6 +3,7 @@ import { embedText } from './embedding'
 import {
   searchSimilarTradeGroups,
   searchSimilarReviewNotes,
+  searchSimilarFundamentalReports,
   updateTradeGroupEmbedding,
   updateReviewNoteEmbedding,
   pool,
@@ -71,6 +72,22 @@ export async function searchSimilar(
         buyReason: row.buy_reason,
         sellReason: row.sell_reason,
         lesson: row.lesson,
+      },
+      score: 1 - (row.distance as number),
+    })))
+  }
+
+  if (!type || type === 'all' || type === 'fundamental_report') {
+    const reports = await searchSimilarFundamentalReports(queryEmbedding, topK)
+    results.push(...reports.map((row) => ({
+      id: `fundamental:${row.id}`,
+      text: (row.summary as string) || '',
+      metadata: {
+        type: 'fundamental_report',
+        reportId: row.id,
+        stockCode: row.stock_code,
+        stockName: row.stock_name,
+        createdAt: row.created_at,
       },
       score: 1 - (row.distance as number),
     })))

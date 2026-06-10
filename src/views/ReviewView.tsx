@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Tag } from 'phosphor-react'
+import { Tag, ChartLineUp } from 'phosphor-react'
 import { useAppState, useAppDispatch } from '../store'
 import { formatMoney, translateMap } from '../utils'
+import { FundamentalReportPanel } from '../components/FundamentalReportPanel'
 import type { TradeGroup, Translation } from '../types'
 
 interface ReviewViewProps {
@@ -30,6 +31,7 @@ export default function ReviewView({
     lesson: currentNote?.lesson ?? '',
   })
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [showFundamental, setShowFundamental] = useState(false)
 
   useEffect(() => {
     const note = reviewNotes[selectedGroupId]
@@ -95,6 +97,14 @@ export default function ReviewView({
               {selectedGroup.days}
               {t.reviews.dayUnit}
             </p>
+            <button
+              type="button"
+              className="fundamental-btn"
+              onClick={() => setShowFundamental(true)}
+            >
+              <ChartLineUp size={16} aria-hidden="true" />
+              基本面分析
+            </button>
           </div>
           <div className={selectedGroup.pnl >= 0 ? 'pnl-box positive' : 'pnl-box negative'}>
             <strong>{formatMoney(selectedGroup.pnl, { withSign: true })}</strong>
@@ -151,6 +161,14 @@ export default function ReviewView({
           )}
         </div>
       </section>
+
+      {showFundamental && (
+        <FundamentalReportPanel
+          stockCode={selectedGroup.code}
+          stockName={selectedGroup.name}
+          onClose={() => setShowFundamental(false)}
+        />
+      )}
     </div>
   )
 }

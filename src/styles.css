@@ -1396,3 +1396,25 @@ textarea:focus {
 body {
   overflow: hidden;
 }
+
+/* 基本面分析按钮（复盘页标题区） */
+.fundamental-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 14px;
+  border: 1px solid var(--blue);
+  border-radius: 8px;
+  background: var(--blue-soft);
+  color: var(--blue-active);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.fundamental-btn:hover {
+  background: var(--blue);
+  color: #fff;
+}
