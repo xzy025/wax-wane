@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { PipelineContext } from './pipeline/context'
+import { buildDeepReportSection } from './agents/fundamental.helpers'
+import { REPORT_STALE_DAYS } from '../tools/getFundamentalReport'
 import type { AgentResult } from './types'
 
 describe('PipelineContext', () => {
@@ -162,5 +164,49 @@ describe('Sub-Agents', () => {
     const { SynthesizerAgent } = await import('./agents/synthesizer.agent')
     const agent = new SynthesizerAgent()
     expect(agent.id).toBe('synthesizer')
+  })
+})
+
+describe('buildDeepReportSection', () => {
+  const found = {
+    found: true,
+    stockCode: '300750',
+    stockName: '宁德时代',
+    summary: '宁德时代基本面摘要……',
+    createdAt: '2026-06-10',
+    ageDays: 3,
+    stale: false,
+  }
+
+  it('renders a fresh archived report with date and summary', () => {
+    const section = buildDeepReportSection(found)
+    expect(section).toContain('存档于 2026-06-10')
+    expect(section).toContain('3 天前')
+    expect(section).toContain('宁德时代基本面摘要')
+    expect(section).not.toContain('可能过时')
+  })
+
+  it('flags stale reports past the threshold', () => {
+    const section = buildDeepReportSection({ ...found, ageDays: 45, stale: true })
+    expect(section).toContain('可能过时')
+    expect(section).toContain(String(REPORT_STALE_DAYS))
+  })
+
+  it('trims DB ISO datetimes to a date', () => {
+    const section = buildDeepReportSection({ ...found, createdAt: '2026-06-10T08:30:00.000Z' })
+    expect(section).toContain('存档于 2026-06-10')
+    expect(section).not.toContain('T08:30')
+  })
+
+  it('hints generation when no report is archived', () => {
+    const section = buildDeepReportSection({ found: false, hint: '…' })
+    expect(section).toContain('暂无存档')
+    expect(section).toContain('勾选「基本面分析」')
+  })
+
+  it('degrades errors and garbage to the same hint', () => {
+    expect(buildDeepReportSection({ error: 'network down' })).toContain('暂无存档')
+    expect(buildDeepReportSection(null)).toContain('暂无存档')
+    expect(buildDeepReportSection('plain string')).toContain('暂无存档')
   })
 })

@@ -408,6 +408,24 @@ export async function addFundamentalReport(report: {
   )
 }
 
+export async function getLatestFundamentalReport(stockCode: string): Promise<{
+  stock_code: string
+  stock_name: string | null
+  report_md: string | null
+  summary: string | null
+  created_at: string | null
+} | null> {
+  const result = await pool.query(
+    `SELECT stock_code, stock_name, report_md, summary, created_at
+     FROM fundamental_reports
+     WHERE stock_code = $1
+     ORDER BY created_at DESC NULLS LAST
+     LIMIT 1`,
+    [stockCode],
+  )
+  return result.rows[0] ?? null
+}
+
 export async function searchSimilarFundamentalReports(queryEmbedding: number[], topK: number = 5): Promise<Record<string, unknown>[]> {
   const result = await pool.query(`
     SELECT id, stock_code, stock_name, summary, created_at,
