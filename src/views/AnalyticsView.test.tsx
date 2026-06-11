@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AnalyticsView from './AnalyticsView'
@@ -7,7 +7,8 @@ import en from '../i18n/en'
 
 const t = en as Translation
 
-// Use recent dates so they fall within the default month/week range
+// The monthly report uses a rolling [now − 1 month, now] window (utils.getDateRange),
+// so the system clock is pinned below to keep these closed dates inside the window.
 const mockTradeGroups: TradeGroup[] = [
   {
     id: 'tg-001',
@@ -87,6 +88,9 @@ vi.mock('../store', async (importOriginal) => {
 
 describe('AnalyticsView', () => {
   beforeEach(() => {
+    // Fake only Date (not timers) so userEvent keeps working without advanceTimers
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-05-25T10:00:00'))
     vi.clearAllMocks()
     // Mock clipboard API (not available in jsdom)
     Object.defineProperty(navigator, 'clipboard', {
@@ -96,6 +100,10 @@ describe('AnalyticsView', () => {
       writable: true,
       configurable: true,
     })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('renders the mistake attribution section', () => {

@@ -1,5 +1,4 @@
 import Papa from 'papaparse'
-import * as XLSX from 'xlsx'
 import type { ParsedTrade } from '../types'
 
 export interface CsvPreview {
@@ -64,7 +63,9 @@ export function parseCsvFile(file: File): Promise<CsvPreview> {
   })
 }
 
-function parseExcelFile(file: File): Promise<CsvPreview> {
+async function parseExcelFile(file: File): Promise<CsvPreview> {
+  // xlsx is heavy (~400 kB); load it on demand so it stays out of the initial bundle
+  const XLSX = await import('xlsx')
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => {
