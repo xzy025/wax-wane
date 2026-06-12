@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { formatMoney, getDateRange, isInDateRange } from '../utils'
+import { fmt } from '../i18n'
 import { computeWinRate, computePayoff, computeTotalFees, computeTotalPnl } from '../utils/metrics'
 import { metricCards } from '../data/mock'
 import { useAppState } from '../store'
@@ -56,8 +57,14 @@ export default function Dashboard({ t, range }: DashboardProps) {
       const longest = openLosers.reduce((a, b) => (a.days > b.days ? a : b))
       result.push({
         tone: 'danger',
-        title: '未平亏损',
-        text: `${openLosers.length} 笔持仓亏损 ${formatMoney(totalOpenLoss, { withSign: true })}，${longest.name} 已持有 ${longest.days} 天。`,
+        title: t.dashboard.alertOpenLoss.title,
+        text: fmt(
+          t.dashboard.alertOpenLoss.text,
+          openLosers.length,
+          formatMoney(totalOpenLoss, { withSign: true }),
+          longest.name,
+          longest.days,
+        ),
       })
     }
 
@@ -67,8 +74,12 @@ export default function Dashboard({ t, range }: DashboardProps) {
       const loss = lateStopLoss.reduce((s, g) => s + g.pnl, 0)
       result.push({
         tone: 'warning',
-        title: '止损拖延',
-        text: `${lateStopLoss.length} 笔闭环交易涉及止损拖延，合计盈亏 ${formatMoney(loss, { withSign: true })}。`,
+        title: t.dashboard.alertLateStop.title,
+        text: fmt(
+          t.dashboard.alertLateStop.text,
+          lateStopLoss.length,
+          formatMoney(loss, { withSign: true }),
+        ),
       })
     }
 
@@ -81,8 +92,8 @@ export default function Dashboard({ t, range }: DashboardProps) {
     if (feeRatio > 0.5) {
       result.push({
         tone: 'warning',
-        title: '费用拖累',
-        text: `费用占交易额比例 ${feeRatio.toFixed(2)}%，注意控制换手频率。`,
+        title: t.dashboard.alertFeeDrag.title,
+        text: fmt(t.dashboard.alertFeeDrag.text, feeRatio.toFixed(2)),
       })
     }
 
@@ -100,18 +111,22 @@ export default function Dashboard({ t, range }: DashboardProps) {
     if (maxConsecutiveLoss >= 3) {
       result.push({
         tone: 'danger',
-        title: '连续亏损',
-        text: `出现连续 ${maxConsecutiveLoss} 笔亏损，建议暂停交易检查策略。`,
+        title: t.dashboard.alertLossStreak.title,
+        text: fmt(t.dashboard.alertLossStreak.text, maxConsecutiveLoss),
       })
     }
 
     // No data fallback
     if (result.length === 0 && filteredGroups.length > 0) {
-      result.push({ tone: 'info', title: '暂无风控告警', text: '当前数据未发现明显风险信号。' })
+      result.push({
+        tone: 'info',
+        title: t.dashboard.alertNone.title,
+        text: t.dashboard.alertNone.text,
+      })
     }
 
     return result
-  }, [filteredGroups, closedGroups, totalFees])
+  }, [filteredGroups, closedGroups, totalFees, t.dashboard])
 
   // 计算收益率百分比（基于总成本）
   const totalCost = closedGroups.reduce((sum, g) => {
@@ -203,9 +218,9 @@ export default function Dashboard({ t, range }: DashboardProps) {
                   <Tooltip
                     formatter={(value: number) => [
                       formatMoney(value, { withSign: true }),
-                      '累计盈亏',
+                      t.dashboard.chartPnlLabel,
                     ]}
-                    labelFormatter={(label) => `日期: ${label}`}
+                    labelFormatter={(label) => fmt(t.dashboard.chartDateLabel, label)}
                   />
                   <Area
                     type="monotone"
@@ -226,7 +241,7 @@ export default function Dashboard({ t, range }: DashboardProps) {
                   color: 'var(--muted)',
                 }}
               >
-                暂无闭环交易数据
+                {t.dashboard.noClosedTrades}
               </div>
             )}
           </div>
