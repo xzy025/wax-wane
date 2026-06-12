@@ -23,7 +23,7 @@ export const graphQuery: ToolModule = {
 
   execute: async (args) => {
     const { queryType, params: paramsStr } = args
-    let params: Record<string, unknown> = {}
+    let params: Record<string, unknown>
 
     try {
       params = paramsStr ? JSON.parse(paramsStr as string) : {}

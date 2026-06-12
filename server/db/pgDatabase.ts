@@ -239,7 +239,7 @@ export async function getTrades(filters?: {
   sql += ' ORDER BY trade_date DESC'
 
   if (filters?.limit) {
-    sql += ` LIMIT $${paramIndex++}`
+    sql += ` LIMIT $${paramIndex}`
     params.push(filters.limit)
   }
 
@@ -292,7 +292,7 @@ export async function getTradeGroups(filters?: {
     params.push(filters.status)
   }
   if (filters?.stock_code) {
-    sql += ` AND stock_code = $${paramIndex++}`
+    sql += ` AND stock_code = $${paramIndex}`
     params.push(filters.stock_code)
   }
 

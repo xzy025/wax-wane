@@ -543,7 +543,7 @@ async function fetchHighsAnalysis(): Promise<HighsAnalysis> {
   const fields = 'f2,f3,f12,f14'
   const fs = 'm:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23'
   const url = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=6000&po=1&np=1&fltt=2&invt=2&fid=f3&fs=${encodeURIComponent(fs)}&fields=${fields}`
-  let candidates: { code: string; name: string; price: number; changePct: number }[] = []
+  let candidates: { code: string; name: string; price: number; changePct: number }[]
   try {
     const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
     if (!res.ok) return empty

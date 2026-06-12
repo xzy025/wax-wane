@@ -1,6 +1,7 @@
 import type { AppState } from '../../store'
 import type { ToolModule } from '../types'
 import { toolDefinitions, executeTool } from '../tools'
+import { buildSystemPrompt } from '../prompts'
 import type { DeepAgentConfig, DeepAgentEvent } from './types'
 
 /**
@@ -48,8 +49,6 @@ export class DeepAgentAdapter {
    * Get the system prompt with context.
    */
   getSystemPrompt(): string {
-    // Import dynamically to avoid circular deps
-    const { buildSystemPrompt } = require('../prompts')
     return buildSystemPrompt(this.appState, 'zh')
   }
 

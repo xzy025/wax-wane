@@ -257,7 +257,6 @@ router.post('/api/analysis/fundamental', async (req, res) => {
       }
     }
   } catch (err) {
-    hadError = true
     const message = err instanceof Error ? err.message : 'Unknown error'
     console.error('[Analysis] Error:', message)
     res.write(`data: ${JSON.stringify({ error: message })}\n\n`)
