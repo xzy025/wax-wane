@@ -48,10 +48,64 @@ describe('SegmentedControl', () => {
         onChange={() => {}}
       />,
     )
-    const buttons = screen.getAllByRole('button')
+    const buttons = screen.getAllByRole('radio')
     expect(buttons[0]).not.toHaveClass('active')
     expect(buttons[1]).toHaveClass('active')
     expect(buttons[2]).not.toHaveClass('active')
+  })
+
+  it('exposes a radiogroup with aria-checked on the active option', () => {
+    render(
+      <SegmentedControl
+        label="Date range"
+        value="month"
+        options={['week', 'month', 'quarter']}
+        labels={labels}
+        onChange={() => {}}
+      />,
+    )
+    expect(screen.getByRole('radiogroup', { name: 'Date range' })).toBeInTheDocument()
+    const radios = screen.getAllByRole('radio')
+    expect(radios[0]).toHaveAttribute('aria-checked', 'false')
+    expect(radios[1]).toHaveAttribute('aria-checked', 'true')
+    expect(radios[2]).toHaveAttribute('aria-checked', 'false')
+  })
+
+  it('uses roving tabindex: only the active option is tabbable', () => {
+    render(
+      <SegmentedControl
+        label="Date range"
+        value="month"
+        options={['week', 'month', 'quarter']}
+        labels={labels}
+        onChange={() => {}}
+      />,
+    )
+    const radios = screen.getAllByRole('radio')
+    expect(radios[0]).toHaveAttribute('tabindex', '-1')
+    expect(radios[1]).toHaveAttribute('tabindex', '0')
+    expect(radios[2]).toHaveAttribute('tabindex', '-1')
+  })
+
+  it('moves selection with arrow keys and wraps around', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <SegmentedControl
+        label="Date range"
+        value="quarter"
+        options={['week', 'month', 'quarter']}
+        labels={labels}
+        onChange={onChange}
+      />,
+    )
+    const radios = screen.getAllByRole('radio')
+    radios[2].focus()
+    await user.keyboard('{ArrowRight}')
+    expect(onChange).toHaveBeenLastCalledWith('week')
+    // focus moved to the first option, so ArrowLeft wraps back to the last
+    await user.keyboard('{ArrowLeft}')
+    expect(onChange).toHaveBeenLastCalledWith('quarter')
   })
 
   it('calls onChange when an option is clicked', async () => {
