@@ -306,7 +306,7 @@ export function getLLMPresetById(id?: string): LLMPreset {
       return {
         apiUrl: process.env.CLAUDE_API_URL || 'https://api.anthropic.com',
         apiKey: process.env.CLAUDE_API_KEY || '',
-        model: process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514',
+        model: process.env.CLAUDE_MODEL || 'claude-opus-4-8',
         protocol: 'anthropic',
       }
     case 'codex':
