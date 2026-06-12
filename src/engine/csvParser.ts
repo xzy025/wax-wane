@@ -63,7 +63,14 @@ export function parseCsvFile(file: File): Promise<CsvPreview> {
   })
 }
 
+// Untrusted-file guards: xlsx parses on the main thread, so cap the work it can do
+export const MAX_EXCEL_FILE_SIZE = 50 * 1024 * 1024 // 50 MB
+export const MAX_EXCEL_ROWS = 100_000
+
 async function parseExcelFile(file: File): Promise<CsvPreview> {
+  if (file.size > MAX_EXCEL_FILE_SIZE) {
+    throw new Error(`文件过大（${(file.size / 1024 / 1024).toFixed(1)} MB），上限 50 MB`)
+  }
   // xlsx is heavy (~400 kB); load it on demand so it stays out of the initial bundle
   const XLSX = await import('xlsx')
   return new Promise((resolve, reject) => {
@@ -76,7 +83,13 @@ async function parseExcelFile(file: File): Promise<CsvPreview> {
           return
         }
         const data = new Uint8Array(buffer)
-        const workbook = XLSX.read(data, { type: 'array' })
+        const workbook = XLSX.read(data, {
+          type: 'array',
+          sheets: 0, // only the first sheet is consumed below; skip parsing the rest
+          sheetRows: MAX_EXCEL_ROWS,
+          cellFormula: false, // values only — don't parse formulas/HTML from untrusted files
+          cellHTML: false,
+        })
         const sheetName = workbook.SheetNames[0]
         if (!sheetName) {
           reject(new Error('Excel 文件无工作表'))
