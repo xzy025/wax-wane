@@ -169,13 +169,13 @@ describe('Dashboard', () => {
   it('renders an alert for late stop loss mistakes', () => {
     render(<Dashboard t={t} />)
     // The mock has 'Late stop loss' mistake, so an alert should appear
-    expect(screen.getByText('止损拖延')).toBeInTheDocument()
+    expect(screen.getAllByText('Late stop loss').length).toBeGreaterThan(0)
   })
 
   it('renders an alert for open losers', () => {
     render(<Dashboard t={t} />)
     // Ping An is open with negative PnL
-    expect(screen.getByText('未平亏损')).toBeInTheDocument()
+    expect(screen.getByText('Open losers')).toBeInTheDocument()
   })
 
   it('applies range filter when range prop is provided', () => {

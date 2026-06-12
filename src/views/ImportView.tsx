@@ -10,6 +10,7 @@ import {
 import { buildTradeGroups } from '../engine/tradeGroup'
 import { validateTrades, getPositionQuantities } from '../engine/position'
 import { useAppState, useAppDispatch } from '../store'
+import { fmt } from '../i18n'
 import type { Translation } from '../types'
 
 interface ImportViewProps {
@@ -77,7 +78,7 @@ export default function ImportView({ t }: ImportViewProps) {
         setMapping(autoMapping)
         setStep('mapping')
       } catch (err) {
-        alert(`解析失败: ${err instanceof Error ? err.message : '未知错误'}`)
+        alert(fmt(t.import.parseFailed, err instanceof Error ? err.message : t.import.unknownError))
       }
     },
     [mapping],
@@ -147,22 +148,22 @@ export default function ImportView({ t }: ImportViewProps) {
           ) : step === 'mapping' ? (
             <>
               <CheckCircle size={34} style={{ color: 'var(--blue)' }} />
-              <h2>{preview?.totalRows} 行数据已解析</h2>
-              <p>请确认下方的列映射关系</p>
+              <h2>{fmt(t.import.parsedTitle, preview?.totalRows ?? 0)}</h2>
+              <p>{t.import.parsedDesc}</p>
               <button className="primary-button" type="button" onClick={handleImport}>
-                确认导入
+                {t.import.confirmImport}
               </button>
             </>
           ) : step === 'done' ? (
             <>
               <CheckCircle size={34} style={{ color: 'var(--red)' }} />
-              <h2>导入完成</h2>
+              <h2>{t.import.doneTitle}</h2>
               <p>
-                {importResult?.count} 条记录已导入
-                {importResult?.errors ? `，${importResult.errors} 条警告` : ''}
+                {fmt(t.import.doneCount, importResult?.count ?? 0)}
+                {importResult?.errors ? fmt(t.import.doneWarnings, importResult.errors) : ''}
               </p>
               <button className="text-button" type="button" onClick={handleReset}>
-                继续导入
+                {t.import.importMore}
               </button>
             </>
           ) : null}
@@ -199,8 +200,8 @@ export default function ImportView({ t }: ImportViewProps) {
         <article className="panel wide">
           <div className="panel-title">
             <div>
-              <h2>列映射 / Column Mapping</h2>
-              <p>请为每个标准字段选择对应的源列</p>
+              <h2>{t.import.columnMappingTitle}</h2>
+              <p>{t.import.columnMappingDesc}</p>
             </div>
           </div>
           <div className="mapping-grid">
@@ -219,21 +220,21 @@ export default function ImportView({ t }: ImportViewProps) {
                     fontWeight: 600,
                   }}
                 >
-                  <option value="">-- 未选择 --</option>
+                  <option value="">{t.import.noColumnSelected}</option>
                   {preview.headers.map((h) => (
                     <option key={h} value={h}>
                       {h}
                     </option>
                   ))}
                 </select>
-                <small>{field.required ? '必填' : '可选'}</small>
+                <small>{field.required ? t.import.required : t.import.optional}</small>
               </div>
             ))}
           </div>
 
           {preview.rows.length > 0 && (
             <div style={{ marginTop: '18px' }}>
-              <h3 style={{ marginBottom: '10px', fontSize: '0.95rem' }}>数据预览（前 5 行）</h3>
+              <h3 style={{ marginBottom: '10px', fontSize: '0.95rem' }}>{t.import.previewTitle}</h3>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
                   <thead>
@@ -283,12 +284,14 @@ export default function ImportView({ t }: ImportViewProps) {
                 color: 'var(--red)',
               }}
             >
-              <strong>校验警告 ({validationErrors.length})</strong>
+              <strong>{fmt(t.import.validationWarnings, validationErrors.length)}</strong>
               <ul style={{ margin: '8px 0 0', paddingLeft: '20px' }}>
                 {validationErrors.slice(0, 10).map((err, i) => (
                   <li key={i}>{err}</li>
                 ))}
-                {validationErrors.length > 10 && <li>...还有 {validationErrors.length - 10} 条</li>}
+                {validationErrors.length > 10 && (
+                  <li>{fmt(t.import.moreWarnings, validationErrors.length - 10)}</li>
+                )}
               </ul>
             </div>
           )}

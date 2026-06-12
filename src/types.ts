@@ -71,6 +71,14 @@ export interface Translation {
     recentDesc: string
     viewAll: string
     alerts: string[][]
+    alertOpenLoss: { title: string; text: string }
+    alertLateStop: { title: string; text: string }
+    alertFeeDrag: { title: string; text: string }
+    alertLossStreak: { title: string; text: string }
+    alertNone: { title: string; text: string }
+    chartPnlLabel: string
+    chartDateLabel: string
+    noClosedTrades: string
   }
   import: {
     uploadTitle: string
@@ -82,6 +90,23 @@ export interface Translation {
     mappingTitle: string
     mappingDesc: string
     mappingRows: string[][]
+    parseFailed: string
+    unknownError: string
+    parsedTitle: string
+    parsedDesc: string
+    confirmImport: string
+    doneTitle: string
+    doneCount: string
+    doneWarnings: string
+    importMore: string
+    columnMappingTitle: string
+    columnMappingDesc: string
+    noColumnSelected: string
+    required: string
+    optional: string
+    previewTitle: string
+    validationWarnings: string
+    moreWarnings: string
   }
   ledger: {
     title: string
@@ -90,6 +115,12 @@ export interface Translation {
     filter: string
     headers: string[]
     side: Record<string, string>
+    filterAll: string
+    save: string
+    cancel: string
+    edit: string
+    emptyNoData: string
+    emptyNoMatch: string
   }
   reviews: {
     groupTitle: string
@@ -112,6 +143,74 @@ export interface Translation {
     summaryDesc: string
     summaryText: string
     scoreLabel: string
+    noScoreData: string
+    scoreOverview: string
+    scorePenalties: string
+    penaltyJoin: string
+    scoreNoPenalty: string
+    scoreHigh: string
+    scoreMid: string
+    scoreLow: string
+    report: {
+      weekLabel: string
+      monthLabel: string
+      title: string
+      overview: string
+      closedLine: string
+      winRateLine: string
+      totalPnlLine: string
+      totalFeesLine: string
+      topWinners: string
+      topLosers: string
+      stockLabel: string
+      daysUnit: string
+      mistakes: string
+      mistakeLine: string
+      scoreLine: string
+      colMetric: string
+      colValue: string
+      closedTrades: string
+      winRate: string
+      totalPnl: string
+      totalFees: string
+      tradesUnit: string
+      colStock: string
+      colPnl: string
+      colHolding: string
+    }
+    quant: {
+      title: string
+      desc: string
+      noData: string
+      sharpe: string
+      maxDrawdown: string
+      annualized: string
+      payoff: string
+      profitFactor: string
+      expectancy: string
+      gradeExcellent: string
+      gradeGood: string
+      gradeLow: string
+      ddGood: string
+      ddMedium: string
+      ddHigh: string
+      annHigh: string
+      annPositive: string
+      annNegative: string
+      pfProfit: string
+      pfLoss: string
+      expPositive: string
+      expNegative: string
+    }
+    chartTimes: string
+    chartTimesLabel: string
+    chartLinkedPnl: string
+    chartTrades: string
+    chartTradesLabel: string
+    weekly: string
+    monthly: string
+    copyReport: string
+    noPeriodData: string
   }
   tradeTable: { headers: string[] }
   chartLabels: string[]

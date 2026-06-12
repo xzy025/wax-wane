@@ -11,6 +11,7 @@ import {
   Cell,
 } from 'recharts'
 import { formatMoney, translateMap, getDateRange, isInDateRange } from '../utils'
+import { fmt } from '../i18n'
 import {
   computeWinRate,
   computePayoff,
@@ -67,8 +68,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
   }, [closedGroups, t.periods])
 
   const disciplineScore = useMemo(() => {
-    if (closedGroups.length === 0)
-      return { score: 0, summary: '暂无闭环交易数据，无法计算纪律评分。' }
+    if (closedGroups.length === 0) return { score: 0, summary: t.analytics.noScoreData }
 
     const { score, penalties } = computeDisciplineScore(closedGroups, reviewNotes)
 
@@ -77,26 +77,31 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
     const summaryParts: string[] = []
 
     summaryParts.push(
-      `${closedGroups.length} 笔闭环交易，${winners} 盈 ${closedGroups.length - winners} 亏，` +
-        `总盈亏 ${formatMoney(totalPnl, { withSign: true })}。`,
+      fmt(
+        t.analytics.scoreOverview,
+        closedGroups.length,
+        winners,
+        closedGroups.length - winners,
+        formatMoney(totalPnl, { withSign: true }),
+      ),
     )
 
     if (penalties.length > 0) {
-      summaryParts.push('扣分项：' + penalties.join('；') + '。')
+      summaryParts.push(fmt(t.analytics.scorePenalties, penalties.join(t.analytics.penaltyJoin)))
     } else {
-      summaryParts.push('交易纪律良好，无明显扣分项。')
+      summaryParts.push(t.analytics.scoreNoPenalty)
     }
 
     if (score >= 80) {
-      summaryParts.push('整体纪律性较高，继续保持。')
+      summaryParts.push(t.analytics.scoreHigh)
     } else if (score >= 60) {
-      summaryParts.push('有改进空间，建议重点纠正高频错误。')
+      summaryParts.push(t.analytics.scoreMid)
     } else {
-      summaryParts.push('纪律性偏低，建议暂停交易，系统复盘后再入场。')
+      summaryParts.push(t.analytics.scoreLow)
     }
 
     return { score, summary: summaryParts.join('') }
-  }, [closedGroups, reviewNotes])
+  }, [closedGroups, reviewNotes, t.analytics])
 
   const [reportPeriod, setReportPeriod] = useState<'week' | 'month'>('month')
   const [copied, setCopied] = useState(false)
@@ -109,8 +114,9 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
       return { periodLabel: '', empty: true, text: '', markdown: '' }
     }
 
+    const r = t.analytics.report
     const periodLabel =
-      reportPeriod === 'week' ? `本周（${start} ~ ${end}）` : `本月（${start} ~ ${end}）`
+      reportPeriod === 'week' ? fmt(r.weekLabel, start, end) : fmt(r.monthLabel, start, end)
     const totalPnl = computeTotalPnl(periodGroups)
     const totalFees = computeTotalFees(periodGroups)
     const winners = periodGroups.filter((g) => g.pnl > 0)
@@ -129,101 +135,99 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
     const topMistakes = [...mistakeMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
 
     const lines: string[] = []
-    lines.push(`📊 ${periodLabel} 交易复盘报告`)
+    lines.push(`📊 ${fmt(r.title, periodLabel)}`)
     lines.push('')
-    lines.push(`■ 总览`)
-    lines.push(
-      `  闭环交易：${periodGroups.length} 笔（${winners.length} 盈 / ${losers.length} 亏）`,
-    )
-    lines.push(`  胜率：${winRate.toFixed(1)}%`)
-    lines.push(`  总盈亏：${formatMoney(totalPnl, { withSign: true })}`)
-    lines.push(`  总费用：${formatMoney(totalFees)}`)
+    lines.push(`■ ${r.overview}`)
+    lines.push(`  ${fmt(r.closedLine, periodGroups.length, winners.length, losers.length)}`)
+    lines.push(`  ${fmt(r.winRateLine, winRate.toFixed(1))}`)
+    lines.push(`  ${fmt(r.totalPnlLine, formatMoney(totalPnl, { withSign: true }))}`)
+    lines.push(`  ${fmt(r.totalFeesLine, formatMoney(totalFees))}`)
     lines.push('')
 
     if (topWinners.length > 0) {
-      lines.push(`■ 盈利 Top ${topWinners.length}`)
+      lines.push(`■ ${r.topWinners} ${topWinners.length}`)
       topWinners.forEach((g, i) => {
         lines.push(
-          `  ${i + 1}. ${g.name}（${g.code}）${formatMoney(g.pnl, { withSign: true })} / ${g.days}天`,
+          `  ${i + 1}. ${fmt(r.stockLabel, g.name, g.code)}${formatMoney(g.pnl, { withSign: true })} / ${fmt(r.daysUnit, g.days)}`,
         )
       })
       lines.push('')
     }
 
     if (topLosers.length > 0 && topLosers.some((g) => g.pnl < 0)) {
-      lines.push(`■ 亏损 Top ${Math.min(topLosers.filter((g) => g.pnl < 0).length, 3)}`)
+      lines.push(`■ ${r.topLosers} ${Math.min(topLosers.filter((g) => g.pnl < 0).length, 3)}`)
       topLosers
         .filter((g) => g.pnl < 0)
         .forEach((g, i) => {
           lines.push(
-            `  ${i + 1}. ${g.name}（${g.code}）${formatMoney(g.pnl, { withSign: true })} / ${g.days}天`,
+            `  ${i + 1}. ${fmt(r.stockLabel, g.name, g.code)}${formatMoney(g.pnl, { withSign: true })} / ${fmt(r.daysUnit, g.days)}`,
           )
         })
       lines.push('')
     }
 
     if (topMistakes.length > 0) {
-      lines.push(`■ 高频错误`)
+      lines.push(`■ ${r.mistakes}`)
       topMistakes.forEach(([key, count]) => {
-        lines.push(`  · ${translateMap(t.mistakes, key)}：${count} 次`)
+        lines.push(`  · ${fmt(r.mistakeLine, translateMap(t.mistakes, key), count)}`)
       })
       lines.push('')
     }
 
-    lines.push(`■ 纪律评分：${disciplineScore.score} / 100`)
+    lines.push(`■ ${fmt(r.scoreLine, disciplineScore.score)}`)
 
     const text = lines.join('\n')
 
     const mdLines: string[] = []
-    mdLines.push(`# ${periodLabel} 交易复盘报告`)
+    mdLines.push(`# ${fmt(r.title, periodLabel)}`)
     mdLines.push('')
-    mdLines.push(`## 总览`)
-    mdLines.push(`| 指标 | 数值 |`)
+    mdLines.push(`## ${r.overview}`)
+    mdLines.push(`| ${r.colMetric} | ${r.colValue} |`)
     mdLines.push(`|------|------|`)
-    mdLines.push(`| 闭环交易 | ${periodGroups.length} 笔 |`)
-    mdLines.push(`| 胜率 | ${winRate.toFixed(1)}% |`)
-    mdLines.push(`| 总盈亏 | ${formatMoney(totalPnl, { withSign: true })} |`)
-    mdLines.push(`| 总费用 | ${formatMoney(totalFees)} |`)
+    mdLines.push(`| ${r.closedTrades} | ${fmt(r.tradesUnit, periodGroups.length)} |`)
+    mdLines.push(`| ${r.winRate} | ${winRate.toFixed(1)}% |`)
+    mdLines.push(`| ${r.totalPnl} | ${formatMoney(totalPnl, { withSign: true })} |`)
+    mdLines.push(`| ${r.totalFees} | ${formatMoney(totalFees)} |`)
     mdLines.push('')
 
     if (topWinners.length > 0) {
-      mdLines.push(`## 盈利 Top`)
-      mdLines.push(`| 股票 | 盈亏 | 持仓 |`)
+      mdLines.push(`## ${r.topWinners}`)
+      mdLines.push(`| ${r.colStock} | ${r.colPnl} | ${r.colHolding} |`)
       mdLines.push(`|------|------|------|`)
       topWinners.forEach((g) => {
         mdLines.push(
-          `| ${g.name}（${g.code}） | ${formatMoney(g.pnl, { withSign: true })} | ${g.days}天 |`,
+          `| ${fmt(r.stockLabel, g.name, g.code)} | ${formatMoney(g.pnl, { withSign: true })} | ${fmt(r.daysUnit, g.days)} |`,
         )
       })
       mdLines.push('')
     }
 
     if (topLosers.some((g) => g.pnl < 0)) {
-      mdLines.push(`## 亏损 Top`)
-      mdLines.push(`| 股票 | 盈亏 | 持仓 |`)
+      mdLines.push(`## ${r.topLosers}`)
+      mdLines.push(`| ${r.colStock} | ${r.colPnl} | ${r.colHolding} |`)
       mdLines.push(`|------|------|------|`)
       topLosers
         .filter((g) => g.pnl < 0)
         .forEach((g) => {
           mdLines.push(
-            `| ${g.name}（${g.code}） | ${formatMoney(g.pnl, { withSign: true })} | ${g.days}天 |`,
+            `| ${fmt(r.stockLabel, g.name, g.code)} | ${formatMoney(g.pnl, { withSign: true })} | ${fmt(r.daysUnit, g.days)} |`,
           )
         })
       mdLines.push('')
     }
 
     if (topMistakes.length > 0) {
-      mdLines.push(`## 高频错误`)
+      mdLines.push(`## ${r.mistakes}`)
       topMistakes.forEach(([key, count]) => {
-        mdLines.push(`- ${translateMap(t.mistakes, key)}：${count} 次`)
+        mdLines.push(`- ${fmt(r.mistakeLine, translateMap(t.mistakes, key), count)}`)
       })
       mdLines.push('')
     }
 
-    mdLines.push(`**纪律评分：${disciplineScore.score} / 100**`)
+    mdLines.push(`**${fmt(r.scoreLine, disciplineScore.score)}**`)
 
     return { periodLabel, empty: false, text, markdown: mdLines.join('\n') }
-  }, [reportPeriod, closedGroups, disciplineScore.score, t.mistakes])
+  }, [reportPeriod, closedGroups, disciplineScore.score, t.mistakes, t.analytics.report])
 
   function handleCopyReport() {
     if (report.markdown) {
@@ -240,8 +244,8 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
       <article className="panel wide">
         <div className="panel-title">
           <div>
-            <h2>量化指标</h2>
-            <p>基于闭环交易数据计算的专业量化指标</p>
+            <h2>{t.analytics.quant.title}</h2>
+            <p>{t.analytics.quant.desc}</p>
           </div>
           <ChartBar size={20} aria-hidden="true" />
         </div>
@@ -252,10 +256,14 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                 <TrendUp size={16} />
               </div>
               <div>
-                <div className="quant-metric-label">夏普比率</div>
+                <div className="quant-metric-label">{t.analytics.quant.sharpe}</div>
                 <div className="quant-metric-value">{quantMetrics.sharpeRatio.toFixed(2)}</div>
                 <div className="quant-metric-hint">
-                  {quantMetrics.sharpeRatio > 1 ? '优秀' : quantMetrics.sharpeRatio > 0.5 ? '良好' : '偏低'}
+                  {quantMetrics.sharpeRatio > 1
+                    ? t.analytics.quant.gradeExcellent
+                    : quantMetrics.sharpeRatio > 0.5
+                      ? t.analytics.quant.gradeGood
+                      : t.analytics.quant.gradeLow}
                 </div>
               </div>
             </div>
@@ -264,10 +272,14 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                 <Warning size={16} />
               </div>
               <div>
-                <div className="quant-metric-label">最大回撤</div>
+                <div className="quant-metric-label">{t.analytics.quant.maxDrawdown}</div>
                 <div className="quant-metric-value">{quantMetrics.maxDrawdownPercent.toFixed(1)}%</div>
                 <div className="quant-metric-hint">
-                  {quantMetrics.maxDrawdownPercent < 10 ? '控制良好' : quantMetrics.maxDrawdownPercent < 20 ? '中等风险' : '风险偏高'}
+                  {quantMetrics.maxDrawdownPercent < 10
+                    ? t.analytics.quant.ddGood
+                    : quantMetrics.maxDrawdownPercent < 20
+                      ? t.analytics.quant.ddMedium
+                      : t.analytics.quant.ddHigh}
                 </div>
               </div>
             </div>
@@ -276,10 +288,14 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                 <TrendDown size={16} />
               </div>
               <div>
-                <div className="quant-metric-label">年化收益</div>
+                <div className="quant-metric-label">{t.analytics.quant.annualized}</div>
                 <div className="quant-metric-value">{quantMetrics.annualizedReturn.toFixed(1)}%</div>
                 <div className="quant-metric-hint">
-                  {quantMetrics.annualizedReturn > 20 ? '高收益' : quantMetrics.annualizedReturn > 0 ? '正收益' : '负收益'}
+                  {quantMetrics.annualizedReturn > 20
+                    ? t.analytics.quant.annHigh
+                    : quantMetrics.annualizedReturn > 0
+                      ? t.analytics.quant.annPositive
+                      : t.analytics.quant.annNegative}
                 </div>
               </div>
             </div>
@@ -288,10 +304,14 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                 <ChartBar size={16} />
               </div>
               <div>
-                <div className="quant-metric-label">盈亏比</div>
+                <div className="quant-metric-label">{t.analytics.quant.payoff}</div>
                 <div className="quant-metric-value">{quantMetrics.payoffRatio.toFixed(2)}</div>
                 <div className="quant-metric-hint">
-                  {quantMetrics.payoffRatio > 2 ? '优秀' : quantMetrics.payoffRatio > 1 ? '良好' : '偏低'}
+                  {quantMetrics.payoffRatio > 2
+                    ? t.analytics.quant.gradeExcellent
+                    : quantMetrics.payoffRatio > 1
+                      ? t.analytics.quant.gradeGood
+                      : t.analytics.quant.gradeLow}
                 </div>
               </div>
             </div>
@@ -300,12 +320,16 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                 <TrendUp size={16} />
               </div>
               <div>
-                <div className="quant-metric-label">盈利因子</div>
+                <div className="quant-metric-label">{t.analytics.quant.profitFactor}</div>
                 <div className="quant-metric-value">
                   {quantMetrics.profitFactor === Infinity ? '∞' : quantMetrics.profitFactor.toFixed(2)}
                 </div>
                 <div className="quant-metric-hint">
-                  {quantMetrics.profitFactor > 2 ? '优秀' : quantMetrics.profitFactor > 1 ? '盈利' : '亏损'}
+                  {quantMetrics.profitFactor > 2
+                    ? t.analytics.quant.gradeExcellent
+                    : quantMetrics.profitFactor > 1
+                      ? t.analytics.quant.pfProfit
+                      : t.analytics.quant.pfLoss}
                 </div>
               </div>
             </div>
@@ -314,17 +338,19 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                 <TrendUp size={16} />
               </div>
               <div>
-                <div className="quant-metric-label">期望值</div>
+                <div className="quant-metric-label">{t.analytics.quant.expectancy}</div>
                 <div className="quant-metric-value">{formatMoney(quantMetrics.expectancy, { withSign: true })}</div>
                 <div className="quant-metric-hint">
-                  {quantMetrics.expectancy > 0 ? '正期望' : '负期望'}
+                  {quantMetrics.expectancy > 0
+                    ? t.analytics.quant.expPositive
+                    : t.analytics.quant.expNegative}
                 </div>
               </div>
             </div>
           </div>
         ) : (
           <p style={{ color: 'var(--muted)', padding: '16px 0' }}>
-            暂无闭环交易数据，无法计算量化指标。
+            {t.analytics.quant.noData}
           </p>
         )}
       </article>
@@ -353,8 +379,9 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
               />
               <Tooltip
                 formatter={(value: number, name: string) => {
-                  if (name === 'count') return [`${value} 次`, '出现次数']
-                  return [formatMoney(value, { withSign: true }), '关联盈亏']
+                  if (name === 'count')
+                    return [fmt(t.analytics.chartTimes, value), t.analytics.chartTimesLabel]
+                  return [formatMoney(value, { withSign: true }), t.analytics.chartLinkedPnl]
                 }}
               />
               <Bar dataKey="count" fill="var(--blue)" radius={[0, 4, 4, 0]} />
@@ -390,7 +417,12 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" />
               <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--muted)' }} />
               <YAxis tick={{ fontSize: 12, fill: 'var(--muted)' }} allowDecimals={false} />
-              <Tooltip formatter={(value: number) => [`${value} 笔`, '交易数']} />
+              <Tooltip
+                formatter={(value: number) => [
+                  fmt(t.analytics.chartTrades, value),
+                  t.analytics.chartTradesLabel,
+                ]}
+              />
               <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                 {holdingData.map((_, index) => (
                   <Cell key={index} fill={index % 2 === 0 ? 'var(--blue)' : 'var(--cyan)'} />
@@ -423,21 +455,21 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
                 type="button"
                 onClick={() => setReportPeriod('week')}
               >
-                周报
+                {t.analytics.weekly}
               </button>
               <button
                 className={reportPeriod === 'month' ? 'filter-chip active' : 'filter-chip'}
                 type="button"
                 onClick={() => setReportPeriod('month')}
               >
-                月报
+                {t.analytics.monthly}
               </button>
             </div>
             {!report.empty && (
               <button
                 className="icon-button"
                 type="button"
-                title="复制报告"
+                title={t.analytics.copyReport}
                 onClick={handleCopyReport}
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -447,7 +479,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
         </div>
         <div className="report-preview">
           {report.empty ? (
-            <p>当前周期内暂无闭环交易数据。</p>
+            <p>{t.analytics.noPeriodData}</p>
           ) : (
             <>
               <pre className="report-text">{report.text}</pre>

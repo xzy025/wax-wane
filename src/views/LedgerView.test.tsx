@@ -157,8 +157,8 @@ describe('LedgerView', () => {
     const sellChips = screen.getAllByText('Sell')
     const sellChip = sellChips.find(el => el.tagName === 'BUTTON') ?? sellChips[0]
     await user.click(sellChip)
-    // Then click "全部" (All) to show all - label is hardcoded in Chinese
-    await user.click(screen.getByText('全部'))
+    // Then click "All" to show all
+    await user.click(screen.getByText('All'))
     expect(screen.getByText('Ping An')).toBeInTheDocument()
     expect(screen.getByText('BYD')).toBeInTheDocument()
   })
@@ -178,37 +178,37 @@ describe('LedgerView', () => {
 
   it('renders edit buttons for each trade', () => {
     render(<LedgerView t={t} />)
-    const editButtons = screen.getAllByTitle('编辑')
+    const editButtons = screen.getAllByTitle('Edit')
     expect(editButtons.length).toBe(3)
   })
 
   it('enters edit mode when edit button is clicked', async () => {
     const user = userEvent.setup()
     render(<LedgerView t={t} />)
-    const editButtons = screen.getAllByTitle('编辑')
+    const editButtons = screen.getAllByTitle('Edit')
     await user.click(editButtons[0])
     // Should show save and cancel buttons
-    expect(screen.getByTitle('保存')).toBeInTheDocument()
-    expect(screen.getByTitle('取消')).toBeInTheDocument()
+    expect(screen.getByTitle('Save')).toBeInTheDocument()
+    expect(screen.getByTitle('Cancel')).toBeInTheDocument()
   })
 
   it('exits edit mode when cancel is clicked', async () => {
     const user = userEvent.setup()
     render(<LedgerView t={t} />)
-    const editButtons = screen.getAllByTitle('编辑')
+    const editButtons = screen.getAllByTitle('Edit')
     await user.click(editButtons[0])
-    expect(screen.getByTitle('取消')).toBeInTheDocument()
-    await user.click(screen.getByTitle('取消'))
+    expect(screen.getByTitle('Cancel')).toBeInTheDocument()
+    await user.click(screen.getByTitle('Cancel'))
     // Should be back to normal mode - edit buttons should be visible again
-    expect(screen.getAllByTitle('编辑').length).toBe(3)
+    expect(screen.getAllByTitle('Edit').length).toBe(3)
   })
 
   it('dispatches UPDATE_TRADE when save is clicked', async () => {
     const user = userEvent.setup()
     render(<LedgerView t={t} />)
-    const editButtons = screen.getAllByTitle('编辑')
+    const editButtons = screen.getAllByTitle('Edit')
     await user.click(editButtons[0])
-    await user.click(screen.getByTitle('保存'))
+    await user.click(screen.getByTitle('Save'))
     expect(mockDispatch).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'UPDATE_TRADE' }),
     )
@@ -219,13 +219,12 @@ describe('LedgerView', () => {
     render(<LedgerView t={t} />)
     const searchInput = screen.getByPlaceholderText('Search stock or code')
     await user.type(searchInput, 'NONEXISTENT')
-    expect(screen.getByText('无匹配结果')).toBeInTheDocument()
+    expect(screen.getByText('No matching rows')).toBeInTheDocument()
   })
 
   it('renders all filter chips', () => {
     render(<LedgerView t={t} />)
-    // The "All" label is hardcoded as '全部' in the component
-    expect(screen.getByText('全部')).toBeInTheDocument()
+    expect(screen.getByText('All')).toBeInTheDocument()
     // Use getAllByText since Buy/Sell appear in both filter chips and table
     expect(screen.getAllByText('Buy').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('Sell').length).toBeGreaterThanOrEqual(1)

@@ -144,33 +144,33 @@ describe('AnalyticsView', () => {
 
   it('renders period toggle buttons', () => {
     render(<AnalyticsView t={t} />)
-    expect(screen.getByText('周报')).toBeInTheDocument()
-    expect(screen.getByText('月报')).toBeInTheDocument()
+    expect(screen.getByText('Weekly')).toBeInTheDocument()
+    expect(screen.getByText('Monthly')).toBeInTheDocument()
   })
 
   it('defaults to monthly report', () => {
     render(<AnalyticsView t={t} />)
-    const monthBtn = screen.getByText('月报')
+    const monthBtn = screen.getByText('Monthly')
     expect(monthBtn).toHaveClass('active')
   })
 
   it('switches to weekly report when clicked', async () => {
     const user = userEvent.setup()
     render(<AnalyticsView t={t} />)
-    await user.click(screen.getByText('周报'))
-    const weekBtn = screen.getByText('周报')
+    await user.click(screen.getByText('Weekly'))
+    const weekBtn = screen.getByText('Weekly')
     expect(weekBtn).toHaveClass('active')
   })
 
   it('renders report content for closed groups', () => {
     render(<AnalyticsView t={t} />)
     // The report should contain some content about the closed groups
-    expect(screen.getByText(/交易复盘报告/)).toBeInTheDocument()
+    expect(screen.getByText(/Trading Review/)).toBeInTheDocument()
   })
 
   it('renders the copy button for reports', () => {
     render(<AnalyticsView t={t} />)
-    const copyBtn = screen.getByTitle('复制报告')
+    const copyBtn = screen.getByTitle('Copy report')
     expect(copyBtn).toBeInTheDocument()
   })
 
@@ -183,7 +183,7 @@ describe('AnalyticsView', () => {
       configurable: true,
     })
     render(<AnalyticsView t={t} />)
-    await user.click(screen.getByTitle('复制报告'))
+    await user.click(screen.getByTitle('Copy report'))
     expect(writeTextMock).toHaveBeenCalled()
   })
 
@@ -204,20 +204,20 @@ describe('AnalyticsView', () => {
   it('renders report text with trade statistics', () => {
     render(<AnalyticsView t={t} />)
     // Report is rendered in a <pre> with multi-line text; use function matcher
-    const pre = screen.getByText((content) => content.includes('闭环交易') && content.includes('3 笔'))
+    const pre = screen.getByText((content) => content.includes('Closed trades: 3'))
     expect(pre).toBeInTheDocument()
   })
 
   it('renders win rate in report', () => {
     render(<AnalyticsView t={t} />)
     // 2 winners out of 3 = 66.7%
-    const pre = screen.getByText((content) => content.includes('胜率') && content.includes('66.7%'))
+    const pre = screen.getByText((content) => content.includes('Win rate') && content.includes('66.7%'))
     expect(pre).toBeInTheDocument()
   })
 
   it('renders discipline score in report', () => {
     render(<AnalyticsView t={t} />)
-    expect(screen.getByText((content) => content.includes('纪律评分'))).toBeInTheDocument()
+    expect(screen.getByText((content) => content.includes('Discipline score:'))).toBeInTheDocument()
   })
 
   it('renders total PnL in report', () => {
@@ -229,6 +229,6 @@ describe('AnalyticsView', () => {
   it('renders mistake names in report when present', () => {
     render(<AnalyticsView t={t} />)
     // The report should mention mistakes
-    expect(screen.getByText((content) => content.includes('高频错误'))).toBeInTheDocument()
+    expect(screen.getByText((content) => content.includes('Frequent mistakes'))).toBeInTheDocument()
   })
 })

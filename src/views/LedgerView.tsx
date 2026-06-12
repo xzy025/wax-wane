@@ -69,7 +69,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
   }
 
   const sideOptions: { value: SideFilter; label: string }[] = [
-    { value: 'all', label: '全部' },
+    { value: 'all', label: t.ledger.filterAll },
     { value: 'buy', label: t.ledger.side.Buy },
     { value: 'sell', label: t.ledger.side.Sell },
   ]
@@ -195,7 +195,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
                   <button
                     className="icon-button"
                     type="button"
-                    title="保存"
+                    title={t.ledger.save}
                     onClick={handleSaveEdit}
                   >
                     <Check size={16} />
@@ -203,7 +203,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
                   <button
                     className="icon-button"
                     type="button"
-                    title="取消"
+                    title={t.ledger.cancel}
                     onClick={handleCancelEdit}
                   >
                     <X size={16} />
@@ -238,7 +238,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
                   <button
                     className="icon-button"
                     type="button"
-                    title="编辑"
+                    title={t.ledger.edit}
                     onClick={() => handleStartEdit(trade)}
                   >
                     <PencilSimple size={14} />
@@ -252,11 +252,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
             className="table-row"
             style={{ textAlign: 'center', gridColumn: '1 / -1', color: 'var(--muted)' }}
           >
-            {trades.length === 0
-              ? t.ledger.search === '搜索股票或代码'
-                ? '暂无数据，请先导入交割单'
-                : 'No data. Import a delivery statement first.'
-              : '无匹配结果'}
+            {trades.length === 0 ? t.ledger.emptyNoData : t.ledger.emptyNoMatch}
           </div>
         )}
       </div>
