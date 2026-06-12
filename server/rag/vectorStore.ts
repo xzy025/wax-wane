@@ -41,7 +41,7 @@ export async function searchSimilar(
 ): Promise<SearchResult[]> {
   const queryEmbedding = await embedText(query)
 
-  let results: SearchResult[] = []
+  const results: SearchResult[] = []
 
   if (!type || type === 'all' || type === 'trade_group') {
     const tradeGroups = await searchSimilarTradeGroups(queryEmbedding, topK)

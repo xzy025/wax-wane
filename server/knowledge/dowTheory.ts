@@ -174,7 +174,7 @@ export function analyzeDowTrend(data: {
 
   // 判断趋势方向
   let trend = 'sideways'
-  let strength = 'weak'
+  let strength: string
   const signals: string[] = []
 
   if (highPoints.length >= 2 && lowPoints.length >= 2) {

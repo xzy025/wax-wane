@@ -85,7 +85,7 @@ export class FundamentalAgent extends BaseAgent {
 
     // Valuation
     if (pe > 0) {
-      let peLevel = ''
+      let peLevel: string
       if (pe < 15) peLevel = '低估'
       else if (pe < 30) peLevel = '合理'
       else if (pe < 60) peLevel = '偏高'
@@ -94,7 +94,7 @@ export class FundamentalAgent extends BaseAgent {
     }
 
     if (pb > 0) {
-      let pbLevel = ''
+      let pbLevel: string
       if (pb < 1) pbLevel = '破净，可能低估'
       else if (pb < 3) pbLevel = '合理'
       else if (pb < 5) pbLevel = '偏高'
@@ -104,7 +104,7 @@ export class FundamentalAgent extends BaseAgent {
 
     // Profitability
     if (roe > 0) {
-      let roeLevel = ''
+      let roeLevel: string
       if (roe > 20) roeLevel = '优秀'
       else if (roe > 15) roeLevel = '良好'
       else if (roe > 10) roeLevel = '一般'

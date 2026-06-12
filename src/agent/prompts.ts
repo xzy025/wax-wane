@@ -36,7 +36,7 @@ function getTradingDayInfo(): string {
   const isPreMarket = !isWeekend && timeMinutes >= 555 && timeMinutes < 570  // 9:15-9:30
   const isAfterMarket = !isWeekend && timeMinutes > 900  // 15:00+
 
-  let marketStatus = ''
+  let marketStatus: string
   if (isWeekend) {
     marketStatus = '休市（周末）'
   } else if (isPreMarket) {
