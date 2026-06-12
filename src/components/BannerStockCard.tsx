@@ -8,6 +8,8 @@ export interface BannerStockCardProps {
   /** Prefix the price with "$" (used by US banner). */
   showDollar?: boolean
   onRemove?: () => void
+  /** Localized tooltip for the remove button. */
+  removeTitle?: string
 }
 
 /**
@@ -21,6 +23,7 @@ export default function BannerStockCard({
   isCustom,
   showDollar,
   onRemove,
+  removeTitle,
 }: BannerStockCardProps) {
   const isUp = idx.changePct >= 0
   const ChangeIcon = isUp ? TrendUp : TrendDown
@@ -39,7 +42,7 @@ export default function BannerStockCard({
             e.preventDefault()
             onRemove()
           }}
-          title="删除"
+          title={removeTitle ?? 'Remove'}
         >
           <X size={10} />
         </button>

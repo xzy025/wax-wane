@@ -19,6 +19,14 @@ const INDEX_CONFIG: Record<string, { labelKey: keyof Translation['hk']; chartUrl
   HCINT: { labelKey: 'chinaInternet', chartUrl: 'https://quote.eastmoney.com/sh513050.html' },
 }
 
+// The custom list mixes HK (5-digit) and A-share (6-digit) codes.
+function customChartUrl(code: string): string {
+  if (/^\d{6}$/.test(code)) {
+    return `https://quote.eastmoney.com/${code.startsWith('6') ? 'sh' : 'sz'}${code}.html`
+  }
+  return `https://quote.eastmoney.com/hk/${code}.html`
+}
+
 export default function HKBanner({ t, date }: HKBannerProps) {
   const { data, loading, error, lastUpdated, refresh, refreshCustom } = useHKData(date)
   const hasData = !!data && data.indices.length > 0
@@ -51,13 +59,13 @@ export default function HKBanner({ t, date }: HKBannerProps) {
         <>
           {data!.indices.map((idx) => {
             const config = INDEX_CONFIG[idx.code]
-            if (!config) return null
+            // Stale cached days may carry codes outside today's config; still render them.
             return (
               <BannerStockCard
                 key={idx.code}
                 idx={idx}
-                chartUrl={config.chartUrl}
-                name={t.hk[config.labelKey]}
+                chartUrl={config?.chartUrl ?? customChartUrl(idx.code)}
+                name={config ? t.hk[config.labelKey] : idx.name || idx.code}
                 isCustom={false}
               />
             )
@@ -66,10 +74,11 @@ export default function HKBanner({ t, date }: HKBannerProps) {
             <BannerStockCard
               key={idx.code}
               idx={idx}
-              chartUrl={`https://quote.eastmoney.com/hk/${idx.code}.html`}
+              chartUrl={customChartUrl(idx.code)}
               name={idx.name || idx.code}
               isCustom={true}
               onRemove={() => handleRemove(idx.code)}
+              removeTitle={t.hk.removeStock}
             />
           ))}
         </>
@@ -86,27 +95,27 @@ export default function HKBanner({ t, date }: HKBannerProps) {
       )}
 
       <div className="ashare-meta">
-        {hasData && (
-          <div className="ashare-meta-add">
-            <input
-              type="text"
-              value={addCode}
-              onChange={(e) => setAddCode(e.target.value)}
-              placeholder="港股代码"
-              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-              maxLength={6}
-            />
-            <button onClick={handleAdd} title="添加个股">
-              <Plus size={12} />
-            </button>
-          </div>
-        )}
         {lastUpdated && (
           <span>
             {t.hk.lastUpdated} {lastUpdated.toLocaleTimeString()}
           </span>
         )}
         {error && hasData && <span style={{ color: 'var(--red)' }}>{t.hk.error}</span>}
+        {hasData && (
+          <div className="ashare-meta-add">
+            <input
+              type="text"
+              value={addCode}
+              onChange={(e) => setAddCode(e.target.value)}
+              placeholder={t.hk.addPlaceholder}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+              maxLength={6}
+            />
+            <button onClick={handleAdd} title={t.hk.addStock}>
+              <Plus size={12} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
