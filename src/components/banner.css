@@ -192,12 +192,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  opacity: 0.55;
   transition: opacity 0.15s ease;
   padding: 0;
 }
 
-.ashare-index-custom:hover .ashare-index-remove {
+.ashare-index-custom:hover .ashare-index-remove,
+.ashare-index-remove:hover {
   opacity: 1;
 }
 
@@ -255,7 +256,9 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-right: 8px;
+  /* Pin the add control to the top-right corner of the banner (the meta row
+     is the full-width first flex row, so auto-margin pushes it right). */
+  margin-left: auto;
 }
 
 .ashare-meta-add input {

@@ -280,6 +280,9 @@ export interface Translation {
     hsi: string
     hstech: string
     chinaInternet: string
+    addPlaceholder: string
+    addStock: string
+    removeStock: string
     lastUpdated: string
     loading: string
     error: string
@@ -289,10 +292,10 @@ export interface Translation {
   us: {
     dji: string
     ixic: string
-    nvda: string
-    lite: string
-    amd: string
-    tsm: string
+    spx: string
+    addPlaceholder: string
+    addStock: string
+    removeStock: string
     lastUpdated: string
     loading: string
     error: string

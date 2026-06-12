@@ -10,18 +10,13 @@ interface USBannerProps {
   date?: string
 }
 
-// EastMoney quote-page URLs. US indices use the special symbols DJIA / NDAQ,
-// US stocks use /us/{code}.html (the bare us{code}.html form 404s).
+// Fixed indices only — stocks live in the user-editable custom list.
+// EastMoney US index pages use special symbols (us/DJIA, us/NDAQ, gb/zsSPX).
 const INDEX_CONFIG: Record<string, { labelKey: keyof Translation['us']; chartUrl: string }> = {
   DJI: { labelKey: 'dji', chartUrl: 'https://quote.eastmoney.com/us/DJIA.html' },
   IXIC: { labelKey: 'ixic', chartUrl: 'https://quote.eastmoney.com/us/NDAQ.html' },
-  NVDA: { labelKey: 'nvda', chartUrl: 'https://quote.eastmoney.com/us/NVDA.html' },
-  AMD: { labelKey: 'amd', chartUrl: 'https://quote.eastmoney.com/us/AMD.html' },
-  LITE: { labelKey: 'lite', chartUrl: 'https://quote.eastmoney.com/us/LITE.html' },
-  TSM: { labelKey: 'tsm', chartUrl: 'https://quote.eastmoney.com/us/TSM.html' },
+  SPX: { labelKey: 'spx', chartUrl: 'https://quote.eastmoney.com/gb/zsSPX.html' },
 }
-
-const FIXED_CODES = new Set(['DJI', 'IXIC'])
 
 export default function USBanner({ t, date }: USBannerProps) {
   const { data, loading, error, lastUpdated, refresh, refreshCustom } = useUSData(date)
@@ -55,16 +50,15 @@ export default function USBanner({ t, date }: USBannerProps) {
         <>
           {data!.indices.map((idx) => {
             const config = INDEX_CONFIG[idx.code]
-            if (!config) return null
-            const isIndex = FIXED_CODES.has(idx.code)
+            // Stale cached days may carry codes outside today's config; still render them.
             return (
               <BannerStockCard
                 key={idx.code}
                 idx={idx}
-                chartUrl={config.chartUrl}
-                name={t.us[config.labelKey]}
+                chartUrl={config?.chartUrl ?? `https://quote.eastmoney.com/us/${idx.code}.html`}
+                name={config ? t.us[config.labelKey] : idx.name || idx.code}
                 isCustom={false}
-                showDollar={!isIndex}
+                showDollar={!config}
               />
             )
           })}
@@ -77,6 +71,7 @@ export default function USBanner({ t, date }: USBannerProps) {
               isCustom={true}
               showDollar={true}
               onRemove={() => handleRemove(idx.code)}
+              removeTitle={t.us.removeStock}
             />
           ))}
         </>
@@ -93,27 +88,27 @@ export default function USBanner({ t, date }: USBannerProps) {
       )}
 
       <div className="ashare-meta">
-        {hasData && (
-          <div className="ashare-meta-add">
-            <input
-              type="text"
-              value={addCode}
-              onChange={(e) => setAddCode(e.target.value)}
-              placeholder="美股代码"
-              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-              maxLength={6}
-            />
-            <button onClick={handleAdd} title="添加个股">
-              <Plus size={12} />
-            </button>
-          </div>
-        )}
         {lastUpdated && (
           <span>
             {t.us.lastUpdated} {lastUpdated.toLocaleTimeString()}
           </span>
         )}
         {error && hasData && <span style={{ color: 'var(--red)' }}>{t.us.error}</span>}
+        {hasData && (
+          <div className="ashare-meta-add">
+            <input
+              type="text"
+              value={addCode}
+              onChange={(e) => setAddCode(e.target.value)}
+              placeholder={t.us.addPlaceholder}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+              maxLength={6}
+            />
+            <button onClick={handleAdd} title={t.us.addStock}>
+              <Plus size={12} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
