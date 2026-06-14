@@ -223,6 +223,6 @@ Wyckoff / 道氏 / Al Brooks / 情绪 四个理论 Agent 同时跑,然后 Synthe
 | 前端 | React 19 · TypeScript 5.9 · Vite 7 · React Router 7 · Recharts |
 | 后端 | Node.js · Express 5 · tsx (ESM) · PostgreSQL + pgvector · Redis |
 | AI / 数据 | LLM API (SSE 流式) · RAG 向量检索 (Vectra / pgvector) · Embedding · GraphRAG · Multi-Agent 编排 |
-| 测试 / 工程 | Vitest 4 + Testing Library (300 用例) · ESLint v10 + Prettier · 代码分包 / 懒加载 |
+| 测试 / 工程 | Vitest 4 + Testing Library (373 用例) · ESLint v10 + Prettier · 代码分包 / 懒加载 |
 </content>
 </invoke>

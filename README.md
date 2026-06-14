@@ -1,6 +1,6 @@
-# Wax Wane · A股交易复盘系统
+# Wax Wane · 交易复盘系统
 
-> 面向 A 股个人投资者的**全栈交易复盘工具**。导入券商交割单即自动还原持仓与盈亏,聚合行情 / 宏观 / 消息 / 基本面多源数据,由自研 **ReAct AI Agent** 按「宏观 → 消息 → 大盘 → 板块 → 个股」流程生成结构化复盘报告。
+> 面向个人投资者的**全栈交易复盘工具**,覆盖 A 股 / 港股 / 美股。导入券商交割单即自动还原持仓与盈亏,聚合行情 / 宏观 / 消息 / 基本面多源数据,由自研 **ReAct AI Agent** 按「宏观 → 消息 → 大盘 → 板块 → 个股」流程生成结构化复盘报告。
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
