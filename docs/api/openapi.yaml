@@ -1,0 +1,972 @@
+openapi: 3.1.0
+info:
+  title: Wax Wane · Trade Review API
+  version: 0.1.0
+  description: >
+    后端 Express 服务的 REST 接口(交易复盘系统 Wax Wane)。共 52 个端点,按职责分
+    6 组:Agent(LLM 流式代理 + 健康检查)、Market(多市场行情)、Analysis(基本面研报)、
+    Database(交易/复盘 CRUD)、Memory(Agent 长期记忆)、Data/MCP(行情·新闻·宏观·RAG·GraphRAG)。
+
+
+    约定:
+
+    - 所有路径已含 `/api` 前缀(各 router 自带前缀,服务端未额外挂载全局前缀)。
+
+    - 失败统一返回 `{ "error": string }`,HTTP 状态多为 400 / 404 / 500 / 503。
+
+    - 两个端点为 **SSE 流式**(`text/event-stream`):`POST /api/agent/chat` 与
+      `POST /api/analysis/fundamental`。流以 `data: {...}` 行推送,以 `data: [DONE]` 结束。
+
+    - DB 相关端点的请求/响应字段为 **snake_case**(直连数据库层);前端领域类型为
+      camelCase,两者经 `src/store/persistence.ts` 映射。
+servers:
+  - url: http://localhost:3002
+    description: 本地后端(server/index.ts 默认 PORT=3002,前端 vite proxy /api → 3002)
+
+tags:
+  - name: Agent
+    description: LLM 流式聊天代理与健康检查
+  - name: Market
+    description: A 股 / 港股 / 美股行情、热榜、情绪、缓存刷新
+  - name: Analysis
+    description: 基本面一页纸研报(流式生成 + 存档检索)
+  - name: Database
+    description: 交易、交易分组、复盘笔记、导入批次的持久化
+  - name: Memory
+    description: Agent 长期记忆(基础 + 增强)
+  - name: Data
+    description: MCP 风格数据接口:行情/K线/新闻/宏观/RAG/GraphRAG
+
+paths:
+  # ── Agent ───────────────────────────────────────────────
+  /api/agent/chat:
+    post:
+      tags: [Agent]
+      summary: LLM 流式聊天代理(SSE)
+      description: >
+        把前端的对话 + 工具定义转发给配置的 LLM(OpenAI / Anthropic 协议自动适配),
+        以 SSE 流式回传。API key 只存于服务端 `server/.env`,前端仅传模型 ID。
+        支持图片消息(部分模型自动降级)。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messages]
+              properties:
+                messages:
+                  type: array
+                  description: "OpenAI 风格消息数组(可含 images: string[] 用于多模态)"
+                  items:
+                    type: object
+                tools:
+                  type: array
+                  description: function-calling 工具定义(JSON Schema 数组)
+                  items:
+                    type: object
+                llmConfig:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: 服务端 LLM 预设 ID,决定使用哪个 key/模型
+      responses:
+        '200':
+          description: "SSE 流。每行 `data: {delta|tool_calls|error}`,以 `data: [DONE]` 结束。"
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '500':
+          description: 未配置 API key 等
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/health:
+    get:
+      tags: [Agent]
+      summary: 健康检查
+      responses:
+        '200':
+          description: 服务状态 + LLM/DB 配置情况
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  configured: { type: boolean, description: LLM URL+KEY 是否都已配置 }
+                  protocol: { type: string, enum: [openai, anthropic, unknown] }
+                  model: { type: string }
+                  db: { type: boolean, description: Postgres 是否就绪(写穿可用) }
+
+  # ── Market ──────────────────────────────────────────────
+  /api/refresh:
+    post:
+      tags: [Market]
+      summary: 清行情缓存(刷新按钮)
+      parameters:
+        - name: market
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ashare, highs, hk, us, hotlist, sentiment, macro]
+          description: 只清指定市场缓存;省略则清全部。
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+
+  /api/ashare:
+    get:
+      tags: [Market]
+      summary: A 股大盘数据(指数/涨跌停/涨跌家数/成交量等)
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/hk:
+    get:
+      tags: [Market]
+      summary: 港股指数数据
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/hk/quote:
+    get:
+      tags: [Market]
+      summary: 港股个股报价(批量)
+      parameters:
+        - name: codes
+          in: query
+          required: false
+          schema: { type: string }
+          description: 逗号分隔的代码列表;为空返回空数组。
+      responses:
+        '200':
+          description: 报价数组
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotes:
+                    type: array
+                    items: { type: object }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/us:
+    get:
+      tags: [Market]
+      summary: 美股指数数据
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/us/quote:
+    get:
+      tags: [Market]
+      summary: 美股个股报价(批量)
+      parameters:
+        - name: codes
+          in: query
+          required: false
+          schema: { type: string }
+          description: 逗号分隔的代码列表;为空返回空数组。
+      responses:
+        '200':
+          description: 报价数组
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotes:
+                    type: array
+                    items: { type: object }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/hotlist:
+    get:
+      tags: [Market]
+      summary: 热门股榜单(东财/同花顺/淘股吧/龙虎榜)
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/highs:
+    get:
+      tags: [Market]
+      summary: 创新高 / 52 周高分析(K 线扫描,较慢,单独端点)
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/sentiment:
+    get:
+      tags: [Market]
+      summary: 市场情绪温度计(开盘啦)
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  # ── Analysis ────────────────────────────────────────────
+  /api/analysis/fundamental:
+    post:
+      tags: [Analysis]
+      summary: 生成基本面一页纸研报(SSE)+ 双存档
+      description: >
+        基于 cn-finance 方法论 + 东财 F10 数据,流式生成"一页纸基本面速览",
+        完成后双存档(markdown 文件 + RAG 向量行)。接受 6 位代码或自由文本(代码/名称)。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query: { type: string, description: 自由文本(代码或名称) }
+                stockCode: { type: string, description: 6 位代码(优先直用) }
+                stockName: { type: string }
+                llmConfig:
+                  type: object
+                  properties:
+                    id: { type: string }
+      responses:
+        '200':
+          description: SSE 流;末尾可能含 `{archived:true}` 或 `{archiveWarning}` 帧。
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '400':
+          description: query/stockCode 均为空
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+        '503':
+          description: cn-finance 方法论文件缺失(需 `npm run sync:cn-finance`)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/analysis/fundamental/latest:
+    get:
+      tags: [Analysis]
+      summary: 取某标的最近一份存档研报(DB 优先,回退文件)
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema: { type: string }
+          description: 6 位代码或名称
+      responses:
+        '200':
+          description: 找到则 found=true 带全文;未找到为正常 200 `{found:false}`。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  found: { type: boolean }
+                  stockCode: { type: string }
+                  stockName: { type: string }
+                  reportMd: { type: string }
+                  summary: { type: string }
+                  createdAt: { type: string }
+                  source: { type: string, enum: [db, file] }
+                  reason: { type: string }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+
+  # ── Database ────────────────────────────────────────────
+  /api/db/trades:
+    get:
+      tags: [Database]
+      summary: 查询交易(按代码/日期/方向过滤)
+      parameters:
+        - { name: stock_code, in: query, schema: { type: string } }
+        - { name: start_date, in: query, schema: { type: string } }
+        - { name: end_date, in: query, schema: { type: string } }
+        - { name: side, in: query, schema: { type: string, enum: [buy, sell] } }
+        - { name: limit, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: 交易行数组(按 trade_date 倒序)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TradeRow' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+    post:
+      tags: [Database]
+      summary: 插入单条交易
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TradeInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/db/trade-groups:
+    get:
+      tags: [Database]
+      summary: 查询交易分组(按状态/代码过滤)
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [open, closed] } }
+        - { name: stock_code, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: 交易分组数组(按 opened_at 倒序)
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TradeGroupRow' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+    post:
+      tags: [Database]
+      summary: 插入交易分组
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TradeGroupInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/db/review-notes/{groupId}:
+    get:
+      tags: [Database]
+      summary: 取某交易分组的复盘笔记
+      parameters:
+        - { name: groupId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: 复盘笔记(无则 null)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - { $ref: '#/components/schemas/ReviewNoteRow' }
+                  - { type: 'null' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+    put:
+      tags: [Database]
+      summary: upsert 复盘笔记
+      parameters:
+        - { name: groupId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewNoteInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/db/import-batches:
+    post:
+      tags: [Database]
+      summary: 记录一次导入批次
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportBatchInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  # ── Memory (base) ───────────────────────────────────────
+  /api/memory/{userId}:
+    get:
+      tags: [Memory]
+      summary: 取 Agent 记忆
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+    put:
+      tags: [Memory]
+      summary: 保存完整记忆
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory/{userId}/profile:
+    patch:
+      tags: [Memory]
+      summary: 更新交易画像
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object } } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory/{userId}/plans:
+    post:
+      tags: [Memory]
+      summary: 新增改进计划
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object } } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory/{userId}/plans/{planId}:
+    patch:
+      tags: [Memory]
+      summary: 更新指定改进计划
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: string } }
+        - { name: planId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object } } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory/{userId}/market:
+    patch:
+      tags: [Memory]
+      summary: 更新大盘分析记忆
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object } } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory/{userId}/summary:
+    patch:
+      tags: [Memory]
+      summary: 更新对话摘要
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { summary: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  # ── Memory (enhanced) ───────────────────────────────────
+  /api/memory-enhanced/{userId}:
+    get:
+      tags: [Memory]
+      summary: 取增强记忆(含序列化文本)
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory-enhanced/{userId}/profile:
+    patch:
+      tags: [Memory]
+      summary: 更新增强交易画像
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object } } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory-enhanced/{userId}/infer-profile:
+    post:
+      tags: [Memory]
+      summary: 从交易分组推断画像
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tradeGroups: { type: array, items: { type: object } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory-enhanced/{userId}/lessons:
+    post:
+      tags: [Memory]
+      summary: 从复盘笔记抽取经验教训
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tradeGroupId: { type: string }
+                reviewNote: { type: object }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory-enhanced/{userId}/patterns:
+    post:
+      tags: [Memory]
+      summary: 从交易分组抽取行为模式
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tradeGroups: { type: array, items: { type: object } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory-enhanced/{userId}/decisions:
+    post:
+      tags: [Memory]
+      summary: 新增关键决策记录
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object } } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory-enhanced/{userId}/actions:
+    post:
+      tags: [Memory]
+      summary: 新增行动项(服务端补 id/status/createdAt)
+      parameters: [{ name: userId, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object } } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/memory-enhanced/{userId}/actions/{actionId}:
+    patch:
+      tags: [Memory]
+      summary: 标记行动项完成
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: string } }
+        - { name: actionId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  # ── Data / MCP ──────────────────────────────────────────
+  /api/mcp/ashare/trends:
+    get:
+      tags: [Data]
+      summary: 指数/个股分时走势
+      parameters: [{ name: code, in: query, required: true, schema: { type: string, pattern: '^\d{6}$' } }]
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/ashare/quote:
+    get:
+      tags: [Data]
+      summary: A 股个股实时报价
+      parameters: [{ name: code, in: query, required: true, schema: { type: string, pattern: '^\d{6}$' } }]
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '404': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/stock/kline:
+    get:
+      tags: [Data]
+      summary: 个股 K 线历史
+      parameters:
+        - { name: code, in: query, required: true, schema: { type: string, pattern: '^\d{6}$' } }
+        - { name: period, in: query, schema: { type: integer, default: 101 }, description: 'K线周期(默认 101=日线)' }
+        - { name: count, in: query, schema: { type: integer, default: 30 } }
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/stock/fundamentals:
+    get:
+      tags: [Data]
+      summary: 个股基本面快照
+      parameters: [{ name: code, in: query, required: true, schema: { type: string, pattern: '^\d{6}$' } }]
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '404': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/stock/news:
+    get:
+      tags: [Data]
+      summary: 个股新闻搜索
+      parameters:
+        - { name: code, in: query, required: true, schema: { type: string } }
+        - { name: count, in: query, schema: { type: integer, default: 10 } }
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/web/search:
+    get:
+      tags: [Data]
+      summary: Web 搜索代理
+      parameters:
+        - { name: q, in: query, required: true, schema: { type: string } }
+        - { name: count, in: query, schema: { type: integer, default: 5 } }
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/ashare/breadth:
+    get:
+      tags: [Data]
+      summary: A 股市场广度统计
+      responses:
+        '200':
+          description: 广度指标
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Breadth' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/ashare/limit-pool:
+    get:
+      tags: [Data]
+      summary: 涨停/跌停池
+      parameters:
+        - { name: direction, in: query, schema: { type: string, enum: [up, down], default: up } }
+      responses:
+        '200':
+          description: 涨/跌停股列表与数量
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+                  stocks: { type: array, items: { type: object } }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/ashare/indices:
+    get:
+      tags: [Data]
+      summary: A 股主要指数
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/news/summary:
+    get:
+      tags: [Data]
+      summary: RSS 新闻摘要
+      responses:
+        '200':
+          description: 新闻条目数组
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/macro/indicators:
+    get:
+      tags: [Data]
+      summary: 宏观指标(美债/黄金/DXY/VIX 等)
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/rag/status:
+    get:
+      tags: [Data]
+      summary: RAG 文档计数
+      responses:
+        '200':
+          description: 向量库状态
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  documentCount: { type: integer }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/rag/search:
+    get:
+      tags: [Data]
+      summary: 语义检索
+      parameters:
+        - { name: query, in: query, required: true, schema: { type: string } }
+        - { name: type, in: query, schema: { type: string, enum: [trade_group, review_note, fundamental_report, all] } }
+        - { name: topK, in: query, schema: { type: integer, default: 5 } }
+      responses:
+        '200':
+          description: 命中结果数组
+          content:
+            application/json:
+              schema: { type: array, items: { type: object } }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/rag/sync:
+    post:
+      tags: [Data]
+      summary: 同步交易分组到向量库
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tradeGroups]
+              properties:
+                tradeGroups: { type: array, items: { type: object } }
+                reviewNotes: { type: object, description: 'Record<groupId, ReviewNote>' }
+                reset: { type: boolean, description: true 则先重置再全量同步 }
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/graph/sync:
+    post:
+      tags: [Data]
+      summary: 同步交易到知识图谱(GraphRAG)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tradeGroups]
+              properties:
+                tradeGroups: { type: array, items: { type: object } }
+                reviewNotes: { type: object }
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/graph/stats:
+    get:
+      tags: [Data]
+      summary: 图谱节点/边统计
+      responses:
+        '200':
+          description: 节点边计数与分类
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nodeCount: { type: integer }
+                  edgeCount: { type: integer }
+                  nodesByType: { type: object, additionalProperties: { type: integer } }
+                  edgesByType: { type: object, additionalProperties: { type: integer } }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+  /api/mcp/graph/query:
+    post:
+      tags: [Data]
+      summary: 图谱查询(多种查询类型)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [queryType]
+              properties:
+                queryType:
+                  type: string
+                  enum: [findTradesByMistake, findTradesByPhase, findRelatedTrades, findPatternPath, multiHop]
+                params:
+                  type: object
+                  description: 随 queryType 而定(如 mistake / tradeGroupId / hops 等)
+      responses:
+        '200': { $ref: '#/components/responses/LooseObject' }
+        '400': { $ref: '#/components/responses/ErrorResponse' }
+        '500': { $ref: '#/components/responses/ErrorResponse' }
+
+components:
+  responses:
+    Success:
+      description: 操作成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success: { type: boolean, example: true }
+    ErrorResponse:
+      description: 失败
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    LooseObject:
+      description: 上游数据对象(形状随数据源而定)
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+      required: [error]
+
+    Breadth:
+      type: object
+      properties:
+        advance: { type: integer }
+        decline: { type: integer }
+        flat: { type: integer }
+        limitUpCount: { type: integer }
+        limitDownCount: { type: integer }
+        promotionRate: { type: number }
+        promotedCount: { type: integer }
+        promotionTotal: { type: integer }
+        newHighCount: { type: integer }
+        nearHighCount: { type: integer }
+        nearHighStocks: { type: array, items: { type: object } }
+
+    TradeInput:
+      type: object
+      description: 插入交易(snake_case,对应 trades 表)
+      required: [id, trade_date, stock_code, stock_name, side, quantity, price, gross_amount, net_amount, raw_json]
+      properties:
+        id: { type: string }
+        import_batch_id: { type: string }
+        trade_date: { type: string }
+        stock_code: { type: string }
+        stock_name: { type: string }
+        side: { type: string, enum: [buy, sell] }
+        quantity: { type: integer }
+        price: { type: number }
+        gross_amount: { type: number }
+        commission: { type: number, default: 0 }
+        stamp_tax: { type: number, default: 0 }
+        transfer_fee: { type: number, default: 0 }
+        other_fee: { type: number, default: 0 }
+        net_amount: { type: number }
+        validation_status: { type: string, enum: [valid, warning, error], default: valid }
+        validation_message: { type: string }
+        raw_json: { type: string }
+
+    TradeRow:
+      allOf:
+        - $ref: '#/components/schemas/TradeInput'
+        - type: object
+          properties:
+            created_at: { type: string }
+            updated_at: { type: string }
+
+    TradeGroupInput:
+      type: object
+      description: 插入交易分组(snake_case,对应 trade_groups 表)
+      required: [id, stock_code, stock_name, opened_at, status]
+      properties:
+        id: { type: string }
+        stock_code: { type: string }
+        stock_name: { type: string }
+        opened_at: { type: string }
+        closed_at: { type: string }
+        status: { type: string, enum: [open, closed] }
+        pnl: { type: number, default: 0 }
+        return_rate: { type: number }
+        holding_days: { type: integer }
+        strategy: { type: string }
+        mistakes_json: { type: string, description: JSON 数组字符串 }
+        review_status: { type: string, default: not_reviewed }
+        embedding: { type: array, items: { type: number }, description: 1536 维向量(可选) }
+
+    TradeGroupRow:
+      allOf:
+        - $ref: '#/components/schemas/TradeGroupInput'
+        - type: object
+          properties:
+            created_at: { type: string }
+            updated_at: { type: string }
+
+    ReviewNoteInput:
+      type: object
+      description: upsert 复盘笔记(trade_group_id 来自路径)
+      properties:
+        buy_reason: { type: string }
+        sell_reason: { type: string }
+        execution_review: { type: string }
+        lesson: { type: string }
+        embedding: { type: array, items: { type: number } }
+
+    ReviewNoteRow:
+      type: object
+      properties:
+        id: { type: string }
+        trade_group_id: { type: string }
+        buy_reason: { type: string }
+        sell_reason: { type: string }
+        execution_review: { type: string }
+        lesson: { type: string }
+        created_at: { type: string }
+        updated_at: { type: string }
+
+    ImportBatchInput:
+      type: object
+      required: [id, source_filename, source_type, imported_at, row_count, success_count, error_count, status, mapping_json]
+      properties:
+        id: { type: string }
+        source_filename: { type: string }
+        source_type: { type: string, enum: [csv, excel] }
+        broker_name: { type: string }
+        account_alias: { type: string }
+        imported_at: { type: string }
+        row_count: { type: integer }
+        success_count: { type: integer }
+        error_count: { type: integer }
+        status: { type: string, enum: [draft, imported, failed] }
+        mapping_json: { type: string }
+        notes: { type: string }

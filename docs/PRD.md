@@ -1,4 +1,9 @@
-# A Share Delivery Statement Review System PRD
+# Trade Review System PRD — Wax Wane
+
+> **现状更新(as-built):** 本 PRD 的 MVP 以 A 股交割单复盘起步;产品已扩展至**多市场**
+> (A 股 / 港股 / 美股),并落地了 AI Agent、RAG、多 Agent 编排、GraphRAG、基本面(东财 F10)
+> 分析等能力。下文 §6.0 与 §12 已对齐当前代码;§13 中已实现项保留删除线标注。
+> 接口契约见 `docs/api/`,数据表见 `docs/database-schema.md`,AI 子系统见 `docs/AI-ARCHITECTURE.md`。
 
 ## 1. Product Overview
 
@@ -47,10 +52,11 @@ The first version focuses on offline review and local data accuracy. Market quot
 #### 6.0.1 AI Agent
 
 - ✅ ReAct-style agent loop with tool calling
-- ✅ 12 registered tools: trade queries, metrics calculation, pattern finding, risk alerts, market data, news, semantic search
+- ✅ **28 registered tools** (see `src/agent/tools/index.ts`): trade queries & metrics, pattern/risk analysis, market data (A/HK/US), K-line, fundamentals (F10), news, web search, semantic search, GraphRAG queries, and composite Agent-as-Tool reviews
+- ✅ **Multi-Agent orchestration**: 12 expert agents + Synthesizer, serial pipeline + parallel fan-out (`src/agent/multi-agent/`)
 - ✅ Streaming responses with SSE (Server-Sent Events)
 - ✅ Dual LLM protocol support (OpenAI + Anthropic)
-- ✅ Conversation history management
+- ✅ Conversation history management + two-layer context compression
 - ✅ Abort/cancellation support
 
 #### 6.0.2 Market Data Integration
@@ -73,11 +79,12 @@ The first version focuses on offline review and local data accuracy. Market quot
 
 #### 6.0.4 RAG (Retrieval-Augmented Generation)
 
-- ✅ Vectra embedded vector database for semantic search
-- ✅ Trade groups, review notes, and lessons indexed as vectors
+- ✅ **PostgreSQL + pgvector** as the vector store (Vectra embedded DB kept as a no-Postgres fallback)
+- ✅ Trade groups, review notes, and fundamental reports indexed as `VECTOR(1536)` columns
 - ✅ Embedding via LLM API with TF-IDF fallback
 - ✅ Automatic sync when trade data changes
-- ✅ `semanticSearch` tool for Agent to retrieve historical experiences
+- ✅ `semanticSearch` / `hybridSearch` tools for the Agent to retrieve historical experiences
+- ✅ **GraphRAG** knowledge graph (`graph_nodes` / `graph_edges`) for relational queries over mistakes, strategies, and theories
 
 ### 6.1 Import
 
@@ -260,9 +267,12 @@ Required standard fields:
 | **行情** | `/market` | 全球行情总览（默认首页） |
 | **工作台** | `/dashboard` | 复盘工作台，收益曲线和交易闭环 |
 | **导入** | `/import` | 交割单导入 |
-| **流水** | `/ledger` | 交易流水列表 |
+| **台账** | `/ledger` | 交易流水/台账列表 |
 | **复盘** | `/reviews` | 交易闭环复盘 |
 | **分析** | `/analytics` | 统计分析 |
+| **AI Agent** | `/agent` | 对话式复盘助手（流式展示推理→调工具→观察） |
+
+> 共 7 个导航视图，定义见 `src/App.tsx` `navItems`。
 
 #### 显示规则
 
@@ -411,14 +421,16 @@ Other tabs (Import, Ledger, Reviews, Analytics) do not show these elements.
 
 - Broker-specific mapping templates.
 - OCR import for PDF or image delivery statements.
-- K-line chart with buy and sell markers.
+- K-line chart with buy and sell markers. _(数据侧已就绪：`getStockKline` 工具 + `/api/stock/kline`；UI 标注图待补。)_
 - Market quote import and benchmark comparison.
 - FIFO cost mode.
 - Corporate action handling.
 - ~~AI-generated review summaries.~~ ✅ Implemented via AI Agent
+- ~~Multi-market support (HK / US).~~ ✅ Implemented (行情看板 + 个股报价)
+- ~~Fundamental analysis.~~ ✅ Implemented (东财 F10 + 一页纸研报 `/api/analysis/fundamental`)
 - Multi-account support.
 - Markdown and PDF report export.
-- SQLite storage layer (currently using localStorage).
-- AnalyticsView enhancements: backtest, Sharpe ratio, max drawdown.
-- Milvus migration (currently using Vectra embedded).
+- ~~Backend persistence layer.~~ ✅ Implemented (前端 localStorage + 后端 PostgreSQL 写穿；`src/store/persistence.ts`)
+- ~~AnalyticsView quant metrics (Sharpe, max drawdown, payoff…).~~ ✅ Implemented；回测仍为 future。
+- ~~Vector store migration.~~ ✅ Moved to PostgreSQL + pgvector (Vectra kept as fallback)。
 - RSS news feed: paid wechat2rss service for latest articles.
