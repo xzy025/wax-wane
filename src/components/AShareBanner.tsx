@@ -89,11 +89,11 @@ function HighList({ stocks, t }: { stocks: HighStock[]; t: Translation }) {
 
 /** Map a 0-100 sentiment temperature to a color + i18n label. */
 function tempStyle(temp: number, s: Translation['sentiment']): { color: string; label: string } {
-  if (temp < 20) return { color: '#3b82f6', label: s.cold }
-  if (temp < 40) return { color: '#22b8cf', label: s.cool }
-  if (temp < 60) return { color: '#f59f00', label: s.warm }
-  if (temp < 80) return { color: '#f53f3f', label: s.hot }
-  return { color: '#c92a2a', label: s.overheated }
+  if (temp < 20) return { color: 'var(--temp-cold)', label: s.cold }
+  if (temp < 40) return { color: 'var(--temp-cool)', label: s.cool }
+  if (temp < 60) return { color: 'var(--temp-warm)', label: s.warm }
+  if (temp < 80) return { color: 'var(--temp-hot)', label: s.hot }
+  return { color: 'var(--temp-overheated)', label: s.overheated }
 }
 
 export default function AShareBanner({ t, date }: AShareBannerProps) {
@@ -359,7 +359,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                         <div
                           className="ashare-volume-bar"
                           style={{
-                            background: isToday ? (isUp ? 'var(--red)' : 'var(--green)') : (isUp ? 'rgba(245,63,63,0.3)' : 'rgba(0,180,42,0.3)'),
+                            background: isToday ? (isUp ? 'var(--red)' : 'var(--green)') : (isUp ? 'rgba(var(--red-rgb),0.35)' : 'rgba(var(--green-rgb),0.35)'),
                           }}
                         />
                       </div>

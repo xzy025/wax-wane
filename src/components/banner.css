@@ -8,8 +8,11 @@
   padding: 14px 16px;
   margin-bottom: 18px;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -53,6 +56,7 @@
 
 .macro-item-value {
   color: var(--ink);
+  font-family: var(--font-mono);
   font-size: 1.05rem;
   font-weight: 850;
   letter-spacing: -0.02em;
@@ -107,8 +111,11 @@
   padding: 16px 16px;
   margin-bottom: 18px;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -142,6 +149,7 @@
   font-size: 1.1rem;
   font-weight: 850;
   color: var(--ink);
+  font-family: var(--font-mono);
   letter-spacing: -0.02em;
 }
 
@@ -350,6 +358,7 @@
   font-size: 0.92rem;
   font-weight: 850;
   color: var(--ink);
+  font-family: var(--font-mono);
 }
 
 .ashare-stat-value.up {
@@ -576,7 +585,7 @@
 
 .ashare-newhigh-gap {
   font-weight: 700;
-  color: var(--orange, #f59e0b);
+  color: var(--orange);
   min-width: 70px;
   text-align: right;
   font-size: 0.72rem;
@@ -586,9 +595,13 @@
 
 .hotlist-section {
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    var(--shadow);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -725,6 +738,7 @@
   font-weight: 800;
   min-width: 52px;
   text-align: right;
+  font-family: var(--font-mono);
 }
 
 .hotlist-change.up {
@@ -763,6 +777,7 @@
   font-weight: 800;
   min-width: 60px;
   text-align: right;
+  font-family: var(--font-mono);
 }
 
 .hotlist-net.up {
@@ -844,9 +859,11 @@
   width: 280px;
   padding: 10px;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: var(--shadow-lg);
 }
 
 .date-picker-header {
