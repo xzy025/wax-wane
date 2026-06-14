@@ -2,6 +2,7 @@
 
 > 面向个人投资者的**全栈交易复盘工具**,覆盖 A 股 / 港股 / 美股。导入券商交割单即自动还原持仓与盈亏,聚合行情 / 宏观 / 消息 / 基本面多源数据,由自研 **ReAct AI Agent** 按「宏观 → 消息 → 大盘 → 板块 → 个股」流程生成结构化复盘报告。
 
+[![CI](https://github.com/xzy025/wax-wane/actions/workflows/ci.yml/badge.svg)](https://github.com/xzy025/wax-wane/actions/workflows/ci.yml)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
@@ -40,7 +41,7 @@
 ## 🏗 架构概览
 
 ```
-前端 (React 19 + Vite, :3000)              后端 (Express, :3001)
+前端 (React 19 + Vite, :3000)              后端 (Express, :3002)
 ┌──────────────────────────────┐          ┌──────────────────────────────┐
 │ 行情 / 工作台 / 导入 / 台账     │          │ routes/   agent·market·analysis │
 │ 复盘 / 分析 / AI Agent          │   HTTP   │           db·memory·mcp         │
@@ -53,7 +54,7 @@
                                           东方财富 / 开盘啦 / RSS / Web 搜索
 ```
 
-详见 [AI 架构文档](docs/AI-ARCHITECTURE.md)。
+详见 [AI 架构文档](docs/AI-ARCHITECTURE.md) · [REST API 文档](docs/api/README.md)(52 端点 / OpenAPI 3.1)。
 
 ---
 
@@ -90,7 +91,7 @@ server/          Express API(按领域分层,独立 package.json)
 # 1. 安装前端依赖
 npm install
 
-# 2. 安装并启动后端(独立 package.json,端口 3001)
+# 2. 安装并启动后端(独立 package.json,端口 3002)
 cd server && npm install
 cp .env.example .env   # 配置 LLM_API_URL / LLM_API_KEY / 数据库连接
 npm run dev            # tsx watch index.ts
@@ -104,8 +105,11 @@ npm run dev
 ```bash
 npm run dev       # 启动开发服务器
 npm run build     # 生产构建
-npm test          # 运行 373 个测试用例
+npm test          # 前端测试(373 用例,jsdom)
 npm run lint      # ESLint 检查(覆盖 src/ 与 server/)
+
+# 后端测试(77 用例,node 环境)
+npx vitest run --config vitest.server.config.ts
 ```
 
 > 🔐 API Key 仅存于 `server/.env`,前端只发送模型 ID,永不接触密钥。
