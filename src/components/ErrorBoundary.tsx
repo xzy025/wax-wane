@@ -25,15 +25,16 @@ export default class ErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div style={{ padding: '16px', color: '#c43d3d' }}>
+          <div style={{ padding: '16px', color: 'var(--red)' }}>
             <p>Something went wrong.</p>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
               style={{
                 padding: '6px 12px',
                 borderRadius: '6px',
-                border: '1px solid #ead8cd',
-                background: '#fffaf5',
+                border: '1px solid var(--line)',
+                background: 'var(--surface-soft)',
+                color: 'var(--ink)',
                 cursor: 'pointer',
               }}
             >
