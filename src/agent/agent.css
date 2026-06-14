@@ -725,7 +725,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px 0;
+  padding: 8px 16px;
 }
 
 /* ── Markdown rendering inside assistant bubbles (基本面分析报告) ── */
