@@ -21,7 +21,7 @@ flowchart TD
     Loop -->|SSE 流式| LLM["LLM API<br/>(streamChat / llmClient.ts)<br/>分片累加 tool_calls"]
     LLM -->|token / tool_calls| Loop
 
-    Loop -->|JSON Schema 声明 + 注册表分发| Registry{{"工具注册表 (tools/index.ts)<br/>27 个工具, 统一错误边界"}}
+    Loop -->|JSON Schema 声明 + 注册表分发| Registry{{"工具注册表 (tools/index.ts)<br/>28 个工具, 统一错误边界"}}
 
     Registry --> DataTools["数据类工具<br/>getStockQuote / getMacroIndicators<br/>getMarketBreadth / getNewsSummary ..."]
     Registry --> RAGTools["检索类工具<br/>semanticSearch / hybridSearch<br/>graphQuery / findRelatedTrades"]
@@ -133,7 +133,7 @@ sequenceDiagram
 
 ### ② 注册表 + 分发(`tools/index.ts`)
 
-- `toolRegistry` 是 `Record<name, ToolModule>`,**新增工具只要加一行**(目前 27 个工具)。
+- `toolRegistry` 是 `Record<name, ToolModule>`,**新增工具只要加一行**(目前 28 个工具)。
 - `executeTool` 按名字查表执行,**统一 try/catch**:工具抛错不会让 Agent 崩,而是返回 `{error: ...}` 让模型看到错误、重试或换路——错误边界清晰。
 
 ### ③ 流式解析协议(`llmClient.ts`)
