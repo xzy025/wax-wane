@@ -390,6 +390,7 @@
 
 .ai-msg-assistant .ai-msg-content {
   background: var(--surface-soft);
+  border: 1px solid var(--line);
   color: var(--ink);
   border-bottom-left-radius: 4px;
 }
@@ -686,7 +687,7 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-lg);
   pointer-events: none;
 }
 
