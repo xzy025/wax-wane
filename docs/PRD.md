@@ -290,23 +290,34 @@ Required standard fields:
 | 交易闭环 | ❌ | ✅ | ❌ |
 | 语言切换 | ✅ | ✅ | ✅ |
 
-### 12.1 Color Scheme (Blue Theme)
+### 12.1 Color Scheme (Dark "Cyberpunk × Apple")
 
-The application uses a modern blue-themed design system inspired by:
-- Xiaomi MiPlatform - Blue tech aesthetic, gradient style
-- Alibaba Cloud Bailian - Enterprise blue (#1677FF), card layout, light shadows
-- Stock Ladder - Clear rise/fall color display
+> 2026-06-14 重塑:浅蓝主题 → **暗色「赛博 × 苹果」**(均衡强度,唯一默认,无主题切换)。
+> 真相来源 `src/styles.css` `:root`。Apple 一侧:毛玻璃、圆角、克制、大留白;赛博一侧:近黑底、
+> 霓虹辉光(仅激活导航/品牌标/主按钮/FAB)、等宽数字、极淡网格底纹。
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--bg` | `#F5F7FA` | Page background |
-| `--surface` | `#FFFFFF` | Card/panel background |
-| `--blue` | `#1677FF` | Primary actions, links |
-| `--cyan` | `#06B6D4` | Accent, secondary actions |
-| `--red` | `#F53F3F` | Rise (涨), danger |
-| `--green` | `#00B42A` | Fall (跌), success |
-| `--ink` | `#1D2129` | Primary text |
-| `--muted` | `#86909C` | Secondary text |
+| `--bg` | `#0A0E16` | Page background(近黑冷调) |
+| `--surface` | `#121826` | 实心面板(不便毛玻璃处) |
+| `--surface-glass` | `rgba(20,26,40,.62)` | 毛玻璃卡片底(配 `--blur`) |
+| `--surface-soft` | `rgba(255,255,255,.04)` | 细微区 / 表头 |
+| `--line` | `rgba(255,255,255,.09)` | 发丝边框 |
+| `--ink` | `#E6EAF2` | Primary text |
+| `--muted` | `#8A93A6` | Secondary text |
+| `--blue` | `#3B8EFF` | Primary actions, links(亮版 `--blue-bright #5AA2FF`) |
+| `--cyan` | `#2DD4E8` | Accent, secondary actions |
+| `--red` | `#FF4D5E` | Rise (涨), danger |
+| `--green` | `#2BD96A` | Fall (跌), success |
+| `--orange` | `#FFA53B` | Warning |
+
+**效果与排版 token:**
+- `--blur: blur(18px) saturate(160%)` — 侧栏 / 卡片 / 面板 / 看板 / 对话面板毛玻璃
+- `--glow-blue` — 霓虹辉光(激活导航、主按钮、品牌标、FAB)
+- `--font-mono`(`SF Mono` / `ui-monospace` …)— 所有数值(价格、盈亏、指标)
+- 字体主栈 `-apple-system / SF Pro` 优先(苹果设计语言)
+- 透明度一律 `rgba(var(--blue-rgb), a)` 等写法,**不再硬编码 hex**
+- 红涨绿跌(A 股约定)保留,暗底下提亮
 
 ### 12.2 Icon System
 
