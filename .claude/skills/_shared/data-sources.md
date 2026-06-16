@@ -58,6 +58,28 @@
 - 探活/请求失败 → **静默降级**到对应的 MCP / 东财直取兜底，**不要**把「服务没开」当报错抛给用户。
 - 全部数据源都拿不到时，才提示「无法获取 <数据维度> 数据」，并继续输出其余可得维度。
 
+## 6. 市场级情绪数据（`first-board` 首板涨停 / `sentiment` 情绪周期模式用）
+
+个股 K 线不含市场情绪；套这两个模式时需取**全市场涨停/跌停家数、连板梯队、个股实时涨停状态**。按优先级降级：
+
+1. **项目服务在跑时优先**：`GET http://localhost:3002/api/mcp/ashare/limit-pool`、`/api/mcp/ashare/breadth`、`/api/sentiment`（开盘啦情绪温度）。
+2. **兜底直取东财涨停/跌停池**（已实测，需 `User-Agent`/`Referer` 头）：
+   - 涨停池：`https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=<n>&sort=fbt:asc&date=<YYYYMMDD>`
+   - 跌停池：`https://push2ex.eastmoney.com/getTopicDTPool?ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wz.ztzt&Pageindex=0&pagesize=<n>&sort=fund:asc&date=<YYYYMMDD>`
+   - 返回 `data.tc` = 当日家数；`data.pool[]` 每项含 `n`名称/`c`代码/`lbc`连板数/`zbc`炸板次数/`hybk`所属板块/`zttj.days`(几天)`.ct`(几板)/`fbt`首封时间。
+   - 注意：`date` 入参常被忽略，实际返回最新交易日（看响应 `data.qdate`，盘中为当日实时家数）；要高连板梯队就拉大 `pagesize` 后按 `lbc` 排序。
+3. **个股实时涨停状态**：`https://push2.eastmoney.com/api/qt/stock/get?fltt=2&invt=2&secid=<secid>&fields=f43,f170,f169,f171`
+   → `f43`现价 / `f170`涨跌幅% / `f169`涨跌额 / `f171`振幅%（判断首板/二板/冲板未封）。
+4. **再兜底（开盘啦，有反爬、低频）**：`POST https://apphq.longhuvip.com/w1/api/index.php`（form-encoded）
+   `a=GetPlateInfo&st=10&apiv=w18&c=DailyLimitResumption&PhoneOSNew=1&Index=20&DeviceID=00000000-025d-1ffd-fa71-8fd5272bb997`
+   → `nums`: `ZT`涨停/`DT`跌停/`ZBL`破板率%/`SZJS`上涨家数/`XDJS`下跌家数/`yestRase`昨日涨停今表现%。
+
+**情绪阶段速判**（喂给 `sentiment` 模式的四阶段）：
+- 冰点：涨停 <~30、跌停偏多、无连板高度
+- 修复：涨停回升、开始出现连板梯队
+- 高潮：涨停 ~100+、跌停极少、高连板梯队、赚钱效应强（**= 见顶预警区**）
+- 退潮：涨停数自高位明显回落、高位股炸板/跌停抬头、连板梯队断裂
+
 ## 来源依据（项目内，只读参考，勿改）
 
 - `server/services/ashare.ts` — kline / fundamentals 上游（东财 push2 为主，Sina 兜底）
