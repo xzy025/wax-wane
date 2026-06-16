@@ -3,7 +3,8 @@ dist/
 *.log
 *.err
 .vite/
-.claude/
+.claude/*
+!.claude/skills/
 
 # Environment variables (never commit secrets)
 .env
