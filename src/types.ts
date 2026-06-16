@@ -59,6 +59,26 @@ export interface Translation {
   titles: Record<string, string>
   range: { label: string; week: string; month: string; quarter: string; year: string }
   language: { label: string; zh: string; en: string }
+  themes: {
+    heatTitle: string
+    heatDesc: string
+    compareTitle: string
+    refresh: string
+    loadFail: string
+    noData: string
+    upDown: string
+    cols: {
+      name: string
+      price: string
+      change: string
+      pe: string
+      pb: string
+      mcap: string
+      d60: string
+      ytd: string
+      tag: string
+    }
+  }
   settings: string
   sidebar: { costLabel: string; costMode: string; costHint: string }
   metrics: Record<string, string[]>
