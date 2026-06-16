@@ -12,7 +12,9 @@ import { searchWeb, searchStockNews } from '../services/webSearch'
 import { fetchNewsFeed } from '../services/news'
 import { fetchMacroData } from '../services/macro'
 import { searchSimilar, getDocumentCount } from '../rag/vectorStore'
+import { hybridSearch } from '../rag/hybridSearch'
 import { syncTradeGroups, resetAndSyncAll } from '../rag/ragSync'
+import { tracer } from '../observability/tracer'
 
 const router = Router()
 
@@ -225,6 +227,27 @@ router.get('/api/mcp/rag/search', async (req, res) => {
   }
 })
 
+// Hybrid retrieval: dense + BM25 + RRF (+ optional rerank). See rag/hybridSearch.ts.
+router.get('/api/mcp/rag/hybrid-search', async (req, res) => {
+  const { query, type, topK, rerank } = req.query
+  if (!query || typeof query !== 'string') {
+    res.status(400).json({ error: 'Missing ?query= parameter' })
+    return
+  }
+  try {
+    const k = topK ? parseInt(topK as string, 10) : 5
+    const result = await hybridSearch(query, {
+      topK: k,
+      type: type as string | undefined,
+      useRerank: rerank === '1' || rerank === 'true',
+    })
+    res.json(result)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
 router.post('/api/mcp/rag/sync', async (req, res) => {
   const { tradeGroups, reviewNotes, reset } = req.body
   if (!tradeGroups || !Array.isArray(tradeGroups)) {
@@ -303,6 +326,26 @@ router.post('/api/mcp/graph/query', async (req, res) => {
     const message = err instanceof Error ? err.message : 'Unknown error'
     res.status(500).json({ error: message })
   }
+})
+
+// ── Observability (RAG/agent traces) ──────────────────────
+
+router.get('/api/mcp/obs/traces', (req, res) => {
+  const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20
+  res.json(tracer.getRecentTraces(limit))
+})
+
+router.get('/api/mcp/obs/stats', (_req, res) => {
+  res.json(tracer.getStats())
+})
+
+router.get('/api/mcp/obs/traces/:id', (req, res) => {
+  const trace = tracer.getTrace(req.params.id)
+  if (!trace) {
+    res.status(404).json({ error: `Trace ${req.params.id} not found` })
+    return
+  }
+  res.json(trace)
 })
 
 export default router

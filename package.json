@@ -13,6 +13,8 @@
     "format:check": "prettier --check src/",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:server": "vitest run --config vitest.server.config.ts",
+    "eval": "npm --prefix server run eval",
     "sync:cn-finance": "node scripts/sync-cn-finance.mjs"
   },
   "dependencies": {
