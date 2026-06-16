@@ -7,6 +7,7 @@ import { initDatabase } from './db/pgDatabase'
 import { getProtocol } from './lib/llm'
 import agentRoutes from './routes/agent'
 import marketRoutes from './routes/market'
+import themesRoutes from './routes/themes'
 import mcpRoutes from './routes/mcp'
 import dbRoutes from './routes/db'
 import memoryRoutes from './routes/memory'
@@ -43,6 +44,7 @@ app.use(express.json({ limit: '50mb' }))
 // Route modules (each registers its own /api/... paths)
 app.use(agentRoutes)
 app.use(marketRoutes)
+app.use(themesRoutes)
 app.use(mcpRoutes)
 app.use(dbRoutes)
 app.use(memoryRoutes)

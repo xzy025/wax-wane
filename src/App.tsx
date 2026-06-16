@@ -9,6 +9,7 @@ import {
   ChartPieSlice,
   UploadSimple,
   TrendUp,
+  SquaresFour,
   Robot,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
@@ -31,10 +32,12 @@ import LedgerView from './views/LedgerView'
 import ReviewView from './views/ReviewView'
 import AnalyticsView from './views/AnalyticsView'
 import AgentView from './views/AgentView'
+import ThemesView from './views/ThemesView'
 import type { Translation } from './types'
 
 const navItems = [
   { id: 'market', icon: TrendUp, path: '/market' },
+  { id: 'themes', icon: SquaresFour, path: '/themes' },
   { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
   { id: 'import', icon: UploadSimple, path: '/import' },
   { id: 'ledger', icon: File, path: '/ledger' },
@@ -167,6 +170,7 @@ function AppLayout() {
         <ErrorBoundary>
           <Routes>
           <Route path="/market" element={<div />} />
+          <Route path="/themes" element={<ThemesView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />
           <Route path="/import" element={<ImportView t={t} />} />
           <Route path="/ledger" element={<LedgerView t={t} range={range} />} />

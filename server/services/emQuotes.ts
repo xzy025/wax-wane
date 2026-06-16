@@ -110,3 +110,58 @@ export async function fetchIndexQuotes(specs: IndexSpec[]): Promise<IndexQuote[]
   if (out.length === 0) throw new Error('EastMoney returned no index data')
   return out
 }
+
+// --- Theme/sector comparison quotes ---------------------------------------
+// Richer field set than fetchQuotesBySecids (adds PE / PB / 总市值 / 趋势) for
+// the 题材 view. Kept separate so the HK/US banners' fetcher is untouched.
+
+export interface ThemeQuote {
+  code: string
+  name: string
+  price: number
+  changePct: number
+  pe: number | null // f9 动态市盈率（亏损为 null）
+  pb: number | null // f23 市净率
+  marketCap: number // f20 总市值（元）
+  chg60: number | null // f24 60 日涨跌%
+  chgYtd: number | null // f25 年初至今%
+}
+
+interface EMThemeItem {
+  f2?: number | string
+  f3?: number | string
+  f9?: number | string
+  f12?: string
+  f14?: string
+  f20?: number | string
+  f23?: number | string
+  f24?: number | string
+  f25?: number | string
+}
+
+const THEME_FIELDS = 'f2,f3,f9,f12,f14,f20,f23,f24,f25'
+
+/** EastMoney returns '-' for unavailable numerics (e.g. PE of a loss-maker). */
+const emNum = (v: unknown): number | null =>
+  typeof v === 'number' && Number.isFinite(v) ? v : null
+
+/** Batch-fetch valuation+trend quotes for theme constituents. Throws on failure. */
+export async function fetchThemeQuotes(secids: string[]): Promise<ThemeQuote[]> {
+  if (secids.length === 0) return []
+  const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secids.join(',')}&fields=${THEME_FIELDS}`
+  const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(6000) })
+  if (!res.ok) throw new Error(`EastMoney ulist HTTP ${res.status}`)
+  const json = (await res.json()) as { data?: { diff?: EMThemeItem[] } }
+  const diff = json.data?.diff ?? []
+  return diff.map((d) => ({
+    code: d.f12 ?? '',
+    name: typeof d.f14 === 'string' ? d.f14 : String(d.f14 ?? ''),
+    price: emNum(d.f2) ?? 0,
+    changePct: emNum(d.f3) ?? 0,
+    pe: emNum(d.f9),
+    pb: emNum(d.f23),
+    marketCap: emNum(d.f20) ?? 0,
+    chg60: emNum(d.f24),
+    chgYtd: emNum(d.f25),
+  }))
+}
