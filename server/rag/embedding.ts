@@ -5,8 +5,10 @@ config()
 
 const DIMENSION = 1536 // Standard OpenAI embedding dimension
 
-// Simple embedding fallback using character n-grams (works for Chinese)
-function simpleEmbed(text: string): number[] {
+// Simple embedding fallback using character n-grams (works for Chinese).
+// Exported so the offline eval harness can reuse the exact same deterministic
+// embedder the app falls back to when no embeddings API is configured.
+export function simpleEmbed(text: string): number[] {
   const vector = new Array(DIMENSION).fill(0)
 
   // Extract tokens: Chinese characters (single char) + English words

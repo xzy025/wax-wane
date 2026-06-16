@@ -1,9 +1,19 @@
 import type { ToolModule } from '../types'
 
+interface HybridResult {
+  id: string
+  text: string
+  score: number
+  fusedScore?: number
+  ranks?: { dense?: number; lexical?: number }
+  metadata?: { type?: string }
+}
+
 export const hybridSearch: ToolModule = {
   schema: {
     name: 'hybridSearch',
-    description: '混合搜索：结合向量语义搜索和图关系遍历，找到最相关的交易经验和关联信息。',
+    description:
+      '混合搜索：结合向量语义检索(dense)、BM25 关键词检索(lexical)的 RRF 融合，并叠加图关系遍历，找到最相关的交易经验和关联信息。',
     parameters: {
       type: 'object',
       properties: {
@@ -25,14 +35,26 @@ export const hybridSearch: ToolModule = {
   },
 
   execute: async (args) => {
-    const { query, topK, graphDepth } = args
+    const { query, topK } = args
+    const k = parseInt(topK as string, 10) || 5
 
     try {
-      // 1. Vector search (existing RAG)
-      const ragRes = await fetch(`/api/mcp/rag/search?query=${encodeURIComponent(query as string)}&topK=${topK || 5}`)
-      let vectorResults: Array<{ id: string; content: string; score: number; type: string }> = []
-      if (ragRes.ok) {
-        vectorResults = await ragRes.json()
+      // 1. Vector + lexical hybrid retrieval (RRF fusion). Falls back to the
+      //    dense-only endpoint if the hybrid route is unavailable (older server).
+      let vectorResults: HybridResult[] = []
+      let retrieval: Record<string, unknown> | undefined
+      const hybridRes = await fetch(
+        `/api/mcp/rag/hybrid-search?query=${encodeURIComponent(query as string)}&topK=${k}`,
+      )
+      if (hybridRes.ok) {
+        const data = await hybridRes.json()
+        vectorResults = (data.results ?? []) as HybridResult[]
+        retrieval = data.meta
+      } else {
+        const ragRes = await fetch(
+          `/api/mcp/rag/search?query=${encodeURIComponent(query as string)}&topK=${k}`,
+        )
+        if (ragRes.ok) vectorResults = await ragRes.json()
       }
 
       // 2. Graph query (find related entities)
@@ -58,13 +80,22 @@ export const hybridSearch: ToolModule = {
       }
 
       // 3. Combine results
+      const graphCount = Array.isArray(graphResults) ? graphResults.length : 0
       return {
         query,
         vectorMatches: vectorResults.length,
-        graphConnections: Array.isArray(graphResults) ? graphResults.length : 0,
-        vectorResults: vectorResults.slice(0, parseInt(topK as string) || 5),
+        graphConnections: graphCount,
+        retrieval, // { denseCount, lexicalCount, fusedCount, reranked, traceId, tookMs }
+        vectorResults: vectorResults.slice(0, k).map((r) => ({
+          id: r.id,
+          content: r.text,
+          score: r.score,
+          fusedScore: r.fusedScore,
+          ranks: r.ranks,
+          type: r.metadata?.type,
+        })),
         graphResults: Array.isArray(graphResults) ? graphResults.slice(0, 5) : [],
-        summary: `Found ${vectorResults.length} semantic matches and ${Array.isArray(graphResults) ? graphResults.length : 0} graph connections for "${query}"`,
+        summary: `Found ${vectorResults.length} fused matches (${retrieval ? `dense ${retrieval.denseCount} + lexical ${retrieval.lexicalCount}` : 'dense-only'}) and ${graphCount} graph connections for "${query}"`,
       }
     } catch (err) {
       return { error: `Hybrid search error: ${err instanceof Error ? err.message : 'Unknown'}` }
