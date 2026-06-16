@@ -75,6 +75,8 @@
    `a=GetPlateInfo&st=10&apiv=w18&c=DailyLimitResumption&PhoneOSNew=1&Index=20&DeviceID=00000000-025d-1ffd-fa71-8fd5272bb997`
    → `nums`: `ZT`涨停/`DT`跌停/`ZBL`破板率%/`SZJS`上涨家数/`XDJS`下跌家数/`yestRase`昨日涨停今表现%。
 
+> ⚠️ 解析提示：本机 `python -c` 会把**源码里的中文字面量**按 GBK 误解码（导致按板块名/关键词过滤失效、标签输出乱码）。凡是在 python 里写中文做过滤/比较，务必前缀 `PYTHONUTF8=1 python -c ...`；从 JSON 取出的中文打印/比较不受影响。
+
 **情绪阶段速判**（喂给 `sentiment` 模式的四阶段）：
 - 冰点：涨停 <~30、跌停偏多、无连板高度
 - 修复：涨停回升、开始出现连板梯队
