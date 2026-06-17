@@ -202,11 +202,12 @@ export const THEMES: ThemeDef[] = [
     nameEn: 'Glass Substrate',
     blurb: '玻璃基载板 / 先进封装基板 / 显示玻璃',
     constituents: [
-      { code: '603773', label: '玻璃基板/TGV' },
-      { code: '600552', label: '显示玻璃/UTG' },
-      { code: '300088', label: '减薄/镀膜' },
-      { code: '688300', label: '封装材料' },
-      { code: '002876', label: '偏光片' },
+      { code: '688079', label: 'TGV/半导体光学' }, // 美迪凯
+      { code: '601636', label: '电子玻璃/TGV' }, // 旗滨集团
+      { code: '000725', label: '玻璃基载板(康宁合作)' }, // 京东方A
+      { code: '603773', label: '玻璃基板/TGV' }, // 沃格光电
+      { code: '600703', label: '化合物半导体/玻璃基' }, // 三安光电
+      { code: '600367', label: '电子玻璃原料·概念' }, // 红星发展
     ],
     peers: [
       { market: 'US', code: 'GLW', name: '康宁', nameEn: 'Corning', label: '显示/载板玻璃龙头' },
