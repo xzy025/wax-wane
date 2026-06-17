@@ -88,6 +88,39 @@ export interface Translation {
       tag: string
     }
   }
+  moneyflow: {
+    title: string
+    hint: string
+    tradeDate: string
+    lastUpdated: string
+    refresh: string
+    loadFail: string
+    noData: string
+    sortAsc: string
+    sortDesc: string
+    daysSuffix: string
+    sourceLabel: string
+    periodLabel: string
+    sources: { lhb: string; fund: string }
+    periods: { today: string; d3: string; d5: string }
+    cols: {
+      name: string
+      close: string
+      price: string
+      change: string
+      turnover: string
+      net: string
+      reason: string
+      mainNet: string
+      mainNetPct: string
+      superNet: string
+      bigNet: string
+      totalNet: string
+      totalMain: string
+      days: string
+      latestChange: string
+    }
+  }
   settings: string
   sidebar: { costLabel: string; costMode: string; costHint: string }
   metrics: Record<string, string[]>
