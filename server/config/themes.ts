@@ -78,7 +78,7 @@ export const THEMES: ThemeDef[] = [
   },
   {
     id: 'cpo-optics',
-    name: '算力/CPO/光模块',
+    name: 'CPO/光模块',
     nameEn: 'CPO & Optical Modules',
     blurb: 'AI 算力光互联：光模块 / CPO / 光器件',
     constituents: [
@@ -94,6 +94,26 @@ export const THEMES: ThemeDef[] = [
       { market: 'US', code: 'COHR', name: '相干', nameEn: 'Coherent', label: '光器件/激光' },
       { market: 'US', code: 'LITE', name: 'Lumentum', nameEn: 'Lumentum', label: '光模块/光芯片' },
       { market: 'US', code: 'FN', name: '富纳康', nameEn: 'Fabrinet', label: '光模块代工' },
+    ],
+  },
+  {
+    id: 'compute-leasing',
+    name: '算力租赁',
+    nameEn: 'Compute Leasing',
+    blurb: 'AI 算力租赁 / 智算中心 / GPU 服务器出租 / IDC',
+    constituents: [
+      { code: '301396', label: '算力租赁双雄/智算服务' }, // 宏景科技（用户口中的「宏景电子」）
+      { code: '300857', label: '算力租赁龙头/GPU服务器' }, // 协创数据
+      { code: '603629', label: '算力租赁/液冷' }, // 利通电子
+      { code: '002229', label: '英伟达算力/智算中心' }, // 鸿博股份
+      { code: '603220', label: '算力(英伟达+华为)' }, // 中贝通信
+      { code: '603881', label: 'IDC龙头(腾讯)' }, // 数据港
+      { code: '300442', label: '智算中心/IDC' }, // 润泽科技
+      { code: '600186', label: 'GPU服务器/算力租赁' }, // 莲花控股
+    ],
+    peers: [
+      { market: 'US', code: 'CRWV', name: 'CoreWeave', nameEn: 'CoreWeave', label: 'GPU云/neocloud龙头' },
+      { market: 'US', code: 'NBIS', name: 'Nebius', nameEn: 'Nebius', label: 'AI算力云' },
     ],
   },
   {
