@@ -835,6 +835,83 @@ p {
   vertical-align: 1px;
 }
 
+/* ── 资金流（龙虎榜 / 主力资金流）─────────────────────── */
+.muted-line {
+  margin: -4px 0 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.banner-error {
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--red);
+  background: var(--red-soft);
+  font-size: 0.86rem;
+}
+
+/* 口径 / 周期 切换：两组药丸式 segmented。 */
+.moneyflow-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.seg-group {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.seg-btn {
+  padding: 5px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.seg-btn:hover {
+  color: var(--ink);
+}
+
+.seg-btn.active {
+  color: var(--ink);
+  background: var(--surface);
+  font-weight: 750;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* 当日龙虎榜：名称 / 收盘 / 涨跌 / 换手 / 净买入 / 上榜席位 */
+.moneyflow-lhb-table .table-row {
+  grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 1fr 1.8fr;
+}
+
+/* 当日主力资金流：名称 / 现价 / 涨跌 / 主力净 / 占比 / 超大单 / 大单 */
+.moneyflow-fund-table .table-row {
+  grid-template-columns: 1.6fr 0.8fr 0.8fr 1fr 0.8fr 0.95fr 0.95fr;
+}
+
+/* 多日累计榜：名称 / 累计净额 / 天数 / 最新涨跌 */
+.moneyflow-rank-table .table-row {
+  grid-template-columns: 1.8fr 1.1fr 0.8fr 0.9fr;
+}
+
+/* 上榜席位/原因：单行省略，悬停看全文。 */
+.moneyflow-reason {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 .spin {
   animation: kf-spin 0.8s linear infinite;
 }

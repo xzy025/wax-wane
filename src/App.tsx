@@ -10,6 +10,7 @@ import {
   UploadSimple,
   TrendUp,
   SquaresFour,
+  Coins,
   Robot,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
@@ -33,11 +34,13 @@ import ReviewView from './views/ReviewView'
 import AnalyticsView from './views/AnalyticsView'
 import AgentView from './views/AgentView'
 import ThemesView from './views/ThemesView'
+import MoneyFlowView from './views/MoneyFlowView'
 import type { Translation } from './types'
 
 const navItems = [
   { id: 'market', icon: TrendUp, path: '/market' },
   { id: 'themes', icon: SquaresFour, path: '/themes' },
+  { id: 'moneyflow', icon: Coins, path: '/moneyflow' },
   { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
   { id: 'import', icon: UploadSimple, path: '/import' },
   { id: 'ledger', icon: File, path: '/ledger' },
@@ -171,6 +174,7 @@ function AppLayout() {
           <Routes>
           <Route path="/market" element={<div />} />
           <Route path="/themes" element={<ThemesView t={t} language={language as 'zh' | 'en'} />} />
+          <Route path="/moneyflow" element={<MoneyFlowView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />
           <Route path="/import" element={<ImportView t={t} />} />
           <Route path="/ledger" element={<LedgerView t={t} range={range} />} />
