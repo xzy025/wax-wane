@@ -55,7 +55,7 @@ export default {
   },
   moneyflow: {
     title: 'Money Flow Rankings',
-    hint: 'Daily LHB net-buy & main capital flow are auto-stored and rolled up into 3-day / 5-day rankings (captured on first open each day)',
+    hint: 'LHB net-buy + per-stock main capital flow; today / 3-day / 5-day boards fetched live from EastMoney (full universe on first open, no accumulation)',
     tradeDate: 'Trade date',
     lastUpdated: 'Updated',
     refresh: 'Refresh',

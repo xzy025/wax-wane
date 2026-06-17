@@ -7,7 +7,7 @@ import { fetchHotList, clearHotListCache } from '../services/hotlist'
 import { fetchSentiment, clearSentimentCache } from '../services/kaipanla'
 import { clearMacroCache } from '../services/macro'
 import { clearThemesCache } from '../services/themes'
-import { fetchMoneyFlow, clearMoneyFlowCache, ingestMoneyFlow } from '../services/moneyflow'
+import { fetchMoneyFlow, clearMoneyFlowCache } from '../services/moneyflow'
 
 const router = Router()
 
@@ -112,22 +112,11 @@ router.get('/api/hotlist', async (_req, res) => {
   }
 })
 
-// 资金流：龙虎榜净买入 + 个股主力资金流（当日/3日/5日榜）。缺当日快照时懒触发抓取+落盘。
+// 资金流：龙虎榜净买入 + 个股主力资金流（当日/3日/5日榜，全部东财直接取数，无快照依赖）。
 router.get('/api/moneyflow', async (_req, res) => {
   try {
     const data = await fetchMoneyFlow()
     res.json(data)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    res.status(500).json({ error: message })
-  }
-})
-
-// 保底入库接口：强制现抓+落盘，供外部计划任务定时调用（防某天没开 app 漏采）。
-router.post('/api/moneyflow/ingest', async (_req, res) => {
-  try {
-    const result = await ingestMoneyFlow()
-    res.json({ ok: true, ...result })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     res.status(500).json({ error: message })

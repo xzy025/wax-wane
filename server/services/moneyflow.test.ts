@@ -1,12 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  dedupeLhbByCode,
-  aggregateLhb,
-  aggregateFundFlow,
-  type DailySnapshot,
-  type LhbRow,
-  type FundFlowRow,
-} from './moneyflow'
+import { dedupeLhbByCode, groupLhbByDate, aggregateLhb, parseFundFlowWindow, type LhbDay, type LhbRow } from './moneyflow'
 
 function lhb(over: Partial<LhbRow>): LhbRow {
   return {
@@ -24,12 +17,8 @@ function lhb(over: Partial<LhbRow>): LhbRow {
   }
 }
 
-function fund(over: Partial<FundFlowRow>): FundFlowRow {
-  return { code: '000001', name: 'stub', price: 10, changePct: 0, mainNet: 0, mainNetPct: 0, superNet: 0, bigNet: 0, ...over }
-}
-
-function snap(date: string, lhbRows: LhbRow[], fundRows: FundFlowRow[]): DailySnapshot {
-  return { date, fetchedAt: `${date}T08:00:00Z`, lhb: lhbRows, fundFlow: fundRows }
+function day(date: string, rows: LhbRow[]): LhbDay {
+  return { date, rows }
 }
 
 describe('dedupeLhbByCode', () => {
@@ -49,14 +38,29 @@ describe('dedupeLhbByCode', () => {
   })
 })
 
-describe('aggregateLhb', () => {
-  it('sums net across days, counts board days, takes latest change from most-recent snapshot, sorts desc', () => {
-    // snaps passed descending (most recent first)
-    const snaps = [
-      snap('2026-06-17', [lhb({ code: 'A', netAmt: 100, changePct: 9 }), lhb({ code: 'B', netAmt: 80, changePct: 3 })], []),
-      snap('2026-06-16', [lhb({ code: 'A', netAmt: 50, changePct: -2 })], []),
+describe('groupLhbByDate', () => {
+  it('groups raw billboard rows by trade date (desc), dedupes per day', () => {
+    const data = [
+      { SECURITY_CODE: 'A', SECURITY_NAME_ABBR: 'aa', TRADE_DATE: '2026-06-17 00:00:00', CLOSE_PRICE: 10, CHANGE_RATE: 5, TURNOVERRATE: 3, BILLBOARD_BUY_AMT: 150, BILLBOARD_SELL_AMT: 50, BILLBOARD_NET_AMT: 100, EXPLANATION: '涨幅', EXPLAIN: '机构' },
+      { SECURITY_CODE: 'A', SECURITY_NAME_ABBR: 'aa', TRADE_DATE: '2026-06-17 00:00:00', CLOSE_PRICE: 10, CHANGE_RATE: 5, TURNOVERRATE: 3, BILLBOARD_BUY_AMT: 80, BILLBOARD_SELL_AMT: 20, BILLBOARD_NET_AMT: 60, EXPLANATION: '换手', EXPLAIN: '游资' },
+      { SECURITY_CODE: 'B', SECURITY_NAME_ABBR: 'bb', TRADE_DATE: '2026-06-16 00:00:00', CLOSE_PRICE: 20, CHANGE_RATE: 2, TURNOVERRATE: 1, BILLBOARD_BUY_AMT: 500, BILLBOARD_SELL_AMT: 0, BILLBOARD_NET_AMT: 500, EXPLANATION: '', EXPLAIN: '' },
     ]
-    const out = aggregateLhb(snaps)
+    const out = groupLhbByDate(data)
+    expect(out.map((d) => d.date)).toEqual(['2026-06-17', '2026-06-16']) // 降序
+    expect(out[0].rows).toHaveLength(1) // A 当日两条聚合为一
+    expect(out[0].rows[0].netAmt).toBe(160)
+    expect(out[1].rows[0].code).toBe('B')
+  })
+})
+
+describe('aggregateLhb', () => {
+  it('sums net across days, counts board days, takes latest change from most-recent day, sorts desc', () => {
+    // days passed descending (most recent first)
+    const days = [
+      day('2026-06-17', [lhb({ code: 'A', netAmt: 100, changePct: 9 }), lhb({ code: 'B', netAmt: 80, changePct: 3 })]),
+      day('2026-06-16', [lhb({ code: 'A', netAmt: 50, changePct: -2 })]),
+    ]
+    const out = aggregateLhb(days)
     expect(out.map((r) => r.code)).toEqual(['A', 'B']) // 150 vs 80
     const a = out[0]
     expect(a.totalNet).toBe(150)
@@ -65,22 +69,23 @@ describe('aggregateLhb', () => {
     expect(out[1].days).toBe(1)
   })
 
-  it('returns empty for no snapshots', () => {
+  it('returns empty for no days', () => {
     expect(aggregateLhb([])).toEqual([])
   })
 })
 
-describe('aggregateFundFlow', () => {
-  it('sums main net inflow across days and counts appearance days', () => {
-    const snaps = [
-      snap('2026-06-17', [], [fund({ code: 'X', mainNet: 3e8, changePct: 10 })]),
-      snap('2026-06-16', [], [fund({ code: 'X', mainNet: 1e8, changePct: 4 }), fund({ code: 'Y', mainNet: 2e8, changePct: 1 })]),
+describe('parseFundFlowWindow', () => {
+  it('maps window net/change keys to RankEntry, sorts by net desc, days=0, missing→0', () => {
+    const diff = [
+      { f12: 'A', f14: 'aa', f2: 10, f267: 3e8, f127: 12 },
+      { f12: 'B', f14: 'bb', f2: 20, f267: 5e8, f127: -3 },
+      { f12: 'C', f14: 'cc', f2: 5, f267: '-', f127: '-' }, // 缺失 → 0
     ]
-    const out = aggregateFundFlow(snaps)
-    expect(out.map((r) => r.code)).toEqual(['X', 'Y']) // 4e8 vs 2e8
-    expect(out[0].totalNet).toBe(4e8)
-    expect(out[0].days).toBe(2)
-    expect(out[0].latestChangePct).toBe(10)
-    expect(out[1].days).toBe(1)
+    const out = parseFundFlowWindow(diff, 'f267', 'f127')
+    expect(out.map((r) => r.code)).toEqual(['B', 'A', 'C']) // 5e8 > 3e8 > 0
+    expect(out[0].totalNet).toBe(5e8)
+    expect(out[0].latestChangePct).toBe(-3)
+    expect(out[0].days).toBe(0)
+    expect(out[2].totalNet).toBe(0)
   })
 })
