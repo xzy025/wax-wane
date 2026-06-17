@@ -903,6 +903,11 @@ p {
   grid-template-columns: 1.8fr 1.1fr 0.8fr 0.9fr;
 }
 
+/* 资金流窗口榜：无「上榜天数」列 → 名称 / 累计净额 / 区间涨跌 */
+.moneyflow-rank-table.no-days .table-row {
+  grid-template-columns: 1.8fr 1.1fr 0.9fr;
+}
+
 /* 上榜席位/原因：单行省略，悬停看全文。 */
 .moneyflow-reason {
   overflow: hidden;

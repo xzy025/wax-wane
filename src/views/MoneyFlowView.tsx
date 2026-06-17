@@ -141,6 +141,7 @@ export default function MoneyFlowView({ t }: MoneyFlowViewProps) {
           rows={source === 'lhb' ? (period === 'd3' ? data.lhb.d3 : data.lhb.d5) : period === 'd3' ? data.fundFlow.d3 : data.fundFlow.d5}
           t={t}
           netLabel={source === 'lhb' ? m.cols.totalNet : m.cols.totalMain}
+          showDays={source === 'lhb'}
         />
       )}
     </section>
@@ -254,18 +255,19 @@ function FundTodayTable({ rows, t }: { rows: FundFlowRow[]; t: Translation }) {
   )
 }
 
-function RankTable({ rows, t, netLabel }: { rows: RankEntry[]; t: Translation; netLabel: string }) {
+function RankTable({ rows, t, netLabel, showDays }: { rows: RankEntry[]; t: Translation; netLabel: string; showDays: boolean }) {
   const { sorted, sortKey, sortDir, toggle } = useSortableRows<RankEntry, RankKey>(rows, ACC_RANK, { key: 'net', dir: 'desc' })
   const c = t.moneyflow.cols
   const th = (k: RankKey, label: string) => (
     <SortTh k={k} label={label} sortKey={sortKey} sortDir={sortDir} toggle={toggle} t={t} />
   )
+  // 资金流窗口为直接取数，无「上榜天数」颗粒度 → 隐藏该列（仅龙虎榜显示）。
   return (
-    <div className="data-table moneyflow-rank-table">
+    <div className={`data-table moneyflow-rank-table${showDays ? '' : ' no-days'}`}>
       <div className="table-row table-head">
         <span>{c.name}</span>
         {th('net', netLabel)}
-        {th('days', c.days)}
+        {showDays && th('days', c.days)}
         {th('change', c.latestChange)}
       </div>
       {sorted.length === 0 && <div className="table-row">{t.moneyflow.noData}</div>}
@@ -273,10 +275,12 @@ function RankTable({ rows, t, netLabel }: { rows: RankEntry[]; t: Translation; n
         <div className="table-row" key={r.code}>
           <StockName code={r.code} name={r.name} />
           <span className={`mono ${colorClass(r.totalNet)}`}>{fmtYi(r.totalNet)}</span>
-          <span className="mono">
-            {r.days}
-            {t.moneyflow.daysSuffix}
-          </span>
+          {showDays && (
+            <span className="mono">
+              {r.days}
+              {t.moneyflow.daysSuffix}
+            </span>
+          )}
           <span className={`mono ${colorClass(r.latestChangePct)}`}>{fmtPct(r.latestChangePct)}</span>
         </div>
       ))}
