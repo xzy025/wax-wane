@@ -13,6 +13,8 @@ export interface ThemeRow {
   chg60: number | null
   chgYtd: number | null
   found: boolean
+  limitUp: boolean
+  boards: number
 }
 
 export interface ThemeSummary {
@@ -20,7 +22,24 @@ export interface ThemeSummary {
   avgChangePct: number
   upCount: number
   downCount: number
-  leader: { name: string; changePct: number } | null
+  leader: { name: string; code: string; changePct: number } | null
+  divergencePct: number
+  limitUpCount: number
+  maxBoards: number
+}
+
+export type PeerMarket = 'US' | 'HK' | 'JP' | 'KR' | 'TW'
+
+/** 海外可比龙头一行（mirror of server PeerRow）。found=false → 仅对照，价格显示「—」。 */
+export interface PeerRow {
+  market: PeerMarket
+  code: string
+  name: string
+  nameEn: string
+  label?: string
+  price: number
+  changePct: number
+  found: boolean
 }
 
 export interface ThemeBlock {
@@ -30,6 +49,7 @@ export interface ThemeBlock {
   blurb: string
   summary: ThemeSummary
   constituents: ThemeRow[]
+  peers: PeerRow[]
 }
 
 export interface ThemesResult {

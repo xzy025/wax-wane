@@ -67,6 +67,15 @@ export interface Translation {
     loadFail: string
     noData: string
     upDown: string
+    lastUpdated: string
+    limitUp: string
+    boardsSuffix: string
+    divergence: string
+    maxBoardStat: string
+    sortAsc: string
+    sortDesc: string
+    overseasTitle: string
+    markets: { US: string; JP: string; KR: string; HK: string; TW: string }
     cols: {
       name: string
       price: string

@@ -757,6 +757,84 @@ p {
   font-size: 0.84rem;
 }
 
+/* Push the "updated at" stamp to the right, beside the refresh button. */
+.themes-updated {
+  margin-left: auto;
+  align-self: center;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* Clickable column header: inherits the table-head look, toggles sort on click. */
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  user-select: none;
+}
+
+.th-sort:hover {
+  color: var(--blue);
+}
+
+.th-sort.active {
+  color: var(--ink);
+}
+
+/* 涨停/连板 badge — A-share up = red, modeled on the .side pill. */
+.theme-limit-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 850;
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+/* 龙头 crown in the constituent table (gold, vs the muted crown on cards). */
+.theme-leader-crown {
+  color: var(--orange);
+  margin-right: 3px;
+}
+
+/* 海外可比龙头表：比成分股表少几列（名称 / 现价 / 涨跌 / 细分）。 */
+.peer-table {
+  margin-top: 14px;
+}
+
+.peer-table .table-row {
+  grid-template-columns: 1.8fr 0.9fr 0.9fr 1.1fr;
+}
+
+/* 市场徽章（美/日/韩/港/台）——中性药丸，区别于红绿涨跌色。 */
+.peer-market-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 850;
+  color: var(--muted);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  vertical-align: 1px;
+}
+
 .spin {
   animation: kf-spin 0.8s linear infinite;
 }
