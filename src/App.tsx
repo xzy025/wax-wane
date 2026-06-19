@@ -10,7 +10,7 @@ import {
   UploadSimple,
   TrendUp,
   SquaresFour,
-  Coins,
+  Trophy,
   Robot,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
@@ -40,7 +40,7 @@ import type { Translation } from './types'
 const navItems = [
   { id: 'market', icon: TrendUp, path: '/market' },
   { id: 'themes', icon: SquaresFour, path: '/themes' },
-  { id: 'moneyflow', icon: Coins, path: '/moneyflow' },
+  { id: 'moneyflow', icon: Trophy, path: '/moneyflow' },
   { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
   { id: 'import', icon: UploadSimple, path: '/import' },
   { id: 'ledger', icon: File, path: '/ledger' },

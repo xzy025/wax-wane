@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { ArrowClockwise, CaretDown, CaretUp } from 'phosphor-react'
-import { useMoneyFlow, type LhbRow, type FundFlowRow, type RankEntry } from '../hooks/useMoneyFlow'
-import { useSortableRows, type Accessors } from '../hooks/useSortableRows'
+import { useState, type ReactNode } from 'react'
+import { ArrowUp, ArrowDown } from 'phosphor-react'
+import { useMoneyFlow, useTradingDates, type LhbStock, type Seat } from '../hooks/useMoneyFlow'
+import MarketDatePicker, { getLastTradingDay } from '../components/MarketDatePicker'
 import type { Translation } from '../types'
 
 interface MoneyFlowViewProps {
@@ -9,39 +9,10 @@ interface MoneyFlowViewProps {
   language: 'zh' | 'en'
 }
 
-type Source = 'lhb' | 'fund'
-type Period = 'today' | 'd3' | 'd5'
+type FlowFilter = 'all' | 'inflow' | 'outflow'
+type Period = 1 | 3 | 5
 
-// Explicit key unions so useSortableRows pins K to the full set (not the
-// default-sort literal) — otherwise the `th` helper's key won't type-check.
-type LhbKey = 'close' | 'change' | 'turnover' | 'net' | 'buy' | 'sell'
-type FundKey = 'price' | 'change' | 'main' | 'mainpct' | 'sup' | 'big'
-type RankKey = 'net' | 'days' | 'change'
-
-// Module-level accessor maps → stable references across renders.
-const ACC_LHB: Accessors<LhbRow, LhbKey> = {
-  close: (r) => r.close,
-  change: (r) => r.changePct,
-  turnover: (r) => r.turnover,
-  net: (r) => r.netAmt,
-  buy: (r) => r.buyAmt,
-  sell: (r) => r.sellAmt,
-}
-const ACC_FUND: Accessors<FundFlowRow, FundKey> = {
-  price: (r) => r.price,
-  change: (r) => r.changePct,
-  main: (r) => r.mainNet,
-  mainpct: (r) => r.mainNetPct,
-  sup: (r) => r.superNet,
-  big: (r) => r.bigNet,
-}
-const ACC_RANK: Accessors<RankEntry, RankKey> = {
-  net: (r) => r.totalNet,
-  days: (r) => r.days,
-  change: (r) => r.latestChangePct,
-}
-
-/** A-share convention: red = up, green = down. Null/0 → neutral. */
+/** A-share convention: red = up/inflow, green = down/outflow. Null/0 → neutral. */
 function colorClass(n: number | null): string {
   if (n == null || n === 0) return ''
   return n > 0 ? 'positive-text' : 'negative-text'
@@ -52,7 +23,7 @@ function fmtPct(n: number | null): string {
   return `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`
 }
 
-/** 元 → 亿(≥1亿) / 万，带符号（净额可正可负）。 */
+/** 元 → 亿(≥1亿) / 万，带符号。 */
 function fmtYi(yuan: number): string {
   const sign = yuan < 0 ? '-' : ''
   const abs = Math.abs(yuan)
@@ -65,53 +36,51 @@ function emHref(code: string): string {
 }
 
 export default function MoneyFlowView({ t }: MoneyFlowViewProps) {
-  const { data, loading, error, lastUpdated, refresh } = useMoneyFlow()
-  const [source, setSource] = useState<Source>('lhb')
-  const [period, setPeriod] = useState<Period>('today')
+  const [period, setPeriod] = useState<Period>(1)
+  const [date, setDate] = useState('') // '' → latest trading day
+  const { dates, latest } = useTradingDates()
+  const { data, loading, error, lastUpdated, refresh } = useMoneyFlow(date || undefined, period)
+  const [flow, setFlow] = useState<FlowFilter>('all')
+  const [concept, setConcept] = useState<string | null>(null) // null → 全部
 
   const m = t.moneyflow
-  const isToday = period === 'today'
+  const selectedDate = date || latest || getLastTradingDay()
+
+  const matchConcept = (s: LhbStock) => !concept || s.concepts.includes(concept)
+  const buy = (data?.buy ?? []).filter(matchConcept)
+  const sell = (data?.sell ?? []).filter(matchConcept)
+  const totalCount = (data?.buy.length ?? 0) + (data?.sell.length ?? 0)
+  // 概念太多会糊成墙：只保留出现 ≥2 次的共性概念作筛选 chips。
+  const conceptChips = (data?.concepts ?? []).filter((c) => c.count >= 2)
+
+  const showBuy = flow !== 'outflow'
+  const showSell = flow !== 'inflow'
 
   return (
     <section className="view-stack">
       <div className="panel-title themes-toolbar">
         <h2>{m.title}</h2>
-        {data?.tradeDate && (
+        <MarketDatePicker
+          selectedDate={selectedDate}
+          onSelect={setDate}
+          onRefresh={refresh}
+          t={t}
+          availableDates={dates.size ? dates : undefined}
+        />
+        {lastUpdated && (
           <span className="themes-updated">
-            {m.tradeDate} {data.tradeDate}
-            {lastUpdated && ` · ${m.lastUpdated} ${lastUpdated.toLocaleTimeString()}`}
+            {loading ? '…' : `${m.lastUpdated} ${lastUpdated.toLocaleTimeString()}`}
           </span>
         )}
-        <button
-          className="icon-button"
-          onClick={refresh}
-          disabled={loading}
-          aria-label={m.refresh}
-          title={m.refresh}
-        >
-          <ArrowClockwise size={16} className={loading ? 'spin' : ''} />
-        </button>
       </div>
 
       <p className="muted-line">{m.hint}</p>
 
-      <div className="moneyflow-controls">
-        <div className="seg-group" role="radiogroup" aria-label={m.sourceLabel}>
-          {(['lhb', 'fund'] as Source[]).map((s) => (
-            <button
-              key={s}
-              type="button"
-              role="radio"
-              aria-checked={source === s}
-              className={`seg-btn ${source === s ? 'active' : ''}`}
-              onClick={() => setSource(s)}
-            >
-              {m.sources[s]}
-            </button>
-          ))}
-        </div>
+      {error && <div className="banner-error">{m.loadFail}</div>}
+
+      <div className="dt-segs">
         <div className="seg-group" role="radiogroup" aria-label={m.periodLabel}>
-          {(['today', 'd3', 'd5'] as Period[]).map((p) => (
+          {([1, 3, 5] as Period[]).map((p) => (
             <button
               key={p}
               type="button"
@@ -120,170 +89,191 @@ export default function MoneyFlowView({ t }: MoneyFlowViewProps) {
               className={`seg-btn ${period === p ? 'active' : ''}`}
               onClick={() => setPeriod(p)}
             >
-              {m.periods[p]}
+              {p === 1 ? m.periods.today : p === 3 ? m.periods.d3 : m.periods.d5}
             </button>
           ))}
         </div>
       </div>
 
-      {error && <div className="banner-error">{m.loadFail}</div>}
+      {/* 汇总 */}
+      <div className="dt-summary">
+        <Stat label={m.summary.inflowCount} value={`${data?.summary.inflowCount ?? 0}${m.stocksUnit}`} tone="up" />
+        <Stat label={m.summary.outflowCount} value={`${data?.summary.outflowCount ?? 0}${m.stocksUnit}`} tone="down" />
+        <Stat label={m.summary.totalInflow} value={fmtYi(data?.summary.totalInflow ?? 0)} tone="up" />
+        <Stat label={m.summary.totalOutflow} value={fmtYi(data?.summary.totalOutflow ?? 0)} tone="down" />
+      </div>
+
+      {/* 筛选：净流入/净流出 + 概念 */}
+      <div className="dt-filter">
+        <div className="seg-group" role="radiogroup" aria-label={m.filter.all}>
+          {(['all', 'inflow', 'outflow'] as FlowFilter[]).map((f) => (
+            <button
+              key={f}
+              type="button"
+              role="radio"
+              aria-checked={flow === f}
+              className={`seg-btn ${flow === f ? 'active' : ''}`}
+              onClick={() => setFlow(f)}
+            >
+              {m.filter[f]}
+            </button>
+          ))}
+        </div>
+        {conceptChips.length > 0 && (
+          <div className="dt-chips">
+            <button
+              type="button"
+              className={`filter-chip ${concept === null ? 'active' : ''}`}
+              onClick={() => setConcept(null)}
+            >
+              {m.conceptAll} ({totalCount})
+            </button>
+            {conceptChips.map((c) => (
+              <button
+                key={c.name}
+                type="button"
+                className={`filter-chip ${concept === c.name ? 'active' : ''}`}
+                onClick={() => setConcept(concept === c.name ? null : c.name)}
+              >
+                {c.name} ({c.count})
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {!data ? (
         <div className="data-table">
           <div className="table-row">{loading ? '…' : m.noData}</div>
         </div>
-      ) : isToday && source === 'lhb' ? (
-        <LhbTodayTable rows={data.lhb.today} t={t} />
-      ) : isToday && source === 'fund' ? (
-        <FundTodayTable rows={data.fundFlow.today} t={t} />
+      ) : totalCount === 0 ? (
+        <div className="data-table">
+          <div className="table-row">{m.noData}</div>
+        </div>
       ) : (
-        <RankTable
-          rows={source === 'lhb' ? (period === 'd3' ? data.lhb.d3 : data.lhb.d5) : period === 'd3' ? data.fundFlow.d3 : data.fundFlow.d5}
-          t={t}
-          netLabel={source === 'lhb' ? m.cols.totalNet : m.cols.totalMain}
-          showDays={source === 'lhb'}
-        />
+        <div className="dt-board">
+          {showBuy && (
+            <Column title={m.buyTitle} count={buy.length} dir="up">
+              {buy.map((s) => (
+                <LhbCard key={s.code} s={s} t={t} showDays={period > 1} />
+              ))}
+            </Column>
+          )}
+          {showSell && (
+            <Column title={m.sellTitle} count={sell.length} dir="down">
+              {sell.map((s) => (
+                <LhbCard key={s.code} s={s} t={t} showDays={period > 1} />
+              ))}
+            </Column>
+          )}
+        </div>
       )}
     </section>
   )
 }
 
-/** Reusable sortable header button. */
-function SortTh<K extends string>({
-  k,
-  label,
-  sortKey,
-  sortDir,
-  toggle,
-  t,
+function Stat({ label, value, tone }: { label: string; value: string; tone: 'up' | 'down' }) {
+  return (
+    <div className="dt-stat">
+      <span className="dt-stat-label">{label}</span>
+      <span className={`dt-stat-value mono ${tone === 'up' ? 'positive-text' : 'negative-text'}`}>{value}</span>
+    </div>
+  )
+}
+
+function Column({
+  title,
+  count,
+  dir,
+  children,
 }: {
-  k: K
-  label: string
-  sortKey: K
-  sortDir: 'asc' | 'desc'
-  toggle: (k: K) => void
-  t: Translation
+  title: string
+  count: number
+  dir: 'up' | 'down'
+  children: ReactNode
 }) {
-  const active = sortKey === k
   return (
-    <button
-      type="button"
-      className={`th-sort ${active ? 'active' : ''}`}
-      onClick={() => toggle(k)}
-      title={active && sortDir === 'desc' ? t.moneyflow.sortAsc : t.moneyflow.sortDesc}
-    >
-      {label}
-      {active && (sortDir === 'asc' ? <CaretUp size={11} weight="bold" /> : <CaretDown size={11} weight="bold" />)}
-    </button>
-  )
-}
-
-function StockName({ code, name }: { code: string; name: string }) {
-  return (
-    <span>
-      <a href={emHref(code)} target="_blank" rel="noreferrer" className="theme-stock-name">
-        {name}
-      </a>
-      <small>{code}</small>
-    </span>
-  )
-}
-
-function LhbTodayTable({ rows, t }: { rows: LhbRow[]; t: Translation }) {
-  const { sorted, sortKey, sortDir, toggle } = useSortableRows<LhbRow, LhbKey>(rows, ACC_LHB, { key: 'net', dir: 'desc' })
-  const c = t.moneyflow.cols
-  const th = (k: LhbKey, label: string) => (
-    <SortTh k={k} label={label} sortKey={sortKey} sortDir={sortDir} toggle={toggle} t={t} />
-  )
-  return (
-    <div className="data-table moneyflow-lhb-table">
-      <div className="table-row table-head">
-        <span>{c.name}</span>
-        {th('close', c.close)}
-        {th('change', c.change)}
-        {th('turnover', c.turnover)}
-        {th('net', c.net)}
-        <span>{c.reason}</span>
-      </div>
-      {sorted.length === 0 && <div className="table-row">{t.moneyflow.noData}</div>}
-      {sorted.map((r) => (
-        <div className="table-row" key={r.code}>
-          <StockName code={r.code} name={r.name} />
-          <span className="mono">{r.close.toFixed(2)}</span>
-          <span className={`mono ${colorClass(r.changePct)}`}>{fmtPct(r.changePct)}</span>
-          <span className="mono">{r.turnover.toFixed(2)}%</span>
-          <span className={`mono ${colorClass(r.netAmt)}`}>{fmtYi(r.netAmt)}</span>
-          <span className="moneyflow-reason" title={`${r.reason}${r.seat ? ' | ' + r.seat : ''}`}>
-            {r.seat || r.reason}
-          </span>
-        </div>
-      ))}
+    <div className="dt-col">
+      <h3 className={`dt-col-head ${dir === 'up' ? 'positive-text' : 'negative-text'}`}>
+        {dir === 'up' ? <ArrowUp size={15} weight="bold" /> : <ArrowDown size={15} weight="bold" />}
+        {title} <small>({count})</small>
+      </h3>
+      <div className="dt-col-body">{children}</div>
     </div>
   )
 }
 
-function FundTodayTable({ rows, t }: { rows: FundFlowRow[]; t: Translation }) {
-  const { sorted, sortKey, sortDir, toggle } = useSortableRows<FundFlowRow, FundKey>(rows, ACC_FUND, { key: 'main', dir: 'desc' })
-  const c = t.moneyflow.cols
-  const th = (k: FundKey, label: string) => (
-    <SortTh k={k} label={label} sortKey={sortKey} sortDir={sortDir} toggle={toggle} t={t} />
-  )
+function LhbCard({ s, t, showDays }: { s: LhbStock; t: Translation; showDays: boolean }) {
+  const m = t.moneyflow
+  const up = s.netAmt >= 0
   return (
-    <div className="data-table moneyflow-fund-table">
-      <div className="table-row table-head">
-        <span>{c.name}</span>
-        {th('price', c.price)}
-        {th('change', c.change)}
-        {th('main', c.mainNet)}
-        {th('mainpct', c.mainNetPct)}
-        {th('sup', c.superNet)}
-        {th('big', c.bigNet)}
-      </div>
-      {sorted.length === 0 && <div className="table-row">{t.moneyflow.noData}</div>}
-      {sorted.map((r) => (
-        <div className="table-row" key={r.code}>
-          <StockName code={r.code} name={r.name} />
-          <span className="mono">{r.price.toFixed(2)}</span>
-          <span className={`mono ${colorClass(r.changePct)}`}>{fmtPct(r.changePct)}</span>
-          <span className={`mono ${colorClass(r.mainNet)}`}>{fmtYi(r.mainNet)}</span>
-          <span className={`mono ${colorClass(r.mainNetPct)}`}>{r.mainNetPct.toFixed(1)}%</span>
-          <span className={`mono ${colorClass(r.superNet)}`}>{fmtYi(r.superNet)}</span>
-          <span className={`mono ${colorClass(r.bigNet)}`}>{fmtYi(r.bigNet)}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function RankTable({ rows, t, netLabel, showDays }: { rows: RankEntry[]; t: Translation; netLabel: string; showDays: boolean }) {
-  const { sorted, sortKey, sortDir, toggle } = useSortableRows<RankEntry, RankKey>(rows, ACC_RANK, { key: 'net', dir: 'desc' })
-  const c = t.moneyflow.cols
-  const th = (k: RankKey, label: string) => (
-    <SortTh k={k} label={label} sortKey={sortKey} sortDir={sortDir} toggle={toggle} t={t} />
-  )
-  // 资金流窗口为直接取数，无「上榜天数」颗粒度 → 隐藏该列（仅龙虎榜显示）。
-  return (
-    <div className={`data-table moneyflow-rank-table${showDays ? '' : ' no-days'}`}>
-      <div className="table-row table-head">
-        <span>{c.name}</span>
-        {th('net', netLabel)}
-        {showDays && th('days', c.days)}
-        {th('change', c.latestChange)}
-      </div>
-      {sorted.length === 0 && <div className="table-row">{t.moneyflow.noData}</div>}
-      {sorted.map((r) => (
-        <div className="table-row" key={r.code}>
-          <StockName code={r.code} name={r.name} />
-          <span className={`mono ${colorClass(r.totalNet)}`}>{fmtYi(r.totalNet)}</span>
+    <article className={`dt-card ${up ? 'is-buy' : 'is-sell'}`}>
+      <div className="dt-card-head">
+        <span className="dt-name">
+          <a href={emHref(s.code)} target="_blank" rel="noreferrer" className="theme-stock-name">
+            {s.name}
+          </a>
+          <small>{s.code}</small>
           {showDays && (
-            <span className="mono">
-              {r.days}
-              {t.moneyflow.daysSuffix}
+            <span className="dt-days">
+              {m.daysOnBoard} {s.days}
+              {m.daysSuffix}
             </span>
           )}
-          <span className={`mono ${colorClass(r.latestChangePct)}`}>{fmtPct(r.latestChangePct)}</span>
-        </div>
-      ))}
+        </span>
+        <span className={`dt-net mono ${colorClass(s.netAmt)}`}>
+          {up ? '↑' : '↓'} {fmtYi(s.netAmt)}
+        </span>
+      </div>
+
+      <div className="dt-card-sub">
+        <span className={`mono ${colorClass(s.changePct)}`}>{fmtPct(s.changePct)}</span>
+        <span className="dt-deal">
+          {m.dealAmt} <b className="mono">{fmtYi(s.dealAmt)}</b>
+        </span>
+      </div>
+
+      {s.reason && (
+        <p className="dt-reason" title={s.reason}>
+          <span className="dt-reason-label">{m.reasonLabel}</span>
+          {s.reason}
+        </p>
+      )}
+
+      <SeatRow label={m.buySeats} seats={s.buySeats} tone="up" />
+      <SeatRow label={m.sellSeats} seats={s.sellSeats} tone="down" />
+
+      <div className="dt-card-foot">
+        {s.concepts.length > 0 && (
+          <div className="dt-tags">
+            {s.concepts.map((c) => (
+              <span className="dt-tag" key={c}>
+                {c}
+              </span>
+            ))}
+          </div>
+        )}
+        <a href={emHref(s.code)} target="_blank" rel="noreferrer" className="dt-quote-link">
+          {m.quote}
+        </a>
+      </div>
+    </article>
+  )
+}
+
+function SeatRow({ label, seats, tone }: { label: string; seats: Seat[]; tone: 'up' | 'down' }) {
+  if (seats.length === 0) return null
+  return (
+    <div className="dt-seats">
+      <span className="dt-seats-label">{label}</span>
+      <span className="dt-seat-list">
+        {seats.map((seat, i) => (
+          <span className={`dt-seat ${tone === 'up' ? 'is-buy' : 'is-sell'}`} key={`${seat.name}-${i}`}>
+            {seat.name}
+            <b className="mono">{fmtYi(seat.amount)}</b>
+          </span>
+        ))}
+      </span>
     </div>
   )
 }

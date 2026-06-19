@@ -92,34 +92,31 @@ export interface Translation {
     title: string
     hint: string
     tradeDate: string
+    datePick: string
     lastUpdated: string
     refresh: string
     loadFail: string
     noData: string
-    sortAsc: string
-    sortDesc: string
-    daysSuffix: string
-    sourceLabel: string
-    periodLabel: string
-    sources: { lhb: string; fund: string }
-    periods: { today: string; d3: string; d5: string }
-    cols: {
-      name: string
-      close: string
-      price: string
-      change: string
-      turnover: string
-      net: string
-      reason: string
-      mainNet: string
-      mainNetPct: string
-      superNet: string
-      bigNet: string
-      totalNet: string
-      totalMain: string
-      days: string
-      latestChange: string
+    stocksUnit: string
+    summary: {
+      inflowCount: string
+      outflowCount: string
+      totalInflow: string
+      totalOutflow: string
     }
+    filter: { all: string; inflow: string; outflow: string }
+    periodLabel: string
+    periods: { today: string; d3: string; d5: string }
+    daysOnBoard: string
+    daysSuffix: string
+    conceptAll: string
+    buyTitle: string
+    sellTitle: string
+    dealAmt: string
+    reasonLabel: string
+    buySeats: string
+    sellSeats: string
+    quote: string
   }
   settings: string
   sidebar: { costLabel: string; costMode: string; costHint: string }
