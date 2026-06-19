@@ -80,10 +80,12 @@ describe('peerSecid', () => {
     expect(peerSecid('HK', '00700')).toEqual(['116.00700'])
   })
 
-  it('returns no secid for KR/JP/TW (reference-only until a quote source is wired)', () => {
-    // Korea’s 000660 would collide with A-share Shenzhen format — must stay reference-only.
-    expect(peerSecid('KR', '000660')).toEqual([])
-    expect(peerSecid('JP', '6981')).toEqual([])
-    expect(peerSecid('TW', '2327')).toEqual([])
+  it('maps JP/KR/TW to their unique EastMoney global prefixes (176/177/178, no fan-out)', () => {
+    // Each market has ONE prefix and must not fan out: 176.2327 is a Japanese stock,
+    // 178.2327 is Taiwan's Yageo — the explicit market is what disambiguates them.
+    expect(peerSecid('JP', '6981')).toEqual(['176.6981'])
+    expect(peerSecid('KR', '000660')).toEqual(['177.000660']) // Korea's 6-digit code passes through verbatim
+    expect(peerSecid('TW', '2327')).toEqual(['178.2327'])
+    expect(peerSecid('JP', '285a')).toEqual(['176.285A']) // alphanumeric code uppercased
   })
 })

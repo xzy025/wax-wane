@@ -93,8 +93,9 @@ export function computeThemeSummary(rows: ThemeRow[]): ThemeSummary {
  * （韩股 6 位代码会与 A 股深市格式冲突，必须靠 market 区分）。
  *   US → 105/106/107 三市场扇出（东财静默丢弃不存在的）
  *   HK → 116. + 5 位补零
- *   KR/JP/TW → 东财 push2/ulist 的 secid 前缀尚未确认，暂返回空 = 不取实时价（前端显示「—」）。
- *     一旦确认前缀，在此返回对应 secid 即可点亮，无需改其它代码。
+ *   JP → 176. · KR → 177. · TW → 178.（东财全球行情前缀，已用 ulist.np 实测可取实时价）。
+ *     每市场前缀唯一、绝不扇出：如 176.2327 会命中同号日股、178.2327 才是台股国巨；
+ *     代码原样带过（仅 trim+大写），如 KR 6 位 000660、JP 字母数字 285A。
  */
 export function peerSecid(market: PeerMarket, code: string): string[] {
   const c = code.trim().toUpperCase()
@@ -103,10 +104,12 @@ export function peerSecid(market: PeerMarket, code: string): string[] {
       return [`105.${c}`, `106.${c}`, `107.${c}`]
     case 'HK':
       return [`116.${c.padStart(5, '0')}`]
-    case 'KR':
     case 'JP':
+      return [`176.${c}`]
+    case 'KR':
+      return [`177.${c}`]
     case 'TW':
-      return []
+      return [`178.${c}`]
   }
 }
 
