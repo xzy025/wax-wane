@@ -7,7 +7,7 @@ import { fetchHotList, clearHotListCache } from '../services/hotlist'
 import { fetchSentiment, clearSentimentCache } from '../services/kaipanla'
 import { clearMacroCache } from '../services/macro'
 import { clearThemesCache } from '../services/themes'
-import { fetchMoneyFlow, clearMoneyFlowCache } from '../services/moneyflow'
+import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
 
 const router = Router()
 
@@ -112,11 +112,25 @@ router.get('/api/hotlist', async (_req, res) => {
   }
 })
 
-// 资金流：龙虎榜净买入 + 个股主力资金流（当日/3日/5日榜，全部东财直接取数，无快照依赖）。
-router.get('/api/moneyflow', async (_req, res) => {
+// 龙虎榜：净买入/卖出个股 + 主要营业部 + 概念标签。
+//   ?date=YYYY-MM-DD 可选（缺省=最近交易日）；?window=1|3|5（当日/3日/5日，缺省 1）。
+router.get('/api/moneyflow', async (req, res) => {
+  const date = (req.query.date as string | undefined)?.trim() || undefined
+  const window = Number(req.query.window) || 1
   try {
-    const data = await fetchMoneyFlow()
+    const data = await fetchDragonTiger(date, window)
     res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// 最近交易日列表（供前端日历屏蔽非交易日）。
+router.get('/api/moneyflow/dates', async (_req, res) => {
+  try {
+    const dates = await fetchTradingDates()
+    res.json({ dates })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     res.status(500).json({ error: message })

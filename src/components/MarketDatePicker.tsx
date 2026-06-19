@@ -10,6 +10,8 @@ interface MarketDatePickerProps {
   onSelect: (date: string) => void
   onRefresh: () => void
   t: Translation
+  /** 若提供，仅集合内的日期可选（用于屏蔽节假日；不提供则仅周末+30天范围校验，保持原行为）。 */
+  availableDates?: Set<string>
 }
 
 function daysAgo(n: number): string {
@@ -30,7 +32,7 @@ function isTradingDay(dateStr: string): boolean {
   return day !== 0 && day !== 6
 }
 
-function isSelectable(date: string): boolean {
+function isSelectable(date: string, availableDates?: Set<string>): boolean {
   const now = new Date()
   const hours = now.getHours()
   const minutes = now.getMinutes()
@@ -39,7 +41,9 @@ function isSelectable(date: string): boolean {
   // 如果在开盘前，最大可选日期是昨天
   const maxDate = isBeforePreMarket ? daysAgo(1) : todayStr()
   const minDate = daysAgo(30)
-  return date >= minDate && date <= maxDate && isTradingDay(date)
+  if (date < minDate || date > maxDate || !isTradingDay(date)) return false
+  // 给定交易日集合时进一步屏蔽节假日（集合外不可选）。
+  return !availableDates || availableDates.has(date)
 }
 
 function getMonthDays(
@@ -80,7 +84,7 @@ function getMonthDays(
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
-export default function MarketDatePicker({ selectedDate, onSelect, onRefresh, t }: MarketDatePickerProps) {
+export default function MarketDatePicker({ selectedDate, onSelect, onRefresh, t, availableDates }: MarketDatePickerProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -125,12 +129,12 @@ export default function MarketDatePicker({ selectedDate, onSelect, onRefresh, t 
 
   const handleSelect = useCallback(
     (dateStr: string) => {
-      if (isSelectable(dateStr)) {
+      if (isSelectable(dateStr, availableDates)) {
         onSelect(dateStr)
         setOpen(false)
       }
     },
-    [onSelect],
+    [onSelect, availableDates],
   )
 
   const prevMonth = () => {
@@ -185,7 +189,7 @@ export default function MarketDatePicker({ selectedDate, onSelect, onRefresh, t 
           </div>
           <div className="date-picker-grid">
             {days.map(({ day, dateStr, isCurrentMonth }) => {
-              const selectable = isSelectable(dateStr)
+              const selectable = isSelectable(dateStr, availableDates)
               const isSelected = dateStr === selectedDate
               const isToday = dateStr === today
               return (

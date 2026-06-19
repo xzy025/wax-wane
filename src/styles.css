@@ -850,13 +850,7 @@ p {
   font-size: 0.86rem;
 }
 
-/* 口径 / 周期 切换：两组药丸式 segmented。 */
-.moneyflow-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
+/* 药丸式 segmented（龙虎榜 净流入/净流出 切换等复用）。 */
 .seg-group {
   display: inline-flex;
   gap: 4px;
@@ -888,33 +882,239 @@ p {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
-/* 当日龙虎榜：名称 / 收盘 / 涨跌 / 换手 / 净买入 / 上榜席位 */
-.moneyflow-lhb-table .table-row {
-  grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 1fr 1.8fr;
+/* ── 龙虎榜（Dragon-Tiger Board）卡片板 ───────────────────── */
+
+/* 周期 seg 行（当日/3日/5日） */
+.dt-segs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
-/* 当日主力资金流：名称 / 现价 / 涨跌 / 主力净 / 占比 / 超大单 / 大单 */
-.moneyflow-fund-table .table-row {
-  grid-template-columns: 1.6fr 0.8fr 0.8fr 1fr 0.8fr 0.95fr 0.95fr;
-}
-
-/* 多日累计榜：名称 / 累计净额 / 天数 / 最新涨跌 */
-.moneyflow-rank-table .table-row {
-  grid-template-columns: 1.8fr 1.1fr 0.8fr 0.9fr;
-}
-
-/* 资金流窗口榜：无「上榜天数」列 → 名称 / 累计净额 / 区间涨跌 */
-.moneyflow-rank-table.no-days .table-row {
-  grid-template-columns: 1.8fr 1.1fr 0.9fr;
-}
-
-/* 上榜席位/原因：单行省略，悬停看全文。 */
-.moneyflow-reason {
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* 上榜天数徽章（3日/5日榜） */
+.dt-days {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 0.7rem;
+  font-weight: 700;
   white-space: nowrap;
+}
+
+/* 汇总四卡 */
+.dt-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+.dt-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--blur);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), var(--shadow);
+}
+.dt-stat-label {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.dt-stat-value {
+  font-size: 1.5rem;
+  font-weight: 850;
+}
+
+/* 筛选区：净流入/净流出 seg + 概念 chips */
+.dt-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 买/卖 两列板 */
+.dt-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 920px) {
+  .dt-board {
+    grid-template-columns: 1fr;
+  }
+}
+.dt-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.dt-col-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+.dt-col-head small {
+  color: var(--muted);
+  font-weight: 600;
+}
+.dt-col-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 个股卡片 */
+.dt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--shadow);
+}
+.dt-card.is-buy {
+  border-left-color: var(--red);
+}
+.dt-card.is-sell {
+  border-left-color: var(--green);
+}
+.dt-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+.dt-name {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+.dt-name small {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+.dt-net {
+  font-size: 1.05rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+.dt-card-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 0.85rem;
+}
+.dt-deal {
+  color: var(--muted);
+}
+.dt-deal b {
+  color: var(--ink);
+  margin-left: 4px;
+}
+.dt-reason {
+  margin: 0;
   color: var(--muted);
   font-size: 0.8rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.dt-reason-label {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+/* 主要买/卖营业部 */
+.dt-seats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+}
+.dt-seats-label {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.dt-seat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dt-seat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+}
+.dt-seat.is-buy {
+  color: var(--red);
+  background: var(--red-soft);
+}
+.dt-seat.is-sell {
+  color: var(--green);
+  background: rgba(43, 217, 106, 0.12);
+}
+.dt-seat b {
+  font-weight: 800;
+}
+
+/* 卡片底部：概念标签 + 行情链接 */
+.dt-card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dt-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.dt-tag {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--cyan-soft);
+  color: var(--cyan);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.dt-quote-link {
+  color: var(--blue);
+  font-size: 0.78rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dt-quote-link:hover {
+  color: var(--blue-hover);
 }
 
 .spin {
