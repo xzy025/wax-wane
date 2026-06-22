@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { trendTemplate, classify, finalScore, type Bar, type Candidate } from './screenerRules'
+import { SCREENER, type ScreenerConfig } from '../config/screener'
 
 /**
  * Build a 300-bar uptrend → rejection-ceiling at 40 (pivot) → tightening,
@@ -31,7 +32,8 @@ function makeBars(today: Bar): Bar[] {
   return bars
 }
 
-const breakoutToday: Bar = { date: 'today', open: 40.0, close: 40.4, high: 40.6, low: 40.0, volume: 3000 }
+// 收盘需在当日振幅高位(close-strength ≥ CLOSE_STRENGTH=0.75):(40.5-40.0)/(40.6-40.0)=0.83。
+const breakoutToday: Bar = { date: 'today', open: 40.0, close: 40.5, high: 40.6, low: 40.0, volume: 3000 }
 const extendedToday: Bar = { date: 'today', open: 42.0, close: 43.2, high: 43.5, low: 42.8, volume: 3000 }
 const triggerToday: Bar = { date: 'today', open: 39.6, close: 39.6, high: 39.7, low: 39.5, volume: 300 }
 
@@ -79,8 +81,37 @@ describe('classify', () => {
 
   it('sets a stop no more than STOP_MAX% below entry', () => {
     const c = classify(makeBars(breakoutToday))!
-    expect(c.stopLoss).toBeGreaterThanOrEqual(c.price * 0.92 - 0.01)
+    expect(c.stopLoss).toBeGreaterThanOrEqual(c.price * (1 - SCREENER.STOP_MAX_PCT / 100) - 0.01)
     expect(c.stopLoss).toBeLessThan(c.price)
+  })
+})
+
+describe('computeTarget modes (#2)', () => {
+  it('rmult mode sets target = entry + R_MULT × risk, with no min-pct floor', () => {
+    const cfg: ScreenerConfig = { ...SCREENER, TARGET_MODE: 'rmult', TARGET_R_MULT: 2.5 }
+    const c = classify(makeBars(breakoutToday), cfg)!
+    expect(c.target).toBeCloseTo(c.price + 2.5 * (c.price - c.stopLoss), 2)
+    // 风险很小时 rmult 目标不应被 +TARGET_MIN_PCT 地板抬高(这正是修复 payoff<1 的关键)
+    expect(c.target).toBeLessThan(c.price * (1 + SCREENER.TARGET_MIN_PCT / 100))
+  })
+
+  it('measured mode projects the base height above the pivot', () => {
+    const cfg: ScreenerConfig = { ...SCREENER, TARGET_MODE: 'measured', BASE_LOOKBACK: 40 }
+    const c = classify(makeBars(breakoutToday), cfg)!
+    expect(c.target).toBeGreaterThan(c.pivot)
+  })
+
+  it('resistance mode keeps the original nearest-resistance target above entry', () => {
+    const cfg: ScreenerConfig = { ...SCREENER, TARGET_MODE: 'resistance' }
+    const c = classify(makeBars(breakoutToday), cfg)!
+    expect(c.target).toBeGreaterThan(c.price)
+  })
+
+  it('default config (rmult) gives a reward target ≥ 1.5× the risk', () => {
+    const c = classify(makeBars(breakoutToday))! // 默认 TARGET_MODE='rmult'
+    const reward = c.target - c.price
+    const risk = c.price - c.stopLoss
+    expect(reward / risk).toBeGreaterThanOrEqual(1.5)
   })
 })
 

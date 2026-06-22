@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "tsx watch index.ts",
     "start": "tsx index.ts",
-    "eval": "tsx eval/runEval.ts"
+    "eval": "tsx eval/runEval.ts",
+    "backtest": "tsx backtest/backtestScreener.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

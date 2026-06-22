@@ -1,6 +1,6 @@
 // 新高战法 · 纯函数判定层(无网络,可单测)。
 // 趋势模板(Stage2) → VCP/即将新高 → 突破触发分组 → RS/评分。规则参数见 config/screener.ts。
-import { SCREENER as C } from '../config/screener'
+import { SCREENER, type ScreenerConfig } from '../config/screener'
 
 export interface Bar {
   date: string
@@ -66,7 +66,7 @@ export interface TrendTemplate {
  * 趋势模板(硬门槛):多头排列 C>MA20>MA60>MA120>MA250、MA250 上行、
  * 距 52 周低 ≥25%、距 52 周高 ≤15%。bars 不足返回 null(次新股跳过)。
  */
-export function trendTemplate(bars: Bar[]): TrendTemplate | null {
+export function trendTemplate(bars: Bar[], C: ScreenerConfig = SCREENER): TrendTemplate | null {
   const n = bars.length
   if (n < C.MA_LONG + C.MA_LONG_RISE_LOOKBACK + 1) return null
   const closes = bars.map((b) => b.close)
@@ -100,7 +100,7 @@ export interface VCP {
 }
 
 /** VCP/即将新高量化:波动收缩、缩量、前高阻力、区间位置。 */
-export function computeVCP(bars: Bar[]): VCP {
+export function computeVCP(bars: Bar[], C: ScreenerConfig = SCREENER): VCP {
   const n = bars.length
   const last = n - 1
   const atrF = atr(bars, C.ATR_FAST, last)
@@ -127,10 +127,42 @@ export function rsRaw(closes: number[]): number {
 }
 
 /** 上方最近阻力(测算目标位);无套牢盘则给测算下限。 */
-function nextResistanceAbove(highs: number[], level: number, price: number): number {
+function nextResistanceAbove(highs: number[], level: number, price: number, C: ScreenerConfig): number {
   const above = highs.filter((h) => h > level * 1.001)
   if (above.length) return Math.min(...above)
   return Math.max(level, price) * (1 + C.TARGET_MIN_PCT / 100)
+}
+
+/**
+ * 目标位:按 C.TARGET_MODE 选择算法。
+ *  - rmult:进场 + R_MULT×风险(直接锁定盈亏比,修复 payoff<1;不套地板,地板会破坏 R:R)。
+ *  - measured:pivot + 基底高度(pivot − 近 BASE_LOOKBACK 根最低),测量幅度上投;套地板。
+ *  - atr:进场 + k×ATR(ATR_SLOW);套地板。
+ *  - resistance:pivot 上方最近历史高点(原始行为,无额外地板;nextResistanceAbove 自带下限回退)。
+ */
+function computeTarget(
+  bars: Bar[],
+  ctx: { close: number; pivot: number; stopLoss: number },
+  C: ScreenerConfig,
+): number {
+  const { close, pivot, stopLoss } = ctx
+  const floor = close * (1 + C.TARGET_MIN_PCT / 100)
+  switch (C.TARGET_MODE) {
+    case 'rmult':
+      return close + C.TARGET_R_MULT * (close - stopLoss)
+    case 'atr': {
+      const a = atr(bars, C.ATR_SLOW, bars.length - 1)
+      return Math.max(close + C.TARGET_ATR_MULT * a, floor)
+    }
+    case 'measured': {
+      const win = bars.slice(-C.BASE_LOOKBACK)
+      const baseLow = win.length ? Math.min(...win.map((b) => b.low)) : pivot
+      return Math.max(pivot + (pivot - baseLow), floor)
+    }
+    case 'resistance':
+    default:
+      return nextResistanceAbove(bars.map((b) => b.high), Math.max(pivot, close), close, C)
+  }
 }
 
 /**
@@ -138,8 +170,8 @@ function nextResistanceAbove(highs: number[], level: number, price: number): num
  * 「今日已突破(放量、收强、不追高)」或「即将突破(缩量收敛、贴近前高)」。
  * 不满足任一组返回 null。延伸段(收盘 > pivot×1.05)被剔除——正是追高拦截。
  */
-export function classify(bars: Bar[]): Candidate | null {
-  const tt = trendTemplate(bars)
+export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate | null {
+  const tt = trendTemplate(bars, C)
   if (!tt || !tt.pass) return null
 
   const n = bars.length
@@ -149,7 +181,7 @@ export function classify(bars: Bar[]): Candidate | null {
   const close = today.close
   const changePct = prev.close > 0 ? (close / prev.close - 1) * 100 : 0
 
-  const { atrRatio, volRatio, resistPrior, volSlow } = computeVCP(bars)
+  const { atrRatio, volRatio, resistPrior, volSlow } = computeVCP(bars, C)
   const pivot = resistPrior
   const distToPivotPct = pivot > 0 ? ((pivot - close) / pivot) * 100 : 0
   const atrContract = atrRatio < C.ATR_RATIO_MAX
@@ -175,10 +207,10 @@ export function classify(bars: Bar[]): Candidate | null {
   }
   if (!group) return null
 
-  const highs = bars.map((b) => b.high)
-  const target = nextResistanceAbove(highs, Math.max(pivot, close), close)
+  // 先定止损(rmult 目标位依赖风险 = 进场 − 止损),再按模式算目标位。
   const rawStop = Math.min(pivot, today.low)
   const stopLoss = Math.max(rawStop, close * (1 - C.STOP_MAX_PCT / 100))
+  const target = computeTarget(bars, { close, pivot, stopLoss }, C)
 
   const coil = clamp01(
     0.4 * (1 - Math.min(Math.max(distToPivotPct, 0), C.NEAR_PCT) / C.NEAR_PCT) +
@@ -206,7 +238,7 @@ export function classify(bars: Bar[]): Candidate | null {
 }
 
 /** 最终评分:RS 百分位 + 弹簧度 + 趋势强度 + 量能 + 流动性。0-100。 */
-export function finalScore(c: Candidate, rsRank01: number, liq01: number): number {
+export function finalScore(c: Candidate, rsRank01: number, liq01: number, C: ScreenerConfig = SCREENER): number {
   const w = C.WEIGHTS
   return r2(
     100 *

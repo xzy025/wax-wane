@@ -1,6 +1,46 @@
 // 新高战法选股器 · 固定规则参数(单一可调来源)。
-// 阈值为行业基线(Minervini 趋势模板 / VCP + O'Neil pivot),A股需用历史数据回测校准。
-// 见 docs / 计划文件 agent-ui-jolly-clarke.md。
+// 阈值起于行业基线(Minervini 趋势模板 / VCP + O'Neil pivot),已用 393 只 A 股、
+// 2023-07~2026-06 日线做走查式回测校准(见 docs/screener/backtest-*.json)。
+// 校准结论(2026-06-22):CLOSE_STRENGTH 0.66→0.75、STOP_MAX_PCT 8→7 —— 两者增益可叠加,
+// 把 breakout 组合期望从 0.10R 提到 0.15R、盈亏因子 1.34→1.57、最大回撤 11.4R→9.4R,
+// 仍保留充足候选;HI52_NEAR 对 breakout 无效(趋势模板已强制),RESIST_LOOKBACK=250 优于 120/180。
+// 回测脚本:server/backtest/backtestScreener.ts(npm --prefix server run backtest)。
+
+/** 选股器可调参数的结构(回测可注入覆盖版做参数扫描)。 */
+export interface ScreenerConfig {
+  CLIST_FS: string
+  LIQUIDITY_MIN: number
+  MCAP_MIN: number
+  MOM60_MIN: number
+  MAX_KLINE: number
+  KLINE_COUNT: number
+  MA_FAST: number
+  MA_MID: number
+  MA_SLOW: number
+  MA_LONG: number
+  MA_LONG_RISE_LOOKBACK: number
+  HI52_NEAR: number
+  LO52_MULT: number
+  RESIST_LOOKBACK: number
+  BASE_LOOKBACK: number
+  NEAR_PCT: number
+  ATR_FAST: number
+  ATR_SLOW: number
+  ATR_RATIO_MAX: number
+  VOL_FAST: number
+  VOL_SLOW: number
+  VOL_DRY_MAX: number
+  BREAKOUT_VOL: number
+  EXT_MAX: number
+  CLOSE_STRENGTH: number
+  STOP_MAX_PCT: number
+  TARGET_MIN_PCT: number
+  TARGET_MODE: 'resistance' | 'rmult' | 'measured' | 'atr'
+  TARGET_R_MULT: number
+  TARGET_ATR_MULT: number
+  CONCURRENCY: number
+  WEIGHTS: { rs: number; coil: number; trend: number; vol: number; liq: number }
+}
 
 export const SCREENER = {
   // ── Stage 1: 全市场廉价初筛(clist 字段) ─────────────────────────
@@ -31,6 +71,8 @@ export const SCREENER = {
   /** 阻力位回看窗口(根):用 52 周高作为"新高"突破位——新高战法买的是突破历史阻力,
    *  而非 60 日小高点(强势股早已越过 60 日高点,会导致扳机清单恒为空)。 */
   RESIST_LOOKBACK: 250,
+  /** measured 目标位的基底窗口(根):target = pivot + (pivot − 近 BASE_LOOKBACK 根最低)。 */
+  BASE_LOOKBACK: 40,
   /** 「即将突破」:0 < 距阻力% ≤ NEAR_PCT。 */
   NEAR_PCT: 5,
   /** VCP 波动收缩:ATR(10)/ATR(50) < ATR_RATIO_MAX。 */
@@ -45,16 +87,30 @@ export const SCREENER = {
   BREAKOUT_VOL: 1.8,
   /** 不追高:突破日收盘 ≤ pivot × (1 + EXT_MAX/100)。过度延伸的剔除。 */
   EXT_MAX: 5,
-  /** 突破日收盘需在当日振幅上 CLOSE_STRENGTH 比例以上。 */
-  CLOSE_STRENGTH: 0.66,
-  /** 止损封顶:距买价最多 STOP_MAX_PCT%。 */
-  STOP_MAX_PCT: 8,
-  /** 目标位至少 +TARGET_MIN_PCT%(无上方阻力时的测算下限)。 */
+  /** 突破日收盘需在当日振幅上 CLOSE_STRENGTH 比例以上。
+   *  回测校准:0.66→0.75 显著提升期望/盈亏因子(滤掉收盘乏力的假突破),候选量仍充足。 */
+  CLOSE_STRENGTH: 0.75,
+  /** 止损封顶:距买价最多 STOP_MAX_PCT%。
+   *  回测校准:8→7 收紧止损,盈亏比 0.49→0.54、期望略升、最大回撤下降,胜率仅微降。 */
+  STOP_MAX_PCT: 7,
+  /** 目标位下限地板 +TARGET_MIN_PCT%(仅 resistance/measured/atr 模式;rmult 不套地板)。 */
   TARGET_MIN_PCT: 10,
+  /** 目标位算法:'resistance'=pivot 上方最近历史高点(原始,payoff≈0.5 偏小);
+   *  'rmult'=进场 + R_MULT×风险(直接定 R:R,修复 payoff<1);
+   *  'measured'=pivot + 基底高度(测量幅度上投);'atr'=进场 + k×ATR(ATR_SLOW)。
+   *  回测校准(2026-06-22,见 docs/screener/backtest-*.json):resistance 的 payoff≈0.58、靠 73%
+   *  高胜率撑期望(脆);改 rmult 后 payoff 抬到 2.4、期望 0.15R→0.39R、PF 1.57→1.66
+   *  (代价:胜率降到~41%、单笔波动变大,但按期望归一的回撤反而更优)。 */
+  TARGET_MODE: 'rmult',
+  /** rmult 模式的盈亏目标倍数(target 距进场 = R_MULT × 止损距离)。
+   *  回测:2.0(PF1.58/回撤最低) ~ 3.0(payoff2.6) 均可,2.5 为 PF 最优折中。 */
+  TARGET_R_MULT: 2.5,
+  /** atr 模式的 ATR 倍数。 */
+  TARGET_ATR_MULT: 5,
 
   // ── 取数限流 ─────────────────────────────────────────────────────
   CONCURRENCY: 12,
 
   // ── 评分权重 ─────────────────────────────────────────────────────
   WEIGHTS: { rs: 0.3, coil: 0.25, trend: 0.2, vol: 0.15, liq: 0.1 },
-} as const
+} as const satisfies ScreenerConfig
