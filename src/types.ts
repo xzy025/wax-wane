@@ -380,6 +380,100 @@ export interface Translation {
     error: string
     retry: string
   }
+  holdings: {
+    tabChat: string
+    tabHoldings: string
+    refresh: string
+    refreshing: string
+    add: string
+    empty: string
+    emptyHint: string
+    shares: string
+    cost: string
+    price: string
+    today: string
+    unrealized: string
+    marketValue: string
+    stopLoss: string
+    target: string
+    volumeRatio: string
+    deepDive: string
+    collapse: string
+    analyzing: string
+    manual: string
+    edit: string
+    remove: string
+    quoteError: string
+    market: { closed: string; open: string; weekend: string; pre: string; before: string }
+    actions: {
+      hold: string
+      add: string
+      reduce: string
+      takeProfit: string
+      stopLoss: string
+      sell: string
+      watch: string
+    }
+    signalLabels: { bullish: string; bearish: string; neutral: string }
+    summary: {
+      title: string
+      holdingsCount: string
+      risk: string
+      plan: string
+      worst: string
+      noRisk: string
+      noPlan: string
+      today: string
+    }
+    editor: {
+      title: string
+      editTitle: string
+      code: string
+      name: string
+      quantity: string
+      avgCost: string
+      codePlaceholder: string
+      namePlaceholder: string
+      save: string
+      cancel: string
+      invalid: string
+    }
+  }
+  screener: {
+    title: string
+    desc: string
+    scan: string
+    scanning: string
+    lastUpdated: string
+    loadFail: string
+    empty: string
+    universe: string
+    scanned: string
+    truncatedNote: string
+    disclaimer: string
+    groups: { breakout: string; trigger: string }
+    regime: {
+      attack: string
+      caution: string
+      retreat: string
+      temp: string
+      limitUp: string
+      breakRate: string
+    }
+    card: {
+      price: string
+      pivot: string
+      stop: string
+      target: string
+      dist: string
+      score: string
+      vol: string
+      trend: string
+      volDry: string
+      atrContract: string
+      breakoutVol: string
+    }
+  }
 }
 
 export interface ReviewNote {

@@ -1941,3 +1941,194 @@ textarea:focus {
 body {
   overflow: hidden;
 }
+
+/* ═══════════ 选股 · 新高战法 (Screener) ═══════════ */
+.sc-scan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--blue);
+  transition: opacity 0.15s;
+}
+.sc-scan-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+.sc-scan-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sc-regime {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  font-size: 0.84rem;
+}
+.sc-regime-tag {
+  font-weight: 850;
+  padding: 2px 12px;
+  border-radius: 999px;
+}
+.sc-regime--attack .sc-regime-tag {
+  color: #fff;
+  background: var(--red);
+}
+.sc-regime--caution .sc-regime-tag {
+  color: #1a1205;
+  background: #f0a93b;
+}
+.sc-regime--retreat .sc-regime-tag {
+  color: #fff;
+  background: var(--green);
+}
+.sc-regime-stats {
+  font-family: var(--font-mono);
+  color: var(--ink);
+  font-weight: 700;
+}
+.sc-regime-note {
+  color: var(--muted);
+}
+
+.sc-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.sc-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--ink);
+}
+.sc-group-head svg {
+  color: var(--blue);
+}
+
+.sc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.sc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  transition: border-color 0.15s;
+}
+.sc-card:hover {
+  border-color: var(--blue);
+}
+.sc-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sc-card-id {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.sc-card-name {
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--ink);
+}
+.sc-card-code {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.sc-score {
+  font-family: var(--font-mono);
+  font-weight: 850;
+  font-size: 1.05rem;
+  color: var(--blue);
+}
+
+.sc-card-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.sc-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.sc-metric-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.sc-metric-value {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+.sc-metric-value.mono,
+.sc-metric-value .mono {
+  font-family: var(--font-mono);
+}
+.sc-metric-value small {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.sc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-top: 2px;
+  border-top: 1px dashed var(--line);
+}
+.sc-chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.sc-chip.ok {
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-color: transparent;
+}
+.sc-chip.hot {
+  color: var(--red);
+  background: var(--red-soft);
+  border-color: transparent;
+}
+
+.sc-empty {
+  font-size: 0.82rem;
+  color: var(--muted);
+  padding: 8px 2px;
+}
+.sc-disclaimer {
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
