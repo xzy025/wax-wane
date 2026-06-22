@@ -237,6 +237,33 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
   }
 }
 
+// ── 大盘环境(指数趋势代理)→ 动态目标位 R 倍数 ───────────────────────
+export type MarketRegime = 'strong' | 'neutral' | 'weak'
+
+/**
+ * 用宽基指数收盘序列判大盘环境(纯函数,回测/线上共用):
+ *  strong(进攻):close > MA_FAST 且 MA_FAST > MA_SLOW(多头趋势);
+ *  weak(退潮):close < MA_SLOW(跌破中期均线);其余 neutral。
+ * 历史不足(< MA_SLOW)返回 neutral(中性,不激进)。
+ */
+export function marketRegime(closes: number[], C: ScreenerConfig = SCREENER): MarketRegime {
+  const n = closes.length
+  if (n < C.MARKET_MA_SLOW) return 'neutral'
+  const last = n - 1
+  const c = closes[last]
+  const maF = smaAt(closes, C.MARKET_MA_FAST, last)
+  const maS = smaAt(closes, C.MARKET_MA_SLOW, last)
+  if (c > maF && maF > maS) return 'strong'
+  if (c < maS) return 'weak'
+  return 'neutral'
+}
+
+/** 按环境取目标 R 倍数:dynamic 关闭时回退标量 TARGET_R_MULT。 */
+export function targetRMultFor(regime: MarketRegime, C: ScreenerConfig = SCREENER): number {
+  if (!C.TARGET_R_DYNAMIC) return C.TARGET_R_MULT
+  return C.TARGET_R_BY_REGIME[regime]
+}
+
 /** 最终评分:RS 百分位 + 弹簧度 + 趋势强度 + 量能 + 流动性。0-100。 */
 export function finalScore(c: Candidate, rsRank01: number, liq01: number, C: ScreenerConfig = SCREENER): number {
   const w = C.WEIGHTS

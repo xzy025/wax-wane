@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { trendTemplate, classify, finalScore, type Bar, type Candidate } from './screenerRules'
+import { trendTemplate, classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate } from './screenerRules'
 import { SCREENER, type ScreenerConfig } from '../config/screener'
 
 /**
@@ -135,5 +135,40 @@ describe('finalScore', () => {
 
   it('rises monotonically with RS rank', () => {
     expect(finalScore(base, 0.9, 0.5)).toBeGreaterThan(finalScore(base, 0.1, 0.5))
+  })
+})
+
+describe('marketRegime + targetRMultFor (动态目标位)', () => {
+  it('flags a steady uptrend as strong (close > MA20 > MA50)', () => {
+    const up = Array.from({ length: 60 }, (_, i) => 10 + i * 0.5)
+    expect(marketRegime(up)).toBe('strong')
+  })
+
+  it('flags a steady downtrend as weak (close < MA50)', () => {
+    const down = Array.from({ length: 60 }, (_, i) => 40 - i * 0.5)
+    expect(marketRegime(down)).toBe('weak')
+  })
+
+  it('flags a pullback-in-uptrend (close below MA20 but above MA50) as neutral', () => {
+    const rise = Array.from({ length: 40 }, (_, i) => 10 + i) // 10..49
+    const flat = [...Array(19).fill(47), 46] // 顶部走平、末根微回落
+    expect(marketRegime([...rise, ...flat])).toBe('neutral')
+  })
+
+  it('returns neutral when history is shorter than MA_SLOW', () => {
+    expect(marketRegime([1, 2, 3])).toBe('neutral')
+  })
+
+  it('targetRMultFor returns the scalar TARGET_R_MULT when dynamic is off', () => {
+    const cfg: ScreenerConfig = { ...SCREENER, TARGET_R_DYNAMIC: false }
+    expect(targetRMultFor('strong', cfg)).toBe(SCREENER.TARGET_R_MULT)
+    expect(targetRMultFor('weak', cfg)).toBe(SCREENER.TARGET_R_MULT)
+  })
+
+  it('targetRMultFor maps regime → R when dynamic is on (default config is the inverse map)', () => {
+    // 默认 config 已开启动态 + 逆向映射:弱市目标更远、强市更近。
+    expect(targetRMultFor('strong')).toBe(SCREENER.TARGET_R_BY_REGIME.strong)
+    expect(targetRMultFor('weak')).toBe(SCREENER.TARGET_R_BY_REGIME.weak)
+    expect(targetRMultFor('weak')).toBeGreaterThan(targetRMultFor('strong'))
   })
 })

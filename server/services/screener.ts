@@ -5,10 +5,10 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl } from '../lib/cache'
 import { EM_HEADERS } from '../lib/emHeaders'
-import { fetchStockKline } from './ashare'
+import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
-import { SCREENER as C } from '../config/screener'
-import { classify, finalScore, type Bar, type Candidate } from './screenerRules'
+import { SCREENER as C, type ScreenerConfig } from '../config/screener'
+import { classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate, type MarketRegime } from './screenerRules'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
@@ -26,6 +26,10 @@ export interface ScreenerRegime {
   limitDown: number
   breakRate: number
   note: string
+  /** 大盘趋势(指数代理):动态目标位的依据。 */
+  marketTrend: MarketRegime
+  /** 本次扫描据大盘趋势选定的目标位 R 倍数(动态关闭时=固定标量)。 */
+  targetRMult: number
 }
 
 export interface ScreenerResult {
@@ -123,16 +127,27 @@ async function prefilter(): Promise<{ rows: Pre[]; universe: number }> {
   return { rows, universe }
 }
 
-/** Stage 2: 对一只票取 K 线并跑纯规则判定。 */
-async function confirm(p: Pre): Promise<(ScreenerCandidate & { liqAmount: number }) | null> {
+/** Stage 2: 对一只票取 K 线并跑纯规则判定。cfg 可注入(动态目标位 R 倍数)。 */
+async function confirm(p: Pre, cfg: ScreenerConfig): Promise<(ScreenerCandidate & { liqAmount: number }) | null> {
   try {
-    const { klines } = await fetchStockKline(p.code, 101, C.KLINE_COUNT)
-    if (!klines || klines.length < C.MA_LONG + C.MA_LONG_RISE_LOOKBACK + 1) return null
-    const cand = classify(klines as Bar[])
+    const { klines } = await fetchStockKline(p.code, 101, cfg.KLINE_COUNT)
+    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return null
+    const cand = classify(klines as Bar[], cfg)
     if (!cand) return null
     return { ...cand, code: p.code, name: p.name, score: 0, liqAmount: p.amount }
   } catch {
     return null
+  }
+}
+
+/** 取大盘趋势(指数代理)→ 动态目标位 R 倍数。失败兜底中性/固定标量。 */
+async function resolveMarketTarget(): Promise<{ marketTrend: MarketRegime; targetRMult: number }> {
+  try {
+    const idx = await fetchIndexKline(C.MARKET_INDEX_SECID, C.MARKET_MA_SLOW + 10)
+    const marketTrend = marketRegime(idx.map((b) => b.close))
+    return { marketTrend, targetRMult: targetRMultFor(marketTrend) }
+  } catch {
+    return { marketTrend: 'neutral', targetRMult: targetRMultFor('neutral') }
   }
 }
 
@@ -172,7 +187,8 @@ function buildRegime(s: {
     phase = 'caution'
     note = '情绪中性——小仓优选龙头突破,严格止损'
   }
-  return { phase, temperature, limitUp, limitDown, breakRate, note }
+  // marketTrend/targetRMult 先给安全默认,由 fetchScreenerFresh 取指数后回填。
+  return { phase, temperature, limitUp, limitDown, breakRate, note, marketTrend: 'neutral', targetRMult: C.TARGET_R_MULT }
 }
 
 function todayStr(): string {
@@ -190,8 +206,17 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   try {
     regime = buildRegime((await fetchSentiment()) as Record<string, number>)
   } catch {
-    regime = { phase: 'caution', temperature: 0, limitUp: 0, limitDown: 0, breakRate: 0, note: '情绪数据暂不可用' }
+    regime = {
+      phase: 'caution', temperature: 0, limitUp: 0, limitDown: 0, breakRate: 0,
+      note: '情绪数据暂不可用', marketTrend: 'neutral', targetRMult: C.TARGET_R_MULT,
+    }
   }
+
+  // 大盘趋势 → 动态目标位 R(逆向:弱市新高=龙头给更远目标)。回填 regime + 注入扫描 cfg。
+  const { marketTrend, targetRMult } = await resolveMarketTarget()
+  regime.marketTrend = marketTrend
+  regime.targetRMult = targetRMult
+  const scanCfg: ScreenerConfig = { ...C, TARGET_R_MULT: targetRMult }
 
   const { rows, universe } = await prefilter()
   const truncated = rows.length > C.MAX_KLINE
@@ -199,9 +224,11 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   if (truncated) {
     console.log(`[Screener] 初筛 ${rows.length} 只 > 上限 ${C.MAX_KLINE},截断取K线(其余未扫描)`)
   }
-  console.log(`[Screener] 全市场 ${universe} → 初筛入围 ${rows.length} → 取K线 ${survivors.length}`)
+  console.log(
+    `[Screener] 全市场 ${universe} → 初筛入围 ${rows.length} → 取K线 ${survivors.length};大盘 ${marketTrend} → 目标 ${targetRMult}R`,
+  )
 
-  const enriched = (await mapLimit(survivors, C.CONCURRENCY, confirm)).filter(
+  const enriched = (await mapLimit(survivors, C.CONCURRENCY, (p) => confirm(p, scanCfg))).filter(
     (x): x is ScreenerCandidate & { liqAmount: number } => x != null,
   )
 

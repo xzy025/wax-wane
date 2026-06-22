@@ -412,6 +412,11 @@ export default {
       temp: 'Temp',
       limitUp: 'Limit-up',
       breakRate: 'Break rate',
+      market: 'Market',
+      strong: 'Strong',
+      neutral: 'Neutral',
+      weak: 'Weak',
+      targetR: 'Target',
     },
     card: {
       price: 'Price',

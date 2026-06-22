@@ -599,6 +599,7 @@ const INDEX_SECIDS: Record<string, string> = {
   '000016': '1.000016', // 上证50
   '000300': '1.000300', // 沪深300
   '000905': '1.000905', // 中证500
+  '000985': '1.000985', // 中证全指
 }
 
 export async function fetchIndexTrends(code: string): Promise<{ name: string; trends: TrendPoint[] }> {
@@ -1003,6 +1004,49 @@ async function fetchEMKline(secid: string): Promise<Map<string, { volume: number
   } finally {
     clearTimeout(timeout)
   }
+}
+
+// 指数日线历史的镜像主机(EM 限流时轮换;空 klines 视为失败再换)。
+const INDEX_KLINE_HOSTS = ['push2his.eastmoney.com', 'push2delay.eastmoney.com', '1.push2his.eastmoney.com']
+
+/**
+ * 取一个指数的日线收盘序列(须传完整 secid 如 '1.000300'；指数前缀与个股不同，
+ * 不能用 fetchStockKline 的 startsWith('6') 规则)。镜像主机轮换 + 重试一次。按日期升序返回。
+ */
+export async function fetchIndexKline(secid: string, count: number): Promise<{ date: string; close: number }[]> {
+  // 1) 东财镜像轮换(EM 历史接口偶发返回空 klines)。
+  for (const host of INDEX_KLINE_HOSTS) {
+    const url = `https://${host}/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=0&end=20500101&lmt=${count}`
+    try {
+      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      if (!res.ok) throw new Error(`EM index kline ${secid}: ${res.status}`)
+      const json = await res.json()
+      const klines = json?.data?.klines as string[] | undefined
+      if (!klines || klines.length === 0) throw new Error(`EM index kline ${secid}: empty`)
+      return klines.map((line) => {
+        const parts = line.split(',')
+        return { date: parts[0] ?? '', close: parseFloat(parts[2]) || 0 }
+      })
+    } catch {
+      /* 试下一个镜像 */
+    }
+  }
+  // 2) Sina 兜底(与 fetchStockKline 同源;secid '1.xxx'→shxxx、'0.xxx'→szxxx)。
+  try {
+    const [m, code] = secid.split('.')
+    const sym = (m === '1' ? 'sh' : 'sz') + code
+    const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${sym}&scale=240&ma=no&datalen=${count}`
+    const res = await fetch(url, { headers: SINA_HEADERS, signal: AbortSignal.timeout(8000) })
+    if (res.ok) {
+      const data = (await res.json()) as Array<{ day: string; close: string }>
+      if (Array.isArray(data) && data.length) {
+        return data.map((d) => ({ date: d.day, close: parseFloat(d.close) || 0 }))
+      }
+    }
+  } catch {
+    /* 落到下方抛错 */
+  }
+  throw new Error(`index kline ${secid}: 东财镜像 + Sina 均失败/为空`)
 }
 
 /** Fetch one index's 7-day kline from Sina (no turnover → estimate via avg price). */

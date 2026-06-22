@@ -38,6 +38,11 @@ export interface ScreenerConfig {
   TARGET_MODE: 'resistance' | 'rmult' | 'measured' | 'atr'
   TARGET_R_MULT: number
   TARGET_ATR_MULT: number
+  TARGET_R_DYNAMIC: boolean
+  TARGET_R_BY_REGIME: { strong: number; neutral: number; weak: number }
+  MARKET_INDEX_SECID: string
+  MARKET_MA_FAST: number
+  MARKET_MA_SLOW: number
   CONCURRENCY: number
   WEIGHTS: { rs: number; coil: number; trend: number; vol: number; liq: number }
 }
@@ -107,6 +112,17 @@ export const SCREENER = {
   TARGET_R_MULT: 2.5,
   /** atr 模式的 ATR 倍数。 */
   TARGET_ATR_MULT: 5,
+  /** 动态目标位:按大盘趋势(指数代理)分环境调 R 倍数。回测验证后开启。 */
+  TARGET_R_DYNAMIC: true,
+  /** 各大盘环境对应的目标 R 倍数。**逆向**(2026-06 回测发现):大盘弱时仍创新高=真·相对强度龙头,
+   *  跑得更远→给更远目标(3.5R);大盘强时人人破位、假突破多→收近(2.0R)。
+   *  沪深300 上 期望 0.39R→0.45R、PF 1.66→1.78、最大回撤 18.2R→14.1R(三项全胜)。 */
+  TARGET_R_BY_REGIME: { strong: 2.0, neutral: 3.0, weak: 3.5 },
+  /** 大盘温度代理指数(完整 secid):沪深300=1.000300 / 创业板指=0.399006 / 中证全指=1.000985。 */
+  MARKET_INDEX_SECID: '1.000300',
+  /** 大盘趋势判定的均线窗口(收盘 vs MA_FAST/MA_SLOW)。 */
+  MARKET_MA_FAST: 20,
+  MARKET_MA_SLOW: 50,
 
   // ── 取数限流 ─────────────────────────────────────────────────────
   CONCURRENCY: 12,

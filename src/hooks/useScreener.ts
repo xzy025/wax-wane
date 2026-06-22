@@ -31,6 +31,8 @@ export interface ScreenerRegime {
   limitDown: number
   breakRate: number
   note: string
+  marketTrend: 'strong' | 'neutral' | 'weak'
+  targetRMult: number
 }
 
 export interface ScreenerResult {

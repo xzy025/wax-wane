@@ -411,6 +411,11 @@ export default {
       temp: '情绪温度',
       limitUp: '涨停',
       breakRate: '破板率',
+      market: '大盘',
+      strong: '强势',
+      neutral: '中性',
+      weak: '弱势',
+      targetR: '目标',
     },
     card: {
       price: '现价',

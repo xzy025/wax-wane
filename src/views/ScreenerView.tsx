@@ -28,6 +28,8 @@ function RegimeBanner({ r, t }: { r: ScreenerRegime; t: Translation }) {
       <span className="sc-regime-tag">{label}</span>
       <span className="sc-regime-stats">
         {rt.temp} {r.temperature} · {rt.limitUp} {r.limitUp} · {rt.breakRate} {r.breakRate}%
+        {' · '}
+        {rt.market} {rt[r.marketTrend]} · {rt.targetR} {r.targetRMult}R
       </span>
       <span className="sc-regime-note">{r.note}</span>
     </div>
