@@ -459,6 +459,11 @@ export interface Translation {
       temp: string
       limitUp: string
       breakRate: string
+      market: string
+      strong: string
+      neutral: string
+      weak: string
+      targetR: string
     }
     card: {
       price: string
