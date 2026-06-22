@@ -818,3 +818,605 @@
 .ai-markdown strong {
   color: var(--blue-bright);
 }
+
+/* ════════════════════════════════════════════════════════
+   持仓复盘看板 (Holdings Review Board)
+   ════════════════════════════════════════════════════════ */
+
+/* Segmented tabs in AgentView */
+.agent-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  width: fit-content;
+}
+
+.agent-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.agent-tab:hover {
+  color: var(--ink);
+}
+
+.agent-tab-active {
+  color: #fff;
+  background: var(--gradient-blue);
+  box-shadow: 0 0 14px rgba(var(--blue-rgb), 0.3);
+}
+
+/* Panel shell */
+.hr-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  padding: 14px;
+  max-height: 640px;
+  overflow-y: auto;
+}
+
+/* Top bar: market banner + actions */
+.hr-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hr-market {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.hr-market--afterMarket {
+  color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+.hr-market--open {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.hr-market-date {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.hr-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hr-btn-ghost,
+.hr-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  transition: all 0.15s;
+}
+
+.hr-btn-ghost {
+  color: var(--ink);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.hr-btn-ghost:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.hr-btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hr-btn-primary {
+  color: #fff;
+  background: var(--blue);
+  border: 1px solid transparent;
+}
+
+.hr-btn-primary:hover {
+  opacity: 0.88;
+}
+
+.hr-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.hr-icon-btn:hover {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+/* Portfolio summary */
+.hr-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.hr-summary-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.hr-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hr-stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.hr-stat-value {
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--ink);
+}
+
+.hr-mono {
+  font-family: var(--font-mono);
+}
+
+.hr-summary-risk,
+.hr-summary-plan {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.hr-summary-risk svg {
+  color: var(--muted);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.hr-summary-risk.is-alert {
+  color: var(--ink);
+}
+
+.hr-summary-risk.is-alert svg {
+  color: var(--red);
+}
+
+.hr-summary-plan svg {
+  color: var(--blue);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.hr-summary-risk-label {
+  font-weight: 800;
+  color: var(--ink);
+  flex: 0 0 auto;
+}
+
+.hr-plan-list {
+  margin: 0;
+  padding-left: 4px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hr-plan-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hr-plan-action {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+
+.hr-plan-reason {
+  color: var(--muted);
+}
+
+/* Card list */
+.hr-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  transition: border-color 0.15s;
+}
+
+.hr-card:hover {
+  border-color: var(--line-strong);
+}
+
+.hr-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hr-card-id {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hr-card-name {
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--ink);
+}
+
+.hr-card-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.hr-tag-manual {
+  font-size: 0.66rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+/* Action badges — color encodes the action, not the price direction */
+.hr-badge {
+  font-size: 0.76rem;
+  font-weight: 850;
+  padding: 3px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.hr-badge--stopLoss,
+.hr-badge--sell,
+.hr-plan-action.hr-badge--stopLoss,
+.hr-plan-action.hr-badge--sell {
+  color: #fff;
+  background: var(--red);
+}
+
+.hr-badge--reduce,
+.hr-badge--takeProfit,
+.hr-plan-action.hr-badge--reduce,
+.hr-plan-action.hr-badge--takeProfit {
+  color: #1a1205;
+  background: #f0a93b;
+}
+
+.hr-badge--add,
+.hr-plan-action.hr-badge--add {
+  color: #fff;
+  background: var(--blue);
+}
+
+.hr-badge--hold,
+.hr-plan-action.hr-badge--hold {
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.hr-badge--watch,
+.hr-plan-action.hr-badge--watch {
+  color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+/* Card metrics */
+.hr-card-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hr-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.hr-metric-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.hr-metric-value {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.hr-metric-value small {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Key levels */
+.hr-card-levels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  padding-top: 2px;
+  border-top: 1px dashed var(--line);
+}
+
+.hr-level strong {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+.hr-signal {
+  font-weight: 800;
+  padding: 1px 8px;
+  border-radius: 4px;
+}
+
+.hr-signal--bullish {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.hr-signal--bearish {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.hr-signal--neutral {
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.hr-card-reason {
+  font-size: 0.82rem;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.hr-card-error {
+  font-size: 0.82rem;
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* Card footer */
+.hr-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hr-deepdive-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--blue);
+  background: transparent;
+  padding: 3px 0;
+}
+
+.hr-deepdive-btn:hover {
+  text-decoration: underline;
+}
+
+.hr-card-foot-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.hr-card-deep {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.hr-deep-loading,
+.hr-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 14px 4px;
+}
+
+/* Empty state */
+.hr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.hr-empty svg {
+  color: var(--blue);
+  opacity: 0.6;
+}
+
+.hr-empty-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.hr-empty-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  max-width: 320px;
+}
+
+/* Editor modal */
+.hr-editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.hr-editor {
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+.hr-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--ink);
+}
+
+.hr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.hr-field-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hr-field input {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.hr-field input:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.hr-field input:disabled {
+  opacity: 0.6;
+}
+
+.hr-editor-error {
+  font-size: 0.78rem;
+  color: var(--red);
+  font-weight: 700;
+}
+
+.hr-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 820px) {
+  .hr-panel {
+    max-height: none;
+  }
+
+  .hr-summary-stats {
+    gap: 12px;
+  }
+}

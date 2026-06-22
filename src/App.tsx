@@ -11,6 +11,7 @@ import {
   TrendUp,
   SquaresFour,
   Trophy,
+  Crosshair,
   Robot,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
@@ -35,12 +36,14 @@ import AnalyticsView from './views/AnalyticsView'
 import AgentView from './views/AgentView'
 import ThemesView from './views/ThemesView'
 import MoneyFlowView from './views/MoneyFlowView'
+import ScreenerView from './views/ScreenerView'
 import type { Translation } from './types'
 
 const navItems = [
   { id: 'market', icon: TrendUp, path: '/market' },
   { id: 'themes', icon: SquaresFour, path: '/themes' },
   { id: 'moneyflow', icon: Trophy, path: '/moneyflow' },
+  { id: 'screener', icon: Crosshair, path: '/screener' },
   { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
   { id: 'import', icon: UploadSimple, path: '/import' },
   { id: 'ledger', icon: File, path: '/ledger' },
@@ -175,6 +178,7 @@ function AppLayout() {
           <Route path="/market" element={<div />} />
           <Route path="/themes" element={<ThemesView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/moneyflow" element={<MoneyFlowView t={t} language={language as 'zh' | 'en'} />} />
+          <Route path="/screener" element={<ScreenerView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />
           <Route path="/import" element={<ImportView t={t} />} />
           <Route path="/ledger" element={<LedgerView t={t} range={range} />} />
