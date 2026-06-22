@@ -23,3 +23,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Generated daily screener snapshots (data, not source)
+docs/screener/

@@ -8,6 +8,7 @@ import { getProtocol } from './lib/llm'
 import agentRoutes from './routes/agent'
 import marketRoutes from './routes/market'
 import themesRoutes from './routes/themes'
+import screenerRoutes from './routes/screener'
 import mcpRoutes from './routes/mcp'
 import dbRoutes from './routes/db'
 import memoryRoutes from './routes/memory'
@@ -45,6 +46,7 @@ app.use(express.json({ limit: '50mb' }))
 app.use(agentRoutes)
 app.use(marketRoutes)
 app.use(themesRoutes)
+app.use(screenerRoutes)
 app.use(mcpRoutes)
 app.use(dbRoutes)
 app.use(memoryRoutes)
