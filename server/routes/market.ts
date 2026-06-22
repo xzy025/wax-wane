@@ -7,6 +7,7 @@ import { fetchHotList, clearHotListCache } from '../services/hotlist'
 import { fetchSentiment, clearSentimentCache } from '../services/kaipanla'
 import { clearMacroCache } from '../services/macro'
 import { clearThemesCache } from '../services/themes'
+import { clearScreenerCache } from '../services/screener'
 import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
 
 const router = Router()
@@ -24,6 +25,7 @@ const cacheClearers: Record<string, () => void> = {
   macro: clearMacroCache,
   themes: clearThemesCache,
   moneyflow: clearMoneyFlowCache,
+  screener: clearScreenerCache,
 }
 
 router.post('/api/refresh', (req, res) => {
