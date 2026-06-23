@@ -20,6 +20,7 @@ export interface ScreenerCandidate {
   atrRatio: number
   volScore: number
   distToPivotPct: number
+  dist52Pct: number
   score: number
   signals: { trendOk: boolean; volDry: boolean; atrContract: boolean; breakoutVol: boolean; pattern: string }
 }

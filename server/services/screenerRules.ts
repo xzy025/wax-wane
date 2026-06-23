@@ -26,7 +26,8 @@ export interface Candidate {
   volRatio: number // volMA5 / volMA50
   atrRatio: number // ATR10 / ATR50
   volScore: number // 0-1,突破看放量、扳机看缩量
-  distToPivotPct: number
+  distToPivotPct: number // 距 pivot(前高)%:>0 在下方(扳机)、<0 已在上方(突破/延伸)
+  dist52Pct: number // 距 52 周高%:>0 在高点下方、≤0 创新高
   signals: { trendOk: boolean; volDry: boolean; atrContract: boolean; breakoutVol: boolean; pattern: string }
 }
 
@@ -233,6 +234,7 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     atrRatio: r2(atrRatio),
     volScore: r2(volScore),
     distToPivotPct: r2(distToPivotPct),
+    dist52Pct: r2(tt.hi52 > 0 ? ((tt.hi52 - close) / tt.hi52) * 100 : 0),
     signals: { trendOk: true, volDry, atrContract, breakoutVol, pattern },
   }
 }

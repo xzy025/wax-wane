@@ -69,12 +69,14 @@ function Card({ c, t }: { c: ScreenerCandidate; t: Translation }) {
             <span className="positive-text">{fmtPrice(c.target)}</span>
           </span>
         </div>
-        {c.group === 'trigger' && (
-          <div className="sc-metric">
-            <span className="sc-metric-label">{k.dist}</span>
-            <span className="sc-metric-value mono">{c.distToPivotPct.toFixed(1)}%</span>
-          </div>
-        )}
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.hi52}</span>
+          <span className="sc-metric-value mono">{c.dist52Pct.toFixed(1)}%</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.dist}</span>
+          <span className="sc-metric-value mono">{c.distToPivotPct.toFixed(1)}%</span>
+        </div>
       </div>
 
       <div className="sc-chips">

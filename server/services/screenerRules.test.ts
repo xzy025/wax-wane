@@ -130,6 +130,7 @@ describe('finalScore', () => {
     atrRatio: 0.5,
     volScore: 0.5,
     distToPivotPct: 0,
+    dist52Pct: 0,
     signals: { trendOk: true, volDry: false, atrContract: true, breakoutVol: true, pattern: '' },
   }
 

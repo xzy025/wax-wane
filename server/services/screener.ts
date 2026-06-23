@@ -128,10 +128,15 @@ async function prefilter(): Promise<{ rows: Pre[]; universe: number }> {
 }
 
 /** Stage 2: 对一只票取 K 线并跑纯规则判定。cfg 可注入(动态目标位 R 倍数)。 */
-async function confirm(p: Pre, cfg: ScreenerConfig): Promise<(ScreenerCandidate & { liqAmount: number }) | null> {
+async function confirm(
+  p: Pre,
+  cfg: ScreenerConfig,
+  stats: { fetched: number },
+): Promise<(ScreenerCandidate & { liqAmount: number }) | null> {
   try {
     const { klines } = await fetchStockKline(p.code, 101, cfg.KLINE_COUNT)
     if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return null
+    stats.fetched++ // 取到足量K线(数据源健康度);match 与否是另一回事
     const cand = classify(klines as Bar[], cfg)
     if (!cand) return null
     return { ...cand, code: p.code, name: p.name, score: 0, liqAmount: p.amount }
@@ -200,6 +205,7 @@ function todayStr(): string {
 
 async function fetchScreenerFresh(): Promise<ScreenerResult> {
   const asof = todayStr()
+  const t0 = Date.now()
 
   // Regime(尽力而为,失败给中性)
   let regime: ScreenerRegime
@@ -228,7 +234,8 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     `[Screener] 全市场 ${universe} → 初筛入围 ${rows.length} → 取K线 ${survivors.length};大盘 ${marketTrend} → 目标 ${targetRMult}R`,
   )
 
-  const enriched = (await mapLimit(survivors, C.CONCURRENCY, (p) => confirm(p, scanCfg))).filter(
+  const stats = { fetched: 0 }
+  const enriched = (await mapLimit(survivors, C.CONCURRENCY, (p) => confirm(p, scanCfg, stats))).filter(
     (x): x is ScreenerCandidate & { liqAmount: number } => x != null,
   )
 
@@ -251,6 +258,11 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .map(strip)
 
   const result: ScreenerResult = { asof, regime, breakout, trigger, scanned: survivors.length, universe, truncated }
+
+  // 完成日志:取K线成功率(fetched/survivors 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。
+  console.log(
+    `[Screener] 完成:取K线 ${stats.fetched}/${survivors.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+  )
 
   // 按日落盘(无DB也可回看);失败不影响返回
   try {
