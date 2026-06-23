@@ -59,6 +59,41 @@ export interface Translation {
   titles: Record<string, string>
   range: { label: string; week: string; month: string; quarter: string; year: string }
   language: { label: string; zh: string; en: string }
+  rotation: {
+    searchPlaceholder: string
+    category: { label: string; industry: string; concept: string }
+    longLabel: string
+    shortLabel: string
+    dayN: string
+    refresh: string
+    scanning: string
+    loadFail: string
+    empty: string
+    boardsUnit: string
+    recent: string
+    up: string
+    down: string
+    shortUpShare: string
+    legend: string
+    lastUpdated: string
+    quads: {
+      hs: { tag: string; meaning: string }
+      ls: { tag: string; meaning: string }
+      hw: { tag: string; meaning: string }
+      lw: { tag: string; meaning: string }
+    }
+    card: { long: string; today: string }
+    drill: {
+      title: string
+      hint: string
+      close: string
+      loading: string
+      loadFail: string
+      empty: string
+      breakout: string
+      trigger: string
+    }
+  }
   themes: {
     heatTitle: string
     heatDesc: string
@@ -471,6 +506,7 @@ export interface Translation {
       stop: string
       target: string
       dist: string
+      hi52: string
       score: string
       vol: string
       trend: string

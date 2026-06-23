@@ -171,7 +171,8 @@ export function groupSeatsByCode(
 }
 
 // 东财个股所属板块里混入大量 资金属性/风格/盘口统计/财报 板，非真正「概念」。命中任一子串即剔除。
-const CONCEPT_BLOCKLIST = [
+// 板块轮动(rotation.ts)复用此表过滤"非真实行业/概念"的板块宇宙。
+export const CONCEPT_BLOCKLIST = [
   // 资金/制度属性
   '融资融券',
   '转融券',

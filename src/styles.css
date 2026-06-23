@@ -2132,3 +2132,223 @@ body {
   margin-top: 8px;
   line-height: 1.5;
 }
+
+/* ── 板块轮动(Sector Rotation)─────────────────────────────── */
+.rot-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  min-width: 220px;
+}
+.rot-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text, #e8edf6);
+  font-size: 0.82rem;
+}
+.rot-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.rot-seg-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-right: 6px;
+}
+.rot-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 10px 0 14px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.rot-summary-main {
+  font-weight: 600;
+  color: var(--text, #e8edf6);
+}
+.rot-search-info {
+  color: var(--blue);
+}
+.rot-summary-counts {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.rot-pill {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+.rot-pill--hs { background: var(--red-soft); color: var(--red); }
+.rot-pill--ls { background: var(--orange-soft); color: var(--orange); }
+.rot-pill--hw { background: var(--blue-soft); color: var(--blue); }
+.rot-pill--lw { background: var(--surface-soft); color: var(--muted); }
+.rot-breadth {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.rot-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 920px) {
+  .rot-board { grid-template-columns: 1fr; }
+}
+.rot-quad {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-glass);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.rot-quad-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.rot-quad-tag {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.rot-quad-desc {
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+.rot-quad--hs { border-top: 2px solid var(--red); }
+.rot-quad--hs .rot-quad-tag { background: var(--red); color: #fff; }
+.rot-quad--ls { border-top: 2px solid var(--orange); }
+.rot-quad--ls .rot-quad-tag { background: var(--orange); color: #1a1f2b; }
+.rot-quad--hw { border-top: 2px solid var(--blue); }
+.rot-quad--hw .rot-quad-tag { background: var(--blue); color: #fff; }
+.rot-quad--lw { border-top: 2px solid var(--muted); }
+.rot-quad--lw .rot-quad-tag { background: var(--muted); color: #fff; }
+.rot-quad-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  padding: 10px;
+  min-height: 60px;
+  align-content: start;
+}
+.rot-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 8px 10px;
+}
+.rot-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.rot-card-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text, #e8edf6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rot-card-short {
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.rot-card-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.rot-card-meta span span {
+  margin-left: 3px;
+}
+.rot-foot {
+  margin-top: 12px;
+}
+/* 板块卡可点击 + 下钻面板 */
+.rot-card {
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.rot-card:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-glass);
+}
+.rot-card:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+.rot-card--active {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue) inset;
+}
+.rot-drill {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  padding: 12px 14px;
+}
+.rot-drill-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.rot-drill-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text, #e8edf6);
+}
+.rot-drill-group {
+  margin-bottom: 12px;
+}
+.rot-drill-grouptag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 6px 0;
+}
+.rot-sk-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 5px;
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.rot-sk-row b {
+  color: var(--text, #e8edf6);
+  font-weight: 600;
+}
+.rot-sk-pattern {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--blue);
+}
