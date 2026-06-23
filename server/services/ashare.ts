@@ -749,6 +749,25 @@ export interface KlineBar {
   changePct: number
 }
 
+// ── Per-host circuit breaker for kline sources ────────────────────────────
+// During a batch scan (screener fetches ~600 klines at concurrency 12), when EM
+// or Tencent is down / IP-rate-limited the first failing stock trips a short
+// cooldown so the remaining stocks skip the dead host instead of each paying its
+// round-trip. Preserves 前复权 preference (EM → Tencent); Sina (不复权) is the
+// always-available last resort. Cooldown auto-expires, re-probing the host.
+const KLINE_HOST_COOLDOWN_MS = 60_000
+const klineHostCooldownUntil: Record<string, number> = {}
+function klineHostCooling(host: string): boolean {
+  const until = klineHostCooldownUntil[host]
+  return until !== undefined && Date.now() < until
+}
+function tripKlineHost(host: string): void {
+  klineHostCooldownUntil[host] = Date.now() + KLINE_HOST_COOLDOWN_MS
+}
+function clearKlineHost(host: string): void {
+  delete klineHostCooldownUntil[host]
+}
+
 export async function fetchStockKline(
   stockCode: string,
   period: number = 101, // 101=daily, 102=weekly, 103=monthly
@@ -757,45 +776,105 @@ export async function fetchStockKline(
   const prefix = stockCode.startsWith('6') ? '1' : '0'
   const secid = `${prefix}.${stockCode}`
 
-  // Try EastMoney first
-  try {
-    const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=${period}&fqt=1&end=20500101&lmt=${count}`
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
-    clearTimeout(timeout)
+  // Try EastMoney first (前复权, fqt=1). Skip while cooling down.
+  if (!klineHostCooling('em')) {
+    try {
+      const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=${period}&fqt=1&end=20500101&lmt=${count}`
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 5000)
+      const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
+      clearTimeout(timeout)
 
-    if (res.ok) {
-      const json = await res.json()
-      const name = toStr(json?.data?.name)
-      const klinesRaw = json?.data?.klines as string[] | undefined
-      const klines: KlineBar[] = []
+      if (res.ok) {
+        const json = await res.json()
+        const name = toStr(json?.data?.name)
+        const klinesRaw = json?.data?.klines as string[] | undefined
+        const klines: KlineBar[] = []
 
-      if (klinesRaw && klinesRaw.length > 0) {
-        for (const line of klinesRaw) {
-          const parts = line.split(',')
-          if (parts.length >= 7) {
-            klines.push({
-              date: parts[0],
-              open: parseFloat(parts[1]) || 0,
-              close: parseFloat(parts[2]) || 0,
-              high: parseFloat(parts[3]) || 0,
-              low: parseFloat(parts[4]) || 0,
-              volume: parseFloat(parts[5]) || 0,
-              turnover: parseFloat(parts[6]) || 0,
-              amplitude: parseFloat(parts[7]) || 0,
-              changePct: parseFloat(parts[8]) || 0,
-            })
+        if (klinesRaw && klinesRaw.length > 0) {
+          for (const line of klinesRaw) {
+            const parts = line.split(',')
+            if (parts.length >= 7) {
+              klines.push({
+                date: parts[0],
+                open: parseFloat(parts[1]) || 0,
+                close: parseFloat(parts[2]) || 0,
+                high: parseFloat(parts[3]) || 0,
+                low: parseFloat(parts[4]) || 0,
+                volume: parseFloat(parts[5]) || 0,
+                turnover: parseFloat(parts[6]) || 0,
+                amplitude: parseFloat(parts[7]) || 0,
+                changePct: parseFloat(parts[8]) || 0,
+              })
+            }
           }
+          clearKlineHost('em')
+          return { name, klines }
         }
-        return { name, klines }
       }
+      tripKlineHost('em') // non-ok or empty payload → cool down for the rest of the batch
+    } catch {
+      tripKlineHost('em')
     }
-  } catch {
-    // Fall through to Sina
   }
 
-  // Fallback: Sina API
+  // Fallback 1: Tencent fqkline — 前复权(qfq), matches EM fqt=1 basis.
+  // Critical: keeps adjustment consistent so pivot/52w-high/MA口径 stay correct
+  // when EM is rate-limited. (Sina below is 不复权, used only as last resort.)
+  if (!klineHostCooling('tencent')) {
+    try {
+      const tcPeriod = period === 102 ? 'week' : period === 103 ? 'month' : 'day'
+      const tcSym = stockCode.startsWith('6')
+        ? `sh${stockCode}`
+        : /^[489]/.test(stockCode)
+          ? `bj${stockCode}` // 北交所 43/83/87/88/920…
+          : `sz${stockCode}`
+      const tcUrl = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${tcSym},${tcPeriod},,,${count},qfq`
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 5000)
+      const res = await fetch(tcUrl, { headers: SINA_HEADERS, signal: controller.signal })
+      clearTimeout(timeout)
+
+      if (res.ok) {
+        const json = await res.json()
+        const node = json?.data?.[tcSym]
+        // qfqday/qfqweek/qfqmonth when adjusted; fall back to plain key if absent.
+        const rows = (node?.[`qfq${tcPeriod}`] ?? node?.[tcPeriod]) as (string | number)[][] | undefined
+        const name = toStr(node?.qt?.[tcSym]?.[1])
+        const klines: KlineBar[] = []
+
+        if (rows && rows.length > 0) {
+          for (let i = 0; i < rows.length; i++) {
+            const r = rows[i]
+            // Tencent row order: [date, open, close, high, low, volume]
+            const open = parseFloat(String(r[1])) || 0
+            const close = parseFloat(String(r[2])) || 0
+            const high = parseFloat(String(r[3])) || 0
+            const low = parseFloat(String(r[4])) || 0
+            const prevClose = i > 0 ? parseFloat(String(rows[i - 1][2])) || close : open
+            klines.push({
+              date: String(r[0]),
+              open,
+              close,
+              high,
+              low,
+              volume: parseFloat(String(r[5])) || 0,
+              turnover: 0, // Tencent basic row has no turnover
+              amplitude: prevClose ? ((high - low) / prevClose) * 100 : 0,
+              changePct: prevClose ? ((close - prevClose) / prevClose) * 100 : 0,
+            })
+          }
+          clearKlineHost('tencent')
+          return { name, klines }
+        }
+      }
+      tripKlineHost('tencent') // non-ok (e.g. 501 rate-limit) or empty → cool down
+    } catch {
+      tripKlineHost('tencent')
+    }
+  }
+
+  // Fallback 2: Sina API (不复权 — last resort; adjustment basis differs from EM/Tencent)
   const scale = period === 102 ? 1680 : period === 103 ? 7200 : 240
   const symbol = stockCode.startsWith('6') ? `sh${stockCode}` : `sz${stockCode}`
   const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${symbol}&scale=${scale}&ma=no&datalen=${count}`
