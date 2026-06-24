@@ -22,8 +22,9 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from '../services/ashare'
-import { SCREENER, type ScreenerConfig } from '../config/screener'
+import { SCREENER, PULLBACK, type ScreenerConfig, type PullbackConfig } from '../config/screener'
 import { classify, marketRegime, type Bar, type MarketRegime } from '../services/screenerRules'
+import { classifyPullback } from '../services/pullbackRules'
 import { boardStrengthAsOf } from '../services/rotationRules'
 import {
   buildLhbIndex,
@@ -48,6 +49,8 @@ const RUN_TRIGGER = process.env.TRIGGER !== '0' // 默认做扳机组诊断(#3)
 const RUN_REGIME = process.env.REGIME !== '0' // 默认做动态目标位(大盘环境)验证
 // COMBO: 龙虎榜(机构) + 板块轮动 因子检验(取数重,默认关;COMBO=1 开启)
 const RUN_COMBO = process.env.COMBO === '1'
+// PULLBACK: 回调二次启动 / 圆弧底反包 战法回测(新形态,默认关;PULLBACK=1 开启)
+const RUN_PULLBACK = process.env.PULLBACK === '1'
 const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
 const LHB_INST = process.env.INST !== '0' // 取机构专用席位净买(默认是;=0 仅全口径净买,更快)
 const LHB_CONC = Number(process.env.LHB_CONC) || 4 // 龙虎榜/板块取数并发(EM 限流,宜低)
@@ -304,6 +307,32 @@ function simulate(
     const t = makeTrade(sb.code, bars, i, entry, stop, target, risk, simForward(bars, i, stop, target, hold))
     if (regime) t.regime = regime
     trades.push(t)
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 回调二次启动:逐股逐日跑 classifyPullback,命中即按其结构化止损/目标撮合(同 simForward 内核)。 */
+function simulatePullback(sb: StockBars, cfg: PullbackConfig, hold = HOLD): Trade[] {
+  const { bars } = sb
+  const len = bars.length
+  const start = cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyPullback(bars.slice(0, i + 1), cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const entry = bars[i].close
+    const stop = cand.stopLoss
+    const risk = entry - stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    trades.push(makeTrade(sb.code, bars, i, entry, stop, cand.target, risk, simForward(bars, i, stop, cand.target, hold)))
     i = i + hold + 1 // 冷却:一仓在手不重叠
   }
   return trades
@@ -584,6 +613,46 @@ async function main() {
     } catch (err) {
       console.warn('[Combo] 因子检验失败:', err)
     }
+  }
+
+  // PULLBACK: 回调二次启动 / 圆弧底反包 战法(新形态,PULLBACK=1 开启)
+  if (RUN_PULLBACK) {
+    console.log('\n========== 回调二次启动 / 圆弧底反包(新形态)==========')
+    console.log('（对照基准:突破组 ≈0.39R / 直买扳机 ≈-0.11R;通过线=期望明显为正、PF>1.3）')
+    const variants: Array<{ name: string; over: Partial<PullbackConfig> }> = [
+      { name: 'pullback-measured(→近高)', over: { TARGET_MODE: 'measured' } },
+      { name: 'pullback-rmult-2', over: { TARGET_MODE: 'rmult', TARGET_R_MULT: 2 } },
+      { name: 'pullback-rmult-2.5', over: { TARGET_MODE: 'rmult', TARGET_R_MULT: 2.5 } },
+      { name: 'pullback-rmult-3', over: { TARGET_MODE: 'rmult', TARGET_R_MULT: 3 } },
+    ]
+    const pbVariants: Array<{ name: string; over: Partial<PullbackConfig>; metrics: Metrics }> = []
+    for (const v of variants) {
+      const cfg = { ...PULLBACK, ...v.over } as PullbackConfig
+      const metrics = aggregate(data.flatMap((sb) => simulatePullback(sb, cfg)))
+      console.log(fmtMetrics(v.name, metrics))
+      pbVariants.push({ name: v.name, over: v.over, metrics })
+    }
+    // 阈值扫描(默认 measured 目标)：看样本量与期望对各旋钮是否稳健。
+    const pbSweeps: Array<{ key: keyof PullbackConfig; values: number[] }> = [
+      { key: 'VOL_SPIKE', values: [1.5, 1.8, 2.0, 2.5] },
+      { key: 'RETRACE_MAX', values: [0.5, 0.6, 0.65] },
+      { key: 'ARC_RECOVER_MIN', values: [0.03, 0.05, 0.08] },
+      { key: 'CORRECTION_MIN_DAYS', values: [10, 15, 20] },
+      { key: 'STOP_MAX_PCT', values: [0, 12, 15] },
+    ]
+    const pbSweepOut: Record<string, Array<{ value: number; metrics: Metrics }>> = {}
+    for (const s of pbSweeps) {
+      const key = String(s.key)
+      console.log(`\n---------- 扫描 ${key}(基线=${(PULLBACK as Record<string, unknown>)[key]})----------`)
+      pbSweepOut[key] = []
+      for (const val of s.values) {
+        const cfg = { ...PULLBACK, [s.key]: val } as PullbackConfig
+        const metrics = aggregate(data.flatMap((sb) => simulatePullback(sb, cfg)))
+        console.log(fmtMetrics(`${key}=${val}`, metrics))
+        pbSweepOut[key].push({ value: val, metrics })
+      }
+    }
+    out.pullbackEval = { config: PULLBACK, variants: pbVariants, sweeps: pbSweepOut }
   }
 
   mkdirSync(OUT_DIR, { recursive: true })

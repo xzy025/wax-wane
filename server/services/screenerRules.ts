@@ -33,16 +33,17 @@ export interface Candidate {
 
 const r2 = (n: number) => Math.round(n * 100) / 100
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
-const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0)
+/** 算术均值(空数组=0)。导出供并列战法(pullbackRules)复用。 */
+export const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0)
 
-/** 末端 N 根收盘均值(SMA,以 endIdx 结尾)。 */
-function smaAt(closes: number[], period: number, endIdx: number): number {
+/** 末端 N 根收盘均值(SMA,以 endIdx 结尾)。导出供并列战法复用。 */
+export function smaAt(closes: number[], period: number, endIdx: number): number {
   if (endIdx - period + 1 < 0) return 0
   return mean(closes.slice(endIdx - period + 1, endIdx + 1))
 }
 
-/** ATR:以 endIdx 结尾的 period 根真实波幅均值。 */
-function atr(bars: Bar[], period: number, endIdx: number): number {
+/** ATR:以 endIdx 结尾的 period 根真实波幅均值。导出供并列战法复用。 */
+export function atr(bars: Bar[], period: number, endIdx: number): number {
   let sum = 0
   let cnt = 0
   for (let i = endIdx - period + 1; i <= endIdx; i++) {

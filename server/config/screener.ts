@@ -150,3 +150,85 @@ export const SCREENER = {
   BOARD_LONG_WIN: 60,
   BOARD_SHORT_WIN: 5,
 } as const satisfies ScreenerConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 回调二次启动 / 圆弧底反包 战法(与新高战法并列的另一类形态)。
+// 抓「曾经的领涨龙头 → 深度回调(斐波带) → 圆弧底 → 均线即将金叉 → 异常放量二次启动」。
+// 现有趋势模板 `距52周高≤15%` 会把回调票一票否决,故需独立规则。阈值初值待回测校准。
+// ════════════════════════════════════════════════════════════════════════
+export interface PullbackConfig {
+  KLINE_COUNT: number
+  MA_LONG: number
+  MA_LONG_RISE_LOOKBACK: number
+  /** 52 周高/低回看窗口(根)。 */
+  PRIOR_HIGH_LOOKBACK: number
+  /** 近高点必须落在最近 N 根内(当下龙头,非远古高点)。 */
+  RECENT_HIGH_MAX: number
+  /** ① 龙头门槛:近高 / 52周低 ≥ 该比(曾翻倍级)。 */
+  LEADER_HILO_MIN: number
+  /** ① 要求 C > MA_LONG(回调发生在长期上行中,不是崩塌)。 */
+  REQUIRE_ABOVE_MA_LONG: boolean
+  /** ② 斐波回调深度带:depth=(近高−回调低)/近高 ∈ [MIN,MAX](覆盖 0.382/0.5/0.618)。 */
+  RETRACE_MIN: number
+  RETRACE_MAX: number
+  /** ② 尚未收复:C ≤ 近高×(1−该值),避免追在已回到高位的票。 */
+  STILL_BELOW_MIN: number
+  /** ③ 调整时间下限(交易日):距近高 ≥ 该值(过滤一日插针)。 */
+  CORRECTION_MIN_DAYS: number
+  /** ④ 圆弧底:最低点落在 [MIN,MAX] 根前(已确立、开始回弧,但不太陈旧)。 */
+  ARC_LOW_MIN_AGO: number
+  ARC_LOW_MAX_AGO: number
+  /** ④ 自低点回升 ∈ [MIN,MAX](回升太少未启动、太多已错过)。 */
+  ARC_RECOVER_MIN: number
+  ARC_RECOVER_MAX: number
+  /** ④ 收复短均:C ≥ MA(FAST)(价格站回 MA5=转向确认;深跌票上 MA5≥MA10 会严重滞后于放量,故不作硬门槛)。 */
+  MA_TURN_FAST: number
+  /** ⑤ 均线即将/已金叉 —— **仅评分**(深跌后 MA10 远低于 MA20,硬卡会让本战法对暴跌龙头永不触发)。
+   *  MA(X) ≥ MA(Y) 或 距 MA(Y) ≤ CROSS_NEAR 越贴近评分越高。 */
+  MA_X: number
+  MA_Y: number
+  CROSS_NEAR: number
+  /** ⑥ 异常放量启动:当日量 ≥ VOL_SPIKE × volMA(VOL_MA) 且收阳。=触发/买点。
+   *  回测定论:1.5× 最优(0.21R/PF1.69);2.5× 反转负(巨量=高潮脉冲不跟随)。 */
+  VOL_MA: number
+  VOL_SPIKE: number
+  /** 线上初筛:量比(clist f10)下限。回调票 mom60 常为负会被动量初筛截断,改按"当日放量"
+   *  (量比)排序捞"今日二次启动"候选,与本战法触发对齐。仅线上扫描用,不影响回测/纯函数。 */
+  PB_VR_MIN: number
+  /** 目标位:'measured'=测量到近高(二次启动天然目标);'rmult'=进场+R×风险。 */
+  TARGET_MODE: 'measured' | 'rmult'
+  TARGET_R_MULT: number
+  /** 结构化止损=圆弧底低点;>0 时额外封顶距进场该%(0=不封顶,纯结构)。 */
+  STOP_MAX_PCT: number
+  /** 评分权重(按权重和归一)。 */
+  WEIGHTS: { fib: number; arc: number; cross: number; vol: number; rs: number }
+}
+
+export const PULLBACK = {
+  KLINE_COUNT: 300,
+  MA_LONG: 250,
+  MA_LONG_RISE_LOOKBACK: 20,
+  PRIOR_HIGH_LOOKBACK: 250,
+  RECENT_HIGH_MAX: 120,
+  LEADER_HILO_MIN: 1.8,
+  REQUIRE_ABOVE_MA_LONG: true,
+  RETRACE_MIN: 0.3,
+  RETRACE_MAX: 0.65,
+  STILL_BELOW_MIN: 0.08,
+  CORRECTION_MIN_DAYS: 15,
+  ARC_LOW_MIN_AGO: 2,
+  ARC_LOW_MAX_AGO: 30,
+  ARC_RECOVER_MIN: 0.05,
+  ARC_RECOVER_MAX: 0.4,
+  MA_TURN_FAST: 5,
+  MA_X: 10,
+  MA_Y: 20,
+  CROSS_NEAR: 0.03,
+  VOL_MA: 20,
+  VOL_SPIKE: 1.5,
+  PB_VR_MIN: 1.3,
+  TARGET_MODE: 'rmult',
+  TARGET_R_MULT: 2.5,
+  STOP_MAX_PCT: 0,
+  WEIGHTS: { fib: 0.25, arc: 0.25, cross: 0.2, vol: 0.2, rs: 0.1 },
+} as const satisfies PullbackConfig
