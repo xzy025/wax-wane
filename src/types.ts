@@ -486,7 +486,19 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    groups: { breakout: string; trigger: string }
+    groups: { breakout: string; trigger: string; pullback: string }
+    pbDesc: string
+    pbCard: {
+      priorHigh: string
+      arcLow: string
+      retrace: string
+      daysSince: string
+      recover: string
+      leader: string
+      arcUp: string
+      cross: string
+      volSpike: string
+    }
     crossTitle: string
     crossDesc: string
     crossEmpty: string
