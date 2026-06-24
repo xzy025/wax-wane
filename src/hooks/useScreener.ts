@@ -3,6 +3,25 @@ import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export type ScreenerGroup = 'trigger' | 'breakout'
 
+/** 龙虎榜加分(近 K 交易日机构/资金净买埋伏)。金额单位:元。 */
+export interface LhbConfluence {
+  onDays: number
+  net: number
+  instDays: number
+  instNet: number
+  score: number
+}
+
+/** 板块强弱加分(个股所属行业板块当前 2×2 象限)。 */
+export interface BoardConfluence {
+  code: string
+  name: string
+  quadrant: 'hs' | 'ls' | 'hw' | 'lw'
+  shortChg: number
+  strong: boolean
+  score: number
+}
+
 /** Mirror of server ScreenerCandidate (server/services/screener.ts). */
 export interface ScreenerCandidate {
   group: ScreenerGroup
@@ -23,6 +42,8 @@ export interface ScreenerCandidate {
   dist52Pct: number
   score: number
   signals: { trendOk: boolean; volDry: boolean; atrContract: boolean; breakoutVol: boolean; pattern: string }
+  lhbInst?: LhbConfluence
+  board?: BoardConfluence
 }
 
 export interface ScreenerRegime {

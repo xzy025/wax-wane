@@ -487,6 +487,9 @@ export interface Translation {
     truncatedNote: string
     disclaimer: string
     groups: { breakout: string; trigger: string }
+    crossTitle: string
+    crossDesc: string
+    crossEmpty: string
     regime: {
       attack: string
       caution: string
@@ -513,6 +516,14 @@ export interface Translation {
       volDry: string
       atrContract: string
       breakoutVol: string
+      lhb: string
+      lhbInst: string
+      lhbNet: string
+      lhbDays: string
+      board: string
+      quad: { hs: string; ls: string; hw: string; lw: string }
+      bo: string
+      tr: string
     }
   }
 }

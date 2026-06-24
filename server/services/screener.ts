@@ -9,14 +9,41 @@ import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
 import { SCREENER as C, type ScreenerConfig } from '../config/screener'
 import { classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate, type MarketRegime } from './screenerRules'
+import { boardStrengthAsOf } from './rotationRules'
+import { resolveStockIndustryBoard } from './rotation'
+import { fetchTradingDates } from './moneyflow'
+import { buildLhbIndex, lhbFactorFor } from './lhbHistory'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
+
+/** 龙虎榜加分(近 K 交易日机构/资金净买埋伏)。金额单位:元。 */
+export interface LhbConfluence {
+  onDays: number // 近 K 日上榜天数
+  net: number // 全口径净买入和
+  instDays: number // 机构专用净买天数
+  instNet: number // 机构专用净买和
+  score: number // 0..1 加分
+}
+
+/** 板块强弱加分(个股所属行业板块当前 2×2 象限)。 */
+export interface BoardConfluence {
+  code: string // BKxxxx
+  name: string // 板块名
+  quadrant: string // hs/ls/hw/lw
+  shortChg: number // 近短窗涨幅%
+  strong: boolean // 短窗为正(轮动顺风)
+  score: number // 0..1 加分
+}
 
 export interface ScreenerCandidate extends Candidate {
   code: string
   name: string
   score: number
+  /** 龙虎榜加分(无则不存在=该股近 K 日未上榜)。 */
+  lhbInst?: LhbConfluence
+  /** 板块强弱加分(无则不存在=板块数据不可用)。 */
+  board?: BoardConfluence
 }
 
 export interface ScreenerRegime {
@@ -170,6 +197,51 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R
   return out
 }
 
+/** 给候选挂上「龙虎榜机构净买」+「板块强弱」加分(best-effort:失败/取不到数据则该因子缺省=中性,不伤分)。
+ *  仅对入围的 ~30 候选取增量数据:龙虎榜近 K 日索引(一次,全候选共享)+ 个股行业板块当前强弱。 */
+async function enrichConfluence(cands: (ScreenerCandidate & { liqAmount: number })[]): Promise<void> {
+  if (cands.length === 0) return
+  // ① 龙虎榜:近 K 交易日机构/资金净买
+  try {
+    const dates = await fetchTradingDates() // 降序(最近在前)
+    const win = dates.slice(0, C.LHB_LOOKBACK_K + 1)
+    if (win.length) {
+      const lhbIndex = await buildLhbIndex(win, { institutional: C.LHB_INSTITUTIONAL, concurrency: 4 })
+      for (const c of cands) {
+        const f = lhbFactorFor(c.code, win, lhbIndex)
+        if (f.onDays > 0) {
+          c.lhbInst = { onDays: f.onDays, net: f.netSum, instDays: f.instDays, instNet: f.instNetSum, score: f.score01 }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[Screener] 龙虎榜加分取数失败(忽略):', err instanceof Error ? err.message : err)
+  }
+  // ② 板块强弱:个股→行业板块→板块日线→当前 2×2 强弱(同板块 closes 缓存复用)
+  try {
+    const closesByBk = new Map<string, number[]>()
+    await mapLimit(cands, 6, async (c) => {
+      const { bk, name } = await resolveStockIndustryBoard(c.code)
+      if (!bk) return
+      let closes = closesByBk.get(bk)
+      if (!closes) {
+        try {
+          const bars = await fetchIndexKline(`90.${bk}`, C.BOARD_LONG_WIN + 30)
+          closes = bars.map((b) => b.close)
+        } catch {
+          closes = []
+        }
+        closesByBk.set(bk, closes)
+      }
+      if (closes.length === 0) return
+      const s = boardStrengthAsOf(closes, closes.length - 1, C.BOARD_LONG_WIN, C.BOARD_SHORT_WIN)
+      if (s) c.board = { code: bk, name, quadrant: s.quadrant, shortChg: s.shortChg, strong: s.strong, score: s.score01 }
+    })
+  } catch (err) {
+    console.warn('[Screener] 板块加分取数失败(忽略):', err instanceof Error ? err.message : err)
+  }
+}
+
 function buildRegime(s: {
   temperature?: number
   limitUp?: number
@@ -239,12 +311,15 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     (x): x is ScreenerCandidate & { liqAmount: number } => x != null,
   )
 
-  // RS 百分位(在入围集内)+ 流动性归一 → 评分
+  // 龙虎榜机构 + 板块强弱 加分(仅对入围候选;best-effort)
+  await enrichConfluence(enriched)
+
+  // RS 百分位(在入围集内)+ 流动性归一 + 外部加分 → 评分
   const rs = enriched.map((c) => c.rsRaw).sort((a, b) => a - b)
   const rsRank = (v: number) => (rs.length <= 1 ? 1 : rs.filter((x) => x <= v).length / rs.length)
   for (const c of enriched) {
     const liq01 = clamp01(Math.log10(Math.max(c.liqAmount, 1) / C.LIQUIDITY_MIN) / 2)
-    c.score = finalScore(c, rsRank(c.rsRaw), liq01)
+    c.score = finalScore(c, rsRank(c.rsRaw), liq01, C, { lhb01: c.lhbInst?.score, board01: c.board?.score })
   }
 
   const strip = ({ liqAmount: _liq, ...rest }: ScreenerCandidate & { liqAmount: number }) => rest

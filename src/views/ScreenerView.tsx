@@ -1,4 +1,4 @@
-import { ArrowClockwise, Lightning, Crosshair, CheckCircle } from 'phosphor-react'
+import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy } from 'phosphor-react'
 import { useScreener, type ScreenerCandidate, type ScreenerRegime } from '../hooks/useScreener'
 import type { Translation } from '../types'
 
@@ -36,7 +36,7 @@ function RegimeBanner({ r, t }: { r: ScreenerRegime; t: Translation }) {
   )
 }
 
-function Card({ c, t }: { c: ScreenerCandidate; t: Translation }) {
+function Card({ c, t, tag }: { c: ScreenerCandidate; t: Translation; tag?: string }) {
   const k = t.screener.card
   const s = c.signals
   return (
@@ -45,6 +45,7 @@ function Card({ c, t }: { c: ScreenerCandidate; t: Translation }) {
         <div className="sc-card-id">
           <span className="sc-card-name">{c.name}</span>
           <span className="sc-card-code">{c.code}</span>
+          {tag && <span className="sc-card-tag">{tag}</span>}
         </div>
         <span className="sc-score" title={k.score}>
           {Math.round(c.score)}
@@ -78,6 +79,25 @@ function Card({ c, t }: { c: ScreenerCandidate; t: Translation }) {
           <span className="sc-metric-value mono">{c.distToPivotPct.toFixed(1)}%</span>
         </div>
       </div>
+
+      {(c.lhbInst || c.board) && (
+        <div className="sc-badges">
+          {c.lhbInst && (
+            <span
+              className={`sc-badge lhb${c.lhbInst.instDays > 0 ? ' inst' : ''}`}
+              title={`${k.lhb} · ${k.lhbInst} ${c.lhbInst.instDays}${k.lhbDays} · ${k.lhbNet} ${c.lhbInst.onDays}${k.lhbDays}`}
+            >
+              {k.lhb} {c.lhbInst.instDays > 0 ? `${k.lhbInst}${c.lhbInst.instDays}${k.lhbDays}` : k.lhbNet}
+            </span>
+          )}
+          {c.board && (
+            <span className={`sc-badge board${c.board.strong ? ' strong' : ''}`} title={c.board.name}>
+              {k.board} {k.quad[c.board.quadrant]}{' '}
+              <small className={colorClass(c.board.shortChg)}>{fmtPct(c.board.shortChg)}</small>
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="sc-chips">
         {s.trendOk && <span className="sc-chip ok">{k.trend}✓</span>}
@@ -150,6 +170,31 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               ))}
             </div>
           )}
+
+          {(() => {
+            // 反向交叉:既在近 5 日龙虎榜(机构/资金净买)、又符合突破/扳机的标的(主力共振)。
+            const lhbKey = (c: ScreenerCandidate) => (c.lhbInst ? c.lhbInst.instNet || c.lhbInst.net : 0)
+            const cross = [...data.breakout, ...data.trigger]
+              .filter((c) => c.lhbInst)
+              .sort((a, b) => lhbKey(b) - lhbKey(a))
+            return (
+              <>
+                <div className="sc-group-head">
+                  <Trophy size={16} weight="fill" /> {sc.crossTitle} ({cross.length})
+                </div>
+                <p className="sc-cross-desc">{sc.crossDesc}</p>
+                {cross.length === 0 ? (
+                  <div className="sc-empty">{sc.crossEmpty}</div>
+                ) : (
+                  <div className="sc-grid">
+                    {cross.map((c) => (
+                      <Card key={`x-${c.code}`} c={c} t={t} tag={c.group === 'breakout' ? sc.card.bo : sc.card.tr} />
+                    ))}
+                  </div>
+                )}
+              </>
+            )
+          })()}
 
           <p className="sc-disclaimer">{sc.disclaimer}</p>
         </>

@@ -240,6 +240,55 @@ export async function fetchStockBoards(query: string): Promise<{ code: string; n
   }
 }
 
+// ── 个股 → 所属行业板块(供选股「板块强弱」加分 / 回测 as-of 强弱)──────────
+// ⚠ slist 仅返回「当前」所属板块,无历史。回测里以「今日行业归属」近似过去归属(行业成员稳定),
+// 引入轻度前视偏差,按相对比较对待(同回测既有的幸存者偏差)。
+
+/** slist 取个股所属板块 {bk, name}(含 BK 代码 f12 + 名称 f14)。 */
+async function fetchStockBoardList(code: string): Promise<{ bk: string; name: string }[]> {
+  const secid = toSecids(code)[0]
+  if (!secid) return []
+  try {
+    const url =
+      `https://push2.eastmoney.com/api/qt/slist/get?spt=3&fltt=2&invt=2&fid=f3&po=1&pn=1&pz=100` +
+      `&secid=${secid}&fields=f12,f14`
+    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(6000) })
+    if (!res.ok) return []
+    const json = (await res.json()) as { data?: { diff?: unknown } }
+    const diff = json.data?.diff
+    const arr: Record<string, unknown>[] = diff ? (Array.isArray(diff) ? diff : Object.values(diff)) : []
+    return arr.map((d) => ({ bk: String(d.f12 ?? ''), name: String(d.f14 ?? '') })).filter((b) => b.bk && b.name)
+  } catch {
+    return []
+  }
+}
+
+// 行业板块代码集合(t:2)缓存:从个股所属板块里挑「行业」板(成员稳定,优于概念)。
+let industrySetCache: { set: Set<string>; expires: number } | null = null
+async function getIndustryBoardSet(): Promise<Set<string>> {
+  if (industrySetCache && industrySetCache.expires > Date.now()) return industrySetCache.set
+  const universe = await fetchBoardUniverse('industry')
+  const set = new Set(universe.map((b) => b.code))
+  industrySetCache = { set, expires: Date.now() + 24 * 3600_000 }
+  return set
+}
+
+/** 个股 → 主行业板块 {bk, name}(优先 slist 命中的行业板;无则退第一个非伪板块)。bk='' = 无法解析。 */
+export async function resolveStockIndustryBoard(code: string): Promise<{ bk: string; name: string }> {
+  const boards = await fetchStockBoardList(code)
+  if (boards.length === 0) return { bk: '', name: '' }
+  const filtered = boards.filter((b) => !CONCEPT_BLOCKLIST.some((x) => b.name.includes(x)))
+  const pool = filtered.length ? filtered : boards
+  try {
+    const industrySet = await getIndustryBoardSet()
+    const hit = pool.find((b) => industrySet.has(b.bk))
+    if (hit) return { bk: hit.bk, name: hit.name }
+  } catch {
+    /* 行业宇宙取数失败 → 退回第一个板 */
+  }
+  return { bk: pool[0].bk, name: pool[0].name }
+}
+
 // ── 板块内强势股下钻(复用选股器新高战法 classify)─────────────────────
 export interface BoardStock extends Candidate {
   code: string

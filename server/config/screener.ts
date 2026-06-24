@@ -44,7 +44,15 @@ export interface ScreenerConfig {
   MARKET_MA_FAST: number
   MARKET_MA_SLOW: number
   CONCURRENCY: number
-  WEIGHTS: { rs: number; coil: number; trend: number; vol: number; liq: number }
+  WEIGHTS: { rs: number; coil: number; trend: number; vol: number; liq: number; lhb?: number; board?: number }
+  // ── 龙虎榜 / 板块轮动 加分因子(回测校准,可置 0 关闭)──
+  /** 龙虎榜加分回看窗口(交易日):信号日前 K 日机构/资金净买埋伏。 */
+  LHB_LOOKBACK_K: number
+  /** 龙虎榜加分是否取机构专用席位净买(否=全口径净买,省一半请求)。 */
+  LHB_INSTITUTIONAL: boolean
+  /** 板块强弱加分的长/短窗(交易日)。 */
+  BOARD_LONG_WIN: number
+  BOARD_SHORT_WIN: number
 }
 
 export const SCREENER = {
@@ -128,5 +136,17 @@ export const SCREENER = {
   CONCURRENCY: 12,
 
   // ── 评分权重 ─────────────────────────────────────────────────────
-  WEIGHTS: { rs: 0.3, coil: 0.25, trend: 0.2, vol: 0.15, liq: 0.1 },
+  // lhb(龙虎榜机构净买)/ board(板块短期强弱)为外部加分因子;finalScore 按权重和归一,
+  // 故新增二者不改变其余因子的相对比例,置 0 即完全关闭。
+  // 回测校准(COMBO,393只/2023-07~2026-06):**lhb 已验证强**——突破日前5日有龙虎榜净买入的票
+  // 期望 0.58~0.97R(机构) / 0.66R(全口径) vs 未上榜 0.35R、基线 0.39R,故给 0.15。
+  // **board 待验证**:90.BK 板块日线接口当前对本机限流(无 Sina 兜底)→ 回测样本=0,暂给小权重 0.05
+  // (取不到板块数据时本因子自动中性,不伤分);接口恢复后重跑 COMBO 校准。
+  WEIGHTS: { rs: 0.3, coil: 0.25, trend: 0.2, vol: 0.15, liq: 0.1, lhb: 0.15, board: 0.05 },
+
+  // ── 龙虎榜 / 板块轮动 加分因子 ────────────────────────────────────
+  LHB_LOOKBACK_K: 5,
+  LHB_INSTITUTIONAL: true,
+  BOARD_LONG_WIN: 60,
+  BOARD_SHORT_WIN: 5,
 } as const satisfies ScreenerConfig

@@ -266,11 +266,30 @@ export function targetRMultFor(regime: MarketRegime, C: ScreenerConfig = SCREENE
   return C.TARGET_R_BY_REGIME[regime]
 }
 
-/** 最终评分:RS 百分位 + 弹簧度 + 趋势强度 + 量能 + 流动性。0-100。 */
-export function finalScore(c: Candidate, rsRank01: number, liq01: number, C: ScreenerConfig = SCREENER): number {
+/** 最终评分:RS 百分位 + 弹簧度 + 趋势强度 + 量能 + 流动性 + 外部加分(龙虎榜机构/板块强弱)。0-100。
+ *  extra(lhb01/board01,均 0..1)与对应权重(WEIGHTS.lhb/board)缺省时按权重和归一,
+ *  使加分因子权重=0 时本函数与旧版完全等价(下游 rotation 下钻调用不传 extra 不受影响)。 */
+export function finalScore(
+  c: Candidate,
+  rsRank01: number,
+  liq01: number,
+  C: ScreenerConfig = SCREENER,
+  extra?: { lhb01?: number; board01?: number },
+): number {
   const w = C.WEIGHTS
+  const lhbW = w.lhb ?? 0
+  const boardW = w.board ?? 0
+  const lhb01 = extra?.lhb01 ?? 0
+  const board01 = extra?.board01 ?? 0
+  const wsum = w.rs + w.coil + w.trend + w.vol + w.liq + lhbW + boardW
   return r2(
-    100 *
-      (w.rs * rsRank01 + w.coil * c.coil + w.trend * c.trendStrength + w.vol * c.volScore + w.liq * liq01),
+    (100 / wsum) *
+      (w.rs * rsRank01 +
+        w.coil * c.coil +
+        w.trend * c.trendStrength +
+        w.vol * c.volScore +
+        w.liq * liq01 +
+        lhbW * lhb01 +
+        boardW * board01),
   )
 }
