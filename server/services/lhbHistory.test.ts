@@ -7,12 +7,12 @@ import {
 } from './lhbHistory'
 import { boardStrengthAsOf } from './rotationRules'
 
-// 构造合成索引:600000 在 3/10(纯净买)、3/11(机构单日)、3/12(机构多日第2天)上榜。
+// 构造合成索引:600000 在 3/10(纯净买+游资)、3/11(机构单日)、3/12(机构多日第2天)上榜。
 function sampleIndex(): LhbIndex {
   return new Map([
-    ['2026-03-10', new Map([['600000', { net: 5e7, instNet: 0, instBuy: false }]])],
-    ['2026-03-11', new Map([['600000', { net: 8e7, instNet: 3e7, instBuy: true }]])],
-    ['2026-03-12', new Map([['600000', { net: 9e7, instNet: 5e7, instBuy: true }]])],
+    ['2026-03-10', new Map([['600000', { net: 5e7, instNet: 0, instBuy: false, hotNet: 4e7, hotBuy: true }]])],
+    ['2026-03-11', new Map([['600000', { net: 8e7, instNet: 3e7, instBuy: true, hotNet: 0, hotBuy: false }]])],
+    ['2026-03-12', new Map([['600000', { net: 9e7, instNet: 5e7, instBuy: true, hotNet: 0, hotBuy: false }]])],
   ])
 }
 const WIN = ['2026-03-10', '2026-03-11', '2026-03-12']
@@ -24,6 +24,8 @@ describe('lhbFactorFor', () => {
     expect(f.netSum).toBeCloseTo(2.2e8, 0) // 5e7+8e7+9e7
     expect(f.instDays).toBe(2)
     expect(f.instNetSum).toBeCloseTo(8e7, 0) // 3e7+5e7
+    expect(f.hotDays).toBe(1) // 仅 3/10 游资净买
+    expect(f.hotNetSum).toBeCloseTo(4e7, 0)
   })
 
   it('scores institutional multi-day highest (>0.8)', () => {
@@ -33,7 +35,9 @@ describe('lhbFactorFor', () => {
   })
 
   it('institutional single-day scores in 0.5..0.8', () => {
-    const idx: LhbIndex = new Map([['2026-03-11', new Map([['600000', { net: 8e7, instNet: 3e7, instBuy: true }]])]])
+    const idx: LhbIndex = new Map([
+      ['2026-03-11', new Map([['600000', { net: 8e7, instNet: 3e7, instBuy: true, hotNet: 0, hotBuy: false }]])],
+    ])
     const f = lhbFactorFor('600000', WIN, idx)
     expect(f.instDays).toBe(1)
     expect(f.score01).toBeGreaterThanOrEqual(0.5)
@@ -41,7 +45,9 @@ describe('lhbFactorFor', () => {
   })
 
   it('generic net-buy only (no institution) scores in 0.2..0.4', () => {
-    const idx: LhbIndex = new Map([['2026-03-10', new Map([['600000', { net: 5e7, instNet: 0, instBuy: false }]])]])
+    const idx: LhbIndex = new Map([
+      ['2026-03-10', new Map([['600000', { net: 5e7, instNet: 0, instBuy: false, hotNet: 0, hotBuy: false }]])],
+    ])
     const f = lhbFactorFor('600000', WIN, idx)
     expect(f.instDays).toBe(0)
     expect(f.score01).toBeGreaterThanOrEqual(0.2)
@@ -50,7 +56,7 @@ describe('lhbFactorFor', () => {
 
   it('returns zero factor when stock never appears in window', () => {
     const f = lhbFactorFor('300999', WIN, sampleIndex())
-    expect(f).toEqual({ onDays: 0, netSum: 0, instDays: 0, instNetSum: 0, score01: 0 })
+    expect(f).toEqual({ onDays: 0, netSum: 0, instDays: 0, instNetSum: 0, hotDays: 0, hotNetSum: 0, score01: 0 })
   })
 
   it('only counts dates inside the supplied window', () => {
@@ -60,7 +66,9 @@ describe('lhbFactorFor', () => {
   })
 
   it('net-sum can be negative (net sell) → no positive score', () => {
-    const idx: LhbIndex = new Map([['2026-03-10', new Map([['600000', { net: -6e7, instNet: 0, instBuy: false }]])]])
+    const idx: LhbIndex = new Map([
+      ['2026-03-10', new Map([['600000', { net: -6e7, instNet: 0, instBuy: false, hotNet: 0, hotBuy: false }]])],
+    ])
     const f = lhbFactorFor('600000', WIN, idx)
     expect(f.netSum).toBeLessThan(0)
     expect(f.score01).toBe(0)
@@ -71,7 +79,7 @@ describe('serializeLhbIndex / deserializeLhbIndex', () => {
   it('round-trips a Map-of-Maps through plain JSON', () => {
     const idx = sampleIndex()
     const round = deserializeLhbIndex(JSON.parse(JSON.stringify(serializeLhbIndex(idx))))
-    expect(round.get('2026-03-12')?.get('600000')).toEqual({ net: 9e7, instNet: 5e7, instBuy: true })
+    expect(round.get('2026-03-12')?.get('600000')).toEqual({ net: 9e7, instNet: 5e7, instBuy: true, hotNet: 0, hotBuy: false })
     expect([...round.keys()]).toEqual([...idx.keys()])
   })
 })

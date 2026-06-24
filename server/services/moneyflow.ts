@@ -8,6 +8,7 @@
 //   按 交易日×窗口 缓存：历史日期不可变长缓存，当日短缓存。概念另按 code 缓存（跨日期/窗口复用）。
 import { EM_HEADERS } from '../lib/emHeaders'
 import { toSecids } from './emQuotes'
+import { classifySeat } from '../config/hotMoneySeats'
 
 const TOP_SEATS = 3 // 每只票主要买/卖营业部保留前 N
 const MAX_CONCEPTS = 3 // 每只票概念标签保留前 N
@@ -427,12 +428,20 @@ export async function fetchBillboardRows(date: string): Promise<Array<{ code: st
   return dedupeLhbByCode(main.rows).map((s) => ({ code: s.code, name: s.name, netAmt: s.netAmt }))
 }
 
-/** 某交易日「机构专用」席位的按个股净买入(买-卖)。
- *  注意:不能复用 fetchSeats(它按金额截 top3,机构席位可能被截掉)——这里在截断前直接筛 OPERATEDEPT_NAME==='机构专用' 并按 code 汇总。 */
-export async function fetchInstitutionalNetByDate(
-  date: string,
-): Promise<Map<string, { instBuy: number; instSell: number; instNet: number }>> {
-  const out = new Map<string, { instBuy: number; instSell: number; instNet: number }>()
+/** 某交易日各类席位(机构专用 / 游资)的按个股净买入(买-卖)。
+ *  注意:不能复用 fetchSeats(它按金额截 top3,机构/游资席位可能被截掉)——这里在截断前
+ *  直接对每行席位按 classifySeat 分类(沪深股通=北向不计),按 code 汇总 机构 + 游资 两类。 */
+export interface SeatNet {
+  instBuy: number
+  instSell: number
+  instNet: number
+  hotBuy: number
+  hotSell: number
+  hotNet: number
+}
+
+export async function fetchSeatNetByDate(date: string): Promise<Map<string, SeatNet>> {
+  const out = new Map<string, SeatNet>()
   const sides: Array<{ side: 'BUY' | 'SELL'; report: string; col: 'BUY' | 'SELL' }> = [
     { side: 'BUY', report: 'RPT_BILLBOARD_DAILYDETAILSBUY', col: 'BUY' },
     { side: 'SELL', report: 'RPT_BILLBOARD_DAILYDETAILSSELL', col: 'SELL' },
@@ -448,20 +457,37 @@ export async function fetchInstitutionalNetByDate(
       const json = (await res.json()) as any
       const data: any[] = json.result?.data ?? []
       for (const d of data) {
-        if (d.OPERATEDEPT_NAME !== '机构专用') continue // 机构席位统一名
+        const cls = classifySeat(String(d.OPERATEDEPT_NAME ?? ''))
+        if (cls !== 'inst' && cls !== 'hot') continue // 普通营业部/北向 不计
         const code = String(d.SECURITY_CODE ?? '')
         if (!code) continue
         const amt = Number(d[col]) || 0
-        const cur = out.get(code) ?? { instBuy: 0, instSell: 0, instNet: 0 }
-        if (side === 'BUY') cur.instBuy += amt
-        else cur.instSell += amt
-        cur.instNet = cur.instBuy - cur.instSell
+        const cur = out.get(code) ?? { instBuy: 0, instSell: 0, instNet: 0, hotBuy: 0, hotSell: 0, hotNet: 0 }
+        if (cls === 'inst') {
+          if (side === 'BUY') cur.instBuy += amt
+          else cur.instSell += amt
+          cur.instNet = cur.instBuy - cur.instSell
+        } else {
+          if (side === 'BUY') cur.hotBuy += amt
+          else cur.hotSell += amt
+          cur.hotNet = cur.hotBuy - cur.hotSell
+        }
         out.set(code, cur)
       }
     } catch {
       /* 单边失败不致命,另一边照常 */
     }
   }
+  return out
+}
+
+/** 兼容旧接口:仅机构专用净买(内部走 fetchSeatNetByDate)。 */
+export async function fetchInstitutionalNetByDate(
+  date: string,
+): Promise<Map<string, { instBuy: number; instSell: number; instNet: number }>> {
+  const full = await fetchSeatNetByDate(date)
+  const out = new Map<string, { instBuy: number; instSell: number; instNet: number }>()
+  for (const [code, s] of full) out.set(code, { instBuy: s.instBuy, instSell: s.instSell, instNet: s.instNet })
   return out
 }
 
