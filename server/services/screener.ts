@@ -18,12 +18,14 @@ import { buildLhbIndex, lhbFactorFor } from './lhbHistory'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
 
-/** 龙虎榜加分(近 K 交易日机构/资金净买埋伏)。金额单位:元。 */
+/** 龙虎榜加分(近 K 交易日机构/游资/资金净买埋伏)。金额单位:元。 */
 export interface LhbConfluence {
   onDays: number // 近 K 日上榜天数
   net: number // 全口径净买入和
   instDays: number // 机构专用净买天数
   instNet: number // 机构专用净买和
+  hotDays: number // 知名游资净买天数
+  hotNet: number // 知名游资净买和
   score: number // 0..1 加分
 }
 
@@ -51,6 +53,8 @@ export interface ScreenerCandidate extends Candidate {
 export interface PullbackScreenerCandidate extends PullbackCandidate {
   code: string
   name: string
+  /** 龙虎榜加分(机构/游资,无则未上榜)。 */
+  lhbInst?: LhbConfluence
 }
 
 export interface ScreenerRegime {
@@ -227,30 +231,42 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R
   return out
 }
 
-/** 给候选挂上「龙虎榜机构净买」+「板块强弱」加分(best-effort:失败/取不到数据则该因子缺省=中性,不伤分)。
- *  仅对入围的 ~30 候选取增量数据:龙虎榜近 K 日索引(一次,全候选共享)+ 个股行业板块当前强弱。 */
-async function enrichConfluence(cands: (ScreenerCandidate & { liqAmount: number })[]): Promise<void> {
-  if (cands.length === 0) return
-  // ① 龙虎榜:近 K 交易日机构/资金净买
+/** 给候选挂上「龙虎榜机构/游资净买」+「板块强弱」加分(best-effort:失败/取不到数据则该因子缺省=中性,不伤分)。
+ *  龙虎榜对 新高 + 回调 候选都挂(近 K 日索引取一次,全候选共享);板块强弱仅新高候选。 */
+async function enrichConfluence(
+  nhCands: (ScreenerCandidate & { liqAmount: number })[],
+  pbCands: PullbackScreenerCandidate[],
+): Promise<void> {
+  const lhbTargets: Array<{ code: string; lhbInst?: LhbConfluence }> = [...nhCands, ...pbCands]
+  if (lhbTargets.length === 0) return
+  // ① 龙虎榜:近 K 交易日机构/游资/资金净买(新高 + 回调 候选共享同一索引)
   try {
     const dates = await fetchTradingDates() // 降序(最近在前)
     const win = dates.slice(0, C.LHB_LOOKBACK_K + 1)
     if (win.length) {
       const lhbIndex = await buildLhbIndex(win, { institutional: C.LHB_INSTITUTIONAL, concurrency: 4 })
-      for (const c of cands) {
+      for (const c of lhbTargets) {
         const f = lhbFactorFor(c.code, win, lhbIndex)
         if (f.onDays > 0) {
-          c.lhbInst = { onDays: f.onDays, net: f.netSum, instDays: f.instDays, instNet: f.instNetSum, score: f.score01 }
+          c.lhbInst = {
+            onDays: f.onDays,
+            net: f.netSum,
+            instDays: f.instDays,
+            instNet: f.instNetSum,
+            hotDays: f.hotDays,
+            hotNet: f.hotNetSum,
+            score: f.score01,
+          }
         }
       }
     }
   } catch (err) {
     console.warn('[Screener] 龙虎榜加分取数失败(忽略):', err instanceof Error ? err.message : err)
   }
-  // ② 板块强弱:个股→行业板块→板块日线→当前 2×2 强弱(同板块 closes 缓存复用)
+  // ② 板块强弱:仅新高候选(回调卡不展示板块)。个股→行业板块→板块日线→当前 2×2 强弱(同板块 closes 缓存复用)
   try {
     const closesByBk = new Map<string, number[]>()
-    await mapLimit(cands, 6, async (c) => {
+    await mapLimit(nhCands, 6, async (c) => {
       const { bk, name } = await resolveStockIndustryBoard(c.code)
       if (!bk) return
       let closes = closesByBk.get(bk)
@@ -354,8 +370,8 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .filter((x): x is PullbackScreenerCandidate => x != null)
     .sort((a, b) => b.score - a.score)
 
-  // 龙虎榜机构 + 板块强弱 加分(仅对新高入围候选;best-effort)
-  await enrichConfluence(enriched)
+  // 龙虎榜机构/游资 + 板块强弱 加分(龙虎榜对新高+回调都挂,板块仅新高;best-effort)
+  await enrichConfluence(enriched, pullback)
 
   // RS 百分位(在入围集内)+ 流动性归一 + 外部加分 → 评分
   const rs = enriched.map((c) => c.rsRaw).sort((a, b) => a - b)

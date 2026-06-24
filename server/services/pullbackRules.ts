@@ -11,7 +11,7 @@
 //   ⑤ 均线即将/已金叉
 //   ⑥ 异常放量启动(=触发/买点)
 import { PULLBACK, type PullbackConfig } from '../config/screener'
-import { type Bar, mean, smaAt, rsRaw } from './screenerRules'
+import { type Bar, type Pivots, mean, smaAt, rsRaw, pivotLevels } from './screenerRules'
 
 const r2 = (n: number) => Math.round(n * 100) / 100
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
@@ -29,6 +29,7 @@ export interface PullbackCandidate {
   target: number
   rsRaw: number
   score: number // 0-100
+  pivots: Pivots // 经典枢轴位 R1/R2/S1/S2
   signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
 }
 
@@ -139,6 +140,7 @@ export function classifyPullback(bars: Bar[], C: PullbackConfig = PULLBACK): Pul
     target: r2(target),
     rsRaw: rs,
     score,
+    pivots: pivotLevels(today),
     signals: { leader, arcUp: reclaimFast, maCrossNear, volSpike, pattern: '回调圆弧底·放量二次启动' },
   }
 }

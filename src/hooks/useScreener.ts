@@ -9,7 +9,16 @@ export interface LhbConfluence {
   net: number
   instDays: number
   instNet: number
+  hotDays: number
+  hotNet: number
   score: number
+}
+
+export interface Pivots {
+  r1: number
+  r2: number
+  s1: number
+  s2: number
 }
 
 /** 板块强弱加分(个股所属行业板块当前 2×2 象限)。 */
@@ -41,6 +50,7 @@ export interface ScreenerCandidate {
   distToPivotPct: number
   dist52Pct: number
   score: number
+  pivots?: Pivots
   signals: { trendOk: boolean; volDry: boolean; atrContract: boolean; breakoutVol: boolean; pattern: string }
   lhbInst?: LhbConfluence
   board?: BoardConfluence
@@ -61,7 +71,9 @@ export interface PullbackScreenerCandidate {
   target: number
   rsRaw: number
   score: number
+  pivots?: Pivots
   signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
+  lhbInst?: LhbConfluence
 }
 
 export interface ScreenerRegime {

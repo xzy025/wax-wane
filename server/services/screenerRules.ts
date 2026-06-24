@@ -13,6 +13,26 @@ export interface Bar {
 
 export type ScreenerGroup = 'trigger' | 'breakout'
 
+/** 经典枢轴位(floor pivot):压力 R1/R2、支撑 S1/S2。 */
+export interface Pivots {
+  r1: number
+  r2: number
+  s1: number
+  s2: number
+}
+
+/** 由最近一根 bar 的 H/L/C 计算经典枢轴位(投射下一交易日的压力/支撑)。 */
+export function pivotLevels(bar: { high: number; low: number; close: number }): Pivots {
+  const p = (bar.high + bar.low + bar.close) / 3
+  const range = bar.high - bar.low
+  return {
+    r1: Math.round((2 * p - bar.low) * 100) / 100,
+    r2: Math.round((p + range) * 100) / 100,
+    s1: Math.round((2 * p - bar.high) * 100) / 100,
+    s2: Math.round((p - range) * 100) / 100,
+  }
+}
+
 export interface Candidate {
   group: ScreenerGroup
   price: number
@@ -28,6 +48,7 @@ export interface Candidate {
   volScore: number // 0-1,突破看放量、扳机看缩量
   distToPivotPct: number // 距 pivot(前高)%:>0 在下方(扳机)、<0 已在上方(突破/延伸)
   dist52Pct: number // 距 52 周高%:>0 在高点下方、≤0 创新高
+  pivots: Pivots // 经典枢轴位 R1/R2/S1/S2
   signals: { trendOk: boolean; volDry: boolean; atrContract: boolean; breakoutVol: boolean; pattern: string }
 }
 
@@ -236,6 +257,7 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     volScore: r2(volScore),
     distToPivotPct: r2(distToPivotPct),
     dist52Pct: r2(tt.hi52 > 0 ? ((tt.hi52 - close) / tt.hi52) * 100 : 0),
+    pivots: pivotLevels(today),
     signals: { trendOk: true, volDry, atrContract, breakoutVol, pattern },
   }
 }

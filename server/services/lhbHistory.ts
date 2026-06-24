@@ -3,7 +3,7 @@
 //
 // 取数:复用 moneyflow 的 fetchBillboardRows(全口径净买) + fetchInstitutionalNetByDate(机构专用净买)。
 // 关联 [[screener-feature]] [[board-sectors-feature]]。纯聚合(lhbFactorFor)无网络,可单测。
-import { fetchBillboardRows, fetchInstitutionalNetByDate } from './moneyflow'
+import { fetchBillboardRows, fetchSeatNetByDate } from './moneyflow'
 
 const r2 = (n: number) => Math.round(n * 100) / 100
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
@@ -13,6 +13,8 @@ export interface LhbDay {
   net: number // 全口径龙虎榜净买入(买-卖)
   instNet: number // 机构专用席位净买入(无机构=0)
   instBuy: boolean // 当日机构净买入 > 0
+  hotNet: number // 知名游资席位净买入(无游资=0)
+  hotBuy: boolean // 当日游资净买入 > 0
 }
 
 /** date(YYYY-MM-DD) → code → LhbDay。 */
@@ -24,10 +26,12 @@ export interface LhbFactor {
   netSum: number // 窗口内全口径净买入和
   instDays: number // 窗口内机构净买入天数
   instNetSum: number // 窗口内机构净买入和
+  hotDays: number // 窗口内游资净买入天数
+  hotNetSum: number // 窗口内游资净买入和
   score01: number // 0..1 加分(机构多日 > 机构单日 > 全口径净买 > 无)
 }
 
-export const EMPTY_LHB_FACTOR: LhbFactor = { onDays: 0, netSum: 0, instDays: 0, instNetSum: 0, score01: 0 }
+export const EMPTY_LHB_FACTOR: LhbFactor = { onDays: 0, netSum: 0, instDays: 0, instNetSum: 0, hotDays: 0, hotNetSum: 0, score01: 0 }
 
 /** 受限并发 map(保序)。 */
 async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T, i: number) => Promise<R>): Promise<R[]> {
@@ -57,15 +61,16 @@ export async function buildLhbIndex(
   let done = 0
   await mapLimit(dates, concurrency, async (date) => {
     try {
-      const [rows, inst] = await Promise.all([
+      const [rows, seats] = await Promise.all([
         fetchBillboardRows(date),
-        institutional ? fetchInstitutionalNetByDate(date) : Promise.resolve(new Map()),
+        institutional ? fetchSeatNetByDate(date) : Promise.resolve(new Map()),
       ])
       const m = new Map<string, LhbDay>()
       for (const r of rows) {
-        const i = inst.get(r.code)
-        const instNet = i ? i.instNet : 0
-        m.set(r.code, { net: r.netAmt, instNet, instBuy: instNet > 0 })
+        const s = seats.get(r.code)
+        const instNet = s ? s.instNet : 0
+        const hotNet = s ? s.hotNet : 0
+        m.set(r.code, { net: r.netAmt, instNet, instBuy: instNet > 0, hotNet, hotBuy: hotNet > 0 })
       }
       index.set(date, m)
     } catch {
@@ -87,6 +92,8 @@ export function lhbFactorFor(code: string, windowDates: string[], index: LhbInde
   let netSum = 0
   let instDays = 0
   let instNetSum = 0
+  let hotDays = 0
+  let hotNetSum = 0
   for (const d of windowDates) {
     const day = index.get(d)?.get(code)
     if (!day) continue
@@ -95,6 +102,10 @@ export function lhbFactorFor(code: string, windowDates: string[], index: LhbInde
     if (day.instBuy) {
       instDays++
       instNetSum += day.instNet
+    }
+    if (day.hotBuy) {
+      hotDays++
+      hotNetSum += day.hotNet
     }
   }
   // 量级归一:1e7(千万)→0,~3e8(3亿)→1。
@@ -106,7 +117,15 @@ export function lhbFactorFor(code: string, windowDates: string[], index: LhbInde
     score01 = 0.5 + 0.3 * mag(instNetSum) // 机构单日:0.5~0.8
   else if (onDays > 0 && netSum > 0)
     score01 = 0.2 + 0.2 * mag(netSum) // 仅全口径净买:0.2~0.4
-  return { onDays, netSum: r2(netSum), instDays, instNetSum: r2(instNetSum), score01: r2(clamp01(score01)) }
+  return {
+    onDays,
+    netSum: r2(netSum),
+    instDays,
+    instNetSum: r2(instNetSum),
+    hotDays,
+    hotNetSum: r2(hotNetSum),
+    score01: r2(clamp01(score01)),
+  }
 }
 
 // ── 磁盘缓存(序列化用;实际 fs 由回测脚本负责,服务层只做 Map↔JSON) ───────────

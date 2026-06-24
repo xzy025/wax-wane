@@ -486,6 +486,7 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
+    tabs: { newHigh: string; pullback: string }
     groups: { breakout: string; trigger: string; pullback: string }
     pbDesc: string
     pbCard: {
@@ -531,7 +532,11 @@ export interface Translation {
       lhb: string
       lhbInst: string
       lhbNet: string
+      lhbHot: string
+      lhbBoth: string
       lhbDays: string
+      pivR: string
+      pivS: string
       board: string
       quad: { hs: string; ls: string; hw: string; lw: string }
       bo: string
