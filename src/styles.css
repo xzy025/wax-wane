@@ -2121,6 +2121,58 @@ body {
   border-color: transparent;
 }
 
+/* 龙虎榜机构 / 板块强弱 加分徽标 + 反向交叉 */
+.sc-card-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0 5px;
+  margin-left: 6px;
+  border-radius: 4px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  vertical-align: 1px;
+}
+.sc-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.sc-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.sc-badge small {
+  font-weight: 800;
+  margin-left: 1px;
+}
+.sc-badge.lhb {
+  color: #d9a227;
+  background: rgba(245, 196, 81, 0.1);
+  border-color: rgba(245, 196, 81, 0.32);
+}
+.sc-badge.lhb.inst {
+  color: #f5c451;
+  background: rgba(245, 196, 81, 0.18);
+  border-color: transparent;
+  box-shadow: 0 0 0 1px rgba(245, 196, 81, 0.28);
+}
+.sc-badge.board.strong {
+  color: var(--ink);
+  border-color: var(--red);
+}
+.sc-cross-desc {
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin: 2px 0 8px;
+  line-height: 1.5;
+}
+
 .sc-empty {
   font-size: 0.82rem;
   color: var(--muted);

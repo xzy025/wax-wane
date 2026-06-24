@@ -419,6 +419,52 @@ export async function fetchTradingDates(upto?: string): Promise<string[]> {
   }
 }
 
+// ── 历史因子取数(供选股加分 + 回测，按日抓取，零展示逻辑) ────────────────
+
+/** 某交易日龙虎榜「按个股聚合的净买入」精简行(无营业部/概念)。回测/因子用。 */
+export async function fetchBillboardRows(date: string): Promise<Array<{ code: string; name: string; netAmt: number }>> {
+  const main = await fetchMainReport(date)
+  return dedupeLhbByCode(main.rows).map((s) => ({ code: s.code, name: s.name, netAmt: s.netAmt }))
+}
+
+/** 某交易日「机构专用」席位的按个股净买入(买-卖)。
+ *  注意:不能复用 fetchSeats(它按金额截 top3,机构席位可能被截掉)——这里在截断前直接筛 OPERATEDEPT_NAME==='机构专用' 并按 code 汇总。 */
+export async function fetchInstitutionalNetByDate(
+  date: string,
+): Promise<Map<string, { instBuy: number; instSell: number; instNet: number }>> {
+  const out = new Map<string, { instBuy: number; instSell: number; instNet: number }>()
+  const sides: Array<{ side: 'BUY' | 'SELL'; report: string; col: 'BUY' | 'SELL' }> = [
+    { side: 'BUY', report: 'RPT_BILLBOARD_DAILYDETAILSBUY', col: 'BUY' },
+    { side: 'SELL', report: 'RPT_BILLBOARD_DAILYDETAILSSELL', col: 'SELL' },
+  ]
+  for (const { side, report, col } of sides) {
+    try {
+      const url =
+        `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=${report}` +
+        `&columns=SECURITY_CODE,OPERATEDEPT_NAME,${col}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
+        `&filter=(TRADE_DATE='${date}')`
+      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      if (!res.ok) continue
+      const json = (await res.json()) as any
+      const data: any[] = json.result?.data ?? []
+      for (const d of data) {
+        if (d.OPERATEDEPT_NAME !== '机构专用') continue // 机构席位统一名
+        const code = String(d.SECURITY_CODE ?? '')
+        if (!code) continue
+        const amt = Number(d[col]) || 0
+        const cur = out.get(code) ?? { instBuy: 0, instSell: 0, instNet: 0 }
+        if (side === 'BUY') cur.instBuy += amt
+        else cur.instSell += amt
+        cur.instNet = cur.instBuy - cur.instSell
+        out.set(code, cur)
+      }
+    } catch {
+      /* 单边失败不致命,另一边照常 */
+    }
+  }
+  return out
+}
+
 // ── 主流程 ───────────────────────────────────────────────
 
 const WINDOW_TOP_N = 50 // 3日/5日榜每侧展示/抓概念上限（汇总仍用全量）
