@@ -232,10 +232,11 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
 
   return (
     <section className="view-stack">
+      {data && <RegimeBanner r={data.regime} t={t} />}
       <div className="panel-title themes-toolbar">
         <h2>
           <Crosshair size={18} weight="bold" style={{ verticalAlign: '-3px', marginRight: 6 }} />
-          {sc.title}
+          {tab === 'newhigh' ? sc.title : sc.titlePullback}
         </h2>
         {lastUpdated && (
           <span className="themes-updated">
@@ -247,7 +248,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
           {loading ? sc.scanning : sc.scan}
         </button>
       </div>
-      <p className="themes-desc">{sc.desc}</p>
+      <p className="themes-desc">{tab === 'newhigh' ? sc.desc : sc.pbDesc}</p>
 
       {error && !data && <div className="alert-item danger">{sc.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{sc.scanning}</div>}
@@ -273,7 +274,6 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
 
           {tab === 'newhigh' && (
             <>
-              <RegimeBanner r={data.regime} t={t} />
               <div className="sc-meta">
                 {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
                 {data.truncated ? ` · ${sc.truncatedNote}` : ''}
@@ -340,7 +340,6 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               <div className="sc-group-head">
                 <TrendUp size={16} weight="fill" /> {sc.groups.pullback} ({data.pullback.length})
               </div>
-              <p className="sc-cross-desc">{sc.pbDesc}</p>
               {data.pullback.length === 0 ? (
                 <div className="sc-empty">{sc.empty}</div>
               ) : (

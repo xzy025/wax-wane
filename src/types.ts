@@ -476,6 +476,7 @@ export interface Translation {
   }
   screener: {
     title: string
+    titlePullback: string
     desc: string
     scan: string
     scanning: string
