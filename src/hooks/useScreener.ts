@@ -46,6 +46,24 @@ export interface ScreenerCandidate {
   board?: BoardConfluence
 }
 
+/** Mirror of server PullbackScreenerCandidate (回调二次启动/圆弧底反包). */
+export interface PullbackScreenerCandidate {
+  code: string
+  name: string
+  price: number
+  changePct: number
+  priorHigh: number // 近高(=测量目标/前高)
+  arcLow: number // 圆弧底低点(=止损位)
+  retracePct: number // 距近高回调%
+  daysSinceHigh: number
+  recoverPct: number // 自低回升%
+  stopLoss: number
+  target: number
+  rsRaw: number
+  score: number
+  signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -62,7 +80,9 @@ export interface ScreenerResult {
   regime: ScreenerRegime
   breakout: ScreenerCandidate[]
   trigger: ScreenerCandidate[]
+  pullback: PullbackScreenerCandidate[]
   scanned: number
+  scannedPullback: number
   universe: number
   truncated: boolean
 }

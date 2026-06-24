@@ -7,8 +7,9 @@ import { createCache, sessionTtl } from '../lib/cache'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
-import { SCREENER as C, type ScreenerConfig } from '../config/screener'
+import { SCREENER as C, PULLBACK, type ScreenerConfig } from '../config/screener'
 import { classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate, type MarketRegime } from './screenerRules'
+import { classifyPullback, type PullbackCandidate } from './pullbackRules'
 import { boardStrengthAsOf } from './rotationRules'
 import { resolveStockIndustryBoard } from './rotation'
 import { fetchTradingDates } from './moneyflow'
@@ -46,6 +47,12 @@ export interface ScreenerCandidate extends Candidate {
   board?: BoardConfluence
 }
 
+/** 回调二次启动候选(第三组):新高战法外的另一类形态,见 pullbackRules.classifyPullback。 */
+export interface PullbackScreenerCandidate extends PullbackCandidate {
+  code: string
+  name: string
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -64,7 +71,9 @@ export interface ScreenerResult {
   regime: ScreenerRegime
   breakout: ScreenerCandidate[]
   trigger: ScreenerCandidate[]
-  scanned: number // 初筛后入围(取K线)只数
+  pullback: PullbackScreenerCandidate[] // 第三组:回调二次启动/圆弧底反包
+  scanned: number // 新高战法初筛后入围(取K线)只数
+  scannedPullback: number // 回调战法初筛(量比榜)入围只数
   universe: number // clist 全市场只数
   truncated: boolean // 是否触及 MAX_KLINE 上限
 }
@@ -113,8 +122,10 @@ async function fetchClistPage(pn: number, attempt = 0): Promise<{ rows: Record<s
   throw new Error('clist 全部镜像均失败')
 }
 
-/** Stage 1: 全市场 clist 翻页取数 + 廉价初筛。 */
-async function prefilter(): Promise<{ rows: Pre[]; universe: number }> {
+/** Stage 1: 全市场 clist 翻页取数 + 廉价初筛。
+ *  同一份 clist 产出两个切片:新高战法(按 60 日动量,mom60≥0)、回调战法(按量比,vr≥PB_VR_MIN)。
+ *  回调票 mom60 常为负→不能用动量榜,改用量比榜(当日放量=二次启动触发,与该战法对齐)。 */
+async function prefilter(): Promise<{ rows: Pre[]; pullbackRows: Pre[]; universe: number }> {
   const first = await fetchClistPage(1)
   const total = first.total || first.rows.length
   const pages = Math.min(Math.ceil(total / CLIST_PZ), 60) // 安全上限 6000 只
@@ -133,7 +144,8 @@ async function prefilter(): Promise<{ rows: Pre[]; universe: number }> {
   }
   const universe = diff.length
 
-  const rows: Pre[] = []
+  // 廉价基础过滤(ST/流动/市值),两战法共用。
+  const base: Pre[] = []
   for (const d of diff) {
     const code = String(d.f12 ?? '')
     const name = String(d.f14 ?? '')
@@ -146,29 +158,47 @@ async function prefilter(): Promise<{ rows: Pre[]; universe: number }> {
     if (/ST|退/i.test(name)) continue // 剔除 ST/*ST/退市整理
     if (amount < C.LIQUIDITY_MIN) continue // 低流动
     if (mcap < C.MCAP_MIN) continue // 小市值
-    if (mom60 < C.MOM60_MIN) continue // 弱势
-    rows.push({ code, name, price, amount, mom60, vr })
+    base.push({ code, name, price, amount, mom60, vr })
   }
-  // 按 60 日动量排序(不掺量比——量比高会埋没"缩量待发"的扳机候选)。
-  rows.sort((a, b) => b.mom60 - a.mom60)
-  return { rows, universe }
+  // 新高战法:留强势(mom60≥0),按 60 日动量排序(不掺量比——量比高会埋没"缩量待发"的扳机候选)。
+  const rows = base.filter((p) => p.mom60 >= C.MOM60_MIN).sort((a, b) => b.mom60 - a.mom60)
+  // 回调战法:不筛动量(回调票常为负),按当日量比(放量=二次启动触发)降序,量比达标者入围。
+  const pullbackRows = base.filter((p) => p.vr >= PULLBACK.PB_VR_MIN).sort((a, b) => b.vr - a.vr)
+  return { rows, pullbackRows, universe }
 }
 
-/** Stage 2: 对一只票取 K 线并跑纯规则判定。cfg 可注入(动态目标位 R 倍数)。 */
-async function confirm(
-  p: Pre,
+/** 并集中的一只票:标记其所属切片(可同属两者,虽几乎互斥)。 */
+interface UnionStock {
+  p: Pre
+  nh: boolean // 新高切片
+  pb: boolean // 回调切片
+}
+
+/** Stage 2: 对一只票取一次 K 线,按所属切片跑 新高(classify) 与/或 回调(classifyPullback)。
+ *  两战法 KLINE_COUNT 一致(300),故单次取数即可覆盖。cfg 可注入(动态目标位 R 倍数)。 */
+async function confirmUnion(
+  u: UnionStock,
   cfg: ScreenerConfig,
   stats: { fetched: number },
-): Promise<(ScreenerCandidate & { liqAmount: number }) | null> {
+): Promise<{ nh: (ScreenerCandidate & { liqAmount: number }) | null; pb: PullbackScreenerCandidate | null }> {
   try {
-    const { klines } = await fetchStockKline(p.code, 101, cfg.KLINE_COUNT)
-    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return null
+    const { klines } = await fetchStockKline(u.p.code, 101, cfg.KLINE_COUNT)
+    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return { nh: null, pb: null }
     stats.fetched++ // 取到足量K线(数据源健康度);match 与否是另一回事
-    const cand = classify(klines as Bar[], cfg)
-    if (!cand) return null
-    return { ...cand, code: p.code, name: p.name, score: 0, liqAmount: p.amount }
+    const bars = klines as Bar[]
+    let nh: (ScreenerCandidate & { liqAmount: number }) | null = null
+    let pb: PullbackScreenerCandidate | null = null
+    if (u.nh) {
+      const cand = classify(bars, cfg)
+      if (cand) nh = { ...cand, code: u.p.code, name: u.p.name, score: 0, liqAmount: u.p.amount }
+    }
+    if (u.pb) {
+      const cand = classifyPullback(bars, PULLBACK)
+      if (cand) pb = { ...cand, code: u.p.code, name: u.p.name }
+    }
+    return { nh, pb }
   } catch {
-    return null
+    return { nh: null, pb: null }
   }
 }
 
@@ -296,22 +326,35 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   regime.targetRMult = targetRMult
   const scanCfg: ScreenerConfig = { ...C, TARGET_R_MULT: targetRMult }
 
-  const { rows, universe } = await prefilter()
+  const { rows, pullbackRows, universe } = await prefilter()
   const truncated = rows.length > C.MAX_KLINE
-  const survivors = rows.slice(0, C.MAX_KLINE)
-  if (truncated) {
-    console.log(`[Screener] 初筛 ${rows.length} 只 > 上限 ${C.MAX_KLINE},截断取K线(其余未扫描)`)
+  const nhSurvivors = rows.slice(0, C.MAX_KLINE)
+  const pbSurvivors = pullbackRows.slice(0, C.MAX_KLINE)
+  // 两切片并集去重(同一只只取一次 K 线),记录所属切片。
+  const unionMap = new Map<string, UnionStock>()
+  for (const p of nhSurvivors) unionMap.set(p.code, { p, nh: true, pb: false })
+  for (const p of pbSurvivors) {
+    const e = unionMap.get(p.code)
+    if (e) e.pb = true
+    else unionMap.set(p.code, { p, nh: false, pb: true })
   }
+  const union = [...unionMap.values()]
+  if (truncated) console.log(`[Screener] 新高初筛 ${rows.length} 只 > 上限 ${C.MAX_KLINE},截断`)
   console.log(
-    `[Screener] 全市场 ${universe} → 初筛入围 ${rows.length} → 取K线 ${survivors.length};大盘 ${marketTrend} → 目标 ${targetRMult}R`,
+    `[Screener] 全市场 ${universe} → 新高入围 ${nhSurvivors.length} / 回调入围 ${pbSurvivors.length} → 并集取K线 ${union.length};大盘 ${marketTrend} → 目标 ${targetRMult}R`,
   )
 
   const stats = { fetched: 0 }
-  const enriched = (await mapLimit(survivors, C.CONCURRENCY, (p) => confirm(p, scanCfg, stats))).filter(
-    (x): x is ScreenerCandidate & { liqAmount: number } => x != null,
-  )
+  const confirmed = await mapLimit(union, C.CONCURRENCY, (u) => confirmUnion(u, scanCfg, stats))
+  const enriched = confirmed
+    .map((r) => r.nh)
+    .filter((x): x is ScreenerCandidate & { liqAmount: number } => x != null)
+  const pullback = confirmed
+    .map((r) => r.pb)
+    .filter((x): x is PullbackScreenerCandidate => x != null)
+    .sort((a, b) => b.score - a.score)
 
-  // 龙虎榜机构 + 板块强弱 加分(仅对入围候选;best-effort)
+  // 龙虎榜机构 + 板块强弱 加分(仅对新高入围候选;best-effort)
   await enrichConfluence(enriched)
 
   // RS 百分位(在入围集内)+ 流动性归一 + 外部加分 → 评分
@@ -332,11 +375,21 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .sort((a, b) => b.score - a.score)
     .map(strip)
 
-  const result: ScreenerResult = { asof, regime, breakout, trigger, scanned: survivors.length, universe, truncated }
+  const result: ScreenerResult = {
+    asof,
+    regime,
+    breakout,
+    trigger,
+    pullback,
+    scanned: nhSurvivors.length,
+    scannedPullback: pbSurvivors.length,
+    universe,
+    truncated,
+  }
 
-  // 完成日志:取K线成功率(fetched/survivors 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。
+  // 完成日志:取K线成功率(fetched/union 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。
   console.log(
-    `[Screener] 完成:取K线 ${stats.fetched}/${survivors.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+    `[Screener] 完成:取K线 ${stats.fetched}/${union.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length} / 回调 ${pullback.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   )
 
   // 按日落盘(无DB也可回看);失败不影响返回

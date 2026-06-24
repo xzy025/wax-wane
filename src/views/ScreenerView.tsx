@@ -1,5 +1,10 @@
-import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy } from 'phosphor-react'
-import { useScreener, type ScreenerCandidate, type ScreenerRegime } from '../hooks/useScreener'
+import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp } from 'phosphor-react'
+import {
+  useScreener,
+  type ScreenerCandidate,
+  type PullbackScreenerCandidate,
+  type ScreenerRegime,
+} from '../hooks/useScreener'
 import type { Translation } from '../types'
 
 interface ScreenerViewProps {
@@ -111,6 +116,64 @@ function Card({ c, t, tag }: { c: ScreenerCandidate; t: Translation; tag?: strin
   )
 }
 
+function PullbackCard({ c, t }: { c: PullbackScreenerCandidate; t: Translation }) {
+  const k = t.screener.pbCard
+  const ck = t.screener.card
+  const s = c.signals
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+        </div>
+        <span className="sc-score" title={ck.score}>
+          {Math.round(c.score)}
+        </span>
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{ck.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.priorHigh}</span>
+          <span className="sc-metric-value mono">{fmtPrice(c.priorHigh)}</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.arcLow} → {ck.target}</span>
+          <span className="sc-metric-value mono">
+            <span className="negative-text">{fmtPrice(c.stopLoss)}</span> →{' '}
+            <span className="positive-text">{fmtPrice(c.target)}</span>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.retrace}</span>
+          <span className="sc-metric-value mono">
+            {c.retracePct.toFixed(1)}% · {c.daysSinceHigh}
+            {ck.lhbDays}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.recover}</span>
+          <span className="sc-metric-value mono">{c.recoverPct.toFixed(1)}%</span>
+        </div>
+      </div>
+
+      <div className="sc-chips">
+        {s.leader && <span className="sc-chip ok">{k.leader}✓</span>}
+        {s.arcUp && <span className="sc-chip">{k.arcUp}</span>}
+        {s.maCrossNear && <span className="sc-chip">{k.cross}</span>}
+        {s.volSpike && <span className="sc-chip hot">{k.volSpike}</span>}
+        <span className="sc-chip">RS {(c.rsRaw * 100).toFixed(0)}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const sc = t.screener
@@ -167,6 +230,20 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
             <div className="sc-grid">
               {data.trigger.map((c) => (
                 <Card key={c.code} c={c} t={t} />
+              ))}
+            </div>
+          )}
+
+          <div className="sc-group-head">
+            <TrendUp size={16} weight="fill" /> {sc.groups.pullback} ({data.pullback.length})
+          </div>
+          <p className="sc-cross-desc">{sc.pbDesc}</p>
+          {data.pullback.length === 0 ? (
+            <div className="sc-empty">{sc.empty}</div>
+          ) : (
+            <div className="sc-grid">
+              {data.pullback.map((c) => (
+                <PullbackCard key={`pb-${c.code}`} c={c} t={t} />
               ))}
             </div>
           )}
