@@ -905,6 +905,17 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
     console.log(fmtMetrics(label, m))
     return { n: subset.length, metrics: m }
   }
+  // score01/净额 三分位单调性(高分位期望应高于低分位 = 因子有区分度)。正分样本不足则跳过。
+  const tercile = (label: string, vals: Array<{ t: Trade; v: number }>) => {
+    const pos = vals.filter((x) => x.v > 0).sort((a, b) => a.v - b.v)
+    if (pos.length < 9) {
+      console.log(`  ${label}: 正分样本 ${pos.length} 不足,跳过三分位`)
+      return null
+    }
+    const t1 = pos.slice(0, Math.floor(pos.length / 3))
+    const t3 = pos.slice(Math.ceil((pos.length * 2) / 3))
+    return { low: seg(`  ${label} 低分位`, t1.map((x) => x.t)), high: seg(`  ${label} 高分位`, t3.map((x) => x.t)) }
+  }
 
   console.log(`\n--- breakout 按 龙虎榜 因子分桶(基线 n=${base.n} 期望 ${base.expectancyR}R PF ${base.profitFactor})---`)
   const boInstMulti = taggedBO.filter((x) => x.lhb.instDays >= 2).map((x) => x.t)
@@ -917,6 +928,24 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
     anyNet: seg('  全口径净买>0', boAnyNet),
     noLhb: seg('  窗口内未上榜', boNoLhb),
   }
+
+  // 游资(知名营业部)分桶:游资净买是否独立于机构带来 alpha。「纯游资」=有游资买、无机构买,
+  // 用于隔离游资本身的贡献(避免与机构因子混淆)。
+  console.log('\n--- breakout 按 游资 因子分桶 ---')
+  const boHotMulti = taggedBO.filter((x) => x.lhb.hotDays >= 2).map((x) => x.t)
+  const boHot = taggedBO.filter((x) => x.lhb.hotDays >= 1).map((x) => x.t)
+  const boHotOnly = taggedBO.filter((x) => x.lhb.hotDays >= 1 && x.lhb.instDays === 0).map((x) => x.t)
+  const boHotAndInst = taggedBO.filter((x) => x.lhb.hotDays >= 1 && x.lhb.instDays >= 1).map((x) => x.t)
+  const hotBuckets = {
+    hotMulti: seg('  游资多日净买', boHotMulti),
+    hot: seg('  游资净买(≥1日)', boHot),
+    hotOnly: seg('  纯游资(无机构)', boHotOnly),
+    hotAndInst: seg('  游资+机构', boHotAndInst),
+  }
+
+  // 游资净买额三分位(高>低 = 资金量级有区分度)
+  console.log('\n--- breakout 游资净买额 三分位(高>低 = 因子有区分度)---')
+  const hotTercile = tercile('游资净买额', taggedBO.map((x) => ({ t: x.t, v: x.lhb.hotNetSum })))
 
   console.log('\n--- breakout 按 板块强弱 分桶 ---')
   const boBoardStrong = taggedBO.filter((x) => x.board?.strong).map((x) => x.t)
@@ -940,17 +969,6 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
     neither: seg('  皆无', neither),
   }
 
-  // score01 三分位单调性(高分位期望应高于低分位 = 因子有区分度)
-  const tercile = (label: string, vals: Array<{ t: Trade; v: number }>) => {
-    const pos = vals.filter((x) => x.v > 0).sort((a, b) => a.v - b.v)
-    if (pos.length < 9) {
-      console.log(`  ${label}: 正分样本 ${pos.length} 不足,跳过三分位`)
-      return null
-    }
-    const t1 = pos.slice(0, Math.floor(pos.length / 3))
-    const t3 = pos.slice(Math.ceil((pos.length * 2) / 3))
-    return { low: seg(`  ${label} 低分位`, t1.map((x) => x.t)), high: seg(`  ${label} 高分位`, t3.map((x) => x.t)) }
-  }
   console.log('\n--- breakout score01 三分位(高>低 = 因子有区分度)---')
   const lhbTercile = tercile('LHB', taggedBO.map((x) => ({ t: x.t, v: x.lhb.score01 })))
   const boardTercile = tercile('板块', taggedBO.map((x) => ({ t: x.t, v: x.board?.score01 ?? 0 })))
@@ -962,18 +980,31 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
   const trNoInst = taggedTR.filter((x) => x.lhb.instDays === 0).map((x) => x.t)
   const triggerSplit = { instBacked: seg('  机构埋伏扳机', trInst), plain: seg('  普通扳机', trNoInst) }
 
+  // trigger 游资埋伏(前 K 日游资净买)直买表现 vs 普通
+  console.log(`\n--- trigger 直买:游资埋伏(前${LHB_K}日游资净买) vs 普通 ---`)
+  const trHot = taggedTR.filter((x) => x.lhb.hotDays >= 1).map((x) => x.t)
+  const trNoHot = taggedTR.filter((x) => x.lhb.hotDays === 0).map((x) => x.t)
+  const triggerHotSplit = { hotBacked: seg('  游资埋伏扳机', trHot), plain: seg('  无游资扳机', trNoHot) }
+
   const coverage = {
     breakoutTotal: breakoutTrades.length,
     breakoutInst: boInst.length,
     breakoutInstMulti: boInstMulti.length,
     breakoutAnyNet: boAnyNet.length,
+    breakoutHot: boHot.length,
+    breakoutHotMulti: boHotMulti.length,
+    breakoutHotOnly: boHotOnly.length,
     breakoutBoardStrong: boBoardStrong.length,
     triggerTotal: triggerTrades.length,
     triggerInst: trInst.length,
+    triggerHot: trHot.length,
     instCoveragePct: r2(breakoutTrades.length ? (boInst.length / breakoutTrades.length) * 100 : 0),
+    hotCoveragePct: r2(breakoutTrades.length ? (boHot.length / breakoutTrades.length) * 100 : 0),
   }
   console.log(
-    `\n[Combo] 覆盖率:breakout 机构埋伏 ${coverage.breakoutInst}/${coverage.breakoutTotal}(${coverage.instCoveragePct}%)、机构多日 ${coverage.breakoutInstMulti}、板块强 ${coverage.breakoutBoardStrong};trigger 机构埋伏 ${coverage.triggerInst}/${coverage.triggerTotal}`,
+    `\n[Combo] 覆盖率:breakout 机构埋伏 ${coverage.breakoutInst}/${coverage.breakoutTotal}(${coverage.instCoveragePct}%)、机构多日 ${coverage.breakoutInstMulti}、` +
+      `游资埋伏 ${coverage.breakoutHot}(${coverage.hotCoveragePct}%)、纯游资 ${coverage.breakoutHotOnly}、板块强 ${coverage.breakoutBoardStrong};` +
+      `trigger 机构埋伏 ${coverage.triggerInst}/${coverage.triggerTotal}、游资埋伏 ${coverage.triggerHot}`,
   )
 
   return {
@@ -981,12 +1012,15 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
     coverage,
     baseline: base,
     lhbBuckets,
+    hotBuckets,
+    hotTercile,
     boardBuckets,
     twoBy,
     lhbTercile,
     boardTercile,
     triggerSplit,
-    note: '相对基线比较;个股→板块为「当前」归属(轻度前视)、幸存者偏差同主回测;机构席位仅单日榜可得。',
+    triggerHotSplit,
+    note: '相对基线比较;个股→板块为「当前」归属(轻度前视)、幸存者偏差同主回测;机构/游资席位仅单日榜可得。游资=hotMoneySeats 名单识别。',
   }
 }
 
