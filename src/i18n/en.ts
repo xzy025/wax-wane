@@ -20,7 +20,7 @@ export default {
     themes: 'Sectors',
     moneyflow: 'Dragon-Tiger Board',
     rotation: 'Sector Rotation',
-    screener: 'New-High Breakout Screener',
+    screener: 'Strategy Screener',
     dashboard: 'Review Workspace',
     import: 'Statement Import',
     ledger: 'Trade Ledger',
@@ -431,6 +431,7 @@ export default {
   },
   screener: {
     title: 'Screener · New-High Breakout',
+    titlePullback: 'Screener · Pullback Restart',
     desc: 'Whole-market scan for strong stocks about to / just breaking to new highs (trend template + VCP contraction + volume breakout). Buy the launch, not the extension.',
     scan: 'Scan',
     scanning: 'Scanning whole market… (~30-60s, longer when data sources are busy)',

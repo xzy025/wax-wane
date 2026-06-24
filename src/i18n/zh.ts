@@ -20,7 +20,7 @@ export default {
     themes: '板块对比',
     moneyflow: '龙虎榜',
     rotation: '板块轮动',
-    screener: '新高战法选股',
+    screener: '战法选股',
     dashboard: '复盘工作台',
     import: '交割单导入',
     ledger: '交易流水',
@@ -430,6 +430,7 @@ export default {
   },
   screener: {
     title: '选股 · 新高战法',
+    titlePullback: '选股 · 回调战法',
     desc: '全市场扫描"即将新高/刚突破"的强势股(趋势模板+VCP收缩+放量突破),买在启动点、不追延伸段。',
     scan: '每日扫描',
     scanning: '全市场扫描中…(约30-60秒,数据源繁忙时更久)',
