@@ -24,6 +24,16 @@ import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from '../services/ashare'
 import { SCREENER, type ScreenerConfig } from '../config/screener'
 import { classify, marketRegime, type Bar, type MarketRegime } from '../services/screenerRules'
+import { boardStrengthAsOf } from '../services/rotationRules'
+import {
+  buildLhbIndex,
+  lhbFactorFor,
+  serializeLhbIndex,
+  deserializeLhbIndex,
+  type LhbIndex,
+  type LhbFactor,
+} from '../services/lhbHistory'
+import { resolveStockIndustryBoard } from '../services/rotation'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT_DIR = join(__dirname, '..', '..', 'docs', 'screener')
@@ -36,6 +46,13 @@ const CONCURRENCY = Number(process.env.CONCURRENCY) || 12
 const DO_SWEEP = process.env.SWEEP !== '0' // 默认做参数扫描
 const RUN_TRIGGER = process.env.TRIGGER !== '0' // 默认做扳机组诊断(#3)
 const RUN_REGIME = process.env.REGIME !== '0' // 默认做动态目标位(大盘环境)验证
+// COMBO: 龙虎榜(机构) + 板块轮动 因子检验(取数重,默认关;COMBO=1 开启)
+const RUN_COMBO = process.env.COMBO === '1'
+const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
+const LHB_INST = process.env.INST !== '0' // 取机构专用席位净买(默认是;=0 仅全口径净买,更快)
+const LHB_CONC = Number(process.env.LHB_CONC) || 4 // 龙虎榜/板块取数并发(EM 限流,宜低)
+const LONG_WIN = Number(process.env.LONG_WIN) || 60 // 板块长窗
+const SHORT_WIN = Number(process.env.SHORT_WIN) || 5 // 板块短窗
 
 type RMap = Record<MarketRegime, number>
 
@@ -560,6 +577,15 @@ async function main() {
     out.regimeEval = regimeOut
   }
 
+  // COMBO: 龙虎榜(机构) + 板块轮动 因子检验(取数重,COMBO=1 开启)
+  if (RUN_COMBO) {
+    try {
+      out.comboEval = await runCombo(data, base.metrics)
+    } catch (err) {
+      console.warn('[Combo] 因子检验失败:', err)
+    }
+  }
+
   mkdirSync(OUT_DIR, { recursive: true })
   const file = join(OUT_DIR, `backtest-${dateMax}.json`)
   writeFileSync(file, JSON.stringify(out, null, 2))
@@ -639,6 +665,259 @@ function evaluateTriggers(data: StockBars[], cfg: ScreenerConfig, convDays: numb
     fwd20: r2(mean(fwd20)),
     fwdWin10: r2(fwd10.length ? (fwd10.filter((x) => x > 0).length / fwd10.length) * 100 : 0),
     directBuy: aggregate(directTrades),
+  }
+}
+
+// ── COMBO 因子检验:龙虎榜(机构) + 板块轮动 作为 breakout/trigger 加分因子 ──────
+interface BoardSeries {
+  dates: string[]
+  closes: number[]
+}
+
+/** 样本所有 K 线日期并集 = 交易日历(升序)+ date→下标。 */
+function buildCalendar(data: StockBars[]): { calendar: string[]; idxByDate: Map<string, number> } {
+  const set = new Set<string>()
+  for (const sb of data) for (const b of sb.bars) set.add(b.date)
+  const calendar = [...set].sort()
+  const idxByDate = new Map<string, number>()
+  calendar.forEach((d, i) => idxByDate.set(d, i))
+  return { calendar, idxByDate }
+}
+
+/** 信号日(含)及其前 k 个交易日。 */
+function windowDatesFor(calendar: string[], idxByDate: Map<string, number>, signalDate: string, k: number): string[] {
+  const i = idxByDate.get(signalDate)
+  if (i === undefined) return [signalDate]
+  return calendar.slice(Math.max(0, i - k), i + 1)
+}
+
+/** 龙虎榜索引磁盘缓存(增量:只补缺失日期再回写;CACHE=0 不读)。 */
+async function loadLhbIndexFor(neededDates: string[]): Promise<LhbIndex> {
+  const file = join(OUT_DIR, `.lhb-${LHB_K}-${LHB_INST ? 'inst' : 'net'}.json`)
+  let index: LhbIndex = new Map()
+  if (USE_CACHE && existsSync(file)) {
+    try {
+      index = deserializeLhbIndex(JSON.parse(readFileSync(file, 'utf8')))
+    } catch {
+      /* 损坏则重建 */
+    }
+  }
+  const missing = neededDates.filter((d) => !index.has(d))
+  if (missing.length) {
+    console.log(`[Combo] 龙虎榜取数 ${missing.length} 个交易日(缓存命中 ${neededDates.length - missing.length};INST=${LHB_INST})...`)
+    const fresh = await buildLhbIndex(missing, {
+      institutional: LHB_INST,
+      concurrency: LHB_CONC,
+      onProgress: (d, t) => {
+        if (d % 50 === 0) console.log(`[Combo]   LHB ${d}/${t}`)
+      },
+    })
+    for (const [date, m] of fresh) index.set(date, m)
+    try {
+      mkdirSync(OUT_DIR, { recursive: true })
+      writeFileSync(file, JSON.stringify(serializeLhbIndex(index)))
+    } catch {
+      /* 缓存写失败非致命 */
+    }
+  }
+  return index
+}
+
+/** 个股→主行业板块 BKxxxx(磁盘缓存,当前态)。 */
+async function loadStockBoards(codes: string[]): Promise<Map<string, string>> {
+  const file = join(OUT_DIR, `.stock-boards-${SAMPLE}.json`)
+  let map = new Map<string, string>()
+  if (USE_CACHE && existsSync(file)) {
+    try {
+      map = new Map(Object.entries(JSON.parse(readFileSync(file, 'utf8')) as Record<string, string>))
+    } catch {
+      /* */
+    }
+  }
+  const missing = codes.filter((c) => !map.has(c))
+  if (missing.length) {
+    console.log(`[Combo] 解析个股行业板块 ${missing.length} 只...`)
+    const res = await mapLimit(missing, LHB_CONC, async (c) => ({ c, bk: (await resolveStockIndustryBoard(c)).bk }))
+    for (const { c, bk } of res) map.set(c, bk)
+    try {
+      mkdirSync(OUT_DIR, { recursive: true })
+      writeFileSync(file, JSON.stringify(Object.fromEntries(map)))
+    } catch {
+      /* */
+    }
+  }
+  return map
+}
+
+/** 板块→日线 closes(磁盘缓存)。 */
+async function loadBoardCloses(bks: string[]): Promise<Map<string, BoardSeries>> {
+  const file = join(OUT_DIR, `.board-closes-${SAMPLE}.json`)
+  let map = new Map<string, BoardSeries>()
+  if (USE_CACHE && existsSync(file)) {
+    try {
+      map = new Map(Object.entries(JSON.parse(readFileSync(file, 'utf8')) as Record<string, BoardSeries>))
+    } catch {
+      /* */
+    }
+  }
+  const missing = bks.filter((b) => b && !map.has(b))
+  if (missing.length) {
+    console.log(`[Combo] 取板块日线 ${missing.length} 个...`)
+    const res = await mapLimit(missing, LHB_CONC, async (b) => {
+      try {
+        const bars = await fetchIndexKline(`90.${b}`, KLINE + 60)
+        return { b, s: { dates: bars.map((x) => x.date), closes: bars.map((x) => x.close) } as BoardSeries }
+      } catch {
+        return { b, s: { dates: [], closes: [] } as BoardSeries }
+      }
+    })
+    for (const { b, s } of res) map.set(b, s)
+    // 只持久化非空序列:板块 90.BK 无 Sina 兜底,EM 限流时会整批返回空——不缓存空,避免毒化后续重跑。
+    const good = Object.fromEntries([...map].filter(([, s]) => s.closes.length > 0))
+    try {
+      mkdirSync(OUT_DIR, { recursive: true })
+      writeFileSync(file, JSON.stringify(good))
+    } catch {
+      /* */
+    }
+  }
+  return map
+}
+
+/** 某笔交易信号日的板块强弱(找板块 closes 里 ≤ 信号日的最大下标,切片分类)。 */
+function boardStrengthForTrade(
+  code: string,
+  date: string,
+  stockBoards: Map<string, string>,
+  boardCloses: Map<string, BoardSeries>,
+): ReturnType<typeof boardStrengthAsOf> {
+  const bk = stockBoards.get(code)
+  if (!bk) return null
+  const s = boardCloses.get(bk)
+  if (!s || s.closes.length === 0) return null
+  let idx = -1
+  for (let k = 0; k < s.dates.length; k++) {
+    if (s.dates[k] <= date) idx = k
+    else break
+  }
+  if (idx < 0) return null
+  return boardStrengthAsOf(s.closes, idx, LONG_WIN, SHORT_WIN)
+}
+
+/** COMBO 主流程:收集信号 → 取龙虎榜/板块 → 分桶对比期望/PF → trigger 角度 + 覆盖率。 */
+async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string, unknown>> {
+  const { calendar, idxByDate } = buildCalendar(data)
+
+  const breakoutTrades = data.flatMap((sb) => simulate(sb, SCREENER, 'breakout', HOLD))
+  const triggerTrades = data.flatMap((sb) => simulate(sb, SCREENER, 'trigger', HOLD))
+  console.log('\n========== COMBO 龙虎榜(机构) + 板块轮动 因子检验 ==========')
+  console.log(`[Combo] breakout 信号 ${breakoutTrades.length} 笔 / trigger 信号 ${triggerTrades.length} 笔;K=${LHB_K} 长窗=${LONG_WIN} 短窗=${SHORT_WIN}`)
+
+  // 需要的龙虎榜日期 = 所有信号日的 [date-K..date] 并集
+  const neededSet = new Set<string>()
+  for (const t of [...breakoutTrades, ...triggerTrades]) {
+    for (const d of windowDatesFor(calendar, idxByDate, t.date, LHB_K)) neededSet.add(d)
+  }
+  const lhbIndex = await loadLhbIndexFor([...neededSet].sort())
+
+  const codes = [...new Set([...breakoutTrades, ...triggerTrades].map((t) => t.code))]
+  const stockBoards = await loadStockBoards(codes)
+  const boardCloses = await loadBoardCloses([...new Set([...stockBoards.values()].filter(Boolean))])
+
+  const lhbOf = (t: Trade): LhbFactor => lhbFactorFor(t.code, windowDatesFor(calendar, idxByDate, t.date, LHB_K), lhbIndex)
+  const taggedBO = breakoutTrades.map((t) => ({
+    t,
+    lhb: lhbOf(t),
+    board: boardStrengthForTrade(t.code, t.date, stockBoards, boardCloses),
+  }))
+
+  const seg = (label: string, subset: Trade[]) => {
+    const m = aggregate(subset)
+    console.log(fmtMetrics(label, m))
+    return { n: subset.length, metrics: m }
+  }
+
+  console.log(`\n--- breakout 按 龙虎榜 因子分桶(基线 n=${base.n} 期望 ${base.expectancyR}R PF ${base.profitFactor})---`)
+  const boInstMulti = taggedBO.filter((x) => x.lhb.instDays >= 2).map((x) => x.t)
+  const boInst = taggedBO.filter((x) => x.lhb.instDays >= 1).map((x) => x.t)
+  const boAnyNet = taggedBO.filter((x) => x.lhb.onDays >= 1 && x.lhb.netSum > 0).map((x) => x.t)
+  const boNoLhb = taggedBO.filter((x) => x.lhb.onDays === 0).map((x) => x.t)
+  const lhbBuckets = {
+    instMulti: seg('  机构多日净买', boInstMulti),
+    inst: seg('  机构净买(≥1日)', boInst),
+    anyNet: seg('  全口径净买>0', boAnyNet),
+    noLhb: seg('  窗口内未上榜', boNoLhb),
+  }
+
+  console.log('\n--- breakout 按 板块强弱 分桶 ---')
+  const boBoardStrong = taggedBO.filter((x) => x.board?.strong).map((x) => x.t)
+  const boBoardWeak = taggedBO.filter((x) => x.board && !x.board.strong).map((x) => x.t)
+  const boBoardHs = taggedBO.filter((x) => x.board?.quadrant === 'hs').map((x) => x.t)
+  const boardBuckets = {
+    strong: seg('  板块短期强(hs/ls)', boBoardStrong),
+    weak: seg('  板块短期弱(hw/lw)', boBoardWeak),
+    hs: seg('  板块强势延续(hs)', boBoardHs),
+  }
+
+  console.log('\n--- breakout 2×2(龙虎榜机构 × 板块强)---')
+  const both = taggedBO.filter((x) => x.lhb.instDays >= 1 && x.board?.strong).map((x) => x.t)
+  const lhbOnly = taggedBO.filter((x) => x.lhb.instDays >= 1 && !x.board?.strong).map((x) => x.t)
+  const boardOnly = taggedBO.filter((x) => x.lhb.instDays === 0 && x.board?.strong).map((x) => x.t)
+  const neither = taggedBO.filter((x) => x.lhb.instDays === 0 && !x.board?.strong).map((x) => x.t)
+  const twoBy = {
+    instAndStrong: seg('  机构+板块强', both),
+    instOnly: seg('  仅机构', lhbOnly),
+    strongOnly: seg('  仅板块强', boardOnly),
+    neither: seg('  皆无', neither),
+  }
+
+  // score01 三分位单调性(高分位期望应高于低分位 = 因子有区分度)
+  const tercile = (label: string, vals: Array<{ t: Trade; v: number }>) => {
+    const pos = vals.filter((x) => x.v > 0).sort((a, b) => a.v - b.v)
+    if (pos.length < 9) {
+      console.log(`  ${label}: 正分样本 ${pos.length} 不足,跳过三分位`)
+      return null
+    }
+    const t1 = pos.slice(0, Math.floor(pos.length / 3))
+    const t3 = pos.slice(Math.ceil((pos.length * 2) / 3))
+    return { low: seg(`  ${label} 低分位`, t1.map((x) => x.t)), high: seg(`  ${label} 高分位`, t3.map((x) => x.t)) }
+  }
+  console.log('\n--- breakout score01 三分位(高>低 = 因子有区分度)---')
+  const lhbTercile = tercile('LHB', taggedBO.map((x) => ({ t: x.t, v: x.lhb.score01 })))
+  const boardTercile = tercile('板块', taggedBO.map((x) => ({ t: x.t, v: x.board?.score01 ?? 0 })))
+
+  // trigger 角度:机构埋伏(前 K 日机构净买)的扳机 直买表现 vs 普通扳机
+  console.log(`\n--- trigger 直买:机构埋伏(前${LHB_K}日机构净买) vs 普通 ---`)
+  const taggedTR = triggerTrades.map((t) => ({ t, lhb: lhbOf(t) }))
+  const trInst = taggedTR.filter((x) => x.lhb.instDays >= 1).map((x) => x.t)
+  const trNoInst = taggedTR.filter((x) => x.lhb.instDays === 0).map((x) => x.t)
+  const triggerSplit = { instBacked: seg('  机构埋伏扳机', trInst), plain: seg('  普通扳机', trNoInst) }
+
+  const coverage = {
+    breakoutTotal: breakoutTrades.length,
+    breakoutInst: boInst.length,
+    breakoutInstMulti: boInstMulti.length,
+    breakoutAnyNet: boAnyNet.length,
+    breakoutBoardStrong: boBoardStrong.length,
+    triggerTotal: triggerTrades.length,
+    triggerInst: trInst.length,
+    instCoveragePct: r2(breakoutTrades.length ? (boInst.length / breakoutTrades.length) * 100 : 0),
+  }
+  console.log(
+    `\n[Combo] 覆盖率:breakout 机构埋伏 ${coverage.breakoutInst}/${coverage.breakoutTotal}(${coverage.instCoveragePct}%)、机构多日 ${coverage.breakoutInstMulti}、板块强 ${coverage.breakoutBoardStrong};trigger 机构埋伏 ${coverage.triggerInst}/${coverage.triggerTotal}`,
+  )
+
+  return {
+    params: { K: LHB_K, institutional: LHB_INST, longWin: LONG_WIN, shortWin: SHORT_WIN },
+    coverage,
+    baseline: base,
+    lhbBuckets,
+    boardBuckets,
+    twoBy,
+    lhbTercile,
+    boardTercile,
+    triggerSplit,
+    note: '相对基线比较;个股→板块为「当前」归属(轻度前视)、幸存者偏差同主回测;机构席位仅单日榜可得。',
   }
 }
 
