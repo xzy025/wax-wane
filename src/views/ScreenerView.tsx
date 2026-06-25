@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp } from 'phosphor-react'
+import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars } from 'phosphor-react'
 import {
   useScreener,
   type ScreenerCandidate,
@@ -26,19 +26,15 @@ function fmtPrice(n: number): string {
   return n.toFixed(2)
 }
 
-/** 龙虎榜徽标:按机构/游资命中算 标签+样式类。机游结合 > 仅机构 > 仅游资 > 净买。 */
-function lhbBadge(l: NonNullable<ScreenerCandidate['lhbInst']>, k: Translation['screener']['card']) {
-  const both = l.instDays > 0 && l.hotDays > 0
-  const cls = both ? 'both' : l.instDays > 0 ? 'inst' : l.hotDays > 0 ? 'hot' : ''
-  const main = both
-    ? k.lhbBoth
-    : l.instDays > 0
-      ? `${k.lhbInst}${l.instDays}${k.lhbDays}`
-      : l.hotDays > 0
-        ? `${k.lhbHot}${l.hotDays}${k.lhbDays}`
-        : k.lhbNet
+/** 龙虎榜徽标:机构/游资拆成两个独立标签(各跟天数,如「机构1」「游资2」)。
+ *  机构=金、游资=紫;都无但在榜→「净买」兜底。明细(含净买天数)留在 tooltip。 */
+function lhbBadges(l: NonNullable<ScreenerCandidate['lhbInst']>, k: Translation['screener']['card']) {
   const title = `${k.lhbInst} ${l.instDays}${k.lhbDays} · ${k.lhbHot} ${l.hotDays}${k.lhbDays} · ${k.lhbNet} ${l.onDays}${k.lhbDays}`
-  return { label: `${k.lhb} ${main}`, cls: `sc-badge lhb ${cls}`.trim(), title }
+  const out: { label: string; cls: string; title: string }[] = []
+  if (l.instDays > 0) out.push({ label: `${k.lhbInst}${l.instDays}`, cls: 'sc-badge lhb inst', title })
+  if (l.hotDays > 0) out.push({ label: `${k.lhbHot}${l.hotDays}`, cls: 'sc-badge lhb hot', title })
+  if (out.length === 0 && l.onDays > 0) out.push({ label: k.lhbNet, cls: 'sc-badge lhb', title })
+  return out
 }
 
 /** 枢轴位两行(压力 R1/R2、支撑 S1/S2)。 */
@@ -77,11 +73,18 @@ function RegimeBanner({ r, t }: { r: ScreenerRegime; t: Translation }) {
   )
 }
 
-function Card({ c, t, tag }: { c: ScreenerCandidate; t: Translation; tag?: string }) {
+function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; tag?: string; variant?: 'watch' }) {
   const k = t.screener.card
   const s = c.signals
+  // 突破组:介入(突破日收盘)→ 加仓(金字塔+1R,高于介入);扳机/观察组:试探(现价)→ 加主仓(突破位)。
+  const isBreakout = c.group === 'breakout'
+  const entryLabel = isBreakout ? k.entry : k.probe
+  const addLabel = isBreakout ? k.add : k.addMain
+  const entryVal = c.entry ?? c.price
+  const addVal = c.add ?? (isBreakout ? undefined : c.pivot)
+  const lvlTip = isBreakout ? k.entryTip : k.probeTip
   return (
-    <div className="sc-card">
+    <div className={`sc-card${variant === 'watch' ? ' sc-card--watch' : ''}`}>
       <div className="sc-card-top">
         <div className="sc-card-id">
           <span className="sc-card-name">{c.name}</span>
@@ -101,8 +104,13 @@ function Card({ c, t, tag }: { c: ScreenerCandidate; t: Translation; tag?: strin
           </span>
         </div>
         <div className="sc-metric">
-          <span className="sc-metric-label">{k.pivot}</span>
-          <span className="sc-metric-value mono">{fmtPrice(c.pivot)}</span>
+          <span className="sc-metric-label" title={lvlTip}>
+            {entryLabel} → {addLabel}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="positive-text">{fmtPrice(entryVal)}</span> →{' '}
+            {addVal != null ? fmtPrice(addVal) : '—'}
+          </span>
         </div>
         <div className="sc-metric">
           <span className="sc-metric-label">{k.stop} → {k.target}</span>
@@ -122,17 +130,16 @@ function Card({ c, t, tag }: { c: ScreenerCandidate; t: Translation; tag?: strin
         {c.pivots && <PivotRows p={c.pivots} k={k} />}
       </div>
 
+      {c.watchReason && <div className="sc-watch-note">{c.watchReason}</div>}
+
       {(c.lhbInst || c.board) && (
         <div className="sc-badges">
           {c.lhbInst &&
-            (() => {
-              const b = lhbBadge(c.lhbInst, k)
-              return (
-                <span className={b.cls} title={b.title}>
-                  {b.label}
-                </span>
-              )
-            })()}
+            lhbBadges(c.lhbInst, k).map((b, i) => (
+              <span key={i} className={b.cls} title={b.title}>
+                {b.label}
+              </span>
+            ))}
           {c.board && (
             <span className={`sc-badge board${c.board.strong ? ' strong' : ''}`} title={c.board.name}>
               {k.board} {k.quad[c.board.quadrant]}{' '}
@@ -146,7 +153,12 @@ function Card({ c, t, tag }: { c: ScreenerCandidate; t: Translation; tag?: strin
         {s.trendOk && <span className="sc-chip ok">{k.trend}✓</span>}
         {s.volDry && <span className="sc-chip">{k.volDry}</span>}
         {s.atrContract && <span className="sc-chip">{k.atrContract}</span>}
-        {s.breakoutVol && <span className="sc-chip hot">{k.breakoutVol}</span>}
+        {s.breakoutVol && (
+          <span className="sc-chip hot">
+            {k.breakoutVol}
+            {c.breakoutVolRatio != null ? ` ${c.breakoutVolRatio.toFixed(1)}x` : ''}
+          </span>
+        )}
         <span className="sc-chip">{k.vol} {c.volRatio.toFixed(2)}</span>
         <span className="sc-chip">RS {(c.rsRaw * 100).toFixed(0)}</span>
       </div>
@@ -204,21 +216,28 @@ function PullbackCard({ c, t }: { c: PullbackScreenerCandidate; t: Translation }
 
       {c.lhbInst &&
         (() => {
-          const b = lhbBadge(c.lhbInst, ck)
-          return (
+          const bs = lhbBadges(c.lhbInst, ck)
+          return bs.length ? (
             <div className="sc-badges">
-              <span className={b.cls} title={b.title}>
-                {b.label}
-              </span>
+              {bs.map((b, i) => (
+                <span key={i} className={b.cls} title={b.title}>
+                  {b.label}
+                </span>
+              ))}
             </div>
-          )
+          ) : null
         })()}
 
       <div className="sc-chips">
         {s.leader && <span className="sc-chip ok">{k.leader}✓</span>}
         {s.arcUp && <span className="sc-chip">{k.arcUp}</span>}
         {s.maCrossNear && <span className="sc-chip">{k.cross}</span>}
-        {s.volSpike && <span className="sc-chip hot">{k.volSpike}</span>}
+        {s.volSpike && (
+          <span className="sc-chip hot">
+            {k.volSpike}
+            {c.volSpikeRatio != null ? ` ${c.volSpikeRatio.toFixed(1)}x` : ''}
+          </span>
+        )}
         <span className="sc-chip">RS {(c.rsRaw * 100).toFixed(0)}</span>
       </div>
     </div>
@@ -238,9 +257,16 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
           <Crosshair size={18} weight="bold" style={{ verticalAlign: '-3px', marginRight: 6 }} />
           {tab === 'newhigh' ? sc.title : sc.titlePullback}
         </h2>
-        {lastUpdated && (
+        {(data || lastUpdated) && (
           <span className="themes-updated">
-            {sc.lastUpdated} {lastUpdated.toLocaleTimeString()}
+            {data?.asof && (
+              <>
+                {sc.dataAsof} {data.asof}
+                {data.fromCache && <span className="sc-cache-badge">{sc.cached}</span>}
+                {lastUpdated && ' · '}
+              </>
+            )}
+            {lastUpdated && `${sc.lastUpdated} ${lastUpdated.toLocaleTimeString()}`}
           </span>
         )}
         <button className="sc-scan-btn" onClick={refresh} disabled={loading}>
@@ -303,6 +329,19 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                     <Card key={c.code} c={c} t={t} />
                   ))}
                 </div>
+              )}
+
+              {(data.watch?.length ?? 0) > 0 && (
+                <>
+                  <div className="sc-group-head sc-group-head--watch">
+                    <Binoculars size={16} weight="fill" /> {sc.groups.watch} ({data.watch?.length})
+                  </div>
+                  <div className="sc-grid">
+                    {(data.watch ?? []).map((c) => (
+                      <Card key={`w-${c.code}`} c={c} t={t} variant="watch" />
+                    ))}
+                  </div>
+                </>
               )}
 
               {(() => {

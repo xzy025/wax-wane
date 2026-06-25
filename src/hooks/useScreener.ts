@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
-export type ScreenerGroup = 'trigger' | 'breakout'
+export type ScreenerGroup = 'trigger' | 'breakout' | 'watch'
 
 /** 龙虎榜加分(近 K 交易日机构/资金净买埋伏)。金额单位:元。 */
 export interface LhbConfluence {
@@ -39,6 +39,8 @@ export interface ScreenerCandidate {
   price: number
   changePct: number
   pivot: number
+  entry?: number // 介入/试探价=收盘(缺失=旧缓存快照,回退 price)
+  add?: number // 加仓价:突破组金字塔+1R / 扳机组=pivot(缺失=旧缓存快照)
   stopLoss: number
   target: number
   rsRaw: number
@@ -47,6 +49,9 @@ export interface ScreenerCandidate {
   volRatio: number
   atrRatio: number
   volScore: number
+  breakoutVolRatio?: number // 今日量/50日均量(放量倍数,缺失=旧缓存快照)
+  ma5?: number // 5日线(加仓参考,缺失=旧缓存快照)
+  watchReason?: string // 临界观察组:距触发还差什么
   distToPivotPct: number
   dist52Pct: number
   score: number
@@ -72,6 +77,7 @@ export interface PullbackScreenerCandidate {
   rsRaw: number
   score: number
   pivots?: Pivots
+  volSpikeRatio?: number // 今日量/均量(异常放量倍数,缺失=旧缓存快照)
   signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
   lhbInst?: LhbConfluence
 }
@@ -92,11 +98,15 @@ export interface ScreenerResult {
   regime: ScreenerRegime
   breakout: ScreenerCandidate[]
   trigger: ScreenerCandidate[]
+  watch?: ScreenerCandidate[] // 临界观察(可选,兼容旧缓存快照)
   pullback: PullbackScreenerCandidate[]
   scanned: number
   scannedPullback: number
   universe: number
   truncated: boolean
+  savedAt?: string
+  closed?: boolean
+  fromCache?: boolean // 本次响应来自服务端磁盘存档兜底(重启/盘后/过0点)
 }
 
 export interface ScreenerHookResult {

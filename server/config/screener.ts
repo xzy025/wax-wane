@@ -53,6 +53,27 @@ export interface ScreenerConfig {
   /** 板块强弱加分的长/短窗(交易日)。 */
   BOARD_LONG_WIN: number
   BOARD_SHORT_WIN: number
+  // ── 加仓参考 + 临界观察组 ──
+  /** 加仓参考短均线窗口(5=回踩5日线)。 */
+  ADD_MA: number
+  /** 金字塔加仓 R 倍数:突破组加仓点 = 介入 + ADD_R_MULT×风险(默认 +1R,高于介入)。 */
+  ADD_R_MULT: number
+  /** 浮盈达此 R 数时止损上移保本(展示提示 + 回测撮合)。 */
+  BREAKEVEN_AT_R: number
+  /** 跟踪止损均线窗口(+2R 后跌破此均线离场)。 */
+  TRAIL_MA: number
+  /** 扳机组试探仓结构止损:max(MA20, close×(1−此%/100)),盘整区故更紧。 */
+  STARTER_STOP_PCT: number
+  /** 临界观察组开关(突破/扳机近失的「放量逼近·待确认」票)。 */
+  WATCH_ENABLE: boolean
+  /** 突破近失容差:已站上前高但 breakoutVolRatio ≥ BREAKOUT_VOL − 此值 即收入临界观察。 */
+  WATCH_VOL_MARGIN: number
+  /** 放量逼近带:距前高 ≤ NEAR_PCT + 此值(逼近前高)。 */
+  WATCH_NEAR_EXTRA: number
+  /** 放量逼近需真·放量(volMA5/50 ≥ 此值),滤掉只是"不缩量"的普通趋势票。 */
+  WATCH_VOL_HOT: number
+  /** 临界观察组展示上限(按评分截断,避免空档票过多刷屏)。 */
+  WATCH_MAX: number
 }
 
 export const SCREENER = {
@@ -149,6 +170,26 @@ export const SCREENER = {
   LHB_INSTITUTIONAL: true,
   BOARD_LONG_WIN: 60,
   BOARD_SHORT_WIN: 5,
+
+  // ── 加仓参考 + 临界观察组(「放量逼近」空档:趋势完美但两组都未收的临门一脚票)──
+  /** 加仓点参考短均线:5 日线(MA5,仅作参考量,不再作为推荐加仓点)。 */
+  ADD_MA: 5,
+  /** 金字塔顺势加:浮盈 +1R 再加,加仓点高于介入——只给走出来的赢家加注,契合 33%胜率/2.22盈亏比系统。 */
+  ADD_R_MULT: 1.0,
+  /** +1R 移保本、+2R 跌破 MA(TRAIL_MA) 跟踪。管理规则,卡片以提示呈现、回测撮合验证。 */
+  BREAKEVEN_AT_R: 1,
+  TRAIL_MA: 10,
+  /** 扳机组试探仓止损:max(MA20, close×0.95)。未突破的盘整区,结构天然紧。 */
+  STARTER_STOP_PCT: 5,
+  WATCH_ENABLE: true,
+  /** 已突破但放量差一丝(如晶方 1.80× vs 1.8×):breakoutVolRatio ≥ 1.8 − 0.25 = 1.55× 即收。 */
+  WATCH_VOL_MARGIN: 0.25,
+  /** 放量逼近(如大族 距前高 2.6%):距前高 ≤ 5 + 2 = 7%。 */
+  WATCH_NEAR_EXTRA: 2,
+  /** 真·放量门槛:volMA5/50 ≥ 1.2(大族 1.83 过;只是"不缩量"的普通趋势票 0.9~1.2 被排除)。 */
+  WATCH_VOL_HOT: 1.2,
+  /** 临界观察至多展示 40 只(按评分),空档票天然多,截断避免刷屏。 */
+  WATCH_MAX: 40,
 } as const satisfies ScreenerConfig
 
 // ════════════════════════════════════════════════════════════════════════

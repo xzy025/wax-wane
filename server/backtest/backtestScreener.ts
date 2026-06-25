@@ -23,7 +23,7 @@ import { fileURLToPath } from 'url'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from '../services/ashare'
 import { SCREENER, PULLBACK, type ScreenerConfig, type PullbackConfig } from '../config/screener'
-import { classify, marketRegime, type Bar, type MarketRegime } from '../services/screenerRules'
+import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
 import { classifyPullback } from '../services/pullbackRules'
 import { boardStrengthAsOf } from '../services/rotationRules'
 import {
@@ -51,6 +51,8 @@ const RUN_REGIME = process.env.REGIME !== '0' // 默认做动态目标位(大盘
 const RUN_COMBO = process.env.COMBO === '1'
 // PULLBACK: 回调二次启动 / 圆弧底反包 战法回测(新形态,默认关;PULLBACK=1 开启)
 const RUN_PULLBACK = process.env.PULLBACK === '1'
+// PYRAMID: 金字塔+保本/跟踪 进场方案回测(½突破进→+1R加½移保本→+2R跌破MA跟踪,默认关;PYRAMID=1 开启)
+const RUN_PYRAMID = process.env.PYRAMID === '1'
 const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
 const LHB_INST = process.env.INST !== '0' // 取机构专用席位净买(默认是;=0 仅全口径净买,更快)
 const LHB_CONC = Number(process.env.LHB_CONC) || 4 // 龙虎榜/板块取数并发(EM 限流,宜低)
@@ -218,7 +220,7 @@ interface Trade {
   target: number
   exit: number
   exitDate: string
-  reason: 'target' | 'target-gap' | 'stop' | 'stop-gap' | 'time'
+  reason: 'target' | 'target-gap' | 'stop' | 'stop-gap' | 'time' | 'trail'
   retPct: number
   R: number
   bars: number // 持有交易日数
@@ -338,6 +340,76 @@ function simulatePullback(sb: StockBars, cfg: PullbackConfig, hold = HOLD): Trad
   return trades
 }
 
+/** 金字塔+保本/跟踪 撮合(用户设计):½仓突破日收盘进 → 盘中触 +1R 加½仓并把全仓止损移保本 →
+ *  触 +2R 武装跟踪、其后跌破 MA(TRAIL_MA) 收盘离场。R 以初始满仓风险 R1=entry1−stop1 为单位,与基线可比;
+ *  分两笔 ½+½ 故止损时仅约 −0.5R(分批进场的护城河),代价是大赢家上 tranche1 只有半仓。 */
+function simForwardPyramid(bars: Bar[], i: number, stop1: number, cfg: ScreenerConfig, hold: number): Trade | null {
+  const entry1 = bars[i].close
+  const R1 = entry1 - stop1
+  if (R1 <= 0) return null
+  const closes = bars.map((b) => b.close)
+  const addLevel = entry1 + cfg.ADD_R_MULT * R1 // +1R 加仓点
+  const trailArm = entry1 + 2 * R1 // +2R 武装跟踪
+  const end = Math.min(i + hold, bars.length - 1)
+  let stop = stop1
+  let added = false
+  let entry2 = 0
+  let trailing = false
+  let exit = bars[end].close
+  let reason: Trade['reason'] = 'time'
+  let exitIdx = end
+  for (let j = i + 1; j <= end; j++) {
+    const b = bars[j]
+    if (b.open <= stop) { exit = b.open; reason = 'stop-gap'; exitIdx = j; break }
+    if (b.low <= stop) { exit = stop; reason = 'stop'; exitIdx = j; break } // 保守:同日止损优先
+    if (!added && b.high >= addLevel) { added = true; entry2 = addLevel; stop = entry1 } // 加½仓 + 移保本
+    if (!trailing && b.high >= trailArm) trailing = true
+    if (trailing) {
+      const ma = smaAt(closes, cfg.TRAIL_MA, j)
+      if (ma > 0 && b.close < ma) { exit = b.close; reason = 'trail'; exitIdx = j; break } // 跟踪离场
+    }
+  }
+  const r1 = (exit - entry1) / R1
+  const R = added ? 0.5 * r1 + 0.5 * ((exit - entry2) / R1) : 0.5 * r1 // 未加仓则仅½仓在场
+  const avgEntry = added ? (entry1 + entry2) / 2 : entry1
+  return {
+    code: '',
+    date: bars[i].date,
+    entry: r2(avgEntry),
+    stop: r2(stop1),
+    target: r2(trailArm),
+    exit: r2(exit),
+    exitDate: bars[exitIdx].date,
+    reason,
+    retPct: r2((exit / avgEntry - 1) * 100),
+    R: r2(R),
+    bars: exitIdx - i,
+  }
+}
+
+/** 走查回测金字塔方案:仅 breakout 信号进场,逐笔走 simForwardPyramid。 */
+function simulatePyramid(sb: StockBars, cfg: ScreenerConfig, hold = HOLD): Trade[] {
+  const { bars } = sb
+  const len = bars.length
+  const start = cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classify(bars.slice(0, i + 1), cfg)
+    if (!cand || cand.group !== 'breakout') {
+      i++
+      continue
+    }
+    const t = simForwardPyramid(bars, i, cand.stopLoss, cfg, hold)
+    if (t) {
+      t.code = sb.code
+      trades.push(t)
+    }
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
 // ── 指标聚合 ──────────────────────────────────────────────────────────
 interface Metrics {
   n: number
@@ -389,7 +461,7 @@ function aggregate(trades: Trade[]): Metrics {
     expectancyR: r2(mean(trades.map((t) => t.R))),
     maxDDR: r2(maxDD),
     avgHoldBars: r2(mean(trades.map((t) => t.bars))),
-    targetRate: r2((cnt(['target', 'target-gap']) / n) * 100),
+    targetRate: r2((cnt(['target', 'target-gap', 'trail']) / n) * 100),
     stopRate: r2((cnt(['stop', 'stop-gap']) / n) * 100),
     timeRate: r2((cnt(['time']) / n) * 100),
   }
@@ -653,6 +725,24 @@ async function main() {
       }
     }
     out.pullbackEval = { config: PULLBACK, variants: pbVariants, sweeps: pbSweepOut }
+  }
+
+  // PYRAMID: 金字塔+保本/跟踪 进场方案 vs 基线(单笔/固定目标)。验证用户选定的"金字塔顺势加"是否改善期望。
+  if (RUN_PYRAMID) {
+    console.log('\n========== 金字塔+保本/跟踪 vs 基线(½突破进 → +1R加½移保本 → +2R跌破MA10跟踪)==========')
+    const pyTrades = data.flatMap((sb) => simulatePyramid(sb, SCREENER))
+    const pyMetrics = aggregate(pyTrades)
+    console.log(fmtMetrics('baseline(单笔/固定目标)', base.metrics))
+    console.log(fmtMetrics('pyramid(½+½/跟踪)', pyMetrics))
+    console.log(
+      `→ 期望差 ${r2(pyMetrics.expectancyR - base.metrics.expectancyR)}R · 止损率 ${base.metrics.stopRate}%→${pyMetrics.stopRate}% · 盈亏比 ${base.metrics.payoff}→${pyMetrics.payoff}`,
+    )
+    out.pyramidEval = {
+      params: { ADD_R_MULT: SCREENER.ADD_R_MULT, BREAKEVEN_AT_R: SCREENER.BREAKEVEN_AT_R, TRAIL_MA: SCREENER.TRAIL_MA },
+      baseline: base.metrics,
+      pyramid: pyMetrics,
+      deltaExpectancyR: r2(pyMetrics.expectancyR - base.metrics.expectancyR),
+    }
   }
 
   mkdirSync(OUT_DIR, { recursive: true })

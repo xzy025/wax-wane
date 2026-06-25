@@ -11,7 +11,7 @@ export interface Bar {
   volume: number
 }
 
-export type ScreenerGroup = 'trigger' | 'breakout'
+export type ScreenerGroup = 'trigger' | 'breakout' | 'watch'
 
 /** 经典枢轴位(floor pivot):压力 R1/R2、支撑 S1/S2。 */
 export interface Pivots {
@@ -38,6 +38,8 @@ export interface Candidate {
   price: number
   changePct: number
   pivot: number
+  entry: number // 介入/试探价 = 当日收盘(实际成交):突破组=突破日收盘,扳机组=现价试探
+  add: number // 加仓价:突破组=介入+ADD_R_MULT×风险(金字塔,高于介入);扳机组=pivot(放量突破补主仓)
   stopLoss: number
   target: number
   rsRaw: number
@@ -46,6 +48,9 @@ export interface Candidate {
   volRatio: number // volMA5 / volMA50
   atrRatio: number // ATR10 / ATR50
   volScore: number // 0-1,突破看放量、扳机看缩量
+  breakoutVolRatio?: number // 今日量 / 50日均量(突破放量倍数,卡片「放量 1.8x」跟注)
+  ma5?: number // 5日线(加仓参考:首次回踩不破即加仓,启发式未回测)
+  watchReason?: string // 临界观察组:距触发还差什么(放量逼近/已突破待确认)
   distToPivotPct: number // 距 pivot(前高)%:>0 在下方(扳机)、<0 已在上方(突破/延伸)
   dist52Pct: number // 距 52 周高%:>0 在高点下方、≤0 创新高
   pivots: Pivots // 经典枢轴位 R1/R2/S1/S2
@@ -210,6 +215,7 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
   const atrContract = atrRatio < C.ATR_RATIO_MAX
   const volDry = volRatio < C.VOL_DRY_MAX
   const breakoutVol = volSlow > 0 && today.volume >= C.BREAKOUT_VOL * volSlow
+  const breakoutVolRatio = volSlow > 0 ? today.volume / volSlow : 0
   const range = today.high - today.low
   const closeStrong = range > 0 ? (close - today.low) / range >= C.CLOSE_STRENGTH : true
   const notExtended = close <= pivot * (1 + C.EXT_MAX / 100)
@@ -217,6 +223,7 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
   let group: ScreenerGroup | null = null
   let pattern = ''
   let volScore = 0
+  let watchReason = ''
   if (close > pivot && breakoutVol && closeStrong && notExtended) {
     group = 'breakout'
     pattern = '放量突破前高'
@@ -227,13 +234,40 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     group = 'trigger'
     pattern = atrContract ? '缩量收敛·贴近前高' : '缩量蓄势·贴近前高'
     volScore = 1 - clamp01(volRatio)
+  } else if (C.WATCH_ENABLE) {
+    // 临界观察:趋势完美但落在突破/扳机之间的「放量逼近」空档(追求模糊的正确)。
+    if (close > pivot && notExtended && closeStrong && breakoutVolRatio >= C.BREAKOUT_VOL - C.WATCH_VOL_MARGIN) {
+      group = 'watch' // 已突破但放量差一丝(晶方型)
+      pattern = '刚突破·待放量确认'
+      watchReason = `已突破·放量${breakoutVolRatio.toFixed(2)}x 略欠确认线${C.BREAKOUT_VOL}x`
+    } else if (distToPivotPct > 0 && distToPivotPct <= C.NEAR_PCT + C.WATCH_NEAR_EXTRA && volRatio >= C.WATCH_VOL_HOT) {
+      group = 'watch' // 放量逼近前高但未破(大族型:真·放量,非仅"不缩量")
+      pattern = '放量逼近前高'
+      watchReason = `放量逼近·距前高${distToPivotPct.toFixed(1)}%(放量站上${r2(pivot)}即突破)`
+    }
   }
   if (!group) return null
+  const closes = bars.map((b) => b.close)
+  const ma5 = smaAt(closes, C.ADD_MA, last) // 5日线(参考量)
 
-  // 先定止损(rmult 目标位依赖风险 = 进场 − 止损),再按模式算目标位。
-  const rawStop = Math.min(pivot, today.low)
-  const stopLoss = Math.max(rawStop, close * (1 - C.STOP_MAX_PCT / 100))
+  // 止损(rmult 目标位依赖风险 = 进场 − 止损,故先定):
+  //  · 突破/观察组:结构止损 = min(pivot, 当日低),封顶 STOP_MAX%(8→7 已回测校准)。
+  //  · 扳机试探仓:未突破的盘整区结构天然紧 → max(MA20, close×(1−STARTER_STOP%)),MA20 须在价下方。
+  let stopLoss: number
+  if (group === 'trigger') {
+    const ma20 = smaAt(closes, C.MA_FAST, last)
+    const pctStop = close * (1 - C.STARTER_STOP_PCT / 100)
+    stopLoss = ma20 > 0 && ma20 < close ? Math.max(ma20, pctStop) : pctStop
+  } else {
+    const rawStop = Math.min(pivot, today.low)
+    stopLoss = Math.max(rawStop, close * (1 - C.STOP_MAX_PCT / 100))
+  }
   const target = computeTarget(bars, { close, pivot, stopLoss }, C)
+  // 介入/试探 = 当日收盘(实际成交价);加仓分组:
+  //  · 突破组金字塔顺势加:介入 + ADD_R_MULT×风险(高于介入,只给 +1R 赢家加注)。
+  //  · 扳机/观察组:加主仓 = pivot(放量站上突破位当天补主仓)。
+  const entry = close
+  const add = group === 'breakout' ? close + C.ADD_R_MULT * (close - stopLoss) : pivot
 
   const coil = clamp01(
     0.4 * (1 - Math.min(Math.max(distToPivotPct, 0), C.NEAR_PCT) / C.NEAR_PCT) +
@@ -247,6 +281,8 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     price: r2(close),
     changePct: r2(changePct),
     pivot: r2(pivot),
+    entry: r2(entry),
+    add: r2(add),
     stopLoss: r2(stopLoss),
     target: r2(target),
     rsRaw: rsRaw(bars.map((b) => b.close)),
@@ -255,6 +291,9 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     volRatio: r2(volRatio),
     atrRatio: r2(atrRatio),
     volScore: r2(volScore),
+    breakoutVolRatio: r2(breakoutVolRatio),
+    ma5: r2(ma5),
+    watchReason: watchReason || undefined,
     distToPivotPct: r2(distToPivotPct),
     dist52Pct: r2(tt.hi52 > 0 ? ((tt.hi52 - close) / tt.hi52) * 100 : 0),
     pivots: pivotLevels(today),

@@ -84,6 +84,29 @@ describe('classify', () => {
     expect(c.stopLoss).toBeGreaterThanOrEqual(c.price * (1 - SCREENER.STOP_MAX_PCT / 100) - 0.01)
     expect(c.stopLoss).toBeLessThan(c.price)
   })
+
+  it('breakout: entry = close, pyramid add = entry + ADD_R_MULT×risk (higher than entry)', () => {
+    const c = classify(makeBars(breakoutToday))!
+    expect(c.group).toBe('breakout')
+    expect(c.entry).toBeCloseTo(c.price, 2) // 介入=突破日收盘
+    const risk = c.entry - c.stopLoss
+    expect(c.add).toBeCloseTo(c.entry + SCREENER.ADD_R_MULT * risk, 2)
+    expect(c.add).toBeGreaterThan(c.entry) // 金字塔:加仓高于介入
+  })
+
+  it('trigger: probe entry = close, add-core = pivot (breakout trigger, above probe)', () => {
+    const c = classify(makeBars(triggerToday))!
+    expect(c.group).toBe('trigger')
+    expect(c.entry).toBeCloseTo(c.price, 2) // 试探=现价
+    expect(c.add).toBeCloseTo(c.pivot, 2) // 加主仓=突破位
+    expect(c.add).toBeGreaterThan(c.entry) // 突破位在现价之上
+  })
+
+  it('trigger uses a tighter starter stop (≤ STARTER_STOP% below close)', () => {
+    const c = classify(makeBars(triggerToday))!
+    expect(c.stopLoss).toBeGreaterThanOrEqual(c.price * (1 - SCREENER.STARTER_STOP_PCT / 100) - 0.01)
+    expect(c.stopLoss).toBeLessThan(c.price)
+  })
 })
 
 describe('computeTarget modes (#2)', () => {
@@ -121,6 +144,8 @@ describe('finalScore', () => {
     price: 40,
     changePct: 1,
     pivot: 40,
+    entry: 40,
+    add: 42,
     stopLoss: 38,
     target: 44,
     rsRaw: 0.5,
