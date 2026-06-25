@@ -481,6 +481,8 @@ export interface Translation {
     scan: string
     scanning: string
     lastUpdated: string
+    dataAsof: string
+    cached: string
     loadFail: string
     empty: string
     universe: string
@@ -488,7 +490,7 @@ export interface Translation {
     truncatedNote: string
     disclaimer: string
     tabs: { newHigh: string; pullback: string }
-    groups: { breakout: string; trigger: string; pullback: string }
+    groups: { breakout: string; trigger: string; watch: string; pullback: string }
     pbDesc: string
     pbCard: {
       priorHigh: string
@@ -520,6 +522,12 @@ export interface Translation {
     card: {
       price: string
       pivot: string
+      entry: string
+      add: string
+      probe: string
+      addMain: string
+      entryTip: string
+      probeTip: string
       stop: string
       target: string
       dist: string
