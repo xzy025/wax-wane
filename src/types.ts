@@ -507,6 +507,9 @@ export interface Translation {
       ma5ok: string
       w2s: string
       wick: string
+      consol: string
+      turnover: string
+      days: string
     }
     pbDesc: string
     pbCard: {

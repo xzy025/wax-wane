@@ -287,6 +287,15 @@ function HighDivCard({ c, t }: { c: HighDivScreenerCandidate; t: Translation }) 
           </span>
         </div>
         <div className="sc-metric">
+          <span className="sc-metric-label">
+            {hk.consol} / {hk.turnover}
+          </span>
+          <span className="sc-metric-value mono">
+            {c.consolDays}
+            {hk.days} / {c.turnoverRate != null ? `${c.turnoverRate.toFixed(1)}%` : '—'}
+          </span>
+        </div>
+        <div className="sc-metric">
           <span className="sc-metric-label" title={c.reason}>
             {hk.buy} → {hk.target}
           </span>

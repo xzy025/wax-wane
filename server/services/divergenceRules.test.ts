@@ -7,6 +7,8 @@ import {
   consecutiveLimitUps,
   classifyDivergence,
   classifyHighDivergence,
+  consolidationDays,
+  consolScore,
 } from './divergenceRules'
 import { type Bar } from './screenerRules'
 
@@ -146,5 +148,33 @@ describe('classifyHighDivergence (连续新高·缩量十字星·守MA5)', () =>
     const bars = makeHD(hit)
     bars[bars.length - 2] = { date: '2026-06-23', open: 19.0, close: 19.05, high: 21.5, low: 18.9, volume: 1200 }
     expect(classifyHighDivergence(bars, '600000')).toBeNull()
+  })
+
+  it('exposes consolDays on the candidate', () => {
+    const c = classifyHighDivergence(makeHD(hit), '600000')!
+    expect(c.consolDays).toBeGreaterThanOrEqual(1)
+  })
+})
+
+describe('highdiv factors', () => {
+  it('consolScore favors day 1 and decays with more days (data-driven, floors at 0.2)', () => {
+    expect(consolScore(0)).toBe(0)
+    expect(consolScore(1)).toBe(1) // 第1天最优(回测 0.23R)
+    expect(consolScore(2)).toBeCloseTo(0.5, 2)
+    expect(consolScore(3)).toBeCloseTo(0.35, 2)
+    expect(consolScore(8)).toBe(0.2) // floor
+    expect(consolScore(1)).toBeGreaterThan(consolScore(2)) // 第1天 > 第2天
+    expect(consolScore(2)).toBeGreaterThan(consolScore(4)) // 越久越降
+  })
+
+  it('consolidationDays counts consecutive dry-up days holding MA5', () => {
+    const bars: Bar[] = []
+    for (let i = 0; i < 25; i++) bars.push(bar(`f${i}`, 10, 10.1, 9.9, 10, 5000))
+    bars.push(bar('u', 10.2, 10.6, 10.1, 10.5, 9000)) // 放量新高日(量↑ → 不算整理)
+    bars.push(bar('c1', 10.5, 10.6, 10.3, 10.45, 6000)) // 缩量站MA5
+    bars.push(bar('c2', 10.45, 10.5, 10.3, 10.42, 4000))
+    bars.push(bar('c3', 10.42, 10.48, 10.3, 10.44, 3000))
+    const closes = bars.map((b) => b.close)
+    expect(consolidationDays(bars, closes, bars.length - 1)).toBe(3) // c1/c2/c3,放量新高日截断
   })
 })

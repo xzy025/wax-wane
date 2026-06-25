@@ -218,6 +218,26 @@ const bodyRatio = (b: Bar) => (candleRange(b) > 0 ? Math.abs(b.close - b.open) /
 const lowerWickRatio = (b: Bar) => (candleRange(b) > 0 ? (Math.min(b.open, b.close) - b.low) / candleRange(b) : 0)
 const upperWickRatio = (b: Bar) => (candleRange(b) > 0 ? (b.high - Math.max(b.open, b.close)) / candleRange(b) : 0)
 
+/** 整理持续天数:从 endIdx 往前数连续「量 < 前一日 ∧ 收盘 ≥ 当日 MA5」的天数(缩量站稳合一)。 */
+export function consolidationDays(bars: Bar[], closes: number[], endIdx: number): number {
+  let d = 0
+  for (let i = endIdx; i >= 1; i--) {
+    const ma5i = smaAt(closes, 5, i)
+    if (ma5i > 0 && bars[i].volume < bars[i - 1].volume && bars[i].close >= ma5i) d++
+    else break
+  }
+  return d
+}
+
+/** 整理评分:第 1 天(新鲜缩量分歧)最优、越久越降。
+ *  回测分桶定论(consolDays):1天 0.23R(n=180,>全集) > 2天 0.04R(n=66,最差);3天+样本太少不可信。
+ *  → 数据驱动单调递减(推翻"越久越好/2-3天峰值"的直觉)。 */
+export function consolScore(days: number): number {
+  if (days <= 0) return 0
+  if (days === 1) return 1 // 第1天最优
+  return Math.max(0.2, 0.5 - (days - 2) * 0.15) // 2→0.5、3→0.35、4→0.2、≥5→0.2(越久越降)
+}
+
 export interface HighDivCandidate {
   group: 'highdiv'
   price: number // 分歧日收盘
@@ -226,6 +246,7 @@ export interface HighDivCandidate {
   retraceFromHigh: number // 距新高回撤%
   dryRatio: number // 今日量/昨量(缩量倍数)
   bodyRatio: number // 实体率(越小越像十字星)
+  consolDays: number // 整理持续天数(连续缩量站MA5);2-3 天评分最高
   amplitude: number // 振幅%
   lowerWick: number // 下影/振幅(承接力)
   ma5: number
@@ -310,15 +331,19 @@ export function classifyHighDivergence(bars: Bar[], code: string, C: HighDivConf
   if (risk <= 0) return null
   const target = entry + C.R_MULT * risk
 
-  // ── 软加分 / 分档 ──
+  // ── 打分因子 / 分档 ──
   const lw = lowerWickRatio(today)
   const ma5up = ma5 >= smaAt(closes, 5, last - 1)
-  const tight = clamp01((10 - amp) / 8) // 振幅越小越紧凑(2%→1、10%→0)
+  const consol = consolidationDays(bars, closes, last) // 整理天数(缩量站MA5)
+  const consolSc = consolScore(consol) // 2-3 天峰值后衰减
+  const dojiSc = clamp01((C.DOJI - br) / C.DOJI) // 实体率越小越像十字星(0.05满→0.3零)
   const W = C.WEIGHTS
   const score01 =
-    (W.lowerWick * clamp01(lw / 0.5) + W.ma5slope * (ma5up ? 1 : 0) + W.tight * tight) / (W.lowerWick + W.ma5slope + W.tight)
-  const strong = (lw >= 0.3 ? 1 : 0) + (ma5up ? 1 : 0) + (retrace <= 4 ? 1 : 0)
-  const tier = strong >= 2 ? 3 : score01 > 0.4 ? 2 : 1
+    (W.consol * consolSc + W.doji * dojiSc + W.lowerWick * clamp01(lw / 0.5) + W.ma5slope * (ma5up ? 1 : 0)) /
+    (W.consol + W.doji + W.lowerWick + W.ma5slope)
+  // 强信号计数:整理第1天(新鲜缩量分歧,回测最优)、十字星明显、下影承接、MA5 未拐头
+  const strong = (consol === 1 ? 1 : 0) + (dojiSc >= 0.5 ? 1 : 0) + (lw >= 0.3 ? 1 : 0) + (ma5up ? 1 : 0)
+  const tier = strong >= 3 || score01 >= 0.6 ? 3 : strong >= 2 || score01 >= 0.4 ? 2 : 1
 
   const tag = (i: number) => `${md(bars[i].date)}${r2(bars[i].close)}`
   const pathParts: string[] = []
@@ -326,7 +351,7 @@ export function classifyHighDivergence(bars: Bar[], code: string, C: HighDivConf
   pathParts.push(`今日开${r2(today.open)}高${r2(today.high)}低${r2(today.low)}收${r2(today.close)}`)
   const kPath = pathParts.join(' → ')
 
-  const reason = `连续新高·缩量${r2(dryRatio)}倍·${br <= 0.15 ? '十字星' : '小实体'}·守MA5·回撤${r2(retrace)}%`
+  const reason = `连续新高·整理${consol}天·缩量${r2(dryRatio)}倍·${br <= 0.15 ? '十字星' : '小实体'}·守MA5·回撤${r2(retrace)}%`
   const riskNote = !ma5up ? 'MA5 走平/拐头·动能转弱' : retrace > C.RETR * 0.75 ? '回撤偏深·临界' : undefined
 
   return {
@@ -337,6 +362,7 @@ export function classifyHighDivergence(bars: Bar[], code: string, C: HighDivConf
     retraceFromHigh: r2(retrace),
     dryRatio: r2(dryRatio),
     bodyRatio: r2(br),
+    consolDays: consol,
     amplitude: r2(amp),
     lowerWick: r2(lw),
     ma5: r2(ma5),

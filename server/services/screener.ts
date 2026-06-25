@@ -63,6 +63,8 @@ export interface PullbackScreenerCandidate extends PullbackCandidate {
 export interface HighDivScreenerCandidate extends HighDivCandidate {
   code: string
   name: string
+  /** 今日换手率%(clist f8);过高→已降 tier + 风险标注。 */
+  turnoverRate?: number
   /** 龙虎榜加分(机构/游资,无则未上榜)。 */
   lhbInst?: LhbConfluence
 }
@@ -110,6 +112,7 @@ interface Pre {
   amount: number // 成交额(元)
   mom60: number
   vr: number // 量比
+  turnoverRate: number // 今日换手率%(clist f8;新高分歧换手风险过滤用)
 }
 
 const CLIST_FIELDS = 'f2,f3,f6,f8,f10,f12,f14,f20,f24,f25'
@@ -173,11 +176,12 @@ async function prefilter(): Promise<{ rows: Pre[]; pullbackRows: Pre[]; universe
     const mcap = num(d.f20)
     const mom60 = num(d.f24)
     const vr = num(d.f10)
+    const turnoverRate = num(d.f8)
     if (!code || price <= 0) continue
     if (/ST|退/i.test(name)) continue // 剔除 ST/*ST/退市整理
     if (amount < C.LIQUIDITY_MIN) continue // 低流动
     if (mcap < C.MCAP_MIN) continue // 小市值
-    base.push({ code, name, price, amount, mom60, vr })
+    base.push({ code, name, price, amount, mom60, vr, turnoverRate })
   }
   // 新高战法:留强势(mom60≥0),按 60 日动量排序(不掺量比——量比高会埋没"缩量待发"的扳机候选)。
   const rows = base.filter((p) => p.mom60 >= C.MOM60_MIN).sort((a, b) => b.mom60 - a.mom60)
@@ -217,7 +221,14 @@ async function confirmUnion(
       if (cand) nh = { ...cand, code: u.p.code, name: u.p.name, score: 0, liqAmount: u.p.amount }
       // 连续新高分歧低吸跑在同一份强势股 K 线上(纯 OHLCV,无额外取数)
       const hdCand = classifyHighDivergence(bars, u.p.code, HIGHDIV)
-      if (hdCand) hd = { ...hdCand, code: u.p.code, name: u.p.name }
+      if (hdCand) {
+        hd = { ...hdCand, code: u.p.code, name: u.p.name, turnoverRate: u.p.turnoverRate }
+        // 换手过大软降级(线上 clist f8;绝对换手需流通盘故不进纯函数/回测):降 tier + 风险标注
+        if (u.p.turnoverRate > HIGHDIV.TURNOVER_HOT) {
+          hd.tier = Math.max(1, hd.tier - 1)
+          hd.riskNote = `换手过大 ${u.p.turnoverRate.toFixed(1)}%·抛压重${hd.riskNote ? ' · ' + hd.riskNote : ''}`
+        }
+      }
     }
     if (u.pb) {
       const cand = classifyPullback(bars, PULLBACK)

@@ -232,6 +232,7 @@ interface Trade {
   bars: number // 持有交易日数
   regime?: MarketRegime // 信号日的大盘环境(动态目标位用)
   divGroup?: DivergenceGroup // 打板分歧组(lianban/pullback2),供分组聚合
+  hdConsolDays?: number // 连续新高分歧:整理持续天数,供因子分桶验证
 }
 
 /** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。 */
@@ -465,7 +466,9 @@ function simulateHighDiv(sb: StockBars, cfg: HighDivConfig, hold: number): Trade
       i++
       continue
     }
-    trades.push(makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold)))
+    const t = makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold))
+    t.hdConsolDays = cand.consolDays
+    trades.push(t)
     i = i + hold + 1 // 冷却:一仓在手不重叠
   }
   return trades
@@ -854,7 +857,29 @@ async function main() {
       console.log(fmtMetrics(`DRY=${DRY}`, mm))
       hdSweep.push({ knob: 'DRY', value: DRY, metrics: mm })
     }
-    out.highDivEval = { hold: HOLD_HD, config: HIGHDIV, metrics: m, baselineExpectancyR: base.metrics.expectancyR, sweep: hdSweep }
+    // 因子验证:按整理天数 consolDays 分桶,看是否「2-3 天峰值」——确认因子有方向性。
+    console.log('\n---------- HIGHDIV 整理天数(consolDays)分桶 ----------')
+    const allBase = data.flatMap((sb) => simulateHighDiv(sb, HIGHDIV, HOLD_HD))
+    const buckets: Array<{ label: string; pick: (d: number) => boolean }> = [
+      { label: 'consol=1', pick: (d) => d === 1 },
+      { label: 'consol=2', pick: (d) => d === 2 },
+      { label: 'consol=3', pick: (d) => d === 3 },
+      { label: 'consol>=4', pick: (d) => d >= 4 },
+    ]
+    const factorEval: Array<Record<string, unknown>> = []
+    for (const b of buckets) {
+      const mm = aggregate(allBase.filter((t) => b.pick(t.hdConsolDays ?? 0)))
+      console.log(fmtMetrics(b.label, mm))
+      factorEval.push({ bucket: b.label, metrics: mm })
+    }
+    out.highDivEval = {
+      hold: HOLD_HD,
+      config: HIGHDIV,
+      metrics: m,
+      baselineExpectancyR: base.metrics.expectancyR,
+      sweep: hdSweep,
+      consolDaysBuckets: factorEval,
+    }
   }
 
   mkdirSync(OUT_DIR, { recursive: true })

@@ -93,8 +93,10 @@ export interface HighDivScreenerCandidate {
   retraceFromHigh: number // 距新高回撤%
   dryRatio: number // 缩量倍数(今日量/昨量)
   bodyRatio: number // 实体率(越小越像十字星)
+  consolDays: number // 整理持续天数(连续缩量站MA5)
   amplitude: number
   lowerWick: number // 下影/振幅
+  turnoverRate?: number // 今日换手率%(过高已降 tier)
   ma5: number
   ma10: number
   ma20: number

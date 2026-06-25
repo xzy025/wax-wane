@@ -316,7 +316,10 @@ export interface HighDivConfig {
   EXHAUST_WICK: number // 创新高日上影/振幅 上限(超过疑似滞涨)
   EXHAUST_VOL: number // 创新高日量/均量 上限(配合长上影=巨量出货,排除)
   VOL_MA: number // 均量窗口
-  WEIGHTS: { lowerWick: number; ma5slope: number; tight: number }
+  /** 今日换手率风险线(%):线上 clist f8 超过此值→降 tier + 标注"换手过大·抛压重"(仅线上,不进回测)。 */
+  TURNOVER_HOT: number
+  /** 打分因子权重(按权重和归一):整理天数 / 十字星程度 / 下影承接 / MA5未拐头。 */
+  WEIGHTS: { consol: number; doji: number; lowerWick: number; ma5slope: number }
 }
 
 export const HIGHDIV = {
@@ -334,7 +337,8 @@ export const HIGHDIV = {
   EXHAUST_WICK: 0.5,
   EXHAUST_VOL: 3,
   VOL_MA: 5,
-  WEIGHTS: { lowerWick: 0.4, ma5slope: 0.3, tight: 0.3 },
+  TURNOVER_HOT: 15,
+  WEIGHTS: { consol: 0.35, doji: 0.25, lowerWick: 0.2, ma5slope: 0.2 },
 } as const satisfies HighDivConfig
 
 export const PULLBACK = {
