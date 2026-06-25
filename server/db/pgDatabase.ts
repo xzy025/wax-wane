@@ -131,6 +131,19 @@ export async function initDatabase(): Promise<void> {
       )
     `)
 
+    // 选股盘后快照:整份 ScreenerResult 按上海交易日落库(一天一行,同日重扫 upsert)。
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS screener_snapshots (
+        asof TEXT PRIMARY KEY,
+        result_json TEXT NOT NULL,
+        regime_phase TEXT,
+        universe INTEGER,
+        scanned INTEGER,
+        closed BOOLEAN,
+        created_at TEXT NOT NULL
+      )
+    `)
+
     // Create indexes
     await client.query('CREATE INDEX IF NOT EXISTS idx_trades_date ON trades(trade_date)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_trades_stock ON trades(stock_code, trade_date)')
@@ -481,6 +494,52 @@ export async function upsertAgentMemory(memory: {
       [crypto.randomUUID(), memory.user_id, memory.trading_profile_json, memory.improvement_plans_json, memory.market_analysis_json, memory.conversation_summary ?? null, now],
     )
   }
+}
+
+// ── Screener Snapshots ─────────────────────────────────────
+
+/** 落库当日选股快照(同日重扫覆盖)。result_json = JSON.stringify(ScreenerResult)。 */
+export async function upsertScreenerSnapshot(snap: {
+  asof: string
+  resultJson: string
+  regimePhase?: string
+  universe?: number
+  scanned?: number
+  closed?: boolean
+}): Promise<void> {
+  const now = new Date().toISOString()
+  await pool.query(
+    `INSERT INTO screener_snapshots (asof, result_json, regime_phase, universe, scanned, closed, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (asof) DO UPDATE SET
+       result_json = EXCLUDED.result_json,
+       regime_phase = EXCLUDED.regime_phase,
+       universe = EXCLUDED.universe,
+       scanned = EXCLUDED.scanned,
+       closed = EXCLUDED.closed,
+       created_at = EXCLUDED.created_at`,
+    [
+      snap.asof, snap.resultJson, snap.regimePhase ?? null,
+      snap.universe ?? null, snap.scanned ?? null, snap.closed ?? null, now,
+    ],
+  )
+}
+
+/** 取最近 N 天快照(DESC),给「连续出现天数」回溯历史用。 */
+export async function getRecentScreenerSnapshots(limit: number): Promise<{ asof: string; result_json: string }[]> {
+  const result = await pool.query(
+    `SELECT asof, result_json FROM screener_snapshots ORDER BY asof DESC LIMIT $1`,
+    [limit],
+  )
+  return result.rows
+}
+
+/** 取最新一天的快照(无则 null)。 */
+export async function getLatestScreenerSnapshot(): Promise<{ asof: string; result_json: string; created_at: string } | null> {
+  const result = await pool.query(
+    `SELECT asof, result_json, created_at FROM screener_snapshots ORDER BY asof DESC LIMIT 1`,
+  )
+  return result.rows[0] ?? null
 }
 
 // ── Pool Export ────────────────────────────────────────────

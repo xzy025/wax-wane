@@ -30,6 +30,7 @@ export interface PullbackCandidate {
   rsRaw: number
   score: number // 0-100
   pivots: Pivots // 经典枢轴位 R1/R2/S1/S2
+  volSpikeRatio?: number // 今日量 / VOL_MA 均量(异常放量倍数,卡片「异常放量 1.8x」跟注)
   signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
 }
 
@@ -108,6 +109,7 @@ export function classifyPullback(bars: Bar[], C: PullbackConfig = PULLBACK): Pul
   const volMa = mean(bars.slice(n - C.VOL_MA, n).map((b) => b.volume))
   const volSpike = volMa > 0 && today.volume >= C.VOL_SPIKE * volMa && c > prev.close
   if (!volSpike) return null
+  const volSpikeRatio = volMa > 0 ? today.volume / volMa : 0
 
   // 进/止/目标
   const stopLoss = C.STOP_MAX_PCT > 0 ? Math.max(corrLow, c * (1 - C.STOP_MAX_PCT / 100)) : corrLow
@@ -141,6 +143,7 @@ export function classifyPullback(bars: Bar[], C: PullbackConfig = PULLBACK): Pul
     rsRaw: rs,
     score,
     pivots: pivotLevels(today),
+    volSpikeRatio: r2(volSpikeRatio),
     signals: { leader, arcUp: reclaimFast, maCrossNear, volSpike, pattern: '回调圆弧底·放量二次启动' },
   }
 }

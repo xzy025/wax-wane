@@ -10,7 +10,8 @@
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline } from '../services/ashare'
 import { trendTemplate, computeVCP, classify, type Bar } from '../services/screenerRules'
-import { SCREENER as C } from '../config/screener'
+import { classifyVolBreakout } from '../services/volBreakoutRules'
+import { SCREENER as C, VOLBREAK } from '../config/screener'
 
 const yi = (n: number) => (n / 1e8).toFixed(2) + '亿'
 const pct = (n: number) => (n >= 0 ? '+' : '') + n.toFixed(2) + '%'
@@ -72,6 +73,16 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
     return { code, name, status: '次新股/K线不足,无法判定趋势模板' }
   }
   const bars = klines as Bar[]
+
+  // 放量新高·资金驱动突破(独立战法,与趋势模板无关;在此一并诊断 — 兴发集团这类票走这条路)
+  const vb = classifyVolBreakout(bars, code, VOLBREAK)
+  if (vb) {
+    console.log(`   〔放量新高〕✅ 命中:${vb.reason}`)
+    console.log(`       介入 ${vb.entry}  止损 ${vb.stop}  目标 ${vb.target}  tier${vb.tier}/${vb.score}分  近${VOLBREAK.VOL_WIN}日放量${vb.volBurstDays}日·均量${vb.volAvgRatio}×`)
+  } else {
+    console.log(`   〔放量新高〕✗ 未命中(需 MA5>MA21上行 + 近${VOLBREAK.VOL_WIN}日≥${VOLBREAK.MIN_VOL_DAYS}日量≥${VOLBREAK.VOL_MULT}×基准 + 破${VOLBREAK.BREAKOUT_LOOKBACK}日高)`)
+  }
+
   const closes = bars.map((b) => b.close)
   const last = bars.length - 1
   const c = closes[last]
@@ -117,9 +128,11 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
 
   const cand = classify(bars, C)
   if (cand) {
-    console.log(`   >>> ✅ 命中【${cand.group === 'breakout' ? '突破' : '扳机'}】${cand.signals.pattern}`)
-    console.log(`       进场 ${cand.price}  止损 ${cand.stopLoss}  目标 ${cand.target}  评分 ${cand.score || '(单股探针不计排名分)'}`)
-    return { code, name, group: cand.group, status: `命中 ${cand.group === 'breakout' ? '突破' : '扳机'}:${cand.signals.pattern}` }
+    const label = cand.group === 'breakout' ? '突破' : cand.group === 'trigger' ? '扳机' : '临界观察'
+    const icon = cand.group === 'watch' ? '👁' : '✅'
+    console.log(`   >>> ${icon} 命中【${label}】${cand.signals.pattern}${cand.watchReason ? ` · ${cand.watchReason}` : ''}`)
+    console.log(`       介入 ${cand.pivot}  加仓(5日线) ${cand.ma5 ?? '—'}  止损 ${cand.stopLoss}  目标 ${cand.target}  评分 ${cand.score || '(单股探针不计排名分)'}`)
+    return { code, name, group: cand.group, status: `命中 ${label}:${cand.signals.pattern}` }
   }
 
   // 趋势过但两组都不收 → 给「距触发还差什么」

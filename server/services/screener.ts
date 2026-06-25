@@ -4,14 +4,17 @@ import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl, isAShareSession } from '../lib/cache'
-import { pickLatestArchiveName, isScreenerResult } from './screenerArchive'
+import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult } from './screenerArchive'
+import { isDbReady, upsertScreenerSnapshot, getRecentScreenerSnapshots } from '../db/pgDatabase'
+import { computeStreaks } from './screenerStreak'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
-import { SCREENER as C, PULLBACK, HIGHDIV, type ScreenerConfig } from '../config/screener'
+import { SCREENER as C, PULLBACK, HIGHDIV, VOLBREAK, type ScreenerConfig } from '../config/screener'
 import { classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate, type MarketRegime } from './screenerRules'
 import { classifyPullback, type PullbackCandidate } from './pullbackRules'
 import { classifyHighDivergence, type HighDivCandidate } from './divergenceRules'
+import { classifyVolBreakout, type VolBreakCandidate } from './volBreakoutRules'
 import { boardStrengthAsOf } from './rotationRules'
 import { resolveStockIndustryBoard } from './rotation'
 import { fetchTradingDates } from './moneyflow'
@@ -49,6 +52,8 @@ export interface ScreenerCandidate extends Candidate {
   lhbInst?: LhbConfluence
   /** 板块强弱加分(无则不存在=板块数据不可用)。 */
   board?: BoardConfluence
+  /** 连续出现天数:含今天、回溯历史快照算出的连续入选交易日数(任意榜单口径,最小 1)。 */
+  appearStreak?: number
 }
 
 /** 回调二次启动候选(第三组):新高战法外的另一类形态,见 pullbackRules.classifyPullback。 */
@@ -57,6 +62,8 @@ export interface PullbackScreenerCandidate extends PullbackCandidate {
   name: string
   /** 龙虎榜加分(机构/游资,无则未上榜)。 */
   lhbInst?: LhbConfluence
+  /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
+  appearStreak?: number
 }
 
 /** 连续新高·分歧低吸候选(第四组):缩量十字星守MA5,纯OHLCV,见 divergenceRules.classifyHighDivergence。 */
@@ -67,6 +74,18 @@ export interface HighDivScreenerCandidate extends HighDivCandidate {
   turnoverRate?: number
   /** 龙虎榜加分(机构/游资,无则未上榜)。 */
   lhbInst?: LhbConfluence
+  /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
+  appearStreak?: number
+}
+
+/** 放量新高·资金驱动突破候选(第五组):MA5>MA21 + 持续放量 + 真·52周新高,见 volBreakoutRules.classifyVolBreakout。 */
+export interface VolBreakScreenerCandidate extends VolBreakCandidate {
+  code: string
+  name: string
+  /** 龙虎榜加分(机构/游资,无则未上榜)。 */
+  lhbInst?: LhbConfluence
+  /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
+  appearStreak?: number
 }
 
 export interface ScreenerRegime {
@@ -90,6 +109,7 @@ export interface ScreenerResult {
   watch: ScreenerCandidate[] // 临界观察:突破/扳机近失的「放量逼近·待确认」票
   pullback: PullbackScreenerCandidate[] // 第三组:回调二次启动/圆弧底反包
   highdiv: HighDivScreenerCandidate[] // 第四组:连续新高·缩量十字星·守MA5 分歧低吸(回测 0.19R)
+  volbreak: VolBreakScreenerCandidate[] // 第五组:放量新高·资金驱动突破(MA5>MA21+持续放量+真52周高,回测 0.27R/PF1.41)
   scanned: number // 新高战法初筛后入围(取K线)只数
   scannedPullback: number // 回调战法初筛(量比榜)入围只数
   universe: number // clist 全市场只数
@@ -207,15 +227,17 @@ async function confirmUnion(
   nh: (ScreenerCandidate & { liqAmount: number }) | null
   pb: PullbackScreenerCandidate | null
   hd: HighDivScreenerCandidate | null
+  vb: VolBreakScreenerCandidate | null
 }> {
   try {
     const { klines } = await fetchStockKline(u.p.code, 101, cfg.KLINE_COUNT)
-    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return { nh: null, pb: null, hd: null }
+    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return { nh: null, pb: null, hd: null, vb: null }
     stats.fetched++ // 取到足量K线(数据源健康度);match 与否是另一回事
     const bars = klines as Bar[]
     let nh: (ScreenerCandidate & { liqAmount: number }) | null = null
     let pb: PullbackScreenerCandidate | null = null
     let hd: HighDivScreenerCandidate | null = null
+    let vb: VolBreakScreenerCandidate | null = null
     if (u.nh) {
       const cand = classify(bars, cfg)
       if (cand) nh = { ...cand, code: u.p.code, name: u.p.name, score: 0, liqAmount: u.p.amount }
@@ -234,9 +256,14 @@ async function confirmUnion(
       const cand = classifyPullback(bars, PULLBACK)
       if (cand) pb = { ...cand, code: u.p.code, name: u.p.name }
     }
-    return { nh, pb, hd }
+    // 放量新高·资金驱动突破:对全并集都跑(纯 OHLCV·K线已取,无额外取数;回测 0.27R/PF1.41)。
+    // 不限于 nh 切片——其目标(刚从箱体突破、moderate 动量)常被 mom60 top600 截断(如兴发集团),
+    // 且回测本就在全样本上验证,跑全并集与回测口径一致。
+    const vbCand = classifyVolBreakout(bars, u.p.code, VOLBREAK)
+    if (vbCand) vb = { ...vbCand, code: u.p.code, name: u.p.name }
+    return { nh, pb, hd, vb }
   } catch {
-    return { nh: null, pb: null, hd: null }
+    return { nh: null, pb: null, hd: null, vb: null }
   }
 }
 
@@ -407,6 +434,10 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .map((r) => r.hd)
     .filter((x): x is HighDivScreenerCandidate => x != null)
     .sort((a, b) => b.tier - a.tier || b.score - a.score)
+  const volbreak = confirmed
+    .map((r) => r.vb)
+    .filter((x): x is VolBreakScreenerCandidate => x != null)
+    .sort((a, b) => b.tier - a.tier || b.score - a.score)
 
   // 龙虎榜机构/游资 + 板块强弱 加分(龙虎榜对新高+回调都挂,板块仅新高;best-effort)
   await enrichConfluence(enriched, pullback)
@@ -442,15 +473,28 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     watch,
     pullback,
     highdiv,
+    volbreak,
     scanned: nhSurvivors.length,
     scannedPullback: pbSurvivors.length,
     universe,
     truncated,
   }
 
+  // 连续出现天数:回溯历史快照(DB 优先,否则磁盘)给每只候选打 appearStreak。
+  // 放在落盘/入库之前 → 持久化的快照里也带 streak(重载即正确,幂等)。
+  try {
+    const all = [...breakout, ...trigger, ...watch, ...pullback, ...highdiv, ...volbreak]
+    const todayCodes = new Set(all.map((c) => c.code))
+    const priorSets = await loadRecentCodeSets(asof, 30)
+    const streaks = computeStreaks(todayCodes, priorSets)
+    for (const c of all) c.appearStreak = streaks.get(c.code) ?? 1
+  } catch (err) {
+    console.warn('[Screener] 连续出现天数计算失败(非致命):', err)
+  }
+
   // 完成日志:取K线成功率(fetched/union 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。
   console.log(
-    `[Screener] 完成:取K线 ${stats.fetched}/${union.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length} / 临界 ${watch.length} / 回调 ${pullback.length} / 新高分歧 ${highdiv.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+    `[Screener] 完成:取K线 ${stats.fetched}/${union.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length} / 临界 ${watch.length} / 回调 ${pullback.length} / 新高分歧 ${highdiv.length} / 放量新高 ${volbreak.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   )
 
   // 按日落盘(无DB也可回看,并作为重启/盘后/过0点的磁盘兜底);失败不影响返回。
@@ -464,6 +508,21 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
       writeFileSync(join(SCREENER_DIR, `${asof}.json`), JSON.stringify(result, null, 2))
     } catch (err) {
       console.warn('[Screener] 存档失败(非致命):', err)
+    }
+    // 同时存一份到数据库(best-effort,仅连库时;失败不影响返回)。
+    if (isDbReady()) {
+      try {
+        await upsertScreenerSnapshot({
+          asof: result.asof,
+          resultJson: JSON.stringify(result),
+          regimePhase: result.regime?.phase,
+          universe: result.universe,
+          scanned: result.scanned,
+          closed: result.closed,
+        })
+      } catch (dbErr) {
+        console.warn('[Screener] DB 快照写入失败(非致命):', dbErr)
+      }
     }
   } else {
     console.warn(`[Screener] 取K线成功率过低(${stats.fetched}/${union.length}),跳过存档以免覆盖好快照`)
@@ -497,6 +556,64 @@ function loadLatestArchive(): ScreenerResult | null {
   }
   const ref = pickLatestArchiveName(files)
   return ref ? loadArchive(ref.date) : null
+}
+
+/** 一份快照里五组候选的 code 并集(任意榜单口径;旧快照缺 watch/highdiv 时容错)。 */
+function unionCodes(r: ScreenerResult): Set<string> {
+  return new Set(
+    [
+      ...(r.breakout ?? []),
+      ...(r.trigger ?? []),
+      ...(r.watch ?? []),
+      ...(r.pullback ?? []),
+      ...(r.highdiv ?? []),
+      ...(r.volbreak ?? []),
+    ].map((c) => c.code),
+  )
+}
+
+/**
+ * 取最近 `limit` 份历史快照的 code 集合,按日期 DESC、不含 `excludeDate`(今天)。
+ * DB 优先(连库时),失败/未连则回退磁盘 docs/screener。供「连续出现天数」回溯用。
+ */
+async function loadRecentCodeSets(excludeDate: string, limit: number): Promise<Set<string>[]> {
+  if (isDbReady()) {
+    try {
+      const rows = await getRecentScreenerSnapshots(limit + 1) // +1 容下今天再过滤
+      const sets: Set<string>[] = []
+      for (const row of rows) {
+        if (row.asof === excludeDate) continue
+        try {
+          sets.push(unionCodes(JSON.parse(row.result_json) as ScreenerResult))
+        } catch {
+          // 损坏行跳过
+        }
+        if (sets.length >= limit) break
+      }
+      // DB 尚未攒到历史(刚启用)时落空 → 回退磁盘,沿用既有 docs/screener 历史。
+      if (sets.length > 0) return sets
+    } catch (err) {
+      console.warn('[Screener] DB 历史快照读取失败,回退磁盘:', err)
+    }
+  }
+
+  let files: string[]
+  try {
+    files = readdirSync(SCREENER_DIR)
+  } catch {
+    return []
+  }
+  const refs = files
+    .map(parseScreenerArchiveName)
+    .filter((x): x is NonNullable<ReturnType<typeof parseScreenerArchiveName>> => x != null && x.date !== excludeDate)
+    .sort((a, b) => (a.date < b.date ? 1 : -1)) // DESC
+    .slice(0, limit)
+  const sets: Set<string>[] = []
+  for (const ref of refs) {
+    const r = loadArchive(ref.date)
+    if (r) sets.push(unionCodes(r))
+  }
+  return sets
 }
 
 // 盘后长 TTL:收盘后(含周末/节假日)缓存/磁盘种子一直被服务、不自动重扫,

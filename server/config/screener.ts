@@ -369,3 +369,53 @@ export const PULLBACK = {
   STOP_MAX_PCT: 0,
   WEIGHTS: { fib: 0.25, arc: 0.25, cross: 0.2, vol: 0.2, rs: 0.1 },
 } as const satisfies PullbackConfig
+
+// 放量新高 / 资金驱动突破(纯 OHLCV,见 services/volBreakoutRules.classifyVolBreakout)。
+// 刚翻上来、中期均线未理顺(完整多头排列不过)的强势股,靠持续大幅放量突破中期平台、创新高
+// (如 600141 兴发集团:今日新高 + 连续 9-10 日放量 2-3×,但 MA60<MA120 被趋势模板否)。
+// 放宽到短期多头 MA5>MA21(上行)。⚠ 正期望与否待 VOLBREAK=1 回测裁决,过线(期望>0.08R、PF>1.3、样本足)才上线。
+export interface VolBreakConfig {
+  MIN_BARS: number
+  MA_FAST: number // 短均(5)
+  MA_SLOW: number // 长均(21)
+  RISE_LOOKBACK: number // MA21 上行比较的回看根数
+  BASE_LOOKBACK: number // 基准均量窗口(放量启动前)
+  VOL_WIN: number // 放量观察窗(根)
+  MIN_VOL_DAYS: number // 窗内达标天数下限(成交量 ≥ VOL_MULT×基准)
+  VOL_AVG_WIN: number // 均量验证窗
+  VOL_MULT: number // 放量倍数(今量/基准)
+  BREAKOUT_LOOKBACK: number // 突破中期平台:创近此根新高(排除今日)
+  REQUIRE_52W_NEAR: boolean // 收紧:要求贴近 52 周高(默认 false)
+  CLOSE_STRENGTH: number // 收盘强度下限 (收−低)/(高−低)
+  EXT_MAX_PCT: number // 收盘距 MA5 上限%(防垂直拉升后追高)
+  LIMITUP_MAX: number // 连板上限(软门槛,买不到的妖股剔除)
+  STOP_MAX_PCT: number // 止损封顶距进场%
+  R_MULT: number // 目标 = 进场 + R_MULT×风险
+  /** 打分因子权重(按权重和归一):放量天数 / 均量倍数 / 收盘强度 / MA21 斜率。 */
+  WEIGHTS: { burst: number; volRatio: number; closeStrong: number; slope: number }
+}
+
+// 回测校准(VOLBREAK=1,293只/2023-07~2026-06,HOLD=20):BREAKOUT_LOOKBACK 是关键杠杆——
+//   =120(中期平台)期望仅 0.02R/PF1.02(劣于突破基线 0.08R);=250(真·52周新高)期望 0.23R/
+//   PF1.36/胜率35.9%/n128/回撤10.3R(优于突破基线 2.9× 且超分歧 0.19R)。故 edge 在「资金驱动的
+//   真·52周新高突破(中期均线可未理顺)」,非中期平台突破。⚠ 单窗口、非完全单调(120 异常低),
+//   有过拟合风险;MIN_BARS=260 确保 250 日新高为真。一键回退:BREAKOUT_LOOKBACK 调回 120。
+export const VOLBREAK = {
+  MIN_BARS: 260,
+  MA_FAST: 5,
+  MA_SLOW: 21,
+  RISE_LOOKBACK: 10,
+  BASE_LOOKBACK: 60,
+  VOL_WIN: 12,
+  MIN_VOL_DAYS: 8,
+  VOL_AVG_WIN: 10,
+  VOL_MULT: 2,
+  BREAKOUT_LOOKBACK: 250,
+  REQUIRE_52W_NEAR: false,
+  CLOSE_STRENGTH: 0.5,
+  EXT_MAX_PCT: 15,
+  LIMITUP_MAX: 2,
+  STOP_MAX_PCT: 8,
+  R_MULT: 2.5,
+  WEIGHTS: { burst: 0.4, volRatio: 0.3, closeStrong: 0.2, slope: 0.1 },
+} as const satisfies VolBreakConfig

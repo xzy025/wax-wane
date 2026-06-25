@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars } from 'phosphor-react'
+import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars, Fire } from 'phosphor-react'
 import {
   useScreener,
   type ScreenerCandidate,
   type PullbackScreenerCandidate,
   type HighDivScreenerCandidate,
+  type VolBreakScreenerCandidate,
   type ScreenerRegime,
 } from '../hooks/useScreener'
 import type { Translation } from '../types'
@@ -74,6 +75,23 @@ function RegimeBanner({ r, t }: { r: ScreenerRegime; t: Translation }) {
   )
 }
 
+/** 卡片右上角:分数 + 左侧「连续出现天数」小药丸(N≥2 才显示)。三类卡片复用。 */
+function StreakScore({ c, k }: { c: { appearStreak?: number; score: number }; k: Translation['screener']['card'] }) {
+  const streak = c.appearStreak
+  return (
+    <div className="sc-card-right">
+      {streak != null && streak >= 2 && (
+        <span className={`sc-streak${streak >= 5 ? ' hot' : ''}`} title={k.appearStreakTip.replace('{n}', String(streak))}>
+          {k.appearStreak.replace('{n}', String(streak))}
+        </span>
+      )}
+      <span className="sc-score" title={k.score}>
+        {Math.round(c.score)}
+      </span>
+    </div>
+  )
+}
+
 function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; tag?: string; variant?: 'watch' }) {
   const k = t.screener.card
   const s = c.signals
@@ -92,9 +110,7 @@ function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; ta
           <span className="sc-card-code">{c.code}</span>
           {tag && <span className="sc-card-tag">{tag}</span>}
         </div>
-        <span className="sc-score" title={k.score}>
-          {Math.round(c.score)}
-        </span>
+        <StreakScore c={c} k={k} />
       </div>
 
       <div className="sc-card-metrics">
@@ -178,9 +194,7 @@ function PullbackCard({ c, t }: { c: PullbackScreenerCandidate; t: Translation }
           <span className="sc-card-name">{c.name}</span>
           <span className="sc-card-code">{c.code}</span>
         </div>
-        <span className="sc-score" title={ck.score}>
-          {Math.round(c.score)}
-        </span>
+        <StreakScore c={c} k={ck} />
       </div>
 
       <div className="sc-card-metrics">
@@ -258,9 +272,7 @@ function HighDivCard({ c, t }: { c: HighDivScreenerCandidate; t: Translation }) 
           <span className="sc-card-code">{c.code}</span>
           <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
         </div>
-        <span className="sc-score" title={k.score}>
-          {Math.round(c.score)}
-        </span>
+        <StreakScore c={c} k={k} />
       </div>
 
       <div className="sc-card-metrics">
@@ -334,10 +346,86 @@ function HighDivCard({ c, t }: { c: HighDivScreenerCandidate; t: Translation }) 
   )
 }
 
+/** 放量新高·资金驱动突破卡片(MA5>MA21 + 持续放量 + 真52周新高);含交易计划。 */
+function VolBreakCard({ c, t }: { c: VolBreakScreenerCandidate; t: Translation }) {
+  const k = t.screener.card
+  const vk = t.screener.vbCard
+  const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+          <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
+        </div>
+        <StreakScore c={c} k={k} />
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {vk.hi} / {k.hi52}
+          </span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.priorHigh)} / {c.dist52Pct.toFixed(1)}%
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {vk.burst} / {vk.avg}
+          </span>
+          <span className="sc-metric-value mono">
+            {c.volBurstDays}
+            {vk.days} / {c.volAvgRatio.toFixed(2)}x
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title={c.reason}>
+            {vk.buy} → {vk.target}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="positive-text">{fmtPrice(c.entry)}</span> → <span className="positive-text">{fmtPrice(c.target)}</span>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {vk.stop} · {vk.rr}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="negative-text">{fmtPrice(c.stop)}</span> · 1:{c.riskReward}
+          </span>
+        </div>
+      </div>
+
+      <div className="sc-watch-note">
+        {vk.plan}: {vk.pos} {c.positionHint}
+      </div>
+      {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+
+      <div className="sc-chips">
+        <span className="sc-chip ok">{vk.ma5ok}✓</span>
+        <span className="sc-chip hot">
+          {vk.burst} {c.volBurstDays}/{12}
+        </span>
+        <span className="sc-chip">
+          {vk.avg} {c.volAvgRatio.toFixed(2)}x
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv'>('newhigh')
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak'>('newhigh')
 
   return (
     <section className="view-stack">
@@ -345,7 +433,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
       <div className="panel-title themes-toolbar">
         <h2>
           <Crosshair size={18} weight="bold" style={{ verticalAlign: '-3px', marginRight: 6 }} />
-          {tab === 'newhigh' ? sc.title : tab === 'pullback' ? sc.titlePullback : sc.tabs.highDiv}
+          {tab === 'newhigh' ? sc.title : tab === 'pullback' ? sc.titlePullback : tab === 'highdiv' ? sc.tabs.highDiv : sc.tabs.volBreak}
         </h2>
         {(data || lastUpdated) && (
           <span className="themes-updated">
@@ -364,7 +452,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
           {loading ? sc.scanning : sc.scan}
         </button>
       </div>
-      <p className="themes-desc">{tab === 'newhigh' ? sc.desc : tab === 'pullback' ? sc.pbDesc : sc.hdDesc}</p>
+      <p className="themes-desc">{tab === 'newhigh' ? sc.desc : tab === 'pullback' ? sc.pbDesc : tab === 'highdiv' ? sc.hdDesc : sc.vbDesc}</p>
 
       {error && !data && <div className="alert-item danger">{sc.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{sc.scanning}</div>}
@@ -390,6 +478,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 onClick={() => setTab('highdiv')}
               >
                 {sc.tabs.highDiv} ({data.highdiv?.length ?? 0})
+              </button>
+              <button
+                className={`seg-btn${tab === 'volbreak' ? ' active' : ''}`}
+                onClick={() => setTab('volbreak')}
+              >
+                {sc.tabs.volBreak} ({data.volbreak?.length ?? 0})
               </button>
             </div>
           </div>
@@ -501,6 +595,26 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 <div className="sc-grid">
                   {(data.highdiv ?? []).map((c) => (
                     <HighDivCard key={`hd-${c.code}`} c={c} t={t} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'volbreak' && (
+            <>
+              <div className="sc-meta">
+                {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
+              </div>
+              <div className="sc-group-head">
+                <Fire size={16} weight="fill" /> {sc.groups.volbreak} ({data.volbreak?.length ?? 0})
+              </div>
+              {(data.volbreak?.length ?? 0) === 0 ? (
+                <div className="sc-empty">{sc.empty}</div>
+              ) : (
+                <div className="sc-grid">
+                  {(data.volbreak ?? []).map((c) => (
+                    <VolBreakCard key={`vb-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
               )}

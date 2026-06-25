@@ -22,10 +22,11 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from '../services/ashare'
-import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig } from '../config/screener'
+import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig } from '../config/screener'
 import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
 import { classifyPullback } from '../services/pullbackRules'
 import { classifyDivergence, classifyHighDivergence, type DivergenceGroup } from '../services/divergenceRules'
+import { classifyVolBreakout } from '../services/volBreakoutRules'
 import { boardStrengthAsOf } from '../services/rotationRules'
 import {
   buildLhbIndex,
@@ -59,6 +60,8 @@ const RUN_PYRAMID = process.env.PYRAMID === '1'
 const RUN_DIVERGENCE = process.env.DIVERGENCE === '1'
 // HIGHDIV: 连续新高·缩量十字星·守MA5 分歧低吸(纯OHLCV,可真回测;默认关;HIGHDIV=1 开启)
 const RUN_HIGHDIV = process.env.HIGHDIV === '1'
+// VOLBREAK: 放量新高·资金驱动突破(MA5>MA21 + 持续放量,纯OHLCV,可真回测;默认关;VOLBREAK=1 开启)
+const RUN_VOLBREAK = process.env.VOLBREAK === '1'
 const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
 const LHB_INST = process.env.INST !== '0' // 取机构专用席位净买(默认是;=0 仅全口径净买,更快)
 const LHB_CONC = Number(process.env.LHB_CONC) || 4 // 龙虎榜/板块取数并发(EM 限流,宜低)
@@ -233,6 +236,7 @@ interface Trade {
   regime?: MarketRegime // 信号日的大盘环境(动态目标位用)
   divGroup?: DivergenceGroup // 打板分歧组(lianban/pullback2),供分组聚合
   hdConsolDays?: number // 连续新高分歧:整理持续天数,供因子分桶验证
+  vbBurstDays?: number // 放量突破:近窗口放量达标天数,供因子分桶验证
 }
 
 /** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。 */
@@ -468,6 +472,32 @@ function simulateHighDiv(sb: StockBars, cfg: HighDivConfig, hold: number): Trade
     }
     const t = makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold))
     t.hdConsolDays = cand.consolDays
+    trades.push(t)
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 走查回测「放量新高·资金驱动突破」(纯 OHLCV);信号日收盘进场,stop/target 来自规则。 */
+function simulateVolBreak(sb: StockBars, cfg: VolBreakConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyVolBreakout(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const risk = cand.entry - cand.stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const t = makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold))
+    t.vbBurstDays = cand.volBurstDays
     trades.push(t)
     i = i + hold + 1 // 冷却:一仓在手不重叠
   }
@@ -879,6 +909,63 @@ async function main() {
       baselineExpectancyR: base.metrics.expectancyR,
       sweep: hdSweep,
       consolDaysBuckets: factorEval,
+    }
+  }
+
+  // VOLBREAK: 放量新高·资金驱动突破(MA5>MA21 + 持续放量,纯 OHLCV,现有缓存即可真回测)。
+  if (RUN_VOLBREAK) {
+    const HOLD_VB = 20
+    console.log(`\n========== 放量新高·资金驱动突破(MA5>MA21 + 持续放量,收盘进→rmult 撮合,HOLD=${HOLD_VB})==========`)
+    console.log('（纯 OHLCV·相对量比,不依赖成交额;对照突破基线 0.08R / 分歧 0.19R。通过线=期望明显正、PF>1.3、样本足)')
+    const all = data.flatMap((sb) => simulateVolBreak(sb, VOLBREAK, HOLD_VB))
+    const m = aggregate(all)
+    console.log(fmtMetrics('volbreak(基线cfg)', m))
+    console.log(`→ vs 突破基线 ${base.metrics.expectancyR}R · 期望差 ${r2(m.expectancyR - base.metrics.expectancyR)}R`)
+
+    // 阈值扫描:放量倍数 / 达标天数 / 突破窗口 / 目标 R。
+    console.log('\n---------- VOLBREAK 扫描 ----------')
+    const vbSweep: Array<Record<string, unknown>> = []
+    for (const VM of [1.8, 2, 2.5, 3]) {
+      const mm = aggregate(data.flatMap((sb) => simulateVolBreak(sb, { ...VOLBREAK, VOL_MULT: VM }, HOLD_VB)))
+      console.log(fmtMetrics(`VOL_MULT=${VM}`, mm))
+      vbSweep.push({ knob: 'VOL_MULT', value: VM, metrics: mm })
+    }
+    for (const MD of [6, 8, 10]) {
+      const mm = aggregate(data.flatMap((sb) => simulateVolBreak(sb, { ...VOLBREAK, MIN_VOL_DAYS: MD }, HOLD_VB)))
+      console.log(fmtMetrics(`MIN_VOL_DAYS=${MD}`, mm))
+      vbSweep.push({ knob: 'MIN_VOL_DAYS', value: MD, metrics: mm })
+    }
+    for (const BL of [60, 120, 250]) {
+      const mm = aggregate(data.flatMap((sb) => simulateVolBreak(sb, { ...VOLBREAK, BREAKOUT_LOOKBACK: BL }, HOLD_VB)))
+      console.log(fmtMetrics(`BREAKOUT_LOOKBACK=${BL}`, mm))
+      vbSweep.push({ knob: 'BREAKOUT_LOOKBACK', value: BL, metrics: mm })
+    }
+    for (const RM of [1.5, 2, 2.5, 3]) {
+      const mm = aggregate(data.flatMap((sb) => simulateVolBreak(sb, { ...VOLBREAK, R_MULT: RM }, HOLD_VB)))
+      console.log(fmtMetrics(`R_MULT=${RM}`, mm))
+      vbSweep.push({ knob: 'R_MULT', value: RM, metrics: mm })
+    }
+    // 因子验证:按窗内放量达标天数 volBurstDays 分桶。
+    console.log('\n---------- VOLBREAK 放量天数(volBurstDays)分桶 ----------')
+    const allBase = data.flatMap((sb) => simulateVolBreak(sb, VOLBREAK, HOLD_VB))
+    const buckets: Array<{ label: string; pick: (d: number) => boolean }> = [
+      { label: 'burst=8-9', pick: (d) => d >= 8 && d <= 9 },
+      { label: 'burst=10-11', pick: (d) => d >= 10 && d <= 11 },
+      { label: 'burst=12', pick: (d) => d >= 12 },
+    ]
+    const factorEval: Array<Record<string, unknown>> = []
+    for (const b of buckets) {
+      const mm = aggregate(allBase.filter((t) => b.pick(t.vbBurstDays ?? 0)))
+      console.log(fmtMetrics(b.label, mm))
+      factorEval.push({ bucket: b.label, metrics: mm })
+    }
+    out.volBreakEval = {
+      hold: HOLD_VB,
+      config: VOLBREAK,
+      metrics: m,
+      baselineExpectancyR: base.metrics.expectancyR,
+      sweep: vbSweep,
+      burstDaysBuckets: factorEval,
     }
   }
 

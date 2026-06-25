@@ -59,6 +59,7 @@ export interface ScreenerCandidate {
   signals: { trendOk: boolean; volDry: boolean; atrContract: boolean; breakoutVol: boolean; pattern: string }
   lhbInst?: LhbConfluence
   board?: BoardConfluence
+  appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
 }
 
 /** Mirror of server PullbackScreenerCandidate (回调二次启动/圆弧底反包). */
@@ -80,6 +81,7 @@ export interface PullbackScreenerCandidate {
   volSpikeRatio?: number // 今日量/均量(异常放量倍数,缺失=旧缓存快照)
   signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
   lhbInst?: LhbConfluence
+  appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
 }
 
 /** Mirror of server HighDivScreenerCandidate (连续新高·缩量十字星·守MA5 分歧低吸). */
@@ -112,6 +114,34 @@ export interface HighDivScreenerCandidate {
   reason: string
   riskNote?: string
   lhbInst?: LhbConfluence
+  appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+}
+
+/** Mirror of server VolBreakScreenerCandidate (放量新高·资金驱动突破). */
+export interface VolBreakScreenerCandidate {
+  group: 'volbreak'
+  code: string
+  name: string
+  price: number
+  changePct: number
+  ma5: number
+  ma21: number
+  baseVol: number // 放量启动前基准均量
+  volBurstDays: number // 近窗口放量达标天数
+  volAvgRatio: number // 近均量 / 基准
+  priorHigh: number // 被突破的 52 周前高
+  dist52Pct: number
+  entry: number
+  stop: number
+  target: number
+  riskReward: number
+  positionHint: string
+  tier: number
+  score: number
+  reason: string
+  riskNote?: string
+  lhbInst?: LhbConfluence
+  appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
 }
 
 export interface ScreenerRegime {
@@ -133,6 +163,7 @@ export interface ScreenerResult {
   watch?: ScreenerCandidate[] // 临界观察(可选,兼容旧缓存快照)
   pullback: PullbackScreenerCandidate[]
   highdiv?: HighDivScreenerCandidate[] // 第四组:连续新高分歧低吸(可选,兼容旧快照)
+  volbreak?: VolBreakScreenerCandidate[] // 第五组:放量新高·资金驱动突破(可选,兼容旧快照)
   scanned: number
   scannedPullback: number
   universe: number

@@ -1,7 +1,7 @@
 # Database Schema
 
-> **现状(as-built):** 系统实现于 **PostgreSQL + pgvector**,共 **8 张表**。
-> 唯一真相来源:`server/db/pgDatabase.ts`(6 张业务表)与 `server/graph/graphSchema.ts`(2 张图谱表)。
+> **现状(as-built):** 系统实现于 **PostgreSQL + pgvector**,共 **9 张表**。
+> 唯一真相来源:`server/db/pgDatabase.ts`(7 张业务表)与 `server/graph/graphSchema.ts`(2 张图谱表)。
 > 早期一份更规范化的 SQLite 设计草案保留在文末[附录](#附录原始设计草案未落地)作历史参考,但**未落地**。
 
 要点:
@@ -52,6 +52,12 @@ erDiagram
       text id PK
       text stock_code
       vector embedding "1536"
+    }
+    screener_snapshots {
+      text asof PK
+      text result_json
+      text regime_phase "attack|caution|retreat"
+      boolean closed
     }
     graph_nodes {
       text id PK
@@ -187,6 +193,24 @@ CREATE TABLE fundamental_reports (
   embedding VECTOR(1536)
 );
 CREATE INDEX idx_fundamental_stock ON fundamental_reports(stock_code);
+```
+
+---
+
+### screener_snapshots — 选股盘后快照
+
+整份 `ScreenerResult` 按上海交易日落库,一天一行(同日重扫 `ON CONFLICT (asof) DO UPDATE` 覆盖)。与磁盘 `docs/screener/YYYY-MM-DD.json` 并存(best-effort,`isDbReady()` 为假时仅落盘),并作为「连续出现天数」(`appearStreak`)回溯历史的来源。
+
+```sql
+CREATE TABLE screener_snapshots (
+  asof TEXT PRIMARY KEY,        -- 上海交易日 YYYY-MM-DD
+  result_json TEXT NOT NULL,    -- JSON.stringify(ScreenerResult)
+  regime_phase TEXT,            -- attack|caution|retreat
+  universe INTEGER,             -- clist 全市场只数
+  scanned INTEGER,              -- 新高初筛入围只数
+  closed BOOLEAN,               -- 是否盘后快照
+  created_at TEXT NOT NULL
+);
 ```
 
 ---

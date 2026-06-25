@@ -489,8 +489,8 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    tabs: { newHigh: string; pullback: string; highDiv: string }
-    groups: { breakout: string; trigger: string; watch: string; pullback: string; highdiv: string }
+    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string }
+    groups: { breakout: string; trigger: string; watch: string; pullback: string; highdiv: string; volbreak: string }
     hdDesc: string
     hdCard: {
       nh: string
@@ -523,6 +523,20 @@ export interface Translation {
       cross: string
       volSpike: string
     }
+    vbDesc: string
+    vbCard: {
+      hi: string
+      burst: string
+      avg: string
+      buy: string
+      target: string
+      stop: string
+      rr: string
+      plan: string
+      pos: string
+      days: string
+      ma5ok: string
+    }
     crossTitle: string
     crossDesc: string
     crossEmpty: string
@@ -553,6 +567,8 @@ export interface Translation {
       dist: string
       hi52: string
       score: string
+      appearStreak: string
+      appearStreakTip: string
       vol: string
       trend: string
       volDry: string
