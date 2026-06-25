@@ -489,8 +489,25 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    tabs: { newHigh: string; pullback: string }
-    groups: { breakout: string; trigger: string; watch: string; pullback: string }
+    tabs: { newHigh: string; pullback: string; highDiv: string }
+    groups: { breakout: string; trigger: string; watch: string; pullback: string; highdiv: string }
+    hdDesc: string
+    hdCard: {
+      nh: string
+      dry: string
+      doji: string
+      retrace: string
+      plan: string
+      buy: string
+      stop: string
+      target: string
+      pos: string
+      rr: string
+      path: string
+      ma5ok: string
+      w2s: string
+      wick: string
+    }
     pbDesc: string
     pbCard: {
       priorHigh: string

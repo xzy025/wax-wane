@@ -1,15 +1,17 @@
 // 新高战法选股器服务:全市场 clist 廉价初筛 → 入围者 K 线精筛(纯规则) →
 // RS 百分位 + 评分 + 分组 → 缓存 + 按日落盘 docs/screener/YYYY-MM-DD.json。
-import { mkdirSync, writeFileSync } from 'fs'
+import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { createCache, sessionTtl } from '../lib/cache'
+import { createCache, sessionTtl, isAShareSession } from '../lib/cache'
+import { pickLatestArchiveName, isScreenerResult } from './screenerArchive'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
-import { SCREENER as C, PULLBACK, type ScreenerConfig } from '../config/screener'
+import { SCREENER as C, PULLBACK, HIGHDIV, type ScreenerConfig } from '../config/screener'
 import { classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate, type MarketRegime } from './screenerRules'
 import { classifyPullback, type PullbackCandidate } from './pullbackRules'
+import { classifyHighDivergence, type HighDivCandidate } from './divergenceRules'
 import { boardStrengthAsOf } from './rotationRules'
 import { resolveStockIndustryBoard } from './rotation'
 import { fetchTradingDates } from './moneyflow'
@@ -57,6 +59,14 @@ export interface PullbackScreenerCandidate extends PullbackCandidate {
   lhbInst?: LhbConfluence
 }
 
+/** 连续新高·分歧低吸候选(第四组):缩量十字星守MA5,纯OHLCV,见 divergenceRules.classifyHighDivergence。 */
+export interface HighDivScreenerCandidate extends HighDivCandidate {
+  code: string
+  name: string
+  /** 龙虎榜加分(机构/游资,无则未上榜)。 */
+  lhbInst?: LhbConfluence
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -75,11 +85,16 @@ export interface ScreenerResult {
   regime: ScreenerRegime
   breakout: ScreenerCandidate[]
   trigger: ScreenerCandidate[]
+  watch: ScreenerCandidate[] // 临界观察:突破/扳机近失的「放量逼近·待确认」票
   pullback: PullbackScreenerCandidate[] // 第三组:回调二次启动/圆弧底反包
+  highdiv: HighDivScreenerCandidate[] // 第四组:连续新高·缩量十字星·守MA5 分歧低吸(回测 0.19R)
   scanned: number // 新高战法初筛后入围(取K线)只数
   scannedPullback: number // 回调战法初筛(量比榜)入围只数
   universe: number // clist 全市场只数
   truncated: boolean // 是否触及 MAX_KLINE 上限
+  savedAt?: string // 落盘时刻(ISO);随存档持久化
+  closed?: boolean // 扫描发生在收盘后(盘后快照);随存档持久化
+  fromCache?: boolean // 本次响应来自磁盘存档兜底(仅内存标记,不落盘)
 }
 
 const num = (v: unknown): number => {
@@ -184,25 +199,33 @@ async function confirmUnion(
   u: UnionStock,
   cfg: ScreenerConfig,
   stats: { fetched: number },
-): Promise<{ nh: (ScreenerCandidate & { liqAmount: number }) | null; pb: PullbackScreenerCandidate | null }> {
+): Promise<{
+  nh: (ScreenerCandidate & { liqAmount: number }) | null
+  pb: PullbackScreenerCandidate | null
+  hd: HighDivScreenerCandidate | null
+}> {
   try {
     const { klines } = await fetchStockKline(u.p.code, 101, cfg.KLINE_COUNT)
-    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return { nh: null, pb: null }
+    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return { nh: null, pb: null, hd: null }
     stats.fetched++ // 取到足量K线(数据源健康度);match 与否是另一回事
     const bars = klines as Bar[]
     let nh: (ScreenerCandidate & { liqAmount: number }) | null = null
     let pb: PullbackScreenerCandidate | null = null
+    let hd: HighDivScreenerCandidate | null = null
     if (u.nh) {
       const cand = classify(bars, cfg)
       if (cand) nh = { ...cand, code: u.p.code, name: u.p.name, score: 0, liqAmount: u.p.amount }
+      // 连续新高分歧低吸跑在同一份强势股 K 线上(纯 OHLCV,无额外取数)
+      const hdCand = classifyHighDivergence(bars, u.p.code, HIGHDIV)
+      if (hdCand) hd = { ...hdCand, code: u.p.code, name: u.p.name }
     }
     if (u.pb) {
       const cand = classifyPullback(bars, PULLBACK)
       if (cand) pb = { ...cand, code: u.p.code, name: u.p.name }
     }
-    return { nh, pb }
+    return { nh, pb, hd }
   } catch {
-    return { nh: null, pb: null }
+    return { nh: null, pb: null, hd: null }
   }
 }
 
@@ -369,6 +392,10 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .map((r) => r.pb)
     .filter((x): x is PullbackScreenerCandidate => x != null)
     .sort((a, b) => b.score - a.score)
+  const highdiv = confirmed
+    .map((r) => r.hd)
+    .filter((x): x is HighDivScreenerCandidate => x != null)
+    .sort((a, b) => b.tier - a.tier || b.score - a.score)
 
   // 龙虎榜机构/游资 + 板块强弱 加分(龙虎榜对新高+回调都挂,板块仅新高;best-effort)
   await enrichConfluence(enriched, pullback)
@@ -390,13 +417,20 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .filter((c) => c.group === 'trigger')
     .sort((a, b) => b.score - a.score)
     .map(strip)
+  const watch = enriched
+    .filter((c) => c.group === 'watch')
+    .sort((a, b) => b.score - a.score)
+    .slice(0, C.WATCH_MAX)
+    .map(strip)
 
   const result: ScreenerResult = {
     asof,
     regime,
     breakout,
     trigger,
+    watch,
     pullback,
+    highdiv,
     scanned: nhSurvivors.length,
     scannedPullback: pbSurvivors.length,
     universe,
@@ -405,24 +439,65 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
 
   // 完成日志:取K线成功率(fetched/union 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。
   console.log(
-    `[Screener] 完成:取K线 ${stats.fetched}/${union.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length} / 回调 ${pullback.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+    `[Screener] 完成:取K线 ${stats.fetched}/${union.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length} / 临界 ${watch.length} / 回调 ${pullback.length} / 新高分歧 ${highdiv.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   )
 
-  // 按日落盘(无DB也可回看);失败不影响返回
-  try {
-    mkdirSync(SCREENER_DIR, { recursive: true })
-    writeFileSync(join(SCREENER_DIR, `${asof}.json`), JSON.stringify(result, null, 2))
-  } catch (err) {
-    console.warn('[Screener] 存档失败(非致命):', err)
+  // 按日落盘(无DB也可回看,并作为重启/盘后/过0点的磁盘兜底);失败不影响返回。
+  // 防污染:取K线成功率过低(数据源限流/异常)时跳过,避免用残缺结果覆盖当日好快照。
+  const healthy = union.length === 0 || stats.fetched >= union.length * 0.6
+  if (healthy) {
+    result.savedAt = new Date().toISOString()
+    result.closed = !isAShareSession()
+    try {
+      mkdirSync(SCREENER_DIR, { recursive: true })
+      writeFileSync(join(SCREENER_DIR, `${asof}.json`), JSON.stringify(result, null, 2))
+    } catch (err) {
+      console.warn('[Screener] 存档失败(非致命):', err)
+    }
+  } else {
+    console.warn(`[Screener] 取K线成功率过低(${stats.fetched}/${union.length}),跳过存档以免覆盖好快照`)
   }
 
   return result
 }
 
+/** 读单个日期的存档(损坏/不合法→null)。 */
+function loadArchive(date: string): ScreenerResult | null {
+  try {
+    const raw = JSON.parse(readFileSync(join(SCREENER_DIR, `${date}.json`), 'utf8'))
+    if (!isScreenerResult(raw)) return null
+    return { ...raw, fromCache: true } // 标记本次来自磁盘兜底(仅内存)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * 读「最新存在的」盘后快照,作为内存缓存的冷启动种子 + 抓取失败兜底。
+ * 永远取目录里最新的 YYYY-MM-DD.json(周末/节假日自然回退到上一交易日存档),
+ * 不按 todayStr() 取键 —— 周六会返回周五的快照。
+ */
+function loadLatestArchive(): ScreenerResult | null {
+  let files: string[]
+  try {
+    files = readdirSync(SCREENER_DIR)
+  } catch {
+    return null // 目录还不存在
+  }
+  const ref = pickLatestArchiveName(files)
+  return ref ? loadArchive(ref.date) : null
+}
+
+// 盘后长 TTL:收盘后(含周末/节假日)缓存/磁盘种子一直被服务、不自动重扫,
+// 杜绝盘后反复打接口(防超限);手动「每日扫描」走 clearScreenerCache() 绕过。
+// 次日 09:30 开盘 → isAShareSession 翻 true → TTL 回到 2min,自动重新抓取(自愈)。
+const CLOSED_TTL = 12 * 3_600_000
+
 const screenerCache = createCache<ScreenerResult>({
   name: 'Screener',
-  ttl: sessionTtl(120_000, 30 * 60_000),
+  ttl: sessionTtl(120_000, CLOSED_TTL),
   fetcher: fetchScreenerFresh,
+  fallback: loadLatestArchive,
 })
 
 export function fetchScreener(): Promise<ScreenerResult> {

@@ -22,9 +22,10 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from '../services/ashare'
-import { SCREENER, PULLBACK, type ScreenerConfig, type PullbackConfig } from '../config/screener'
+import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig } from '../config/screener'
 import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
 import { classifyPullback } from '../services/pullbackRules'
+import { classifyDivergence, classifyHighDivergence, type DivergenceGroup } from '../services/divergenceRules'
 import { boardStrengthAsOf } from '../services/rotationRules'
 import {
   buildLhbIndex,
@@ -53,6 +54,11 @@ const RUN_COMBO = process.env.COMBO === '1'
 const RUN_PULLBACK = process.env.PULLBACK === '1'
 // PYRAMID: 金字塔+保本/跟踪 进场方案回测(½突破进→+1R加½移保本→+2R跌破MA跟踪,默认关;PYRAMID=1 开启)
 const RUN_PYRAMID = process.env.PYRAMID === '1'
+// DIVERGENCE: 打板·连板分歧低吸 战法回测(分歧日尾盘进→次日反包/破位,默认关;DIVERGENCE=1 开启)
+// ⚠ 缓存 bars 多为兜底源(无成交额)→ 弱转强用典型价(H+L+C)/3 代理,仅作方向性参考;真 VWAP 须新缓存。
+const RUN_DIVERGENCE = process.env.DIVERGENCE === '1'
+// HIGHDIV: 连续新高·缩量十字星·守MA5 分歧低吸(纯OHLCV,可真回测;默认关;HIGHDIV=1 开启)
+const RUN_HIGHDIV = process.env.HIGHDIV === '1'
 const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
 const LHB_INST = process.env.INST !== '0' // 取机构专用席位净买(默认是;=0 仅全口径净买,更快)
 const LHB_CONC = Number(process.env.LHB_CONC) || 4 // 龙虎榜/板块取数并发(EM 限流,宜低)
@@ -225,6 +231,7 @@ interface Trade {
   R: number
   bars: number // 持有交易日数
   regime?: MarketRegime // 信号日的大盘环境(动态目标位用)
+  divGroup?: DivergenceGroup // 打板分歧组(lianban/pullback2),供分组聚合
 }
 
 /** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。 */
@@ -405,6 +412,60 @@ function simulatePyramid(sb: StockBars, cfg: ScreenerConfig, hold = HOLD): Trade
       t.code = sb.code
       trades.push(t)
     }
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 打板·连板分歧低吸 走查:分歧日尾盘以收盘价进场(保守=最差填单;实盘可挂均价低吸),
+ *  止损=昨收下方破位、目标=次日反包冲今日涨停价,短持有撮合。⚠ 缓存无成交额时弱转强用典型价代理。 */
+function simulateDivergence(sb: StockBars, cfg: DivergenceConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyDivergence(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    // 实盘=尾盘挂均价低吸:有成交额时以当日均价(VWAP∈[low,high]故可成交)进场;无成交额回退收盘(保守)。
+    const entry = cand.vwap != null ? cand.vwap : bars[i].close
+    const risk = entry - cand.stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const t = makeTrade(code, bars, i, entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold))
+    t.divGroup = cand.group
+    trades.push(t)
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 连续新高·缩量十字星·守MA5 分歧低吸 走查:分歧日收盘进场(无脉冲故真实)、stop/target 来自候选,短持有撮合。
+ *  纯 OHLCV → 现有缓存即可真回测(不依赖成交额/VWAP)。 */
+function simulateHighDiv(sb: StockBars, cfg: HighDivConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyHighDivergence(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const risk = cand.entry - cand.stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    trades.push(makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold)))
     i = i + hold + 1 // 冷却:一仓在手不重叠
   }
   return trades
@@ -743,6 +804,57 @@ async function main() {
       pyramid: pyMetrics,
       deltaExpectancyR: r2(pyMetrics.expectancyR - base.metrics.expectancyR),
     }
+  }
+
+  // DIVERGENCE: 打板·连板分歧低吸(分歧日尾盘进→次日反包/破位)。⚠ 缓存无成交额→弱转强用典型价代理,仅方向性。
+  if (RUN_DIVERGENCE) {
+    const HOLD_DIV = 3
+    console.log(`\n========== 打板·连板分歧低吸(尾盘收盘进→次日反包/破位,HOLD=${HOLD_DIV})==========`)
+    console.log('⚠ 缓存 bars 无成交额 → 弱转强用典型价(H+L+C)/3 代理,真 VWAP 须新缓存;此处仅看 连板分歧→反包 的方向性赔率。')
+    const all = data.flatMap((sb) => simulateDivergence(sb, DIVERGENCE, HOLD_DIV))
+    const mAll = aggregate(all)
+    const lb = aggregate(all.filter((t) => t.divGroup === 'lianban'))
+    const pb2 = aggregate(all.filter((t) => t.divGroup === 'pullback2'))
+    console.log(fmtMetrics('divergence-all', mAll))
+    console.log(fmtMetrics('  连板分歧 lianban', lb))
+    console.log(fmtMetrics('  回调二波 pullback2', pb2))
+    out.divergenceEval = { hold: HOLD_DIV, proxyVWAP: true, all: mAll, lianban: lb, pullback2: pb2 }
+  }
+
+  // HIGHDIV: 连续新高·缩量十字星·守MA5 分歧低吸(纯 OHLCV,现有缓存即可真回测)。
+  if (RUN_HIGHDIV) {
+    const HOLD_HD = 20 // 持有到目标/止损(time-exit≈0,代表实盘"持到 rmult 目标或破位")
+    console.log(`\n========== 连续新高·分歧低吸(缩量十字星·守MA5,收盘进→rmult 撮合,HOLD=${HOLD_HD})==========`)
+    console.log('（纯 OHLCV,不依赖成交额;对照突破基线 0.08R。通过线=期望明显正、PF>1.3、样本足)')
+    const all = data.flatMap((sb) => simulateHighDiv(sb, HIGHDIV, HOLD_HD))
+    const m = aggregate(all)
+    console.log(fmtMetrics('highdiv(基线cfg)', m))
+    console.log(`→ vs 突破基线 ${base.metrics.expectancyR}R · 期望差 ${r2(m.expectancyR - base.metrics.expectancyR)}R`)
+
+    // 阈值/撮合扫描:找更优 R_MULT / STOP_MAX / HOLD(目标、止损宽度、持有期)。
+    console.log('\n---------- HIGHDIV 扫描 ----------')
+    const hdSweep: Array<Record<string, unknown>> = []
+    for (const RM of [1.5, 2, 2.5, 3]) {
+      const mm = aggregate(data.flatMap((sb) => simulateHighDiv(sb, { ...HIGHDIV, R_MULT: RM }, HOLD_HD)))
+      console.log(fmtMetrics(`R_MULT=${RM}`, mm))
+      hdSweep.push({ knob: 'R_MULT', value: RM, metrics: mm })
+    }
+    for (const SM of [3, 4, 5, 7]) {
+      const mm = aggregate(data.flatMap((sb) => simulateHighDiv(sb, { ...HIGHDIV, STOP_MAX: SM }, HOLD_HD)))
+      console.log(fmtMetrics(`STOP_MAX=${SM}`, mm))
+      hdSweep.push({ knob: 'STOP_MAX', value: SM, metrics: mm })
+    }
+    for (const H of [5, 10, 20, 30]) {
+      const mm = aggregate(data.flatMap((sb) => simulateHighDiv(sb, HIGHDIV, H)))
+      console.log(fmtMetrics(`HOLD=${H}`, mm))
+      hdSweep.push({ knob: 'HOLD', value: H, metrics: mm })
+    }
+    for (const DRY of [0.5, 0.6, 0.7, 0.8]) {
+      const mm = aggregate(data.flatMap((sb) => simulateHighDiv(sb, { ...HIGHDIV, DRY }, HOLD_HD)))
+      console.log(fmtMetrics(`DRY=${DRY}`, mm))
+      hdSweep.push({ knob: 'DRY', value: DRY, metrics: mm })
+    }
+    out.highDivEval = { hold: HOLD_HD, config: HIGHDIV, metrics: m, baselineExpectancyR: base.metrics.expectancyR, sweep: hdSweep }
   }
 
   mkdirSync(OUT_DIR, { recursive: true })

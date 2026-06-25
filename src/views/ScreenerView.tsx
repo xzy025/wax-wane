@@ -4,6 +4,7 @@ import {
   useScreener,
   type ScreenerCandidate,
   type PullbackScreenerCandidate,
+  type HighDivScreenerCandidate,
   type ScreenerRegime,
 } from '../hooks/useScreener'
 import type { Translation } from '../types'
@@ -244,10 +245,90 @@ function PullbackCard({ c, t }: { c: PullbackScreenerCandidate; t: Translation }
   )
 }
 
+/** 连续新高·分歧低吸卡片(缩量十字星守MA5);仿操盘卡片含交易计划。复用现有 sc-* 类,无新 CSS。 */
+function HighDivCard({ c, t }: { c: HighDivScreenerCandidate; t: Translation }) {
+  const k = t.screener.card
+  const hk = t.screener.hdCard
+  const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+          <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
+        </div>
+        <span className="sc-score" title={k.score}>
+          {Math.round(c.score)}
+        </span>
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {hk.nh} / {hk.retrace}
+          </span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.nhHigh)} / {c.retraceFromHigh.toFixed(1)}%
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {hk.dry} / {hk.doji}
+          </span>
+          <span className="sc-metric-value mono">
+            {c.dryRatio.toFixed(2)}x / {(c.bodyRatio * 100).toFixed(0)}%
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title={c.reason}>
+            {hk.buy} → {hk.target}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="positive-text">{fmtPrice(c.entry)}</span> → <span className="positive-text">{fmtPrice(c.target)}</span>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {hk.stop} · {hk.rr}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="negative-text">{fmtPrice(c.stop)}</span> · 1:{c.riskReward}
+          </span>
+        </div>
+      </div>
+
+      <div className="sc-watch-note">
+        {hk.plan}: {hk.pos} {c.positionHint}
+      </div>
+      <div className="sc-watch-note">
+        {hk.path}: {c.kPath}
+      </div>
+      {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+
+      <div className="sc-chips">
+        <span className="sc-chip ok">{hk.ma5ok}✓</span>
+        <span className="sc-chip">
+          {hk.dry} {c.dryRatio.toFixed(2)}x
+        </span>
+        {c.bodyRatio <= 0.2 && <span className="sc-chip">{hk.doji}≤20%</span>}
+        {c.upperHalf && <span className="sc-chip ok">{hk.w2s}✓</span>}
+        {c.lowerWick >= 0.3 && <span className="sc-chip">{hk.wick}</span>}
+      </div>
+    </div>
+  )
+}
+
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback'>('newhigh')
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv'>('newhigh')
 
   return (
     <section className="view-stack">
@@ -255,7 +336,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
       <div className="panel-title themes-toolbar">
         <h2>
           <Crosshair size={18} weight="bold" style={{ verticalAlign: '-3px', marginRight: 6 }} />
-          {tab === 'newhigh' ? sc.title : sc.titlePullback}
+          {tab === 'newhigh' ? sc.title : tab === 'pullback' ? sc.titlePullback : sc.tabs.highDiv}
         </h2>
         {(data || lastUpdated) && (
           <span className="themes-updated">
@@ -274,7 +355,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
           {loading ? sc.scanning : sc.scan}
         </button>
       </div>
-      <p className="themes-desc">{tab === 'newhigh' ? sc.desc : sc.pbDesc}</p>
+      <p className="themes-desc">{tab === 'newhigh' ? sc.desc : tab === 'pullback' ? sc.pbDesc : sc.hdDesc}</p>
 
       {error && !data && <div className="alert-item danger">{sc.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{sc.scanning}</div>}
@@ -294,6 +375,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 onClick={() => setTab('pullback')}
               >
                 {sc.tabs.pullback} ({data.pullback.length})
+              </button>
+              <button
+                className={`seg-btn${tab === 'highdiv' ? ' active' : ''}`}
+                onClick={() => setTab('highdiv')}
+              >
+                {sc.tabs.highDiv} ({data.highdiv?.length ?? 0})
               </button>
             </div>
           </div>
@@ -385,6 +472,26 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 <div className="sc-grid">
                   {data.pullback.map((c) => (
                     <PullbackCard key={`pb-${c.code}`} c={c} t={t} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'highdiv' && (
+            <>
+              <div className="sc-meta">
+                {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
+              </div>
+              <div className="sc-group-head">
+                <TrendUp size={16} weight="fill" /> {sc.groups.highdiv} ({data.highdiv?.length ?? 0})
+              </div>
+              {(data.highdiv?.length ?? 0) === 0 ? (
+                <div className="sc-empty">{sc.empty}</div>
+              ) : (
+                <div className="sc-grid">
+                  {(data.highdiv ?? []).map((c) => (
+                    <HighDivCard key={`hd-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
               )}

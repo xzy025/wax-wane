@@ -245,6 +245,98 @@ export interface PullbackConfig {
   WEIGHTS: { fib: number; arc: number; cross: number; vol: number; rs: number }
 }
 
+// ════════════════════════════════════════════════════════════════════════
+// 打板情绪·连板分歧低吸 战法(第四类形态,见 services/divergenceRules.ts)。
+// 抓「连板/连续新高 → 分歧日(触板未封/高振幅砸盘) → 没崩(收盘站当日均价=弱转强)」的低吸点。
+// 两组:① lianban 连板分歧(连板后首日分歧) ② pullback2 回调二波分歧(二次启动途中分歧确认)。
+// ⚠ 超短(T+1)赔率游戏,阈值初值待回测校准;主力净流入暂缺,用 连板+分歧+VWAP+量价 近似。
+// ════════════════════════════════════════════════════════════════════════
+export interface DivergenceConfig {
+  KLINE_COUNT: number
+  /** 判定所需最少 K 线根数(连板回看 + 二波回看)。 */
+  MIN_BARS: number
+  /** ① 连板分歧:今日之前的连板数下限(2=2连板后首日分歧)。 */
+  MIN_BOARDS: number
+  /** 分歧日振幅下限(%):未封板但振幅≥此值=多空分歧(触板未封也单独算分歧)。 */
+  AMP_DIVERGE: number
+  /** 没崩:收盘较当日最高回撤上限(%)。超过=尾盘跳水视为崩。 */
+  COLLAPSE_MAX: number
+  /** 没崩:当日跌幅下限保护(%),今日跌超此值视为走弱不取。 */
+  DOWN_MAX: number
+  /** 量比近似的均量窗口(交易日,不含今日)。 */
+  VOL_MA: number
+  /** 尾盘低吸区下沿:均价×(1−此%/100)。 */
+  BUY_BAND: number
+  /** 止损:昨收×(1−此%/100)下方(破位走人)。 */
+  STOP_BELOW: number
+  /** 换手率风险线(%):超过提示"换手过大抛压重"(有 turnoverRate 时)。 */
+  TURNOVER_HOT: number
+  /** ② 回调二波:二次启动涨停须落在最近 N 根内。 */
+  PB2_LOOKBACK: number
+  /** ② 回调二波:启动前需有过回调(距 PB2_HIGH_LOOKBACK 根高点回撤≥此比)。 */
+  PB2_RETRACE: number
+  PB2_HIGH_LOOKBACK: number
+  /** 评分权重(按权重和归一)。 */
+  WEIGHTS: { w2s: number; nocollapse: number; boards: number; vol: number }
+}
+
+export const DIVERGENCE = {
+  KLINE_COUNT: 120,
+  MIN_BARS: 70,
+  MIN_BOARDS: 2,
+  AMP_DIVERGE: 8,
+  COLLAPSE_MAX: 6,
+  DOWN_MAX: 6,
+  VOL_MA: 5,
+  BUY_BAND: 1.5,
+  STOP_BELOW: 3,
+  TURNOVER_HOT: 25,
+  PB2_LOOKBACK: 10,
+  PB2_RETRACE: 0.15,
+  PB2_HIGH_LOOKBACK: 60,
+  WEIGHTS: { w2s: 0.4, nocollapse: 0.25, boards: 0.2, vol: 0.15 },
+} as const satisfies DivergenceConfig
+
+// 连续新高·分歧低吸(纯 OHLCV,见 services/divergenceRules.classifyHighDivergence)。
+// 强势股连续新高后的「缩量十字星·守 MA5」洗盘日 = 低吸介入点。不依赖成交额/VWAP/分时,故可回测。
+// 回测校准(HIGHDIV=1,293只/2023-07~2026-06,持到目标):期望 0.19R、胜率 39.5%、PF 1.30、
+// 盈亏比 1.99、n=266 —— 全面优于突破基线 0.08R(2.4×)。最优旋钮:R_MULT=2、STOP_MAX=7、DRY 0.6~0.7。
+export interface HighDivConfig {
+  MIN_BARS: number
+  NH_LOOKBACK: number // 新高回看窗口(根)
+  NH_RECENT: number // 新高须在近 N 根内刷新
+  DRY: number // 缩量上限:今日量/昨量 ≤ 此值
+  DRY_FLOOR: number // 缩量下限:今日量/昨量 ≥ 此值(要有承接,非干涸)
+  DOJI: number // 十字星实体率上限 |收−开|/(高−低)
+  MIN_AMP: number // 分歧日振幅下限%(要有波动才算分歧)
+  DOWN: number // 当日跌幅下限保护%(跌超此值=走弱不取)
+  RETR: number // 距新高回撤上限%(深了是变盘非分歧)
+  STOP_MAX: number // 止损封顶距进场%
+  R_MULT: number // 目标 = 进场 + R_MULT×风险
+  EXHAUST_WICK: number // 创新高日上影/振幅 上限(超过疑似滞涨)
+  EXHAUST_VOL: number // 创新高日量/均量 上限(配合长上影=巨量出货,排除)
+  VOL_MA: number // 均量窗口
+  WEIGHTS: { lowerWick: number; ma5slope: number; tight: number }
+}
+
+export const HIGHDIV = {
+  MIN_BARS: 70,
+  NH_LOOKBACK: 60,
+  NH_RECENT: 3,
+  DRY: 0.7,
+  DRY_FLOOR: 0.3,
+  DOJI: 0.3,
+  MIN_AMP: 2,
+  DOWN: 5,
+  RETR: 8,
+  STOP_MAX: 7, // 回测校准:5→7 期望 0.12→0.14R、PF 1.19→1.23(更宽止损少被洗)
+  R_MULT: 2,
+  EXHAUST_WICK: 0.5,
+  EXHAUST_VOL: 3,
+  VOL_MA: 5,
+  WEIGHTS: { lowerWick: 0.4, ma5slope: 0.3, tight: 0.3 },
+} as const satisfies HighDivConfig
+
 export const PULLBACK = {
   KLINE_COUNT: 300,
   MA_LONG: 250,

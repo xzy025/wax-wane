@@ -82,6 +82,36 @@ export interface PullbackScreenerCandidate {
   lhbInst?: LhbConfluence
 }
 
+/** Mirror of server HighDivScreenerCandidate (连续新高·缩量十字星·守MA5 分歧低吸). */
+export interface HighDivScreenerCandidate {
+  group: 'highdiv'
+  code: string
+  name: string
+  price: number
+  changePct: number
+  nhHigh: number // 近期新高
+  retraceFromHigh: number // 距新高回撤%
+  dryRatio: number // 缩量倍数(今日量/昨量)
+  bodyRatio: number // 实体率(越小越像十字星)
+  amplitude: number
+  lowerWick: number // 下影/振幅
+  ma5: number
+  ma10: number
+  ma20: number
+  upperHalf: boolean // 收盘在振幅上半区(弱转强代理)
+  entry: number
+  stop: number
+  target: number
+  riskReward: number
+  positionHint: string
+  tier: number
+  score: number
+  kPath: string
+  reason: string
+  riskNote?: string
+  lhbInst?: LhbConfluence
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -100,6 +130,7 @@ export interface ScreenerResult {
   trigger: ScreenerCandidate[]
   watch?: ScreenerCandidate[] // 临界观察(可选,兼容旧缓存快照)
   pullback: PullbackScreenerCandidate[]
+  highdiv?: HighDivScreenerCandidate[] // 第四组:连续新高分歧低吸(可选,兼容旧快照)
   scanned: number
   scannedPullback: number
   universe: number

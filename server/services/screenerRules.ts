@@ -9,6 +9,9 @@ export interface Bar {
   high: number
   low: number
   volume: number
+  // 以下二者来自 EM 日线(已解析进 KlineBar,经 `as Bar[]` 透传);Tencent 兜底缺成交额。
+  turnover?: number // 成交额(元,EM f57);日内均价 VWAP=turnover/(volume×100手→股) 用,见 divergenceRules.dailyVWAP
+  amplitude?: number // 振幅%(EM f58);缺失时用 (高−低)/昨收 计算
 }
 
 export type ScreenerGroup = 'trigger' | 'breakout' | 'watch'
