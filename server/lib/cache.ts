@@ -44,6 +44,15 @@ export interface CacheOptions<T> {
   ttl: number | (() => number)
   /** Optional label for logging. */
   name?: string
+  /**
+   * Durable cold-start value (e.g. last on-disk snapshot). Used in two places:
+   *   1. Lazy seed — on the first get() when memory is empty, so a cold cache
+   *      can serve without any upstream call (survives restarts).
+   *   2. Error fallback — when a fetch throws and there's no in-memory value.
+   * Returns null when nothing durable is available. Seeded once; clear() does
+   * NOT re-arm the seed, so a forced refresh re-fetches instead of re-serving it.
+   */
+  fallback?: () => T | null
 }
 
 export interface Cache<T> {
@@ -57,11 +66,25 @@ export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
   let value: T | null = null
   let timestamp = 0
   let inflight: Promise<T> | null = null
+  let seeded = false
 
   const ttlMs = () => (typeof opts.ttl === 'function' ? opts.ttl() : opts.ttl)
 
   return {
     async get(): Promise<T> {
+      // Lazy cold-start seed from the durable fallback: lets a cold cache serve
+      // the last snapshot without any upstream call. Seeded as "fresh" so the
+      // TTL governs the next refresh (a long closed-TTL ⇒ no auto-rescan after
+      // close). Armed once — clear() won't re-seed, so a forced refresh fetches.
+      if (!seeded && value === null && opts.fallback) {
+        seeded = true
+        const seed = opts.fallback()
+        if (seed != null) {
+          value = seed
+          timestamp = Date.now()
+        }
+      }
+
       const now = Date.now()
       if (value !== null && now - timestamp < ttlMs()) {
         return value
@@ -83,6 +106,18 @@ export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
             }
             return value
           }
+          // No in-memory value: fall back to the durable snapshot (e.g. on-disk)
+          // so a cold cache + dead upstream (after midnight / rate-limited) still
+          // serves data instead of erroring.
+          const fb = opts.fallback?.()
+          if (fb != null) {
+            value = fb
+            timestamp = Date.now()
+            if (opts.name) {
+              console.warn(`[${opts.name}] fetch failed, serving disk fallback:`, err)
+            }
+            return fb
+          }
           throw err
         } finally {
           inflight = null
@@ -93,8 +128,14 @@ export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
     },
 
     clear() {
+      // A forced refresh (每日扫描) must re-fetch, not re-serve the on-disk seed,
+      // so disarm the lazy seed here too (covers the case where clear() lands
+      // before the first get() has seeded — e.g. right after a process restart).
+      // The disk fallback still applies on a fetch *error* (catch path), so a
+      // dead upstream after midnight is still covered.
       value = null
       timestamp = 0
+      seeded = true
     },
   }
 }

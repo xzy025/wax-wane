@@ -765,6 +765,16 @@ p {
   font-family: var(--font-mono);
   font-size: 0.8rem;
 }
+/* 盘后/重启从磁盘存档兜底时的「缓存」徽标 */
+.sc-cache-badge {
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--orange);
+  background: var(--orange-soft);
+}
 
 /* Clickable column header: inherits the table-head look, toggles sort on click. */
 .th-sort {
@@ -2018,6 +2028,10 @@ body {
 .sc-group-head svg {
   color: var(--blue);
 }
+/* 临界观察组:橙色图标,与突破(蓝)/扳机区分。 */
+.sc-group-head--watch svg {
+  color: var(--orange);
+}
 
 .sc-grid {
   display: grid;
@@ -2037,6 +2051,18 @@ body {
 }
 .sc-card:hover {
   border-color: var(--blue);
+}
+/* 临界观察卡:橙色边框(放量逼近/待确认,模糊的正确)。 */
+.sc-card--watch {
+  border-color: var(--orange);
+}
+.sc-card--watch:hover {
+  border-color: var(--orange);
+}
+.sc-watch-note {
+  font-size: 0.72rem;
+  color: var(--orange);
+  font-weight: 700;
 }
 .sc-card-top {
   display: flex;
@@ -2063,6 +2089,27 @@ body {
   font-weight: 850;
   font-size: 1.05rem;
   color: var(--blue);
+}
+/* 右上角:分数 + 左侧「连续出现天数」药丸 */
+.sc-card-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sc-streak {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--blue);
+  background: var(--blue-soft);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.sc-streak.hot {
+  color: var(--orange);
+  background: var(--orange-soft);
 }
 
 .sc-card-metrics {
