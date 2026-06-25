@@ -462,6 +462,9 @@ export default {
       ma5ok: 'Holds MA5',
       w2s: 'Weak→Strong',
       wick: 'Lower wick',
+      consol: 'Base',
+      turnover: 'Turnover',
+      days: 'd',
     },
     pbDesc: 'Leader deep-pulled-back (Fib retrace) → rounding bottom → volume restart: buy on the restart day, stop at the arc low, target the prior high. A swing setup — most exits are time-based; backtested expectancy ≈0.2R (beats the breakout baseline).',
     pbCard: {
