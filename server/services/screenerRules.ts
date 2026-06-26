@@ -53,7 +53,8 @@ export interface Candidate {
   volScore: number // 0-1,突破看放量、扳机看缩量
   breakoutVolRatio?: number // 今日量 / 50日均量(突破放量倍数,卡片「放量 1.8x」跟注)
   ma5?: number // 5日线(加仓参考:首次回踩不破即加仓,启发式未回测)
-  watchReason?: string // 临界观察组:距触发还差什么(放量逼近/已突破待确认)
+  firstBreakout?: boolean // 突破组:今日首次站上前高(昨收≤前高)→「今日首次突破」组;false=已突破仍在区内
+  watchReason?: string // 临界观察组:距触发还差什么(放量逼近/已突破待确认/收盘弱)
   distToPivotPct: number // 距 pivot(前高)%:>0 在下方(扳机)、<0 已在上方(突破/延伸)
   dist52Pct: number // 距 52 周高%:>0 在高点下方、≤0 创新高
   pivots: Pivots // 经典枢轴位 R1/R2/S1/S2
@@ -220,17 +221,20 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
   const breakoutVol = volSlow > 0 && today.volume >= C.BREAKOUT_VOL * volSlow
   const breakoutVolRatio = volSlow > 0 ? today.volume / volSlow : 0
   const range = today.high - today.low
-  const closeStrong = range > 0 ? (close - today.low) / range >= C.CLOSE_STRENGTH : true
+  const closeStrengthRatio = range > 0 ? (close - today.low) / range : 1
+  const closeStrong = closeStrengthRatio >= C.CLOSE_STRENGTH
   const notExtended = close <= pivot * (1 + C.EXT_MAX / 100)
 
   let group: ScreenerGroup | null = null
   let pattern = ''
   let volScore = 0
   let watchReason = ''
+  let firstBreakout = false
   if (close > pivot && breakoutVol && closeStrong && notExtended) {
     group = 'breakout'
     pattern = '放量突破前高'
     volScore = clamp01((today.volume / volSlow - 1) / 2)
+    firstBreakout = prev.close <= pivot // 今日首次站上前高(昨收≤前高)→「今日首次突破」组
   } else if (distToPivotPct > 0 && distToPivotPct <= C.NEAR_PCT && volDry) {
     // 扳机:强趋势 + 贴近 52 周高 + 量能未放大(尚未启动)。ATR 收敛作为加分项(coil),
     // 不做硬门槛——强势龙头逼近新高时波动通常偏大,强求收敛会让清单恒空。
@@ -238,8 +242,12 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     pattern = atrContract ? '缩量收敛·贴近前高' : '缩量蓄势·贴近前高'
     volScore = 1 - clamp01(volRatio)
   } else if (C.WATCH_ENABLE) {
-    // 临界观察:趋势完美但落在突破/扳机之间的「放量逼近」空档(追求模糊的正确)。
-    if (close > pivot && notExtended && closeStrong && breakoutVolRatio >= C.BREAKOUT_VOL - C.WATCH_VOL_MARGIN) {
+    // 临界观察:趋势完美但落在突破/扳机之间的「放量逼近/待确认」空档(追求模糊的正确)。
+    if (close > pivot && notExtended && breakoutVol && !closeStrong) {
+      group = 'watch' // 放量够但收盘弱=冲高回落(京东方型),待次日确认非假突破
+      pattern = '放量突破·收盘弱'
+      watchReason = `放量突破但收盘弱·收${Math.round(closeStrengthRatio * 100)}%(待次日确认)`
+    } else if (close > pivot && notExtended && closeStrong && breakoutVolRatio >= C.BREAKOUT_VOL - C.WATCH_VOL_MARGIN) {
       group = 'watch' // 已突破但放量差一丝(晶方型)
       pattern = '刚突破·待放量确认'
       watchReason = `已突破·放量${breakoutVolRatio.toFixed(2)}x 略欠确认线${C.BREAKOUT_VOL}x`
@@ -296,6 +304,7 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     volScore: r2(volScore),
     breakoutVolRatio: r2(breakoutVolRatio),
     ma5: r2(ma5),
+    firstBreakout,
     watchReason: watchReason || undefined,
     distToPivotPct: r2(distToPivotPct),
     dist52Pct: r2(tt.hi52 > 0 ? ((tt.hi52 - close) / tt.hi52) * 100 : 0),
@@ -339,14 +348,17 @@ export function finalScore(
   rsRank01: number,
   liq01: number,
   C: ScreenerConfig = SCREENER,
-  extra?: { lhb01?: number; board01?: number },
+  extra?: { lhb01?: number; board01?: number; ta01?: number },
 ): number {
   const w = C.WEIGHTS
   const lhbW = w.lhb ?? 0
   const boardW = w.board ?? 0
+  const taW = w.ta ?? 0
   const lhb01 = extra?.lhb01 ?? 0
   const board01 = extra?.board01 ?? 0
-  const wsum = w.rs + w.coil + w.trend + w.vol + w.liq + lhbW + boardW
+  // ta01 缺省按中性 0.5(技术分析组合无数据时不偏不倚,等价于不加分不减分)。
+  const ta01 = extra?.ta01 ?? 0.5
+  const wsum = w.rs + w.coil + w.trend + w.vol + w.liq + lhbW + boardW + taW
   return r2(
     (100 / wsum) *
       (w.rs * rsRank01 +
@@ -355,6 +367,7 @@ export function finalScore(
         w.vol * c.volScore +
         w.liq * liq01 +
         lhbW * lhb01 +
-        boardW * board01),
+        boardW * board01 +
+        taW * ta01),
   )
 }

@@ -22,11 +22,16 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from '../services/ashare'
-import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig } from '../config/screener'
+import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, PBREAK, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig, type FundResConfig, type BreakoutHoldConfig, type BreakoutPullbackConfig } from '../config/screener'
 import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
 import { classifyPullback } from '../services/pullbackRules'
 import { classifyDivergence, classifyHighDivergence, type DivergenceGroup } from '../services/divergenceRules'
 import { classifyVolBreakout } from '../services/volBreakoutRules'
+import { classifyFundResonance } from '../services/fundResonanceRules'
+import { classifyBreakoutHold } from '../services/breakoutHoldRules'
+import { classifyBreakoutPullback } from '../services/breakoutPullbackRules'
+import { technicalCombo } from '../services/technicalScore'
+import { fetchOrgSurveyHistory, countOrgsInRange, type SurveyEvent } from '../services/orgSurvey'
 import { boardStrengthAsOf } from '../services/rotationRules'
 import {
   buildLhbIndex,
@@ -62,6 +67,15 @@ const RUN_DIVERGENCE = process.env.DIVERGENCE === '1'
 const RUN_HIGHDIV = process.env.HIGHDIV === '1'
 // VOLBREAK: 放量新高·资金驱动突破(MA5>MA21 + 持续放量,纯OHLCV,可真回测;默认关;VOLBREAK=1 开启)
 const RUN_VOLBREAK = process.env.VOLBREAK === '1'
+// FUNDRES: 资金流共振·机构调研 可回测子集(放量+短期多头+机构近N日调研;需取调研历史,默认关;FUNDRES=1 开启)
+const RUN_FUNDRES = process.env.FUNDRES === '1'
+const SURVEY_CONC = Number(process.env.SURVEY_CONC) || 4 // 调研历史取数并发(EM 限流,宜低)
+// BHOLD: 突破整理·延续(放量大阳过前高 + 1~2根十字星整理 + 高低点双抬,纯OHLCV,可真回测;默认关;BHOLD=1 开启)
+const RUN_BHOLD = process.env.BHOLD === '1'
+// PBREAK: 突破次日回踩(放量突破前高→守住→今日回踩收站MA5,纯OHLCV,可真回测;默认关;PBREAK=1 开启)
+const RUN_PBREAK = process.env.PBREAK === '1'
+// TA: 技术分析组合(Wyckoff+道氏+AlBrooks)因子分桶检验(把现有战法成交按 TA bias/distribution 分桶;默认关;TA=1 开启)
+const RUN_TA = process.env.TA === '1'
 const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
 const LHB_INST = process.env.INST !== '0' // 取机构专用席位净买(默认是;=0 仅全口径净买,更快)
 const LHB_CONC = Number(process.env.LHB_CONC) || 4 // 龙虎榜/板块取数并发(EM 限流,宜低)
@@ -237,6 +251,11 @@ interface Trade {
   divGroup?: DivergenceGroup // 打板分歧组(lianban/pullback2),供分组聚合
   hdConsolDays?: number // 连续新高分歧:整理持续天数,供因子分桶验证
   vbBurstDays?: number // 放量突破:近窗口放量达标天数,供因子分桶验证
+  frSurveyOrgs?: number // 资金流共振:信号日前 SURVEY_LOOKBACK 日内调研机构家数,供因子分桶验证
+  bhConsolDays?: number // 突破整理:整理小K线根数,供因子分桶验证
+  bpDaysSinceBreak?: number // 突破次日回踩:突破日距回踩日的交易日数,供因子分桶验证
+  taBias?: 'demand' | 'supply' | 'neutral' // 技术分析组合:信号日 TA bias,供因子分桶
+  taDist?: boolean // 技术分析组合:信号日是否强派发(distribution)
 }
 
 /** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。 */
@@ -504,6 +523,222 @@ function simulateVolBreak(sb: StockBars, cfg: VolBreakConfig, hold: number): Tra
   return trades
 }
 
+/** 走查回测「突破整理·延续」(纯 OHLCV);信号日(整理日)收盘进场,stop/target 来自规则。 */
+function simulateBreakoutHold(sb: StockBars, cfg: BreakoutHoldConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyBreakoutHold(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const risk = cand.entry - cand.stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const t = makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold))
+    t.bhConsolDays = cand.consolDays
+    trades.push(t)
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 走查回测「突破整理·延续」**确认入场版**:信号日识别 setup,其后 confirmWin 日内突破整理高点 trigger 才介入
+ *  (旗形突破确认,跳过整理日收盘介入被洗的 65% 假启动);若先跌破整理低点则放弃。entry=max(trigger, 当日开)。 */
+function simulateBreakoutHoldConfirm(sb: StockBars, cfg: BreakoutHoldConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const confirmWin = cfg.CONFIRM_WINDOW
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyBreakoutHold(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    // 确认:其后 confirmWin 日内某日 high≥trigger 即介入;若先跌破整理低点则作废。
+    const end = Math.min(i + confirmWin, len - 1)
+    let entryIdx = -1
+    let entry = 0
+    for (let j = i + 1; j <= end; j++) {
+      if (bars[j].low < cand.consolLow) break // 整理结构破位,放弃
+      if (bars[j].high >= cand.trigger) {
+        entry = Math.max(cand.trigger, bars[j].open) // 跳空高开则按开盘
+        entryIdx = j
+        break
+      }
+    }
+    if (entryIdx < 0) {
+      i++ // 未确认,继续找下一个 setup
+      continue
+    }
+    const stop = Math.max(cand.consolLow * 0.997, entry * (1 - cfg.STOP_MAX_PCT / 100))
+    const risk = entry - stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const target = entry + cfg.R_MULT * risk
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold))
+    t.bhConsolDays = cand.consolDays
+    trades.push(t)
+    i = entryIdx + hold + 1 // 冷却从实际入场日起
+  }
+  return trades
+}
+
+/** 走查回测「突破次日回踩」(纯 OHLCV);回踩日收盘进场,stop/target 来自规则。 */
+function simulateBreakoutPullback(sb: StockBars, cfg: BreakoutPullbackConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyBreakoutPullback(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const risk = cand.entry - cand.stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const t = makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold))
+    t.bpDaysSinceBreak = cand.daysSinceBreak
+    trades.push(t)
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 走查回测「突破次日回踩」**确认入场版**:回踩日识别 setup,其后 CONFIRM_WINDOW 日内突破回踩日高点才介入
+ *  (回踩企稳后的突破确认);若先跌破回踩日低点则放弃。entry=max(回踩日高, 当日开)。 */
+function simulateBreakoutPullbackConfirm(sb: StockBars, cfg: BreakoutPullbackConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const confirmWin = cfg.CONFIRM_WINDOW
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyBreakoutPullback(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const trigger = bars[i].high // 回踩日高点 = 企稳突破确认位
+    const structLow = Math.min(bars[i].low, cand.ma5)
+    const end = Math.min(i + confirmWin, len - 1)
+    let entryIdx = -1
+    let entry = 0
+    for (let j = i + 1; j <= end; j++) {
+      if (bars[j].low < structLow) break // 回踩低破位,放弃
+      if (bars[j].high >= trigger) {
+        entry = Math.max(trigger, bars[j].open)
+        entryIdx = j
+        break
+      }
+    }
+    if (entryIdx < 0) {
+      i++
+      continue
+    }
+    const stop = Math.max(structLow * 0.997, entry * (1 - cfg.STOP_MAX_PCT / 100))
+    const risk = entry - stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const target = entry + cfg.R_MULT * risk
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold))
+    t.bpDaysSinceBreak = cand.daysSinceBreak
+    trades.push(t)
+    i = entryIdx + hold + 1
+  }
+  return trades
+}
+
+/** 走查回测「资金流共振·机构调研」可回测子集;信号日收盘进场,调研家数按信号日窗口实时算(零前视)。
+ *  surveyEvents=该股调研全史(date/org);止损/目标来自规则,短持有撮合。 */
+function simulateFundResonance(sb: StockBars, surveyEvents: SurveyEvent[], cfg: FundResConfig, hold: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    // 信号日(含)前 SURVEY_LOOKBACK 个交易日的窗口 → distinct 机构家数(只用 ≤信号日的调研,零前视)
+    const startDate = bars[Math.max(0, i - cfg.SURVEY_LOOKBACK)].date
+    const surveyOrgs = countOrgsInRange(surveyEvents, startDate, bars[i].date)
+    const cand = classifyFundResonance(bars.slice(0, i + 1), code, surveyOrgs, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const risk = cand.entry - cand.stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const t = makeTrade(code, bars, i, cand.entry, cand.stop, cand.target, risk, simForward(bars, i, cand.stop, cand.target, hold))
+    t.frSurveyOrgs = surveyOrgs
+    trades.push(t)
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 调研历史磁盘缓存(按 SAMPLE+KLINE;CACHE=0 不读)。返回 code → 调研事件全史(date/org)。 */
+async function loadSurveyHistory(data: StockBars[], fromDate: string): Promise<Map<string, SurveyEvent[]>> {
+  const file = join(OUT_DIR, `.survey-${SAMPLE}-${KLINE}.json`)
+  if (USE_CACHE && existsSync(file)) {
+    try {
+      const obj = JSON.parse(readFileSync(file, 'utf8')) as Record<string, SurveyEvent[]>
+      const m = new Map(Object.entries(obj))
+      if (m.size) {
+        console.log(`[FundRes] 复用缓存调研历史 ${m.size} 只 (${file};CACHE=0 强制重取)`)
+        return m
+      }
+    } catch {
+      /* 损坏重取 */
+    }
+  }
+  console.log(`[FundRes] 取 ${data.length} 只调研历史(fromDate=${fromDate},并发 ${SURVEY_CONC})...`)
+  let done = 0
+  const lists = await mapLimit(data, SURVEY_CONC, async (sb) => {
+    try {
+      const ev = await fetchOrgSurveyHistory(sb.code, fromDate)
+      done++
+      if (done % 50 === 0) console.log(`[FundRes] 调研取数 ${done}/${data.length}`)
+      return ev
+    } catch {
+      done++
+      return [] as SurveyEvent[]
+    }
+  })
+  const m = new Map<string, SurveyEvent[]>()
+  data.forEach((sb, i) => m.set(sb.code, lists[i] ?? []))
+  const withData = [...m.values()].filter((v) => v.length > 0).length
+  try {
+    mkdirSync(OUT_DIR, { recursive: true })
+    writeFileSync(file, JSON.stringify(Object.fromEntries(m)))
+  } catch {
+    /* 缓存写失败非致命 */
+  }
+  console.log(`[FundRes] 调研历史就绪:${withData}/${data.length} 只有调研记录`)
+  return m
+}
+
 // ── 指标聚合 ──────────────────────────────────────────────────────────
 interface Metrics {
   n: number
@@ -593,6 +828,58 @@ function fmtMetrics(label: string, m: Metrics): string {
     `平均收益 ${String(m.avgRetPct).padStart(6)}%  最大回撤 ${String(m.maxDDR).padStart(6)}R  ` +
     `[目标 ${m.targetRate}% / 止损 ${m.stopRate}% / 时间 ${m.timeRate}%]`
   )
+}
+
+// ── 技术分析组合(TA)因子分桶检验 ─────────────────────────────────────
+// 把已回测战法(breakout/highdiv/volbreak)的历史成交,按信号日 technicalCombo 的 bias / distribution 分桶,
+// 看「供给 bias / distribution=是」是否跑输 → 判断 TA 因子有无区分度(决定接线权重/惩罚)。
+function evaluateTechnicalFactor(data: StockBars[]): {
+  overall: Metrics
+  byBias: Record<string, Metrics>
+  byDist: { dist: Metrics; nonDist: Metrics }
+} {
+  const tagged: Trade[] = []
+  const tag = (t: Trade, slice: Bar[], code: string) => {
+    const ta = technicalCombo(slice, code)
+    t.taBias = ta.bias
+    t.taDist = ta.distribution
+    tagged.push(t)
+  }
+  for (const sb of data) {
+    const { bars, code } = sb
+    const len = bars.length
+    // breakout(新高战法)
+    let i = SCREENER.MA_LONG + SCREENER.MA_LONG_RISE_LOOKBACK
+    while (i <= len - 2) {
+      const slice = bars.slice(0, i + 1)
+      const cand = classify(slice, SCREENER)
+      if (cand && cand.group === 'breakout') {
+        const risk = bars[i].close - cand.stopLoss
+        if (risk > 0) tag(makeTrade(code, bars, i, bars[i].close, cand.stopLoss, cand.target, risk, simForward(bars, i, cand.stopLoss, cand.target, HOLD)), slice, code)
+        i += HOLD + 1
+      } else i++
+    }
+    // highdiv / volbreak(持有 20)
+    for (const kind of ['hd', 'vb'] as const) {
+      let j = kind === 'hd' ? HIGHDIV.MIN_BARS : VOLBREAK.MIN_BARS
+      while (j <= len - 2) {
+        const slice = bars.slice(0, j + 1)
+        const cand = kind === 'hd' ? classifyHighDivergence(slice, code, HIGHDIV) : classifyVolBreakout(slice, code, VOLBREAK)
+        if (cand) {
+          const risk = cand.entry - cand.stop
+          if (risk > 0) tag(makeTrade(code, bars, j, cand.entry, cand.stop, cand.target, risk, simForward(bars, j, cand.stop, cand.target, 20)), slice, code)
+          j += 20 + 1
+        } else j++
+      }
+    }
+  }
+  const byBias: Record<string, Metrics> = {}
+  for (const b of ['demand', 'neutral', 'supply']) byBias[b] = aggregate(tagged.filter((t) => t.taBias === b))
+  return {
+    overall: aggregate(tagged),
+    byBias,
+    byDist: { dist: aggregate(tagged.filter((t) => t.taDist)), nonDist: aggregate(tagged.filter((t) => !t.taDist)) },
+  }
 }
 
 // ── 主流程 ────────────────────────────────────────────────────────────
@@ -967,6 +1254,230 @@ async function main() {
       sweep: vbSweep,
       burstDaysBuckets: factorEval,
     }
+  }
+
+  // FUNDRES: 资金流共振·机构调研 可回测子集(放量+短期多头+机构近N日调研)。需取调研历史(FUNDRES=1 开启)。
+  if (RUN_FUNDRES) {
+    const HOLD_FR = FUNDRES.HOLD // 持股≈3日(time-exit 捕捉"持股平均三天")
+    console.log(`\n========== 资金流共振·机构调研(放量+短期多头+机构调研,收盘进→${HOLD_FR}日撮合)==========`)
+    console.log('（机构调研历史可回溯;主力净流入真因子无免费历史→只在实盘 live 跑。对照突破基线 0.08R / 分歧 0.19R。通过线=期望明显正、PF>1.3、样本足)')
+    const survey = await loadSurveyHistory(data, dateMin)
+    const evOf = (code: string) => survey.get(code) ?? []
+    const all = data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), FUNDRES, HOLD_FR))
+    const m = aggregate(all)
+    console.log(fmtMetrics('fundres(基线cfg)', m))
+    console.log(`→ vs 突破基线 ${base.metrics.expectancyR}R · 期望差 ${r2(m.expectancyR - base.metrics.expectancyR)}R`)
+
+    // 关键对照:有无"机构调研"要求 —— 量化调研事件因子的增量(SURVEY_MIN_ORGS=0 = 纯放量强势)。
+    const noSurvey = aggregate(data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), { ...FUNDRES, SURVEY_MIN_ORGS: 0 }, HOLD_FR)))
+    console.log(fmtMetrics('  └ SURVEY_MIN_ORGS=0(纯放量·无调研要求)', noSurvey))
+
+    // 阈值扫描
+    console.log('\n---------- FUNDRES 扫描 ----------')
+    const frSweep: Array<Record<string, unknown>> = []
+    for (const SO of [0, 1, 2, 3]) {
+      const mm = aggregate(data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), { ...FUNDRES, SURVEY_MIN_ORGS: SO }, HOLD_FR)))
+      console.log(fmtMetrics(`SURVEY_MIN_ORGS=${SO}`, mm))
+      frSweep.push({ knob: 'SURVEY_MIN_ORGS', value: SO, metrics: mm })
+    }
+    for (const SL of [5, 10, 20, 30]) {
+      const mm = aggregate(data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), { ...FUNDRES, SURVEY_LOOKBACK: SL }, HOLD_FR)))
+      console.log(fmtMetrics(`SURVEY_LOOKBACK=${SL}`, mm))
+      frSweep.push({ knob: 'SURVEY_LOOKBACK', value: SL, metrics: mm })
+    }
+    for (const VM of [1.5, 1.8, 2.2, 2.6]) {
+      const mm = aggregate(data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), { ...FUNDRES, VOL_MULT: VM }, HOLD_FR)))
+      console.log(fmtMetrics(`VOL_MULT=${VM}`, mm))
+      frSweep.push({ knob: 'VOL_MULT', value: VM, metrics: mm })
+    }
+    for (const RM of [1.5, 2, 2.5, 3]) {
+      const mm = aggregate(data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), { ...FUNDRES, R_MULT: RM }, HOLD_FR)))
+      console.log(fmtMetrics(`R_MULT=${RM}`, mm))
+      frSweep.push({ knob: 'R_MULT', value: RM, metrics: mm })
+    }
+    for (const H of [2, 3, 5, 10]) {
+      const mm = aggregate(data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), FUNDRES, H)))
+      console.log(fmtMetrics(`HOLD=${H}`, mm))
+      frSweep.push({ knob: 'HOLD', value: H, metrics: mm })
+    }
+    for (const GU of [false, true]) {
+      const mm = aggregate(data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), { ...FUNDRES, REQUIRE_GAP_UP: GU }, HOLD_FR)))
+      console.log(fmtMetrics(`REQUIRE_GAP_UP=${GU}`, mm))
+      frSweep.push({ knob: 'REQUIRE_GAP_UP', value: GU ? 1 : 0, metrics: mm })
+    }
+
+    // 因子验证:按调研机构家数分桶(SURVEY_MIN_ORGS=0 全样本),确认"调研越多→期望越高"是否成立。
+    console.log('\n---------- FUNDRES 调研家数(surveyOrgs)分桶 ----------')
+    const allNoReq = data.flatMap((sb) => simulateFundResonance(sb, evOf(sb.code), { ...FUNDRES, SURVEY_MIN_ORGS: 0 }, HOLD_FR))
+    const buckets: Array<{ label: string; pick: (n: number) => boolean }> = [
+      { label: 'orgs=0', pick: (n) => n === 0 },
+      { label: 'orgs=1-2', pick: (n) => n >= 1 && n <= 2 },
+      { label: 'orgs=3-5', pick: (n) => n >= 3 && n <= 5 },
+      { label: 'orgs>=6', pick: (n) => n >= 6 },
+    ]
+    const factorEval: Array<Record<string, unknown>> = []
+    for (const b of buckets) {
+      const mm = aggregate(allNoReq.filter((t) => b.pick(t.frSurveyOrgs ?? 0)))
+      console.log(fmtMetrics(b.label, mm))
+      factorEval.push({ bucket: b.label, metrics: mm })
+    }
+    out.fundResEval = {
+      hold: HOLD_FR,
+      config: FUNDRES,
+      metrics: m,
+      noSurveyMetrics: noSurvey,
+      baselineExpectancyR: base.metrics.expectancyR,
+      sweep: frSweep,
+      surveyOrgsBuckets: factorEval,
+    }
+  }
+
+  // BHOLD: 突破整理·延续(放量大阳过前高 + 1~2根十字星整理 + 高低点双抬,纯 OHLCV,现有缓存即可真回测)。
+  if (RUN_BHOLD) {
+    const HOLD_BH = Number(process.env.HOLD_BH) || 10
+    console.log(`\n========== 突破整理·延续(放量大阳过前高 + 十字星整理 + 高低点双抬,整理日收盘进→${HOLD_BH}日撮合)==========`)
+    console.log('（纯 OHLCV,对照突破基线 0.08R / 分歧 0.19R / 放量新高 0.27R。通过线=期望明显正、PF>1.3、样本足)')
+    // 入场对比:整理日收盘介入(close) vs 次日突破整理高点确认介入(confirm)。
+    const mClose = aggregate(data.flatMap((sb) => simulateBreakoutHold(sb, BHOLD, HOLD_BH)))
+    const m = aggregate(data.flatMap((sb) => simulateBreakoutHoldConfirm(sb, BHOLD, HOLD_BH)))
+    console.log(fmtMetrics('bhold-close(整理日收盘进)', mClose))
+    console.log(fmtMetrics('bhold-confirm(次日突破确认进)', m))
+    console.log(`→ confirm vs close 期望差 ${r2(m.expectancyR - mClose.expectancyR)}R · vs 突破基线 ${base.metrics.expectancyR}R`)
+
+    // 阈值扫描(全部 confirm 入场):放量倍数 / 大阳实体 / 整理小实体上限 / 突破回看 / 确认窗 / 目标 R / 持有 / 高低点开关。
+    console.log('\n---------- BHOLD 扫描(confirm 入场)----------')
+    const bhSweep: Array<Record<string, unknown>> = []
+    const sweepConfirm = (over: Partial<BreakoutHoldConfig>, hold = HOLD_BH) =>
+      aggregate(data.flatMap((sb) => simulateBreakoutHoldConfirm(sb, { ...BHOLD, ...over }, hold)))
+    for (const PV of [1.5, 1.8, 2.2, 2.6]) {
+      const mm = sweepConfirm({ POLE_VOL_MULT: PV })
+      console.log(fmtMetrics(`POLE_VOL_MULT=${PV}`, mm))
+      bhSweep.push({ knob: 'POLE_VOL_MULT', value: PV, metrics: mm })
+    }
+    for (const PB of [4, 5, 6, 7, 8]) {
+      const mm = sweepConfirm({ POLE_BODY_MIN: PB })
+      console.log(fmtMetrics(`POLE_BODY_MIN=${PB}`, mm))
+      bhSweep.push({ knob: 'POLE_BODY_MIN', value: PB, metrics: mm })
+    }
+    for (const DB of [0.3, 0.4, 0.5, 0.6]) {
+      const mm = sweepConfirm({ DOJI_BODY_MAX: DB })
+      console.log(fmtMetrics(`DOJI_BODY_MAX=${DB}`, mm))
+      bhSweep.push({ knob: 'DOJI_BODY_MAX', value: DB, metrics: mm })
+    }
+    for (const BL of [10, 20, 40, 60]) {
+      const mm = sweepConfirm({ POLE_BREAK_LOOKBACK: BL })
+      console.log(fmtMetrics(`POLE_BREAK_LOOKBACK=${BL}`, mm))
+      bhSweep.push({ knob: 'POLE_BREAK_LOOKBACK', value: BL, metrics: mm })
+    }
+    for (const CW of [1, 2, 3, 5]) {
+      const mm = sweepConfirm({ CONFIRM_WINDOW: CW })
+      console.log(fmtMetrics(`CONFIRM_WINDOW=${CW}`, mm))
+      bhSweep.push({ knob: 'CONFIRM_WINDOW', value: CW, metrics: mm })
+    }
+    for (const RM of [1.5, 2, 2.5, 3]) {
+      const mm = sweepConfirm({ R_MULT: RM })
+      console.log(fmtMetrics(`R_MULT=${RM}`, mm))
+      bhSweep.push({ knob: 'R_MULT', value: RM, metrics: mm })
+    }
+    for (const H of [3, 5, 10, 20]) {
+      const mm = sweepConfirm({}, H)
+      console.log(fmtMetrics(`HOLD=${H}`, mm))
+      bhSweep.push({ knob: 'HOLD', value: H, metrics: mm })
+    }
+    for (const [hh, hl] of [[true, true], [true, false], [false, true], [false, false]] as Array<[boolean, boolean]>) {
+      const mm = sweepConfirm({ REQUIRE_HIGHER_HIGH: hh, REQUIRE_HIGHER_LOW: hl })
+      console.log(fmtMetrics(`HH=${hh ? 1 : 0}/HL=${hl ? 1 : 0}`, mm))
+      bhSweep.push({ knob: 'HH/HL', value: (hh ? 2 : 0) + (hl ? 1 : 0), metrics: mm })
+    }
+
+    out.breakoutHoldEval = {
+      hold: HOLD_BH,
+      config: BHOLD,
+      metricsClose: mClose,
+      metrics: m,
+      baselineExpectancyR: base.metrics.expectancyR,
+      sweep: bhSweep,
+    }
+  }
+
+  // PBREAK: 突破次日回踩(放量突破前高→守住→今日回踩收站MA5,纯 OHLCV,现有缓存即可真回测)。
+  if (RUN_PBREAK) {
+    const HOLD_BP = Number(process.env.HOLD_BP) || 10
+    console.log(`\n========== 突破次日回踩(放量突破→守住→今日回踩收站MA5,回踩日收盘进→${HOLD_BP}日撮合)==========`)
+    console.log('（纯 OHLCV,对照突破基线 0.08R / 突破整理confirm 0.45R。通过线=期望明显正、PF>1.3、样本足)')
+    const mClose = aggregate(data.flatMap((sb) => simulateBreakoutPullback(sb, PBREAK, HOLD_BP)))
+    const m = aggregate(data.flatMap((sb) => simulateBreakoutPullbackConfirm(sb, PBREAK, HOLD_BP)))
+    console.log(fmtMetrics('breakpull-close(回踩日收盘进)', mClose))
+    console.log(fmtMetrics('breakpull-confirm(次日突破回踩高确认进)', m))
+    console.log(`→ confirm vs close 期望差 ${r2(m.expectancyR - mClose.expectancyR)}R · vs 突破基线 ${base.metrics.expectancyR}R`)
+
+    // 阈值扫描(close 入场为主,关键旋钮亦看 confirm)。
+    console.log('\n---------- PBREAK 扫描(close 入场)----------')
+    const bpSweep: Array<Record<string, unknown>> = []
+    const sweepClose = (over: Partial<BreakoutPullbackConfig>, hold = HOLD_BP) =>
+      aggregate(data.flatMap((sb) => simulateBreakoutPullback(sb, { ...PBREAK, ...over }, hold)))
+    for (const VM of [1.5, 1.8, 2.2, 2.6]) {
+      const mm = sweepClose({ VOL_MULT: VM })
+      console.log(fmtMetrics(`VOL_MULT=${VM}`, mm))
+      bpSweep.push({ knob: 'VOL_MULT', value: VM, metrics: mm })
+    }
+    for (const BL of [10, 20, 40, 60]) {
+      const mm = sweepClose({ BREAK_LOOKBACK: BL })
+      console.log(fmtMetrics(`BREAK_LOOKBACK=${BL}`, mm))
+      bpSweep.push({ knob: 'BREAK_LOOKBACK', value: BL, metrics: mm })
+    }
+    for (const PA of [1, 2, 3, 5]) {
+      const mm = sweepClose({ PB_MAX_AGO: PA })
+      console.log(fmtMetrics(`PB_MAX_AGO=${PA}`, mm))
+      bpSweep.push({ knob: 'PB_MAX_AGO', value: PA, metrics: mm })
+    }
+    for (const HT of [0.0, 0.02, 0.03, 0.05]) {
+      const mm = sweepClose({ HOLD_TOL: HT })
+      console.log(fmtMetrics(`HOLD_TOL=${HT}`, mm))
+      bpSweep.push({ knob: 'HOLD_TOL', value: HT, metrics: mm })
+    }
+    for (const RM of [1.5, 2, 2.5, 3]) {
+      const mm = sweepClose({ R_MULT: RM })
+      console.log(fmtMetrics(`R_MULT=${RM}`, mm))
+      bpSweep.push({ knob: 'R_MULT', value: RM, metrics: mm })
+    }
+    for (const H of [3, 5, 10, 20]) {
+      const mm = sweepClose({}, H)
+      console.log(fmtMetrics(`HOLD=${H}`, mm))
+      bpSweep.push({ knob: 'HOLD', value: H, metrics: mm })
+    }
+    // 关键旋钮的 confirm 入场对照
+    console.log('\n---------- PBREAK confirm 入场关键对照 ----------')
+    for (const VM of [1.8, 2.2]) {
+      const mm = aggregate(data.flatMap((sb) => simulateBreakoutPullbackConfirm(sb, { ...PBREAK, VOL_MULT: VM }, HOLD_BP)))
+      console.log(fmtMetrics(`confirm·VOL_MULT=${VM}`, mm))
+      bpSweep.push({ knob: 'confirm·VOL_MULT', value: VM, metrics: mm })
+    }
+    for (const BL of [10, 20]) {
+      const mm = aggregate(data.flatMap((sb) => simulateBreakoutPullbackConfirm(sb, { ...PBREAK, BREAK_LOOKBACK: BL }, HOLD_BP)))
+      console.log(fmtMetrics(`confirm·BREAK_LOOKBACK=${BL}`, mm))
+      bpSweep.push({ knob: 'confirm·BREAK_LOOKBACK', value: BL, metrics: mm })
+    }
+    out.breakoutPullbackEval = {
+      hold: HOLD_BP,
+      config: PBREAK,
+      metricsClose: mClose,
+      metricsConfirm: m,
+      baselineExpectancyR: base.metrics.expectancyR,
+      sweep: bpSweep,
+    }
+  }
+
+  // TA: 技术分析组合 因子分桶检验(breakout/highdiv/volbreak 成交按信号日 TA bias/distribution 分桶)。
+  if (RUN_TA) {
+    console.log('\n========== 技术分析组合(Wyckoff+道氏+AlBrooks)因子分桶检验 ==========')
+    console.log('（按信号日 TA bias / distribution 分桶;期望 供给<中性<需求、distribution 跑输 → 据数定 WEIGHTS.ta 与降档惩罚)')
+    const te = evaluateTechnicalFactor(data)
+    console.log(fmtMetrics('全体 pooled', te.overall))
+    for (const b of ['demand', 'neutral', 'supply']) console.log(fmtMetrics(`  bias=${b}`, te.byBias[b]))
+    console.log(fmtMetrics('  distribution=是', te.byDist.dist))
+    console.log(fmtMetrics('  distribution=否', te.byDist.nonDist))
+    out.technicalFactorEval = te
   }
 
   mkdirSync(OUT_DIR, { recursive: true })

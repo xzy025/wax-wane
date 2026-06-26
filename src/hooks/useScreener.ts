@@ -14,6 +14,16 @@ export interface LhbConfluence {
   score: number
 }
 
+/** 技术分析组合(Wyckoff+道氏+AlBrooks 量价)· 全战法整体评分因子(server technicalScore 镜像)。 */
+export interface TechnicalCombo {
+  score01: number // 0..1(0.5 中性);<0.5 供给、>0.5 需求
+  bias: 'demand' | 'supply' | 'neutral'
+  distribution: boolean // 强派发(大族式出货)→ 降档 + ⚠
+  wyckoffPhase: string
+  tags: string[]
+  note: string
+}
+
 export interface Pivots {
   r1: number
   r2: number
@@ -51,6 +61,7 @@ export interface ScreenerCandidate {
   volScore: number
   breakoutVolRatio?: number // 今日量/50日均量(放量倍数,缺失=旧缓存快照)
   ma5?: number // 5日线(加仓参考,缺失=旧缓存快照)
+  firstBreakout?: boolean // 突破组:今日首次站上前高→「今日首次突破」;false=已突破仍在区内;缺失=旧快照
   watchReason?: string // 临界观察组:距触发还差什么
   distToPivotPct: number
   dist52Pct: number
@@ -60,6 +71,7 @@ export interface ScreenerCandidate {
   lhbInst?: LhbConfluence
   board?: BoardConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
 /** Mirror of server PullbackScreenerCandidate (回调二次启动/圆弧底反包). */
@@ -82,6 +94,7 @@ export interface PullbackScreenerCandidate {
   signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
   lhbInst?: LhbConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
 /** Mirror of server HighDivScreenerCandidate (连续新高·缩量十字星·守MA5 分歧低吸). */
@@ -115,6 +128,7 @@ export interface HighDivScreenerCandidate {
   riskNote?: string
   lhbInst?: LhbConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
 /** Mirror of server VolBreakScreenerCandidate (放量新高·资金驱动突破). */
@@ -142,6 +156,76 @@ export interface VolBreakScreenerCandidate {
   riskNote?: string
   lhbInst?: LhbConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
+}
+
+/** 资金流信息(实盘 live)。成交量排名免费(prefilter);主力净流入/排名/资金共振为未回测实盘加成。 */
+export interface FundFlowInfo {
+  netInflow?: number // 主力净流入额(元;买1/买2 档主动成交净额) —— 门控关/失败时缺
+  netInflowPct?: number // 主力净流入占比%
+  turnoverRank?: number // 成交量(成交额)排名
+  inflowRank?: number // 主力净流入排名(仅 top200 内)
+  resonance: boolean // 净流入∩成交量 双 top200(图里「资金共振」)
+}
+
+/** Mirror of server FundResScreenerCandidate (资金流共振·机构调研). */
+export interface FundResScreenerCandidate {
+  group: 'fundres'
+  code: string
+  name: string
+  price: number
+  changePct: number
+  ma5: number
+  ma20: number
+  volRatio: number // 今量/近5日均量(成交量因子)
+  mom: number // 近20日动量%
+  surveyOrgs: number // 近 N 日调研机构家数
+  gapUp: boolean // 今日是否高开
+  gapPct: number // 高开幅度%
+  entry: number
+  stop: number
+  target: number
+  riskReward: number
+  holdHint: number // 建议持股交易日数(≈3)
+  positionHint: string
+  tier: number
+  score: number
+  reason: string
+  riskNote?: string
+  fundFlow?: FundFlowInfo // 资金共振(实盘加成,无则不在双榜交集/门控关闭)
+  lhbInst?: LhbConfluence
+  appearStreak?: number
+  ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
+}
+
+/** Mirror of server BHoldScreenerCandidate (突破整理·延续). */
+export interface BHoldScreenerCandidate {
+  group: 'bhold'
+  code: string
+  name: string
+  price: number
+  changePct: number
+  consolDays: number // 整理小K线根数(1~2)
+  poleBodyPct: number // pole 大阳线实体涨幅%
+  poleVolRatio: number // pole 放量倍数
+  poleClose: number
+  priorHigh: number // pole 突破的前高
+  higherHigh: boolean
+  higherLow: boolean
+  trigger: number // 确认入场位(次日突破此位介入)
+  consolLow: number // 整理段最低(跌破放弃)
+  entry: number // 收盘介入参考
+  stop: number
+  target: number
+  riskReward: number
+  positionHint: string
+  tier: number
+  score: number
+  reason: string
+  riskNote?: string
+  lhbInst?: LhbConfluence
+  appearStreak?: number
+  ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
 export interface ScreenerRegime {
@@ -164,6 +248,8 @@ export interface ScreenerResult {
   pullback: PullbackScreenerCandidate[]
   highdiv?: HighDivScreenerCandidate[] // 第四组:连续新高分歧低吸(可选,兼容旧快照)
   volbreak?: VolBreakScreenerCandidate[] // 第五组:放量新高·资金驱动突破(可选,兼容旧快照)
+  fundres?: FundResScreenerCandidate[] // 第六组:资金流共振·机构调研(可选,兼容旧快照)
+  bhold?: BHoldScreenerCandidate[] // 第七组:突破整理·延续(可选,兼容旧快照)
   scanned: number
   scannedPullback: number
   universe: number

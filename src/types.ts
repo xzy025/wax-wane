@@ -489,8 +489,8 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string }
-    groups: { breakout: string; trigger: string; watch: string; pullback: string; highdiv: string; volbreak: string }
+    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string }
+    groups: { breakout: string; trigger: string; watch: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string }
     hdDesc: string
     hdCard: {
       nh: string
@@ -536,6 +536,45 @@ export interface Translation {
       pos: string
       days: string
       ma5ok: string
+    }
+    frDesc: string
+    frCard: {
+      survey: string
+      orgs: string
+      vol: string
+      mom: string
+      gap: string
+      buy: string
+      target: string
+      stop: string
+      rr: string
+      plan: string
+      pos: string
+      hold: string
+      days: string
+      ma5ok: string
+      fundFlow: string
+      inflow: string
+      rank: string
+      netBuy: string
+      turnRank: string
+      inRank: string
+    }
+    ta: { title: string; demand: string; supply: string; neutral: string; distribution: string }
+    bhDesc: string
+    bhCard: {
+      pole: string
+      consol: string
+      trigger: string
+      buy: string
+      stop: string
+      target: string
+      rr: string
+      plan: string
+      pos: string
+      days: string
+      stepUp: string
+      hold: string
     }
     crossTitle: string
     crossDesc: string

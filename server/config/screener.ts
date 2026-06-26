@@ -44,7 +44,7 @@ export interface ScreenerConfig {
   MARKET_MA_FAST: number
   MARKET_MA_SLOW: number
   CONCURRENCY: number
-  WEIGHTS: { rs: number; coil: number; trend: number; vol: number; liq: number; lhb?: number; board?: number }
+  WEIGHTS: { rs: number; coil: number; trend: number; vol: number; liq: number; lhb?: number; board?: number; ta?: number }
   // ── 龙虎榜 / 板块轮动 加分因子(回测校准,可置 0 关闭)──
   /** 龙虎榜加分回看窗口(交易日):信号日前 K 日机构/资金净买埋伏。 */
   LHB_LOOKBACK_K: number
@@ -163,7 +163,12 @@ export const SCREENER = {
   // 期望 0.58~0.97R(机构) / 0.66R(全口径) vs 未上榜 0.35R、基线 0.39R,故给 0.15。
   // **board 待验证**:90.BK 板块日线接口当前对本机限流(无 Sina 兜底)→ 回测样本=0,暂给小权重 0.05
   // (取不到板块数据时本因子自动中性,不伤分);接口恢复后重跑 COMBO 校准。
-  WEIGHTS: { rs: 0.3, coil: 0.25, trend: 0.2, vol: 0.15, liq: 0.1, lhb: 0.15, board: 0.05 },
+  // ta(技术分析组合:Wyckoff+道氏+AlBrooks 量价,见 services/technicalScore)外部加分因子。
+  // 回测校准(TA=1,293只,pooled breakout/highdiv/volbreak 成交按信号日 TA bias 分桶):**单调成立**——
+  //   需求 demand 0.20R/PF1.30/n421 > 中性 neutral 0.11R/PF1.16/n186 > 供给 supply −0.94R/0%胜率/n5。
+  //   demand vs neutral 差 +0.09R(样本足,可靠);distribution=是 −0.94R(n5,现有战法收强过滤已挡掉大部分,
+  //   但一旦混入即灾难)→ 故 distribution 降档+⚠ 作安全栏。据此 ta=0.1(0 时 finalScore 等价旧版)。
+  WEIGHTS: { rs: 0.3, coil: 0.25, trend: 0.2, vol: 0.15, liq: 0.1, lhb: 0.15, board: 0.05, ta: 0.1 },
 
   // ── 龙虎榜 / 板块轮动 加分因子 ────────────────────────────────────
   LHB_LOOKBACK_K: 5,
@@ -419,3 +424,218 @@ export const VOLBREAK = {
   R_MULT: 2.5,
   WEIGHTS: { burst: 0.4, volRatio: 0.3, closeStrong: 0.2, slope: 0.1 },
 } as const satisfies VolBreakConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 资金流共振·机构调研 战法(第六类,见 services/fundResonanceRules.classifyFundResonance)。
+// 来源:用户转述的「杭州高手」量化短线 —— 净流入排名∩成交量排名 top200 + 机构周调研 + 放量高开,
+//   持股平均 3 天、容量小。其核心因子「主力净流入排名」东财不给免费历史(数据墙,同连板VWAP),
+//   故拆成两层:① 实盘 live 用 主力净流入(f62)∩成交额 选池(env 门控,未回测,见 services/fundFlow);
+//   ② 此处是**可回测子集**——把"资金涌入"用纯 OHLCV 的「放量 + 短期多头强势」代理,叠加可回溯的
+//   「机构近 N 日调研」事件(RPT_ORG_SURVEYNEW 历史可取),验证这套代理本身有没有正期望。
+// 入场=信号日收盘(EOD,与其他战法一致);持有 HOLD≈3 日(time-exit 捕捉"持股平均三天")。
+// ⚠ surveyOrgs 由调用方按信号日窗口算好后传入(rule 保持纯函数可单测)。正期望与否由 FUNDRES=1 回测裁决。
+export interface FundResConfig {
+  MIN_BARS: number
+  MA_FAST: number // 短均(5)
+  MA_MID: number // 中均(20)
+  RISE_LOOKBACK: number // MA_FAST 上行比较回看根数
+  VOL_MA: number // 放量基准均量窗(根)
+  VOL_MULT: number // 成交量因子:今量 ≥ VOL_MULT×均量(放量=资金涌入代理)
+  SURVEY_LOOKBACK: number // 机构调研事件窗(交易日):信号日前 N 日内有调研
+  SURVEY_MIN_ORGS: number // 该窗内最少调研机构家数(0=不要求调研,纯放量强势)
+  REQUIRE_GAP_UP: boolean // 是否硬要求信号日高开
+  GAP_MIN_PCT: number // 高开下限%:今开/昨收−1 ≥ 此值
+  MOM_MIN_PCT: number // 近 MA_MID 日动量下限%(短线强势)
+  CLOSE_STRENGTH: number // 收盘强度下限 (收−低)/(高−低)
+  EXT_MAX_PCT: number // 收盘距 MA_FAST 上限%(防垂直拉升追高)
+  STOP_MAX_PCT: number // 止损封顶距进场%(短线较紧)
+  R_MULT: number // 目标 = 进场 + R_MULT×风险
+  HOLD: number // 持股目标交易日数(time-exit;线上展示用,回测由 HOLD_FR 控制)
+  LIMITUP_MAX: number // 连板上限(软门槛,买不到的妖股剔除)
+  /** 打分因子权重(按权重和归一):调研强度 / 放量倍数 / 短期动量 / 收盘强度。 */
+  WEIGHTS: { survey: number; volRatio: number; mom: number; closeStrong: number }
+}
+
+// 回测校准(FUNDRES=1,293只/2023-07~2026-06,HOLD=3,对照突破基线 0.08R/PF1.11):
+//   基线初值(VOL_MULT1.8/SL10/min1)即过线 0.14R/PF1.48/n157。三处增益已据数锁定:
+//   ① 机构调研因子真有增量(图里"机构调研"值钱):不要求调研 0.09R/PF1.25 → ≥1家 0.14R/PF1.48
+//      → ≥3家 0.17R/PF1.63;分桶 orgs≥6 最强 0.17R/PF1.67(调研越多期望越高,高端尤显)。
+//   ② 放量是主引擎(图里"成交量因子"):VOL_MULT 1.8→2.2→2.6 = 0.14R→0.24R→0.28R、PF 1.48→1.94→2.08。
+//      取 2.2(0.24R/PF1.94/n83):期望×1.7、回撤 8.6R→4.1R,样本仍足。
+//   ③ 调研窗越近越好:SURVEY_LOOKBACK=5(调研后5日内)0.19R/PF1.74 完胜 10/20/30(新鲜催化)。
+//   ④ ⚠ "高开"同日过滤是负的:REQUIRE_GAP_UP=true → −0.06R/PF0.84(信号日收盘进=追在已跳空冲高的票)。
+//      图里"加高开"是**次日开盘触发**(不同机制),故 false;次日高开介入留作实盘晨间执行规则。
+//   ⑤ HOLD=3 验证图里"持股平均三天":0.14R;加长到5/10更高但回撤陡升,守 3 日纪律。
+//   **组合校准(VOL_MULT2.2+SL5+min1,已锁为下方基线)实测:0.26R/PF2.08/胜率51%/回撤6.75R/n53**
+//   —— 期望翻倍、超分歧 0.19R、逼近放量新高 0.27R。⚠ n53 偏少(抽样所致,全市场×17≈300笔/年,
+//   图里本就"容量小"),且为两个单调增益的叠加(单旋钮扫描各自单调)→ 过拟合风险可控但非零;
+//   想要更多候选可 VOL_MULT 退 2.0。一键关调研要求:SURVEY_MIN_ORGS=0(退化为纯放量强势 0.09R)。
+export const FUNDRES = {
+  MIN_BARS: 70,
+  MA_FAST: 5,
+  MA_MID: 20,
+  RISE_LOOKBACK: 5,
+  VOL_MA: 5,
+  VOL_MULT: 2.2, // 校准:1.8→2.2(期望 0.14→0.24R、PF 1.48→1.94、回撤 8.6→4.1R)
+  SURVEY_LOOKBACK: 5, // 校准:10→5(调研后5日内介入,0.14→0.19R/PF1.74)
+  SURVEY_MIN_ORGS: 1,
+  REQUIRE_GAP_UP: false,
+  GAP_MIN_PCT: 1,
+  MOM_MIN_PCT: 0,
+  CLOSE_STRENGTH: 0.5,
+  EXT_MAX_PCT: 12,
+  STOP_MAX_PCT: 6,
+  R_MULT: 2,
+  HOLD: 3,
+  LIMITUP_MAX: 2,
+  WEIGHTS: { survey: 0.35, volRatio: 0.3, mom: 0.2, closeStrong: 0.15 },
+} as const satisfies FundResConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 突破整理·延续 战法(第七类,纯 OHLCV,见 services/breakoutHoldRules.classifyBreakoutHold)。
+// 来源:用户给精测电子(300567)截图——「放量大阳线过前高 → 1~2根阳线/十字星整理 → 高低点双抬」。
+//   现有「今日已突破」按设计只抓突破当天(精测今日量1.23×/收强0.55→落临界观察),抓不到"突破后小K线整理"。
+//   本战法专抓这种延续:近 MAX_CONSOL 日内有「放量大阳线突破前高(pole 杆)」,其后 1~2 根小实体
+//   (十字星/小阳)整理且 高点抬高+低点抬高+守住突破位 = 强势不回吐 → 介入续涨。
+// ⚠ 正期望与否待 BHOLD=1 回测裁决,过线(期望>0.08R、PF>1.3、样本足)才上线。
+export interface BreakoutHoldConfig {
+  MIN_BARS: number
+  POLE_BREAK_LOOKBACK: number // pole 突破"前高"的回看窗(根):pole 收盘 > 此窗内最高
+  POLE_BODY_MIN: number // 大阳线最小实体涨幅%((收−开)/开)
+  POLE_VOL_MULT: number // 放量倍数(pole 量 / pole 前 POLE_VOL_MA 日均量)
+  POLE_VOL_MA: number // pole 放量基准均量窗
+  MAX_CONSOL: number // 整理小K线最多根数(用户:1~2)
+  DOJI_BODY_MAX: number // 整理日小实体上限 |收−开|/(高−低)
+  CONSOL_VOL_MAX: number // 整理日量上限(整理量/pole量;缩量整理,软门槛偏宽)
+  REQUIRE_HIGHER_HIGH: boolean // 高点抬高(每根整理日 高≥前一根高)
+  REQUIRE_HIGHER_LOW: boolean // 低点抬高(每根整理日 低≥前一根低)
+  HOLD_ABOVE_BREAK: boolean // 整理低点须守在被突破"前高"之上(不回吐进箱体)
+  EXT_MAX_PCT: number // 整理日收盘距 pole 收盘上限%(防整理期已大幅脱离 pole 再追)
+  CONFIRM_WINDOW: number // 确认入场窗口(交易日):整理日后 N 日内突破整理高点(trigger)才介入,否则放弃
+  STOP_MAX_PCT: number // 止损封顶距进场%
+  R_MULT: number // 目标 = 进场 + R_MULT×风险
+  LIMITUP_MAX: number // 连板上限(软门槛,买不到的妖股剔除)
+  /** 打分因子权重(按权重和归一):pole 放量 / pole 实体 / 整理紧凑(实体越小越高) / 抬升幅度。 */
+  WEIGHTS: { poleVol: number; poleBody: number; tight: number; stepUp: number }
+}
+
+// 回测校准(BHOLD=1,293只/2023-07~2026-06,HOLD=10,对照突破基线 0.08R/PF1.11):
+//   **入场机制是命门**——整理日收盘进(close) 0.17R/PF1.26(止损率61%,被洗);改「次日突破整理高点
+//   trigger 确认进」(confirm,旗形突破确认) → **0.45R/PF1.90/胜率49%/回撤6.1R/n55**(止损率49%、回撤
+//   15.8→6.1R),confirm vs close +0.28R。**为所有战法最高期望**(>资金流0.26R/放量新高0.27R/分歧0.19R)。
+//   旋钮(confirm 入场扫描):① POLE_VOL_MULT 2.2(放量大阳,1.8→2.2 = 0.06→0.26R)② POLE_BREAK_LOOKBACK
+//   **=10 最优**(0.45R/PF1.90/n55;=20 是异常低点 0.26R,=40/60 也 0.41/0.56R → 真信号在 0.4R+,20 才是坑)
+//   ③ DOJI_BODY_MAX=0.5(0.3 太紧负、0.6 稀释)④ CONFIRM_WINDOW 1~3 都行(≈0.25~0.30R)⑤ R_MULT 2.5 payoff
+//   更高(0.36R)但 2 更稳。⚠ 用 confirm 入场后「高低点双抬(HH/HL)」对期望已不敏感(确认入场本身已滤假启动),
+//   但保留=贴合用户描述的形态。⚠ POLE_BREAK_LOOKBACK 非单调有过拟合风险;一键放宽结构:HH/HL=false。
+//   ⚠ 本战法**信号日=整理日,实战次日突破 trigger 才介入**(回测即此口径);live 卡片以 trigger 为介入触发位。
+export const BHOLD = {
+  MIN_BARS: 70,
+  POLE_BREAK_LOOKBACK: 10,
+  POLE_BODY_MIN: 7,
+  POLE_VOL_MULT: 2.2,
+  POLE_VOL_MA: 10,
+  MAX_CONSOL: 2,
+  DOJI_BODY_MAX: 0.5,
+  CONSOL_VOL_MAX: 1.0,
+  REQUIRE_HIGHER_HIGH: true,
+  REQUIRE_HIGHER_LOW: true,
+  HOLD_ABOVE_BREAK: true,
+  EXT_MAX_PCT: 8,
+  CONFIRM_WINDOW: 3,
+  STOP_MAX_PCT: 7,
+  R_MULT: 2,
+  LIMITUP_MAX: 2,
+  WEIGHTS: { poleVol: 0.35, poleBody: 0.25, tight: 0.2, stepUp: 0.2 },
+} as const satisfies BreakoutHoldConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 突破次日回踩 战法(第八类,纯 OHLCV,见 services/breakoutPullbackRules.classifyBreakoutPullback)。
+// 来源:用户「突破生命周期」拆分——① 今日首次突破(screenerRules firstBreakout) → ② 突破后首次回踩(本战法)
+//   → ③ 突破后持续守MA5(复用第7战法 breakoutHold)。本战法抓「近 PB_MAX_AGO 日放量突破前高 → 守住突破位 →
+//   今日首次回踩(下跌日)且收盘站回 MA5/前高之上」的低吸点。
+// ⚠ 正期望与否待 PBREAK=1 回测裁决,过线(期望>0.08R、PF>1.3、样本足)才上线;不过线照 BHOLD 经验改确认入场再测。
+export interface BreakoutPullbackConfig {
+  MIN_BARS: number
+  BREAK_LOOKBACK: number // 突破"前高"的回看窗(根):突破日收盘 > 此窗内最高
+  VOL_MA: number // 突破日放量基准均量窗
+  VOL_MULT: number // 突破日放量倍数(突破日量/前均量)
+  PB_MAX_AGO: number // 突破日最多在今日前 N 日内(回踩窗)
+  HOLD_TOL: number // 守突破位容差:回踩段最低 ≥ 前高×(1−HOLD_TOL)(不回吐进箱体)
+  MA_FAST: number // 回踩支撑均线(5)
+  TOUCH_TOL: number // 今日低点触及 MA5 的容差(low ≤ MA5×(1+TOUCH_TOL))=回踩到位(软评分)
+  CLOSE_ABOVE_MA: boolean // 今日收盘须站回 MA5 之上(弱转强确认)
+  REQUIRE_DOWN_DAY: boolean // 今日须为下跌回踩日(close<昨收)
+  PULL_MIN_PCT: number // 今日自突破后高点回撤下限%(要真回踩,非仍在冲)
+  CONFIRM_WINDOW: number // 确认入场窗口(交易日):回踩日后 N 日内突破回踩日高点才介入(回测对照变体用)
+  STOP_MAX_PCT: number // 止损封顶距进场%
+  R_MULT: number // 目标 = 进场 + R_MULT×风险
+  LIMITUP_MAX: number // 连板上限(软门槛)
+  /** 打分因子权重(按权重和归一):突破放量 / 回踩深度适中 / 守MA5 / 新鲜度(回踩越早)。 */
+  WEIGHTS: { breakVol: number; pullDepth: number; holdMa5: number; freshness: number }
+}
+
+// 回测裁决(PBREAK=1,293只/2023-07~2026-06,HOLD=10)——**未过线,不接 live**(规则+回测保留作探索):
+//   回踩日收盘进 −0.04R/PF0.94(全 close 入场各旋钮均负,止损率64%/回撤200R);改「次日突破回踩高确认进」
+//   升到 0.12R/PF1.21,confirm+放量2.2× 最佳 0.14R/PF1.26/n581 —— 仍 **PF<1.3 够不到过线**。
+//   结论:**"买突破后的回踩下跌"是弱/负期望;这一族的 edge 在「突破后守住」(第7战法 breakoutHold confirm 0.45R),
+//   不在"买回踩"**。故本战法不上 live tab(用户"过线才上"纪律);保留供数据/入场改善后复测。一键试:PBREAK=1。
+export const PBREAK = {
+  MIN_BARS: 70,
+  BREAK_LOOKBACK: 20,
+  VOL_MA: 10,
+  VOL_MULT: 1.8,
+  PB_MAX_AGO: 3,
+  HOLD_TOL: 0.03,
+  MA_FAST: 5,
+  TOUCH_TOL: 0.02,
+  CLOSE_ABOVE_MA: true,
+  REQUIRE_DOWN_DAY: true,
+  PULL_MIN_PCT: 1,
+  CONFIRM_WINDOW: 3,
+  STOP_MAX_PCT: 7,
+  R_MULT: 2,
+  LIMITUP_MAX: 2,
+  WEIGHTS: { breakVol: 0.35, pullDepth: 0.25, holdMa5: 0.2, freshness: 0.2 },
+} as const satisfies BreakoutPullbackConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 技术分析组合(Wyckoff 量价 + 道氏趋势结构 + Al Brooks 价格行为)· 全战法整体评分因子
+//   (纯函数 bar 级,见 services/technicalScore.technicalCombo)。复用项目已有方法:
+//   Wyckoff = knowledge/wyckoff.analyzeWyckoffPhase;价格行为 = divergenceRules 的 bodyRatio/upper-/lowerWickRatio;
+//   道氏 = screenerRules.trendTemplate。输出 0..1 因子(0.5 中性)+ bias + distribution(强派发=大族式出货)。
+//   作用:新高 finalScore 加 ta01 权重;其余组 score 按 ta 因子缩放、distribution 降一档 + ⚠。
+// ⚠ 权重/惩罚强度待 TA=1 因子分桶回测裁决(确认 供给<中性<需求 单调且显著)才据数定;无区分度则只展示不动分。
+export interface TechnicalComboConfig {
+  LOOKBACK: number // 近端高点/结构回看(根):前高判定 + 道氏 HH-HL
+  WYCKOFF_WIN: number // 喂 analyzeWyckoffPhase 的窗口(根)
+  VOL_MA: number // 量价基准均量窗
+  VOL_HOT: number // 放量门槛:今量 ≥ VOL_HOT×均量
+  UPPER_WICK: number // 长上影门槛:upperWickRatio ≥ 此 = 冲高回落
+  CLOSE_STRONG: number // 收强门槛:(收−低)/振幅 ≥ 此 = SOS 需求
+  STALL_PCT: number // 努力≠结果:放量但 |涨幅| ≤ 此% = 滞涨(供给)
+  NEAR_HIGH_PCT: number // 距近端高点 ≤ 此% = "于前高附近"(派发上下文)
+  GAP_UP_PCT: number // 高开门槛:今开/昨收−1 ≥ 此%
+  PENALTY_TIER_DROP: boolean // distribution 时其余组降一档
+  /** 因子缩放:其余组 score × (MULT_MIN + (MULT_MAX−MULT_MIN)×score01)。供给压低、需求抬高。 */
+  MULT_MIN: number
+  MULT_MAX: number
+  /** 三法权重(按权重和归一)。 */
+  WEIGHTS: { wyckoff: number; priceAction: number; dow: number }
+}
+
+export const TECH = {
+  LOOKBACK: 20,
+  WYCKOFF_WIN: 30,
+  VOL_MA: 10,
+  VOL_HOT: 1.8,
+  UPPER_WICK: 0.4,
+  CLOSE_STRONG: 0.7,
+  STALL_PCT: 1.5,
+  NEAR_HIGH_PCT: 3,
+  GAP_UP_PCT: 1,
+  PENALTY_TIER_DROP: true,
+  MULT_MIN: 0.7,
+  MULT_MAX: 1.3,
+  WEIGHTS: { wyckoff: 0.4, priceAction: 0.4, dow: 0.2 },
+} as const satisfies TechnicalComboConfig

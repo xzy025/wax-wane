@@ -213,10 +213,11 @@ export function classifyDivergence(bars: Bar[], code: string, C: DivergenceConfi
 // 连续新高·分歧低吸(纯 OHLCV) — 强势股连续新高后的「缩量十字星·守 MA5」洗盘日 = 低吸介入点。
 // 不依赖成交额/VWAP/分时,故可用现有缓存回测。精选:A 前提 + B 分歧日 全为硬门槛。
 // ════════════════════════════════════════════════════════════════════════
-const candleRange = (b: Bar) => b.high - b.low
-const bodyRatio = (b: Bar) => (candleRange(b) > 0 ? Math.abs(b.close - b.open) / candleRange(b) : 0)
-const lowerWickRatio = (b: Bar) => (candleRange(b) > 0 ? (Math.min(b.open, b.close) - b.low) / candleRange(b) : 0)
-const upperWickRatio = (b: Bar) => (candleRange(b) > 0 ? (b.high - Math.max(b.open, b.close)) / candleRange(b) : 0)
+// K 线形态量价 helper(导出供 technicalScore 等复用,避免各处重复实现)。
+export const candleRange = (b: Bar) => b.high - b.low
+export const bodyRatio = (b: Bar) => (candleRange(b) > 0 ? Math.abs(b.close - b.open) / candleRange(b) : 0)
+export const lowerWickRatio = (b: Bar) => (candleRange(b) > 0 ? (Math.min(b.open, b.close) - b.low) / candleRange(b) : 0)
+export const upperWickRatio = (b: Bar) => (candleRange(b) > 0 ? (b.high - Math.max(b.open, b.close)) / candleRange(b) : 0)
 
 /** 整理持续天数:从 endIdx 往前数连续「量 < 前一日 ∧ 收盘 ≥ 当日 MA5」的天数(缩量站稳合一)。 */
 export function consolidationDays(bars: Bar[], closes: number[], endIdx: number): number {

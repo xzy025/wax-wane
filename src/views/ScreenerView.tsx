@@ -1,11 +1,14 @@
 import { useState } from 'react'
-import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars, Fire } from 'phosphor-react'
+import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars, Fire, Coins, FlagBanner } from 'phosphor-react'
 import {
   useScreener,
   type ScreenerCandidate,
   type PullbackScreenerCandidate,
   type HighDivScreenerCandidate,
   type VolBreakScreenerCandidate,
+  type FundResScreenerCandidate,
+  type BHoldScreenerCandidate,
+  type TechnicalCombo,
   type ScreenerRegime,
 } from '../hooks/useScreener'
 import type { Translation } from '../types'
@@ -26,6 +29,10 @@ function fmtPct(n: number | null | undefined): string {
 }
 function fmtPrice(n: number): string {
   return n.toFixed(2)
+}
+/** 元 → 亿(主力净流入展示)。 */
+function fmtYi(n: number): string {
+  return `${(n / 1e8).toFixed(2)}亿`
 }
 
 /** 龙虎榜徽标:机构/游资拆成两个独立标签(各跟天数,如「机构1」「游资2」)。
@@ -72,6 +79,27 @@ function RegimeBanner({ r, t }: { r: ScreenerRegime; t: Translation }) {
       </span>
       <span className="sc-regime-note">{r.note}</span>
     </div>
+  )
+}
+
+/** 技术分析组合(Wyckoff+道氏+AlBrooks)chip:bias 着色 + distribution ⚠;全卡片复用。tooltip 给阶段+信号。 */
+function TaChip({ ta, t }: { ta?: TechnicalCombo; t: Translation }) {
+  if (!ta) return null
+  const k = t.screener.ta
+  const label = ta.bias === 'demand' ? k.demand : ta.bias === 'supply' ? k.supply : k.neutral
+  const cls = ta.bias === 'demand' ? 'sc-chip ok' : ta.bias === 'supply' ? 'sc-chip hot' : 'sc-chip'
+  const title = `${k.title}: ${ta.wyckoffPhase} · ${ta.note}${ta.tags.length ? ' · ' + ta.tags.join(' · ') : ''}`
+  return (
+    <>
+      {ta.distribution && (
+        <span className="sc-chip hot" title={title}>
+          ⚠ {k.distribution}
+        </span>
+      )}
+      <span className={cls} title={title}>
+        {k.title} {label}
+      </span>
+    </>
   )
 }
 
@@ -167,6 +195,7 @@ function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; ta
       )}
 
       <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
         {s.trendOk && <span className="sc-chip ok">{k.trend}✓</span>}
         {s.volDry && <span className="sc-chip">{k.volDry}</span>}
         {s.atrContract && <span className="sc-chip">{k.atrContract}</span>}
@@ -244,6 +273,7 @@ function PullbackCard({ c, t }: { c: PullbackScreenerCandidate; t: Translation }
         })()}
 
       <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
         {s.leader && <span className="sc-chip ok">{k.leader}✓</span>}
         {s.arcUp && <span className="sc-chip">{k.arcUp}</span>}
         {s.maCrossNear && <span className="sc-chip">{k.cross}</span>}
@@ -334,6 +364,7 @@ function HighDivCard({ c, t }: { c: HighDivScreenerCandidate; t: Translation }) 
       {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
 
       <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
         <span className="sc-chip ok">{hk.ma5ok}✓</span>
         <span className="sc-chip">
           {hk.dry} {c.dryRatio.toFixed(2)}x
@@ -410,6 +441,7 @@ function VolBreakCard({ c, t }: { c: VolBreakScreenerCandidate; t: Translation }
       {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
 
       <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
         <span className="sc-chip ok">{vk.ma5ok}✓</span>
         <span className="sc-chip hot">
           {vk.burst} {c.volBurstDays}/{12}
@@ -422,10 +454,222 @@ function VolBreakCard({ c, t }: { c: VolBreakScreenerCandidate; t: Translation }
   )
 }
 
+/** 资金流共振·机构调研卡片(放量+短期多头+机构调研);含交易计划 + 资金共振徽标。 */
+function FundResCard({ c, t }: { c: FundResScreenerCandidate; t: Translation }) {
+  const k = t.screener.card
+  const fk = t.screener.frCard
+  const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+          <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
+        </div>
+        <StreakScore c={c} k={k} />
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {fk.survey} / {fk.gap}
+          </span>
+          <span className="sc-metric-value mono">
+            {c.surveyOrgs}
+            {fk.orgs} / {c.gapUp ? <span className="positive-text">{fmtPct(c.gapPct)}</span> : '—'}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {fk.vol} / {fk.mom}
+          </span>
+          <span className="sc-metric-value mono">
+            {c.volRatio.toFixed(2)}x / <span className={colorClass(c.mom)}>{fmtPct(c.mom)}</span>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title={c.reason}>
+            {fk.buy} → {fk.target}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="positive-text">{fmtPrice(c.entry)}</span> → <span className="positive-text">{fmtPrice(c.target)}</span>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {fk.stop} · {fk.rr}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="negative-text">{fmtPrice(c.stop)}</span> · 1:{c.riskReward}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{fk.hold}</span>
+          <span className="sc-metric-value mono">
+            {c.holdHint}
+            {fk.days}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title="主力净流入 = 买1/买2 档主动成交净额">{fk.netBuy}</span>
+          <span className="sc-metric-value mono">
+            {c.fundFlow?.netInflow != null ? (
+              <span className={colorClass(c.fundFlow.netInflow)}>
+                {fmtYi(c.fundFlow.netInflow)}
+                {c.fundFlow.netInflowPct != null ? ` ${c.fundFlow.netInflowPct.toFixed(1)}%` : ''}
+              </span>
+            ) : (
+              '—'
+            )}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {fk.turnRank} / {fk.inRank}
+          </span>
+          <span className="sc-metric-value mono">
+            {c.fundFlow?.turnoverRank != null ? `#${c.fundFlow.turnoverRank}` : '—'} /{' '}
+            {c.fundFlow?.inflowRank != null ? `#${c.fundFlow.inflowRank}` : '—'}
+          </span>
+        </div>
+      </div>
+
+      {(c.fundFlow?.resonance || c.lhbInst) && (
+        <div className="sc-badges">
+          {c.fundFlow?.resonance && (
+            <span
+              className="sc-badge lhb inst"
+              title={`${fk.fundFlow}: ${fk.turnRank} #${c.fundFlow.turnoverRank} ∩ ${fk.inRank} #${c.fundFlow.inflowRank}`}
+            >
+              {fk.fundFlow}
+            </span>
+          )}
+          {c.lhbInst && lhbBadges(c.lhbInst, k).map((b, i) => (
+            <span key={i} className={b.cls} title={b.title}>
+              {b.label}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="sc-watch-note">
+        {fk.plan}: {fk.pos} {c.positionHint}
+      </div>
+      {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+
+      <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
+        <span className="sc-chip ok">{fk.ma5ok}✓</span>
+        <span className="sc-chip hot">
+          {fk.vol} {c.volRatio.toFixed(2)}x
+        </span>
+        {c.surveyOrgs > 0 && (
+          <span className="sc-chip">
+            {fk.survey} {c.surveyOrgs}
+            {fk.orgs}
+          </span>
+        )}
+        {c.gapUp && <span className="sc-chip">{fk.gap}</span>}
+      </div>
+    </div>
+  )
+}
+
+/** 突破整理·延续卡片(放量大阳过前高 + 十字星整理 + 高低点双抬);信号日=整理日,实战次日突破 trigger 介入。 */
+function BHoldCard({ c, t }: { c: BHoldScreenerCandidate; t: Translation }) {
+  const k = t.screener.card
+  const bk = t.screener.bhCard
+  const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+          <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
+        </div>
+        <StreakScore c={c} k={k} />
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {bk.pole} / {bk.consol}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="positive-text">+{c.poleBodyPct.toFixed(1)}%</span> {c.poleVolRatio.toFixed(1)}x / {c.consolDays}
+            {bk.days}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title={c.reason}>
+            {bk.trigger}
+          </span>
+          <span className="sc-metric-value mono positive-text">{fmtPrice(c.trigger)}</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {bk.stop} · {bk.rr}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="negative-text">{fmtPrice(c.stop)}</span> · 1:{c.riskReward}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{bk.target}</span>
+          <span className="sc-metric-value mono positive-text">{fmtPrice(c.target)}</span>
+        </div>
+      </div>
+
+      <div className="sc-watch-note">
+        {bk.plan}: 次日突破 <span className="positive-text">{fmtPrice(c.trigger)}</span> {bk.buy} · {fmtPrice(c.consolLow)} {bk.hold} · {bk.pos} {c.positionHint}
+      </div>
+      {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+
+      {c.lhbInst && (
+        <div className="sc-badges">
+          {lhbBadges(c.lhbInst, k).map((b, i) => (
+            <span key={i} className={b.cls} title={b.title}>
+              {b.label}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
+        <span className="sc-chip hot">
+          {bk.pole} {c.poleVolRatio.toFixed(1)}x
+        </span>
+        {c.higherHigh && c.higherLow && <span className="sc-chip ok">{bk.stepUp}✓</span>}
+        <span className="sc-chip">
+          {bk.consol} {c.consolDays}
+          {bk.days}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak'>('newhigh')
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold'>('newhigh')
+  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold }[tab]
+  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc }[tab]
 
   return (
     <section className="view-stack">
@@ -433,7 +677,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
       <div className="panel-title themes-toolbar">
         <h2>
           <Crosshair size={18} weight="bold" style={{ verticalAlign: '-3px', marginRight: 6 }} />
-          {tab === 'newhigh' ? sc.title : tab === 'pullback' ? sc.titlePullback : tab === 'highdiv' ? sc.tabs.highDiv : sc.tabs.volBreak}
+          {tabTitle}
         </h2>
         {(data || lastUpdated) && (
           <span className="themes-updated">
@@ -452,7 +696,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
           {loading ? sc.scanning : sc.scan}
         </button>
       </div>
-      <p className="themes-desc">{tab === 'newhigh' ? sc.desc : tab === 'pullback' ? sc.pbDesc : tab === 'highdiv' ? sc.hdDesc : sc.vbDesc}</p>
+      <p className="themes-desc">{tabDesc}</p>
 
       {error && !data && <div className="alert-item danger">{sc.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{sc.scanning}</div>}
@@ -485,6 +729,18 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               >
                 {sc.tabs.volBreak} ({data.volbreak?.length ?? 0})
               </button>
+              <button
+                className={`seg-btn${tab === 'fundres' ? ' active' : ''}`}
+                onClick={() => setTab('fundres')}
+              >
+                {sc.tabs.fundRes} ({data.fundres?.length ?? 0})
+              </button>
+              <button
+                className={`seg-btn${tab === 'bhold' ? ' active' : ''}`}
+                onClick={() => setTab('bhold')}
+              >
+                {sc.tabs.bhold} ({data.bhold?.length ?? 0})
+              </button>
             </div>
           </div>
 
@@ -495,18 +751,26 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 {data.truncated ? ` · ${sc.truncatedNote}` : ''}
               </div>
 
-              <div className="sc-group-head">
-                <CheckCircle size={16} weight="fill" /> {sc.groups.breakout} ({data.breakout.length})
-              </div>
-              {data.breakout.length === 0 ? (
-                <div className="sc-empty">{sc.empty}</div>
-              ) : (
-                <div className="sc-grid">
-                  {data.breakout.map((c) => (
-                    <Card key={c.code} c={c} t={t} />
-                  ))}
-                </div>
-              )}
+              {(() => {
+                // 今日首次突破:只列今天首次站上前高的(firstBreakout!==false;旧快照无此字段→保留显示)。
+                const firstBreaks = data.breakout.filter((c) => c.firstBreakout !== false)
+                return (
+                  <>
+                    <div className="sc-group-head">
+                      <CheckCircle size={16} weight="fill" /> {sc.groups.breakout} ({firstBreaks.length})
+                    </div>
+                    {firstBreaks.length === 0 ? (
+                      <div className="sc-empty">{sc.empty}</div>
+                    ) : (
+                      <div className="sc-grid">
+                        {firstBreaks.map((c) => (
+                          <Card key={c.code} c={c} t={t} />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
 
               <div className="sc-group-head">
                 <Lightning size={16} weight="fill" /> {sc.groups.trigger} ({data.trigger.length})
@@ -615,6 +879,46 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 <div className="sc-grid">
                   {(data.volbreak ?? []).map((c) => (
                     <VolBreakCard key={`vb-${c.code}`} c={c} t={t} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'fundres' && (
+            <>
+              <div className="sc-meta">
+                {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
+              </div>
+              <div className="sc-group-head">
+                <Coins size={16} weight="fill" /> {sc.groups.fundres} ({data.fundres?.length ?? 0})
+              </div>
+              {(data.fundres?.length ?? 0) === 0 ? (
+                <div className="sc-empty">{sc.empty}</div>
+              ) : (
+                <div className="sc-grid">
+                  {(data.fundres ?? []).map((c) => (
+                    <FundResCard key={`fr-${c.code}`} c={c} t={t} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'bhold' && (
+            <>
+              <div className="sc-meta">
+                {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
+              </div>
+              <div className="sc-group-head">
+                <FlagBanner size={16} weight="fill" /> {sc.groups.bhold} ({data.bhold?.length ?? 0})
+              </div>
+              {(data.bhold?.length ?? 0) === 0 ? (
+                <div className="sc-empty">{sc.empty}</div>
+              ) : (
+                <div className="sc-grid">
+                  {(data.bhold ?? []).map((c) => (
+                    <BHoldCard key={`bh-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
               )}
