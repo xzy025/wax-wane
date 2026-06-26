@@ -48,6 +48,7 @@ export const THEMES: ThemeDef[] = [
     peers: [
       { market: 'US', code: 'GLW', name: '康宁', nameEn: 'Corning', label: '光纤+玻璃基板' },
       { market: 'US', code: 'FN', name: '富纳康', nameEn: 'Fabrinet', label: '光器件代工' },
+      { market: 'JP', code: '5803', name: '藤仓', nameEn: 'Fujikura', label: '光纤光缆/熔接机龙头' },
     ],
   },
   {
