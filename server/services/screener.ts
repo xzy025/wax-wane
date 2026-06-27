@@ -10,13 +10,14 @@ import { computeStreaks } from './screenerStreak'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
-import { SCREENER as C, PULLBACK, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, type ScreenerConfig } from '../config/screener'
+import { SCREENER as C, PULLBACK, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, TRENDNEW, type ScreenerConfig } from '../config/screener'
 import { classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate, type MarketRegime } from './screenerRules'
 import { classifyPullback, type PullbackCandidate } from './pullbackRules'
 import { classifyHighDivergence, type HighDivCandidate } from './divergenceRules'
 import { classifyVolBreakout, type VolBreakCandidate } from './volBreakoutRules'
 import { classifyFundResonance, type FundResCandidate } from './fundResonanceRules'
 import { classifyBreakoutHold, type BreakoutHoldCandidate } from './breakoutHoldRules'
+import { classifyTrendNewHigh, type TrendNewCandidate } from './trendNewHighRules'
 import { technicalCombo, techMult, type TechnicalCombo } from './technicalScore'
 import { boardStrengthAsOf } from './rotationRules'
 import { resolveStockIndustryBoard } from './rotation'
@@ -129,6 +130,19 @@ export interface BHoldScreenerCandidate extends BreakoutHoldCandidate {
   ta?: TechnicalCombo
 }
 
+/** 趋势新高候选(第八组):多头排列 + 贴/站上 52 周高 + 近期持续创新高,见 trendNewHighRules.classifyTrendNewHigh。
+ *  纯 OHLCV,专收突破战法拦掉的「已走出来的趋势中军」;走查回测 0.28R/PF1.52(EXT15+NHlookback40 调优后)。 */
+export interface TrendNewScreenerCandidate extends TrendNewCandidate {
+  code: string
+  name: string
+  /** 龙虎榜加分(机构/游资,无则未上榜)。 */
+  lhbInst?: LhbConfluence
+  /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
+  appearStreak?: number
+  /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
+  ta?: TechnicalCombo
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -153,6 +167,7 @@ export interface ScreenerResult {
   volbreak: VolBreakScreenerCandidate[] // 第五组:放量新高·资金驱动突破(MA5>MA21+持续放量+真52周高,回测 0.27R/PF1.41)
   fundres: FundResScreenerCandidate[] // 第六组:资金流共振·机构调研(放量+短期多头+机构调研,回测 0.26R/PF2.08;资金共振为实盘加成)
   bhold: BHoldScreenerCandidate[] // 第七组:突破整理·延续(放量大阳过前高+十字星整理+高低点双抬,确认入场回测 0.45R/PF1.90)
+  trendnew: TrendNewScreenerCandidate[] // 第八组:趋势新高(多头排列+持续创新高+贴52周高,纯OHLCV,回测 0.28R/PF1.52)
   scanned: number // 新高战法初筛后入围(取K线)只数
   scannedPullback: number // 回调战法初筛(量比榜)入围只数
   universe: number // clist 全市场只数
@@ -283,10 +298,11 @@ async function confirmUnion(
   vb: VolBreakScreenerCandidate | null
   fr: FundResScreenerCandidate | null
   bh: BHoldScreenerCandidate | null
+  tn: TrendNewScreenerCandidate | null
 }> {
   try {
     const { klines } = await fetchStockKline(u.p.code, 101, cfg.KLINE_COUNT)
-    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return { nh: null, pb: null, hd: null, vb: null, fr: null, bh: null }
+    if (!klines || klines.length < cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK + 1) return { nh: null, pb: null, hd: null, vb: null, fr: null, bh: null, tn: null }
     stats.fetched++ // 取到足量K线(数据源健康度);match 与否是另一回事
     const bars = klines as Bar[]
     let nh: (ScreenerCandidate & { liqAmount: number }) | null = null
@@ -295,6 +311,7 @@ async function confirmUnion(
     let vb: VolBreakScreenerCandidate | null = null
     let fr: FundResScreenerCandidate | null = null
     let bh: BHoldScreenerCandidate | null = null
+    let tn: TrendNewScreenerCandidate | null = null
     if (u.nh) {
       const cand = classify(bars, cfg)
       if (cand) nh = { ...cand, code: u.p.code, name: u.p.name, score: 0, liqAmount: u.p.amount }
@@ -324,6 +341,9 @@ async function confirmUnion(
     // 突破整理·延续(对全并集都跑,纯 OHLCV·K线已取;信号日=整理日,实战次日突破 trigger 介入)。
     const bhCand = classifyBreakoutHold(bars, u.p.code, BHOLD)
     if (bhCand) bh = { ...bhCand, code: u.p.code, name: u.p.name }
+    // 趋势新高(对全并集都跑,纯 OHLCV·K线已取;专收突破战法拦掉的趋势中军,回测 0.28R/PF1.52)。
+    const tnCand = classifyTrendNewHigh(bars, u.p.code, TRENDNEW)
+    if (tnCand) tn = { ...tnCand, code: u.p.code, name: u.p.name }
     // 技术分析组合(Wyckoff+道氏+AlBrooks 量价)—— 全战法整体评分因子,K 线在手算一次,挂到各命中候选。
     const ta = technicalCombo(bars, u.p.code)
     if (nh) nh.ta = ta
@@ -332,9 +352,10 @@ async function confirmUnion(
     if (vb) vb.ta = ta
     if (fr) fr.ta = ta
     if (bh) bh.ta = ta
-    return { nh, pb, hd, vb, fr, bh }
+    if (tn) tn.ta = ta
+    return { nh, pb, hd, vb, fr, bh, tn }
   } catch {
-    return { nh: null, pb: null, hd: null, vb: null, fr: null, bh: null }
+    return { nh: null, pb: null, hd: null, vb: null, fr: null, bh: null, tn: null }
   }
 }
 
@@ -370,8 +391,9 @@ async function enrichConfluence(
   pbCands: PullbackScreenerCandidate[],
   frCands: FundResScreenerCandidate[],
   bhCands: BHoldScreenerCandidate[],
+  tnCands: TrendNewScreenerCandidate[],
 ): Promise<void> {
-  const lhbTargets: Array<{ code: string; lhbInst?: LhbConfluence }> = [...nhCands, ...pbCands, ...frCands, ...bhCands]
+  const lhbTargets: Array<{ code: string; lhbInst?: LhbConfluence }> = [...nhCands, ...pbCands, ...frCands, ...bhCands, ...tnCands]
   if (lhbTargets.length === 0) return
   // ① 龙虎榜:近 K 交易日机构/游资/资金净买(新高 + 回调 候选共享同一索引)
   try {
@@ -588,23 +610,29 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .map((r) => r.bh)
     .filter((x): x is BHoldScreenerCandidate => x != null)
     .sort((a, b) => b.tier - a.tier || b.score - a.score)
+  const trendnew = confirmed
+    .map((r) => r.tn)
+    .filter((x): x is TrendNewScreenerCandidate => x != null)
+    .sort((a, b) => b.tier - a.tier || b.score - a.score)
 
   // 资金流加成:成交量排名(免费)+ 主力净流入/资金共振(实盘 live·未回测·env 门控)。
   await enrichFundFlow(fundres, turnoverRankByCode)
 
-  // 龙虎榜机构/游资 + 板块强弱 加分(龙虎榜对新高+回调+资金流共振+突破整理都挂,板块仅新高;best-effort)
-  await enrichConfluence(enriched, pullback, fundres, bhold)
+  // 龙虎榜机构/游资 + 板块强弱 加分(龙虎榜对新高+回调+资金流共振+突破整理+趋势新高都挂,板块仅新高;best-effort)
+  await enrichConfluence(enriched, pullback, fundres, bhold, trendnew)
 
   // 技术分析组合(Wyckoff+道氏+AlBrooks)整体评分:其余组 score 按 ta 因子缩放、distribution 降档+⚠,再按调整后重排。
   applyTaPenalty(highdiv)
   applyTaPenalty(volbreak)
   applyTaPenalty(fundres)
   applyTaPenalty(bhold)
+  applyTaPenalty(trendnew)
   for (const c of pullback) if (c.ta) c.score = Math.round(c.score * techMult(c.ta.score01))
   highdiv.sort((a, b) => b.tier - a.tier || b.score - a.score)
   volbreak.sort((a, b) => b.tier - a.tier || b.score - a.score)
   fundres.sort((a, b) => b.tier - a.tier || b.score - a.score)
   bhold.sort((a, b) => b.tier - a.tier || b.score - a.score)
+  trendnew.sort((a, b) => b.tier - a.tier || b.score - a.score)
   pullback.sort((a, b) => b.score - a.score)
 
   // RS 百分位(在入围集内)+ 流动性归一 + 外部加分 → 评分
@@ -641,6 +669,7 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     volbreak,
     fundres,
     bhold,
+    trendnew,
     scanned: nhSurvivors.length,
     scannedPullback: pbSurvivors.length,
     universe,
@@ -650,7 +679,7 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   // 连续出现天数:回溯历史快照(DB 优先,否则磁盘)给每只候选打 appearStreak。
   // 放在落盘/入库之前 → 持久化的快照里也带 streak(重载即正确,幂等)。
   try {
-    const all = [...breakout, ...trigger, ...watch, ...pullback, ...highdiv, ...volbreak, ...fundres, ...bhold]
+    const all = [...breakout, ...trigger, ...watch, ...pullback, ...highdiv, ...volbreak, ...fundres, ...bhold, ...trendnew]
     const todayCodes = new Set(all.map((c) => c.code))
     const priorSets = await loadRecentCodeSets(asof, 30)
     const streaks = computeStreaks(todayCodes, priorSets)
@@ -661,7 +690,7 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
 
   // 完成日志:取K线成功率(fetched/union 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。
   console.log(
-    `[Screener] 完成:取K线 ${stats.fetched}/${union.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length} / 临界 ${watch.length} / 回调 ${pullback.length} / 新高分歧 ${highdiv.length} / 放量新高 ${volbreak.length} / 资金流共振 ${fundres.length} / 突破整理 ${bhold.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+    `[Screener] 完成:取K线 ${stats.fetched}/${union.length} 成功 → 命中 突破 ${breakout.length} / 扳机 ${trigger.length} / 临界 ${watch.length} / 回调 ${pullback.length} / 新高分歧 ${highdiv.length} / 放量新高 ${volbreak.length} / 资金流共振 ${fundres.length} / 突破整理 ${bhold.length} / 趋势新高 ${trendnew.length},耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   )
 
   // 按日落盘(无DB也可回看,并作为重启/盘后/过0点的磁盘兜底);失败不影响返回。
@@ -737,6 +766,7 @@ function unionCodes(r: ScreenerResult): Set<string> {
       ...(r.volbreak ?? []),
       ...(r.fundres ?? []),
       ...(r.bhold ?? []),
+      ...(r.trendnew ?? []),
     ].map((c) => c.code),
   )
 }

@@ -228,6 +228,32 @@ export interface BHoldScreenerCandidate {
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
+/** Mirror of server TrendNewScreenerCandidate (趋势新高·多头排列+持续创新高+贴52周高). */
+export interface TrendNewScreenerCandidate {
+  group: 'trendnew'
+  code: string
+  name: string
+  price: number
+  changePct: number
+  nhDays: number // 近观察窗内创新高天数(持续新高度)
+  dist52Pct: number // 距 52 周高%:≤0 创/平新高,>0 在高点下方
+  rs: number // 相对强度原值
+  maRef: number // 参考均线(MA20)
+  closeStrength: number // (收−低)/(高−低)
+  entry: number // 介入参考(信号日收盘)
+  stop: number
+  target: number
+  riskReward: number
+  positionHint: string
+  tier: number
+  score: number
+  reason: string
+  riskNote?: string
+  lhbInst?: LhbConfluence
+  appearStreak?: number
+  ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -250,6 +276,7 @@ export interface ScreenerResult {
   volbreak?: VolBreakScreenerCandidate[] // 第五组:放量新高·资金驱动突破(可选,兼容旧快照)
   fundres?: FundResScreenerCandidate[] // 第六组:资金流共振·机构调研(可选,兼容旧快照)
   bhold?: BHoldScreenerCandidate[] // 第七组:突破整理·延续(可选,兼容旧快照)
+  trendnew?: TrendNewScreenerCandidate[] // 第八组:趋势新高(可选,兼容旧快照)
   scanned: number
   scannedPullback: number
   universe: number

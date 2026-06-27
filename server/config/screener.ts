@@ -426,6 +426,49 @@ export const VOLBREAK = {
 } as const satisfies VolBreakConfig
 
 // ════════════════════════════════════════════════════════════════════════
+// 趋势新高 战法(第八类,见 services/trendNewHighRules.classifyTrendNewHigh)。
+// 与「突破/放量新高」互补:突破战法是「捕捉刚突破那一刻」并主动拦截追高(notExtended),
+// 故已走出来、远离平台、持续创新高的趋势中军(如 600176 中国巨石)反而进不了任何桶。
+// 本战法专收这类:完整多头排列(复用 trendTemplate)+ 贴近/站上 52 周高 + 近期持续创新高。
+// 价格口径(非突破口径),纯 OHLCV。作发现型观察清单上线;阈值由 TRENDNEW=1 回测裁决/微调。
+export interface TrendNewConfig {
+  MIN_BARS: number // 趋势模板需 ≥ MA_LONG(250)+RISE_LOOKBACK(20)+1=271
+  NEAR_HIGH_PCT: number // 距 52 周高上限%(贴近/站上)
+  RECENT_WIN: number // 持续创新高观察窗(根)
+  NH_LOOKBACK: number // 滚动新高回看窗(创"近此根新高"才算新高日)
+  MIN_NH_DAYS: number // 观察窗内创新高天数下限(排除一次性脉冲)
+  MA_REF: number // 参考均线(止损/追高 guard)
+  CLOSE_STRENGTH: number // 收盘强度下限 (收−低)/(高−低)
+  EXT_MAX_PCT: number // 收盘距 MA_REF 上限%(追高 guard,防垂直顶;比突破口径(5)宽)
+  STOP_MAX_PCT: number // 止损封顶距进场%
+  R_MULT: number // 目标 = 进场 + R_MULT×风险
+  LIMITUP_MAX: number // 连板上限(软门槛,买不到的妖股剔除)
+  /** 打分因子权重(按权重和归一):持续新高度 / 相对强度 / 收盘强度 / 贴高度。 */
+  WEIGHTS: { nh: number; rs: number; closeStrong: number; near: number }
+}
+
+// 阈值经 TRENDNEW=1 走查回测裁决(SAMPLE=300/KLINE=700,2023-07~2026-06):
+//  默认 0.22R/PF1.39(n533),远超突破基线 0.08R、优于分歧 0.19R,与放量新高 0.27R 同档。
+//  扫描两处显著加成且已采纳:① EXT_MAX_PCT 30→15(追高 guard 收紧是最大杠杆,0.22→0.29R/PF1.55)——
+//  数据推翻"宽松 guard"假设:趋势中军在「未过度脱离 MA20」时介入才有 edge;② NH_LOOKBACK 60→40
+//  (近期新高比长回看更重要,0.22→0.24R)。两处组合复测 0.28R/PF1.52/n415、最大回撤反降(24.9→17.7R),
+//  确认非过拟合。HOLD=40 期望更高(0.30R)印证趋势跟随需放长。结论:过线上线(介于放量新高 0.27R 与突破整理 0.45R)。
+export const TRENDNEW = {
+  MIN_BARS: 271,
+  NEAR_HIGH_PCT: 5,
+  RECENT_WIN: 20,
+  NH_LOOKBACK: 40,
+  MIN_NH_DAYS: 3,
+  MA_REF: 20,
+  CLOSE_STRENGTH: 0.4,
+  EXT_MAX_PCT: 15,
+  STOP_MAX_PCT: 8,
+  R_MULT: 2,
+  LIMITUP_MAX: 2,
+  WEIGHTS: { nh: 0.4, rs: 0.3, closeStrong: 0.15, near: 0.15 },
+} as const satisfies TrendNewConfig
+
+// ════════════════════════════════════════════════════════════════════════
 // 资金流共振·机构调研 战法(第六类,见 services/fundResonanceRules.classifyFundResonance)。
 // 来源:用户转述的「杭州高手」量化短线 —— 净流入排名∩成交量排名 top200 + 机构周调研 + 放量高开,
 //   持股平均 3 天、容量小。其核心因子「主力净流入排名」东财不给免费历史(数据墙,同连板VWAP),

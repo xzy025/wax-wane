@@ -8,6 +8,7 @@ import {
   type VolBreakScreenerCandidate,
   type FundResScreenerCandidate,
   type BHoldScreenerCandidate,
+  type TrendNewScreenerCandidate,
   type TechnicalCombo,
   type ScreenerRegime,
 } from '../hooks/useScreener'
@@ -664,12 +665,90 @@ function BHoldCard({ c, t }: { c: BHoldScreenerCandidate; t: Translation }) {
   )
 }
 
+function TrendNewCard({ c, t }: { c: TrendNewScreenerCandidate; t: Translation }) {
+  const k = t.screener.card
+  const tn = t.screener.tnCard
+  const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+          <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
+        </div>
+        <StreakScore c={c} k={k} />
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {tn.nh} / {tn.dist}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="positive-text">{c.nhDays}{tn.times}</span> / {c.dist52Pct.toFixed(1)}%
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title={c.reason}>
+            {tn.entry}
+          </span>
+          <span className="sc-metric-value mono positive-text">{fmtPrice(c.entry)}</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {tn.stop} · {tn.rr}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="negative-text">{fmtPrice(c.stop)}</span> · 1:{c.riskReward}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{tn.target}</span>
+          <span className="sc-metric-value mono positive-text">{fmtPrice(c.target)}</span>
+        </div>
+      </div>
+
+      <div className="sc-watch-note">
+        {tn.plan}: {fmtPrice(c.entry)} {tn.buy} · {tn.ma} {fmtPrice(c.maRef)} {tn.stop} · {tn.pos} {c.positionHint}
+      </div>
+      {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+
+      {c.lhbInst && (
+        <div className="sc-badges">
+          {lhbBadges(c.lhbInst, k).map((b, i) => (
+            <span key={i} className={b.cls} title={b.title}>
+              {b.label}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
+        <span className="sc-chip hot">
+          {tn.nh} {c.nhDays}{tn.times}
+        </span>
+        <span className="sc-chip ok">
+          {tn.rs} {c.rs.toFixed(2)}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold'>('newhigh')
-  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold }[tab]
-  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc }[tab]
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew'>('newhigh')
+  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew }[tab]
+  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc }[tab]
 
   return (
     <section className="view-stack">
@@ -741,6 +820,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               >
                 {sc.tabs.bhold} ({data.bhold?.length ?? 0})
               </button>
+              <button
+                className={`seg-btn${tab === 'trendnew' ? ' active' : ''}`}
+                onClick={() => setTab('trendnew')}
+              >
+                {sc.tabs.trendNew} ({data.trendnew?.length ?? 0})
+              </button>
             </div>
           </div>
 
@@ -750,6 +835,60 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
                 {data.truncated ? ` · ${sc.truncatedNote}` : ''}
               </div>
+
+              {(() => {
+                // 持续新高:连续 ≥3 日在榜的老面孔,从扳机/临界中摘出单列。
+                const PERSIST_STREAK = 3
+                const isPersistent = (c: ScreenerCandidate) => (c.appearStreak ?? 0) >= PERSIST_STREAK
+                const trigger = data.trigger.filter((c) => !isPersistent(c))
+                const watch = (data.watch ?? []).filter((c) => !isPersistent(c))
+                const persistent = [...data.trigger, ...(data.watch ?? [])]
+                  .filter(isPersistent)
+                  .sort((a, b) => (b.appearStreak ?? 0) - (a.appearStreak ?? 0) || b.score - a.score)
+                return (
+                  <>
+                    <div className="sc-group-head">
+                      <Lightning size={16} weight="fill" /> {sc.groups.trigger} ({trigger.length})
+                    </div>
+                    {trigger.length === 0 ? (
+                      <div className="sc-empty">{sc.empty}</div>
+                    ) : (
+                      <div className="sc-grid">
+                        {trigger.map((c) => (
+                          <Card key={c.code} c={c} t={t} />
+                        ))}
+                      </div>
+                    )}
+
+                    {watch.length > 0 && (
+                      <>
+                        <div className="sc-group-head sc-group-head--watch">
+                          <Binoculars size={16} weight="fill" /> {sc.groups.watch} ({watch.length})
+                        </div>
+                        <div className="sc-grid">
+                          {watch.map((c) => (
+                            <Card key={`w-${c.code}`} c={c} t={t} variant="watch" />
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {persistent.length > 0 && (
+                      <>
+                        <div className="sc-group-head">
+                          <TrendUp size={16} weight="fill" /> {sc.groups.persistentHigh} ({persistent.length})
+                        </div>
+                        <p className="sc-cross-desc">{sc.phNote}</p>
+                        <div className="sc-grid">
+                          {persistent.map((c) => (
+                            <Card key={`ph-${c.code}`} c={c} t={t} />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                )
+              })()}
 
               {(() => {
                 // 今日首次突破:只列今天首次站上前高的(firstBreakout!==false;旧快照无此字段→保留显示)。
@@ -771,32 +910,6 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                   </>
                 )
               })()}
-
-              <div className="sc-group-head">
-                <Lightning size={16} weight="fill" /> {sc.groups.trigger} ({data.trigger.length})
-              </div>
-              {data.trigger.length === 0 ? (
-                <div className="sc-empty">{sc.empty}</div>
-              ) : (
-                <div className="sc-grid">
-                  {data.trigger.map((c) => (
-                    <Card key={c.code} c={c} t={t} />
-                  ))}
-                </div>
-              )}
-
-              {(data.watch?.length ?? 0) > 0 && (
-                <>
-                  <div className="sc-group-head sc-group-head--watch">
-                    <Binoculars size={16} weight="fill" /> {sc.groups.watch} ({data.watch?.length})
-                  </div>
-                  <div className="sc-grid">
-                    {(data.watch ?? []).map((c) => (
-                      <Card key={`w-${c.code}`} c={c} t={t} variant="watch" />
-                    ))}
-                  </div>
-                </>
-              )}
 
               {(() => {
                 // 反向交叉:既在近 5 日龙虎榜(机构/资金净买)、又符合突破/扳机的标的(主力共振)。
@@ -919,6 +1032,26 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 <div className="sc-grid">
                   {(data.bhold ?? []).map((c) => (
                     <BHoldCard key={`bh-${c.code}`} c={c} t={t} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'trendnew' && (
+            <>
+              <div className="sc-meta">
+                {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
+              </div>
+              <div className="sc-group-head">
+                <TrendUp size={16} weight="fill" /> {sc.groups.trendnew} ({data.trendnew?.length ?? 0})
+              </div>
+              {(data.trendnew?.length ?? 0) === 0 ? (
+                <div className="sc-empty">{sc.empty}</div>
+              ) : (
+                <div className="sc-grid">
+                  {(data.trendnew ?? []).map((c) => (
+                    <TrendNewCard key={`tn-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
               )}
