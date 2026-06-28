@@ -13,8 +13,9 @@ import { fetchStockKline } from '../services/ashare'
 import { trendTemplate, computeVCP, classify, smaAt, type Bar } from '../services/screenerRules'
 import { classifyVolBreakout } from '../services/volBreakoutRules'
 import { classifyTrendNewHigh } from '../services/trendNewHighRules'
+import { classifyTrendLeader, consecutiveAboveMA5 } from '../services/trendLeaderRules'
 import { consecutiveLimitUps } from '../services/divergenceRules'
-import { SCREENER as C, VOLBREAK, TRENDNEW } from '../config/screener'
+import { SCREENER as C, VOLBREAK, TRENDNEW, TRENDWATCH } from '../config/screener'
 
 const yi = (n: number) => (n / 1e8).toFixed(2) + '亿'
 const pct = (n: number) => (n >= 0 ? '+' : '') + n.toFixed(2) + '%'
@@ -27,6 +28,7 @@ interface Verdict {
   status: string // 一句话结论
   group?: 'breakout' | 'trigger'
   trendnew?: boolean // 命中第8战法趋势新高
+  trendwatch?: boolean // 命中趋势中军·监控(放宽买点门槛)
 }
 
 /** Stage 1:全市场 clist 廉价初筛(成交额/市值/动量/ST)。返回 null=取数失败。 */
@@ -78,6 +80,7 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
   }
   const bars = klines as Bar[]
   let trendnewHit = false
+  let trendwatchHit = false
 
   // 放量新高·资金驱动突破(独立战法,与趋势模板无关;在此一并诊断 — 兴发集团这类票走这条路)
   const vb = classifyVolBreakout(bars, code, VOLBREAK)
@@ -174,6 +177,24 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
     }
   }
 
+  // ── 趋势中军·监控(发现型,放宽收强/追高门槛)逐关诊断 ──
+  {
+    const TW = TRENDWATCH
+    const ma5Hold = consecutiveAboveMA5(closes, last)
+    const okMa5 = ma5Hold >= TW.MA5_HOLD_MIN
+    const twExt = (c / smaAt(closes, TW.MA_REF, last) - 1) * 100
+    const okTwExt = twExt <= TW.EXT_MAX_PCT
+    const twHit = classifyTrendLeader(bars, code, TW) // 权威裁决(趋势模板/持续新高复用上方,放宽收强/贴高)
+    console.log('   〔趋势中军·监控〕(趋势新高放宽超集·非买点):')
+    console.log(`     连续站上MA5 ${ma5Hold} 日 ≥ ${TW.MA5_HOLD_MIN} ${mark(okMa5)}    距MA${TW.MA_REF} ${pct(twExt)} ≤ +${TW.EXT_MAX_PCT}%(宽松) ${mark(okTwExt)}`)
+    if (twHit) {
+      console.log(`     >>> 🎯 命中【趋势中军·监控】${twHit.reason}${twHit.riskNote ? ` · ${twHit.riskNote}` : ''}`)
+      trendwatchHit = true
+    } else {
+      console.log('     >>> ✗ 未命中(需 趋势模板+持续新高+连续站上MA5;收强/贴高已放宽,卡点多为站上MA5不足或脱离MA20>40%)')
+    }
+  }
+
   // 分组诊断
   const v = computeVCP(bars, C)
   const pivot = v.resistPrior
@@ -198,7 +219,7 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
     const icon = cand.group === 'watch' ? '👁' : '✅'
     console.log(`   >>> ${icon} 命中【${label}】${cand.signals.pattern}${cand.watchReason ? ` · ${cand.watchReason}` : ''}`)
     console.log(`       介入 ${cand.pivot}  加仓(5日线) ${cand.ma5 ?? '—'}  止损 ${cand.stopLoss}  目标 ${cand.target}  评分 ${cand.score || '(单股探针不计排名分)'}`)
-    return { code, name, group: cand.group, status: `命中 ${label}:${cand.signals.pattern}`, trendnew: trendnewHit }
+    return { code, name, group: cand.group, status: `命中 ${label}:${cand.signals.pattern}`, trendnew: trendnewHit, trendwatch: trendwatchHit }
   }
 
   // 趋势过但两组都不收 → 给「距触发还差什么」
@@ -209,7 +230,7 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
   if (!inNear && !abovePivot && distToPivot > C.NEAR_PCT) tips.push(`距前高 ${distToPivot.toFixed(2)}% 超出扳机带 ${C.NEAR_PCT}%`)
   console.log(`   >>> ⏳ 趋势完美,但落在"放量逼近"空档(两组都不收)`)
   console.log(`       距触发:${tips.join(';') || '等量价进一步明朗'}`)
-  return { code, name, status: `观察中(趋势过/未触发):${tips.join(';')}`, trendnew: trendnewHit }
+  return { code, name, status: `观察中(趋势过/未触发):${tips.join(';')}`, trendnew: trendnewHit, trendwatch: trendwatchHit }
 }
 
 async function probeOne(code: string): Promise<Verdict> {
@@ -245,7 +266,8 @@ async function main() {
   for (const v of verdicts) {
     const tag = v.group === 'breakout' ? '🟢突破' : v.group === 'trigger' ? '🟡扳机' : '⚪观察'
     const tn = v.trendnew ? ' 🚀趋势新高' : ''
-    console.log(`  ${tag}  ${v.code} ${v.name.padEnd(6)}  ${v.status}${tn}`)
+    const tw = v.trendwatch ? ' 🎯趋势中军' : ''
+    console.log(`  ${tag}  ${v.code} ${v.name.padEnd(6)}  ${v.status}${tn}${tw}`)
   }
 }
 

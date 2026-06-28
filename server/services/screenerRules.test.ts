@@ -109,6 +109,28 @@ describe('classify', () => {
   })
 })
 
+describe('classify · 相对大盘自适应收强 (Part B, RS_ADAPTIVE_CLOSE)', () => {
+  // 弱收盘突破:close 40.2>pivot40 + 放量,但收强 (40.2−39.8)/(41.0−39.8)=0.33<0.75 → 默认落 watch。
+  const weakBreakoutToday: Bar = { date: 'today', open: 40.0, close: 40.2, high: 41.0, low: 39.8, volume: 3000 }
+
+  it('默认(flag off):弱收盘突破 → watch「放量突破·收盘弱」,不升突破', () => {
+    const c = classify(makeBars(weakBreakoutToday))!
+    expect(c.group).toBe('watch')
+    expect(c.signals.pattern).toBe('放量突破·收盘弱')
+  })
+
+  it('大盘暴跌日 + flag on:逆势红盘+站上MA5 视同收强 → 升 breakout', () => {
+    const cfg: ScreenerConfig = { ...SCREENER, RS_ADAPTIVE_CLOSE: true, MARKET_CHG_PCT: -3 }
+    const c = classify(makeBars(weakBreakoutToday), cfg)!
+    expect(c.group).toBe('breakout')
+  })
+
+  it('非暴跌日 + flag on:大盘没明显跌则不自适应 → 仍 watch', () => {
+    const cfg: ScreenerConfig = { ...SCREENER, RS_ADAPTIVE_CLOSE: true, MARKET_CHG_PCT: 0 }
+    expect(classify(makeBars(weakBreakoutToday), cfg)!.group).toBe('watch')
+  })
+})
+
 describe('computeTarget modes (#2)', () => {
   it('rmult mode sets target = entry + R_MULT × risk, with no min-pct floor', () => {
     const cfg: ScreenerConfig = { ...SCREENER, TARGET_MODE: 'rmult', TARGET_R_MULT: 2.5 }

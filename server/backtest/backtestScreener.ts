@@ -77,6 +77,8 @@ const RUN_BHOLD = process.env.BHOLD === '1'
 const RUN_PBREAK = process.env.PBREAK === '1'
 // TRENDNEW: 趋势新高(多头排列+持续创新高+贴52周高,纯OHLCV,可真回测;默认关;TRENDNEW=1 开启)
 const RUN_TRENDNEW = process.env.TRENDNEW === '1'
+// RS: 突破组收强「相对大盘自适应」(Part B)裁决——大盘暴跌日逆势红盘+站MA5 视同收强达标,对比 baseline。RS=1 开启。
+const RUN_RS = process.env.RS === '1'
 // TA: 技术分析组合(Wyckoff+道氏+AlBrooks)因子分桶检验(把现有战法成交按 TA bias/distribution 分桶;默认关;TA=1 开启)
 const RUN_TA = process.env.TA === '1'
 const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
@@ -320,14 +322,17 @@ function simulate(
   hold = HOLD,
   regimeByDate?: Map<string, MarketRegime>,
   rMap?: RMap,
+  idxChgByDate?: Map<string, number>, // 给定则逐日把大盘当日涨跌幅注入 cfg.MARKET_CHG_PCT(相对大盘自适应收强用)
 ): Trade[] {
   const { bars } = sb
   const len = bars.length
   const start = cfg.MA_LONG + cfg.MA_LONG_RISE_LOOKBACK // 切片需 +1 长度
   const trades: Trade[] = []
+  const dayCfg = idxChgByDate ? { ...cfg } : cfg // 仅 RS 模式下逐日改 MARKET_CHG_PCT,普通回测零开销
   let i = start
   while (i <= len - 2) {
-    const cand = classify(bars.slice(0, i + 1), cfg)
+    if (idxChgByDate) (dayCfg as ScreenerConfig).MARKET_CHG_PCT = idxChgByDate.get(bars[i].date) ?? 0
+    const cand = classify(bars.slice(0, i + 1), dayCfg)
     if (!cand || cand.group !== group) {
       i++
       continue
@@ -831,8 +836,9 @@ function runConfig(
   cfg: ScreenerConfig,
   regimeByDate?: Map<string, MarketRegime>,
   rMap?: RMap,
+  idxChgByDate?: Map<string, number>,
 ): { metrics: Metrics; trades: Trade[] } {
-  const trades = data.flatMap((sb) => simulate(sb, cfg, 'breakout', HOLD, regimeByDate, rMap))
+  const trades = data.flatMap((sb) => simulate(sb, cfg, 'breakout', HOLD, regimeByDate, rMap, idxChgByDate))
   return { metrics: aggregate(trades), trades }
 }
 
@@ -841,6 +847,15 @@ function buildRegimeByDate(idxBars: { date: string; close: number }[], cfg: Scre
   const closes = idxBars.map((b) => b.close)
   const m = new Map<string, MarketRegime>()
   for (let i = 0; i < idxBars.length; i++) m.set(idxBars[i].date, marketRegime(closes.slice(0, i + 1), cfg))
+  return m
+}
+
+/** 指数 date → 当日涨跌幅%(单日 close/prevClose−1)。相对大盘自适应收强(Part B)用。 */
+function buildIdxChgByDate(idxBars: { date: string; close: number }[]): Map<string, number> {
+  const m = new Map<string, number>()
+  for (let i = 1; i < idxBars.length; i++) {
+    if (idxBars[i - 1].close > 0) m.set(idxBars[i].date, (idxBars[i].close / idxBars[i - 1].close - 1) * 100)
+  }
   return m
 }
 
@@ -1431,6 +1446,40 @@ async function main() {
   }
 
   // TRENDNEW: 趋势新高(多头排列 + 持续创新高 + 贴52周高,纯 OHLCV,现有缓存即可真回测)。
+  if (RUN_RS) {
+    console.log('\n========== Part B · 突破组收强「相对大盘自适应」(RS_ADAPTIVE_CLOSE)==========')
+    console.log('（大盘暴跌日逆势红盘+站MA5 视同收强达标 → 京东方型弱收盘突破升入 breakout。通过线=adaptive 期望≥baseline 且逆势新增子样本期望为正、PF>1）')
+    let idxBars: { date: string; close: number }[] | null = null
+    try {
+      idxBars = await fetchIndexKline('1.000300', KLINE + 60)
+    } catch (err) {
+      console.warn('[Backtest] RS:沪深300 取数失败,跳过:', err)
+    }
+    if (idxBars && idxBars.length > 2) {
+      const idxChgByDate = buildIdxChgByDate(idxBars)
+      const crashDays = [...idxChgByDate.values()].filter((v) => v <= SCREENER.RELSTR.CRASH_DAY_PCT).length
+      console.log(`沪深300 ${idxBars.length} 日,其中暴跌日(≤${SCREENER.RELSTR.CRASH_DAY_PCT}%)${crashDays} 天`)
+      const baseRs = runConfig(data, { ...SCREENER, RS_ADAPTIVE_CLOSE: false })
+      const adaptRs = runConfig(data, { ...SCREENER, RS_ADAPTIVE_CLOSE: true }, undefined, undefined, idxChgByDate)
+      console.log(fmtMetrics('baseline(flag off)', baseRs.metrics))
+      console.log(fmtMetrics('adaptive(flag on)', adaptRs.metrics))
+      console.log(
+        `→ 期望 ${baseRs.metrics.expectancyR}→${adaptRs.metrics.expectancyR}R(差 ${r2(adaptRs.metrics.expectancyR - baseRs.metrics.expectancyR)}R)· ` +
+          `PF ${baseRs.metrics.profitFactor}→${adaptRs.metrics.profitFactor} · 胜率 ${baseRs.metrics.winRate}→${adaptRs.metrics.winRate}% · 回撤 ${baseRs.metrics.maxDDR}→${adaptRs.metrics.maxDDR}R`,
+      )
+      // 逆势新增子样本:adaptive 比 baseline 多出的 breakout 成交(暴跌日弱收盘升入)。冷却致时序略有出入,作近似。
+      const baseKeys = new Set(baseRs.trades.map((t) => `${t.code}@${t.date}`))
+      const extra = aggregate(adaptRs.trades.filter((t) => !baseKeys.has(`${t.code}@${t.date}`)))
+      console.log(fmtMetrics(`  └ 逆势新增(n=${extra.n})`, extra))
+      const verdict = adaptRs.metrics.expectancyR >= baseRs.metrics.expectancyR && extra.expectancyR > 0
+      console.log(`裁决:${verdict ? '✅ 过线 → 可置 RS_ADAPTIVE_CLOSE=true 接 live' : '❌ 未过线 → 保持 false(只留 A 因子/监控)'}`)
+      writeFileSync(
+        join(OUT_DIR, `backtest-rs-${SAMPLE}-${KLINE}.json`),
+        JSON.stringify({ baseline: baseRs.metrics, adaptive: adaptRs.metrics, extra, crashDays, verdict }, null, 2),
+      )
+    }
+  }
+
   if (RUN_TRENDNEW) {
     const HOLD_TN = Number(process.env.HOLD_TN) || 20
     console.log(`\n========== 趋势新高(多头排列 + 持续创新高 + 贴52周高,信号日收盘进→${HOLD_TN}日撮合)==========`)

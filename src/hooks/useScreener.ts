@@ -72,6 +72,8 @@ export interface ScreenerCandidate {
   board?: BoardConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
+  relStrength?: number // 相对大盘强度(个股−指数 当日涨跌幅 pp,缺失=旧快照)
+  counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
 }
 
 /** Mirror of server PullbackScreenerCandidate (回调二次启动/圆弧底反包). */
@@ -254,6 +256,31 @@ export interface TrendNewScreenerCandidate {
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
+/** Mirror of server TrendWatchScreenerCandidate (趋势中军·监控:放宽买点门槛的发现型清单·非买点·未回测). */
+export interface TrendWatchScreenerCandidate {
+  group: 'trendwatch'
+  code: string
+  name: string
+  price: number
+  changePct: number
+  nhDays: number // 近观察窗内创新高天数(持续新高度)
+  dist52Pct: number // 距 52 周高%:≤0 创/平新高,>0 在高点下方
+  ma5HoldDays: number // 连续站上 MA5 天数
+  extPct: number // 距 MA20 偏离%(追高/回踩观察,非买点)
+  rs: number // 相对强度原值
+  maRef: number // MA20:结构参考/回踩位(非买点)
+  closeStrength: number // (收−低)/(高−低),仅展示
+  tier: number
+  score: number
+  reason: string
+  riskNote?: string
+  lhbInst?: LhbConfluence
+  appearStreak?: number
+  ta?: TechnicalCombo
+  relStrength?: number // 相对大盘强度(个股−指数 当日涨跌幅 pp)
+  counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -263,6 +290,7 @@ export interface ScreenerRegime {
   note: string
   marketTrend: 'strong' | 'neutral' | 'weak'
   targetRMult: number
+  marketChgPct?: number // 大盘(沪深300)当日涨跌幅%(缺失=旧快照)
 }
 
 export interface ScreenerResult {
@@ -277,6 +305,7 @@ export interface ScreenerResult {
   fundres?: FundResScreenerCandidate[] // 第六组:资金流共振·机构调研(可选,兼容旧快照)
   bhold?: BHoldScreenerCandidate[] // 第七组:突破整理·延续(可选,兼容旧快照)
   trendnew?: TrendNewScreenerCandidate[] // 第八组:趋势新高(可选,兼容旧快照)
+  trendwatch?: TrendWatchScreenerCandidate[] // 趋势中军·监控(可选,兼容旧快照)
   scanned: number
   scannedPullback: number
   universe: number

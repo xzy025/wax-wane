@@ -9,6 +9,7 @@ import {
   type FundResScreenerCandidate,
   type BHoldScreenerCandidate,
   type TrendNewScreenerCandidate,
+  type TrendWatchScreenerCandidate,
   type TechnicalCombo,
   type ScreenerRegime,
 } from '../hooks/useScreener'
@@ -77,6 +78,12 @@ function RegimeBanner({ r, t }: { r: ScreenerRegime; t: Translation }) {
         {rt.temp} {r.temperature} · {rt.limitUp} {r.limitUp} · {rt.breakRate} {r.breakRate}%
         {' · '}
         {rt.market} {rt[r.marketTrend]} · {rt.targetR} {r.targetRMult}R
+        {r.marketChgPct != null && (
+          <>
+            {' · '}
+            {rt.marketChg} <span className={colorClass(r.marketChgPct)}>{fmtPct(r.marketChgPct)}</span>
+          </>
+        )}
       </span>
       <span className="sc-regime-note">{r.note}</span>
     </div>
@@ -117,6 +124,19 @@ function StreakScore({ c, k }: { c: { appearStreak?: number; score: number }; k:
       <span className="sc-score" title={k.score}>
         {Math.round(c.score)}
       </span>
+    </div>
+  )
+}
+
+/** 相对大盘强度徽标:个股−指数 当日涨跌幅(pp);暴跌日逆势红盘(counterTrend)红色高亮「逆势强」。 */
+function RelStrBadge({ c, k }: { c: { relStrength?: number; counterTrend?: boolean }; k: Translation['screener']['card'] }) {
+  if (c.relStrength == null) return null
+  const sign = c.relStrength >= 0 ? '+' : ''
+  return (
+    <div className={`sc-relstr${c.counterTrend ? ' sc-countertrend' : ''}`}>
+      {c.counterTrend && '🔴 '}
+      {k.relStr} <span className="mono">{sign}{c.relStrength.toFixed(1)}pp</span>
+      {c.counterTrend && ` · ${k.counterTrend}`}
     </div>
   )
 }
@@ -177,6 +197,7 @@ function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; ta
       </div>
 
       {c.watchReason && <div className="sc-watch-note">{c.watchReason}</div>}
+      <RelStrBadge c={c} k={k} />
 
       {(c.lhbInst || c.board) && (
         <div className="sc-badges">
@@ -743,12 +764,80 @@ function TrendNewCard({ c, t }: { c: TrendNewScreenerCandidate; t: Translation }
   )
 }
 
+// 趋势中军·监控卡:发现型清单,【无买点】——去掉介入/止损/目标行,只给监控指标 + "非买点"提示。
+function TrendLeaderCard({ c, t }: { c: TrendWatchScreenerCandidate; t: Translation }) {
+  const k = t.screener.card
+  const tw = t.screener.twCard
+  const tn = t.screener.tnCard
+  const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
+  const extWarn = c.extPct > 20 // 偏离 MA20 过大 → 标红提示追高
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+          <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
+        </div>
+        <StreakScore c={c} k={k} />
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">
+            {tw.nh} / {tw.dist}
+          </span>
+          <span className="sc-metric-value mono">
+            <span className="positive-text">{c.nhDays}{tn.times}</span> / {c.dist52Pct.toFixed(1)}%
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{tw.ma5hold}</span>
+          <span className="sc-metric-value mono positive-text">{c.ma5HoldDays}{tw.days}</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title={`MA20 ${fmtPrice(c.maRef)}`}>
+            {tw.ext}
+          </span>
+          <span className={`sc-metric-value mono ${extWarn ? 'negative-text' : ''}`}>+{c.extPct.toFixed(1)}%</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{tw.rs}</span>
+          <span className="sc-metric-value mono">{c.rs.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="sc-monitor-note" title={c.reason}>
+        {tw.monitorNote}
+      </div>
+      <RelStrBadge c={c} k={k} />
+      {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+
+      <div className="sc-chips">
+        <TaChip ta={c.ta} t={t} />
+        <span className="sc-chip hot">
+          {tw.nh} {c.nhDays}{tn.times}
+        </span>
+        <span className="sc-chip ok">
+          {tw.ma5hold} {c.ma5HoldDays}{tw.days}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew'>('newhigh')
-  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew }[tab]
-  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc }[tab]
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch'>('newhigh')
+  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch }[tab]
+  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc }[tab]
 
   return (
     <section className="view-stack">
@@ -825,6 +914,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 onClick={() => setTab('trendnew')}
               >
                 {sc.tabs.trendNew} ({data.trendnew?.length ?? 0})
+              </button>
+              <button
+                className={`seg-btn${tab === 'trendwatch' ? ' active' : ''}`}
+                onClick={() => setTab('trendwatch')}
+              >
+                {sc.tabs.trendWatch} ({data.trendwatch?.length ?? 0})
               </button>
             </div>
           </div>
@@ -1052,6 +1147,26 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 <div className="sc-grid">
                   {(data.trendnew ?? []).map((c) => (
                     <TrendNewCard key={`tn-${c.code}`} c={c} t={t} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'trendwatch' && (
+            <>
+              <div className="sc-meta">
+                {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
+              </div>
+              <div className="sc-group-head">
+                <Binoculars size={16} weight="fill" /> {sc.groups.trendwatch} ({data.trendwatch?.length ?? 0})
+              </div>
+              {(data.trendwatch?.length ?? 0) === 0 ? (
+                <div className="sc-empty">{sc.empty}</div>
+              ) : (
+                <div className="sc-grid">
+                  {(data.trendwatch ?? []).map((c) => (
+                    <TrendLeaderCard key={`tw-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
               )}

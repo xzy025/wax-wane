@@ -59,6 +59,8 @@ export interface Candidate {
   dist52Pct: number // 距 52 周高%:>0 在高点下方、≤0 创新高
   pivots: Pivots // 经典枢轴位 R1/R2/S1/S2
   signals: { trendOk: boolean; volDry: boolean; atrContract: boolean; breakoutVol: boolean; pattern: string }
+  relStrength?: number // 相对大盘强度(个股当日涨跌幅 − 指数当日涨跌幅,pp);事后 enrichRelStrength 写入
+  counterTrend?: boolean // 逆势强:大盘明显下跌日(≤RELSTR.CRASH_DAY_PCT)逆势收红
 }
 
 const r2 = (n: number) => Math.round(n * 100) / 100
@@ -158,6 +160,23 @@ export function rsRaw(closes: number[]): number {
   return 0.4 * ret(63) + 0.2 * ret(126) + 0.2 * ret(189) + 0.2 * ret(252)
 }
 
+/**
+ * 相对大盘强度 enrich(事后批量处理,仿 applyTaPenalty,不改各 classifier):
+ *  relStrength = 个股当日涨跌幅 − 大盘当日涨跌幅(pp);counterTrend = 大盘明显下跌日逆势收红。
+ *  绝对收强只看个股自身振幅、看不到大盘背景;本因子捕捉"暴跌日逆势抗跌"的真·相对强度。
+ *  crashDayPct = config RELSTR.CRASH_DAY_PCT(如 −1.5,大盘当日涨跌幅 ≤ 此值算"明显下跌日")。
+ */
+export function enrichRelStrength<T extends { changePct: number; relStrength?: number; counterTrend?: boolean }>(
+  cands: T[],
+  marketChgPct: number,
+  crashDayPct: number,
+): void {
+  for (const c of cands) {
+    c.relStrength = Math.round((c.changePct - marketChgPct) * 100) / 100
+    c.counterTrend = marketChgPct <= crashDayPct && c.changePct > 0
+  }
+}
+
 /** 上方最近阻力(测算目标位);无套牢盘则给测算下限。 */
 function nextResistanceAbove(highs: number[], level: number, price: number, C: ScreenerConfig): number {
   const above = highs.filter((h) => h > level * 1.001)
@@ -222,7 +241,13 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
   const breakoutVolRatio = volSlow > 0 ? today.volume / volSlow : 0
   const range = today.high - today.low
   const closeStrengthRatio = range > 0 ? (close - today.low) / range : 1
-  const closeStrong = closeStrengthRatio >= C.CLOSE_STRENGTH
+  const closes = bars.map((b) => b.close)
+  const ma5 = smaAt(closes, C.ADD_MA, last) // 5日线(加仓参考 + 自适应收强的"站上MA5"判据)
+  // Part B（门控 RS_ADAPTIVE_CLOSE,默认 false）：相对大盘自适应收强——大盘暴跌日(MARKET_CHG_PCT ≤
+  //  RELSTR.CRASH_DAY_PCT)个股逆势红盘(changePct>0)且站上 MA5,视同收强达标(逆势抗跌=强,绝对收强看不到大盘背景)。
+  const counterStrong =
+    C.RS_ADAPTIVE_CLOSE && (C.MARKET_CHG_PCT ?? 0) <= C.RELSTR.CRASH_DAY_PCT && changePct > 0 && close >= ma5
+  const closeStrong = closeStrengthRatio >= C.CLOSE_STRENGTH || counterStrong
   const notExtended = close <= pivot * (1 + C.EXT_MAX / 100)
 
   let group: ScreenerGroup | null = null
@@ -258,8 +283,6 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     }
   }
   if (!group) return null
-  const closes = bars.map((b) => b.close)
-  const ma5 = smaAt(closes, C.ADD_MA, last) // 5日线(参考量)
 
   // 止损(rmult 目标位依赖风险 = 进场 − 止损,故先定):
   //  · 突破/观察组:结构止损 = min(pivot, 当日低),封顶 STOP_MAX%(8→7 已回测校准)。

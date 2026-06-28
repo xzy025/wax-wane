@@ -2064,6 +2064,24 @@ body {
   color: var(--orange);
   font-weight: 700;
 }
+/* 趋势中军·监控卡:非买点提示(灰,区别于橙色的待确认买点) */
+.sc-monitor-note {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+/* 相对大盘强度徽标 */
+.sc-relstr {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+/* 逆势强(暴跌日逆势红盘):红色高亮 */
+.sc-relstr.sc-countertrend {
+  color: var(--red, #ff4d4f);
+  font-weight: 700;
+}
 .sc-card-top {
   display: flex;
   align-items: center;

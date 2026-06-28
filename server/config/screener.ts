@@ -74,6 +74,15 @@ export interface ScreenerConfig {
   WATCH_VOL_HOT: number
   /** 临界观察组展示上限(按评分截断,避免空档票过多刷屏)。 */
   WATCH_MAX: number
+  // ── 相对大盘强度(RS)──
+  /** 本次扫描的大盘(沪深300)当日涨跌幅%,由 fetchScreenerFresh 注入(回测逐日注入);未注入=0。 */
+  MARKET_CHG_PCT?: number
+  /** 相对强度参数:CRASH_DAY_PCT=大盘当日涨跌幅 ≤ 此值算「明显下跌日」(逆势强判据);
+   *  COUNTER_BOOST=逆势强候选的展示评分加成倍数(仅影响监控/临界观察的排序与截断,非买点门槛)。 */
+  RELSTR: { CRASH_DAY_PCT: number; COUNTER_BOOST: number }
+  /** Part B:突破组收强门槛「相对大盘自适应」开关——暴跌日逆势红盘+站上MA5 视同收强达标。
+   *  默认 false(行为不变),仅回测过线后才置 true 接 live。 */
+  RS_ADAPTIVE_CLOSE: boolean
 }
 
 export const SCREENER = {
@@ -195,6 +204,17 @@ export const SCREENER = {
   WATCH_VOL_HOT: 1.2,
   /** 临界观察至多展示 40 只(按评分),空档票天然多,截断避免刷屏。 */
   WATCH_MAX: 40,
+  // ── 相对大盘强度(RS)──
+  /** 大盘当日涨跌幅(扫描时注入,默认未注入=0)。 */
+  MARKET_CHG_PCT: 0,
+  /** CRASH_DAY_PCT=−1.5:大盘当日 ≤ −1.5% 算「明显下跌日」,逆势收红=逆势强;COUNTER_BOOST=1.15 展示加分。 */
+  RELSTR: { CRASH_DAY_PCT: -1.5, COUNTER_BOOST: 1.15 },
+  /** Part B 自适应收强开关:**回测裁决=未过线,保持 false**。RS=1 回测(293只/2023-07~2026-06):
+   *  baseline 0.08R/PF1.11/回撤14.78R → adaptive 0.04R/PF1.05/回撤18.21R(全面劣化);
+   *  逆势新增子样本(暴跌日弱收盘突破升入,n=10)**期望 −0.63R、止损率 90%**——长上影逆势红盘本质是
+   *  冲高回落/出货,作"买点"是灾难。结论:逆势红盘是【抗跌的相对强度观察】(已做成 A 因子/监控),
+   *  **不是买入信号**;故 live 突破组门槛不动。逻辑+回测保留(env RS=1)供未来不同口径再探。 */
+  RS_ADAPTIVE_CLOSE: false,
 } as const satisfies ScreenerConfig
 
 // ════════════════════════════════════════════════════════════════════════
@@ -467,6 +487,38 @@ export const TRENDNEW = {
   LIMITUP_MAX: 2,
   WEIGHTS: { nh: 0.4, rs: 0.3, closeStrong: 0.15, near: 0.15 },
 } as const satisfies TrendNewConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 趋势中军·监控清单(发现型视图,非战法,见 services/trendLeaderRules.classifyTrendLeader)。
+// 是趋势新高(第8战法)的【放宽超集·纯监控】:同样要 完整多头排列 + 持续创新高 + 连续站上 MA5,
+// 但放宽收强/追高/贴高这些"买点质量"门槛,让已脱离 MA20 的强势龙头(京东方/士兰微/中国巨石)看得见。
+// 【监控·非买点·未回测】——以下阈值是【展示/纳入口径】,不是交易门槛,故不进回测、无期望声明。
+export interface TrendWatchConfig {
+  MIN_BARS: number // 趋势模板需 ≥ 271
+  RECENT_WIN: number // 持续创新高观察窗(根)
+  NH_LOOKBACK: number // 滚动新高回看窗
+  MIN_NH_DAYS: number // 观察窗内创新高天数下限
+  MA_REF: number // 参考均线(偏离度/回踩位)
+  MA5_HOLD_MIN: number // 连续站上 MA5 天数下限(持续性)
+  EXT_MAX_PCT: number // 距 MA_REF 偏离上限%(宽松,只滤垂直顶;远宽于趋势新高的 15)
+  LIMITUP_MAX: number // 连板上限(软门槛,妖股剔除)
+  MAX: number // 清单容量上限
+  /** 趋势质量打分权重(按权重和归一):相对强度 / 持续新高度 / 站上MA5持续性 / 贴高度。 */
+  WEIGHTS: { rs: number; nh: number; ma5hold: number; near: number }
+}
+
+export const TRENDWATCH = {
+  MIN_BARS: 271,
+  RECENT_WIN: 20,
+  NH_LOOKBACK: 40,
+  MIN_NH_DAYS: 3,
+  MA_REF: 20,
+  MA5_HOLD_MIN: 3,
+  EXT_MAX_PCT: 40,
+  LIMITUP_MAX: 2,
+  MAX: 40,
+  WEIGHTS: { rs: 0.35, nh: 0.3, ma5hold: 0.2, near: 0.15 },
+} as const satisfies TrendWatchConfig
 
 // ════════════════════════════════════════════════════════════════════════
 // 资金流共振·机构调研 战法(第六类,见 services/fundResonanceRules.classifyFundResonance)。
