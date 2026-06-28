@@ -1,5 +1,6 @@
 // 新高战法「关注名单」探针 —— 输入任意 A 股代码,逐关复盘它在选股管线的哪一步落选,
 // 并给出「距触发还差什么」。完全复用线上同款取数(fetchStockKline)+ 规则(trendTemplate/classify)。
+// 覆盖:Stage-1 初筛 + 趋势模板 + 突破/扳机 + 放量新高(第5) + 趋势新高(第8,逐关诊断 6 道门槛)。
 //
 // 用法:
 //   npm --prefix server run probe -- 301308
@@ -9,9 +10,11 @@
 //     (单独探一只时不存在排名竞争),其余阈值判定逐字一致。
 import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline } from '../services/ashare'
-import { trendTemplate, computeVCP, classify, type Bar } from '../services/screenerRules'
+import { trendTemplate, computeVCP, classify, smaAt, type Bar } from '../services/screenerRules'
 import { classifyVolBreakout } from '../services/volBreakoutRules'
-import { SCREENER as C, VOLBREAK } from '../config/screener'
+import { classifyTrendNewHigh } from '../services/trendNewHighRules'
+import { consecutiveLimitUps } from '../services/divergenceRules'
+import { SCREENER as C, VOLBREAK, TRENDNEW } from '../config/screener'
 
 const yi = (n: number) => (n / 1e8).toFixed(2) + '亿'
 const pct = (n: number) => (n >= 0 ? '+' : '') + n.toFixed(2) + '%'
@@ -23,6 +26,7 @@ interface Verdict {
   name: string
   status: string // 一句话结论
   group?: 'breakout' | 'trigger'
+  trendnew?: boolean // 命中第8战法趋势新高
 }
 
 /** Stage 1:全市场 clist 廉价初筛(成交额/市值/动量/ST)。返回 null=取数失败。 */
@@ -73,6 +77,7 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
     return { code, name, status: '次新股/K线不足,无法判定趋势模板' }
   }
   const bars = klines as Bar[]
+  let trendnewHit = false
 
   // 放量新高·资金驱动突破(独立战法,与趋势模板无关;在此一并诊断 — 兴发集团这类票走这条路)
   const vb = classifyVolBreakout(bars, code, VOLBREAK)
@@ -108,6 +113,67 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
     return { code, name, status: `趋势模板不过:${fails.join('、')}` }
   }
 
+  // ── 趋势新高(第8战法)逐关诊断 —— 复刻 trendNewHighRules.ts 行 59-84 阈值,逐字对齐,
+  //    全部计算后一次性展示(不像规则首关短路)。第①关=趋势模板,上方已 PASS。
+  {
+    const T = TRENDNEW
+    const todayN = bars[last]
+    const rangeN = todayN.high - todayN.low
+    // ② 贴近/站上 52 周高
+    const dist52High = ((tt.hi52 - c) / tt.hi52) * 100
+    const okNear = c >= tt.hi52 * (1 - T.NEAR_HIGH_PCT / 100)
+    // ③ 近期持续创新高:窗内创"近 NH_LOOKBACK 根新高"的天数
+    const highsN = bars.map((b) => b.high)
+    let nhDays = 0
+    for (let j = last - T.RECENT_WIN + 1; j <= last; j++) {
+      if (j - T.NH_LOOKBACK < 0) continue
+      const priorHigh = Math.max(...highsN.slice(j - T.NH_LOOKBACK, j)) // 不含 j,零前视
+      if (highsN[j] >= priorHigh) nhDays++
+    }
+    const okNH = nhDays >= T.MIN_NH_DAYS
+    // ④ 收盘强度
+    const closeStr = rangeN > 0 ? (c - todayN.low) / rangeN : 1
+    const okClose = closeStr >= T.CLOSE_STRENGTH
+    // ⑤ 追高 guard(宽松)
+    const maRef = smaAt(closes, T.MA_REF, last)
+    const extPct = maRef > 0 ? (c / maRef - 1) * 100 : 0
+    const okExt = maRef > 0 && extPct <= T.EXT_MAX_PCT
+    // ⑥ 软门槛:连板妖股
+    const limUps = consecutiveLimitUps(bars, last, code)
+    const okLim = limUps <= T.LIMITUP_MAX
+
+    console.log('   〔趋势新高·第8战法〕(6 道门槛):')
+    console.log(`     ① 多头排列(趋势模板) ${mark(tt.pass)}(上方已判)`)
+    console.log(`     ② 距52周高 ${dist52High.toFixed(2)}% ≤ ${T.NEAR_HIGH_PCT}% ${mark(okNear)}`)
+    console.log(`     ③ 近${T.RECENT_WIN}日 ${nhDays} 次创近${T.NH_LOOKBACK}日新高 ≥ ${T.MIN_NH_DAYS} ${mark(okNH)}`)
+    console.log(`     ④ 收盘强度 ${closeStr.toFixed(2)} ≥ ${T.CLOSE_STRENGTH} ${mark(okClose)}`)
+    console.log(`     ⑤ 追高 guard 距MA${T.MA_REF} ${pct(extPct)} ≤ +${T.EXT_MAX_PCT}% ${mark(okExt)}`)
+    console.log(`     ⑥ 连板数 ${limUps} ≤ ${T.LIMITUP_MAX}(软门槛) ${mark(okLim)}`)
+
+    // 权威裁决 + 一致性自检(以规则函数为准,按 ②→⑥ 顺序定位首关)
+    const hit = classifyTrendNewHigh(bars, code, T)
+    if (hit) {
+      console.log(`     >>> 🚀 命中【趋势新高】${hit.reason}`)
+      console.log(`         介入 ${hit.entry}  止损 ${hit.stop}  目标 ${hit.target}  tier${hit.tier}/${hit.score}分${hit.riskNote ? ` · ${hit.riskNote}` : ''}`)
+      trendnewHit = true
+    } else {
+      const firstFail = !tt.pass
+        ? '①多头排列'
+        : !okNear
+          ? `②贴52周高不足(距高${dist52High.toFixed(2)}% > ${T.NEAR_HIGH_PCT}%)`
+          : !okNH
+            ? `③持续新高不足(${nhDays} < ${T.MIN_NH_DAYS} 次)`
+            : !okClose
+              ? `④收盘偏弱(${closeStr.toFixed(2)} < ${T.CLOSE_STRENGTH})`
+              : !okExt
+                ? `⑤追高(距MA${T.MA_REF} ${pct(extPct)} > +${T.EXT_MAX_PCT}%)`
+                : !okLim
+                  ? `⑥连板${limUps} > ${T.LIMITUP_MAX}`
+                  : '风险无效(止损≥进场)'
+      console.log(`     >>> ✗ 未命中趋势新高 —— 卡 ${firstFail}`)
+    }
+  }
+
   // 分组诊断
   const v = computeVCP(bars, C)
   const pivot = v.resistPrior
@@ -132,7 +198,7 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
     const icon = cand.group === 'watch' ? '👁' : '✅'
     console.log(`   >>> ${icon} 命中【${label}】${cand.signals.pattern}${cand.watchReason ? ` · ${cand.watchReason}` : ''}`)
     console.log(`       介入 ${cand.pivot}  加仓(5日线) ${cand.ma5 ?? '—'}  止损 ${cand.stopLoss}  目标 ${cand.target}  评分 ${cand.score || '(单股探针不计排名分)'}`)
-    return { code, name, group: cand.group, status: `命中 ${label}:${cand.signals.pattern}` }
+    return { code, name, group: cand.group, status: `命中 ${label}:${cand.signals.pattern}`, trendnew: trendnewHit }
   }
 
   // 趋势过但两组都不收 → 给「距触发还差什么」
@@ -143,7 +209,7 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
   if (!inNear && !abovePivot && distToPivot > C.NEAR_PCT) tips.push(`距前高 ${distToPivot.toFixed(2)}% 超出扳机带 ${C.NEAR_PCT}%`)
   console.log(`   >>> ⏳ 趋势完美,但落在"放量逼近"空档(两组都不收)`)
   console.log(`       距触发:${tips.join(';') || '等量价进一步明朗'}`)
-  return { code, name, status: `观察中(趋势过/未触发):${tips.join(';')}` }
+  return { code, name, status: `观察中(趋势过/未触发):${tips.join(';')}`, trendnew: trendnewHit }
 }
 
 async function probeOne(code: string): Promise<Verdict> {
@@ -178,7 +244,8 @@ async function main() {
   console.log('\n════════ 汇总 ════════')
   for (const v of verdicts) {
     const tag = v.group === 'breakout' ? '🟢突破' : v.group === 'trigger' ? '🟡扳机' : '⚪观察'
-    console.log(`  ${tag}  ${v.code} ${v.name.padEnd(6)}  ${v.status}`)
+    const tn = v.trendnew ? ' 🚀趋势新高' : ''
+    console.log(`  ${tag}  ${v.code} ${v.name.padEnd(6)}  ${v.status}${tn}`)
   }
 }
 
