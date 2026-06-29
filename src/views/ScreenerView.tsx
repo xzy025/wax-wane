@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars, Fire, Coins, FlagBanner } from 'phosphor-react'
 import {
   useScreener,
@@ -13,6 +13,9 @@ import {
   type TechnicalCombo,
   type ScreenerRegime,
 } from '../hooks/useScreener'
+import { useScreenerForward } from '../hooks/useScreenerForward'
+import TrackRecordPanel from './TrackRecordPanel'
+import { isPostCloseReview } from '../utils/marketStatus'
 import type { Translation } from '../types'
 
 interface ScreenerViewProps {
@@ -834,10 +837,25 @@ function TrendLeaderCard({ c, t }: { c: TrendWatchScreenerCandidate; t: Translat
 
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
+  const fwd = useScreenerForward()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch'>('newhigh')
-  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch }[tab]
-  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc }[tab]
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch' | 'track'>('newhigh')
+  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch, track: sc.tabs.track }[tab]
+  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc, track: sc.track.desc }[tab]
+  // 「每日扫描」日终一键:重扫+存当日快照;盘后(15:00后/周末)再连带复盘并保存实盘战绩。
+  const [dailySavedAt, setDailySavedAt] = useState<Date | null>(null)
+  const handleScan = useCallback(async () => {
+    if (tab === 'track') {
+      await fwd.refresh() // 在战绩 tab:只刷战绩
+      return
+    }
+    await refresh() // 重扫 + 存档当日快照(先落盘,forward 才能纳入今天 picks)
+    if (isPostCloseReview()) {
+      await fwd.refresh() // 盘后:实盘战绩复盘重算 + 存 forward-<date>.json
+      setDailySavedAt(new Date())
+    }
+  }, [tab, refresh, fwd])
+  const activeBusy = loading || fwd.loading // 串联期间任一忙都禁用
 
   return (
     <section className="view-stack">
@@ -857,11 +875,17 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               </>
             )}
             {lastUpdated && `${sc.lastUpdated} ${lastUpdated.toLocaleTimeString()}`}
+            {tab !== 'track' && dailySavedAt && (
+              <>
+                {' · '}
+                <span className="sc-saved-badge">✓ {sc.dailySaved} {dailySavedAt.toLocaleTimeString()}</span>
+              </>
+            )}
           </span>
         )}
-        <button className="sc-scan-btn" onClick={refresh} disabled={loading}>
-          <ArrowClockwise size={15} className={loading ? 'spin' : ''} />
-          {loading ? sc.scanning : sc.scan}
+        <button className="sc-scan-btn" onClick={handleScan} disabled={activeBusy} title={sc.scanTip}>
+          <ArrowClockwise size={15} className={activeBusy ? 'spin' : ''} />
+          {activeBusy ? sc.scanning : sc.scan}
         </button>
       </div>
       <p className="themes-desc">{tabDesc}</p>
@@ -921,8 +945,16 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               >
                 {sc.tabs.trendWatch} ({data.trendwatch?.length ?? 0})
               </button>
+              <button
+                className={`seg-btn${tab === 'track' ? ' active' : ''}`}
+                onClick={() => setTab('track')}
+              >
+                {sc.tabs.track} ({fwd.data?.totalPicks ?? 0})
+              </button>
             </div>
           </div>
+
+          {tab === 'track' && <TrackRecordPanel fwd={fwd} t={t} />}
 
           {tab === 'newhigh' && (
             <>
@@ -1002,6 +1034,24 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                         ))}
                       </div>
                     )}
+                  </>
+                )
+              })()}
+
+              {(() => {
+                // 已突破·延续:昨日已站上前高(firstBreakout===false)→ 连续新高/趋势延续段,非「今日首次」。
+                const conts = data.breakout.filter((c) => c.firstBreakout === false)
+                if (conts.length === 0) return null
+                return (
+                  <>
+                    <div className="sc-group-head">
+                      <TrendUp size={16} weight="fill" /> {sc.groups.breakoutCont} ({conts.length})
+                    </div>
+                    <div className="sc-grid">
+                      {conts.map((c) => (
+                        <Card key={`bc-${c.code}`} c={c} t={t} />
+                      ))}
+                    </div>
                   </>
                 )
               })()}

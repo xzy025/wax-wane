@@ -20,12 +20,13 @@
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { EM_HEADERS } from '../lib/emHeaders'
-import { fetchStockKline, fetchIndexKline } from '../services/ashare'
+import { fetchIndexKline } from '../services/ashare'
 import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, PBREAK, TRENDNEW, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig, type FundResConfig, type BreakoutHoldConfig, type BreakoutPullbackConfig, type TrendNewConfig } from '../config/screener'
 import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
+import { simForward, makeTrade, aggregate, type Trade, type Metrics } from './engine'
+import { type StockBars, loadBarsCached } from './universe'
 import { classifyPullback } from '../services/pullbackRules'
-import { classifyDivergence, classifyHighDivergence, type DivergenceGroup } from '../services/divergenceRules'
+import { classifyDivergence, classifyHighDivergence } from '../services/divergenceRules'
 import { classifyVolBreakout } from '../services/volBreakoutRules'
 import { classifyFundResonance } from '../services/fundResonanceRules'
 import { classifyBreakoutHold } from '../services/breakoutHoldRules'
@@ -89,91 +90,11 @@ const SHORT_WIN = Number(process.env.SHORT_WIN) || 5 // 板块短窗
 
 type RMap = Record<MarketRegime, number>
 
-const num = (v: unknown): number => {
-  const n = typeof v === 'string' ? parseFloat(v) : (v as number)
-  return Number.isFinite(n) ? n : 0
-}
 const r2 = (n: number) => Math.round(n * 100) / 100
 const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0)
 
-// ── Universe: clist 取数 + 廉价过滤(不含动量)+ 分层抽样 ────────────────
-const CLIST_FIELDS = 'f2,f6,f12,f14,f20'
-const CLIST_PZ = 100
-const CLIST_HOSTS = ['push2delay.eastmoney.com', 'push2.eastmoney.com', '82.push2.eastmoney.com']
-
-async function fetchClistPage(pn: number, attempt = 0): Promise<{ rows: Record<string, unknown>[]; total: number }> {
-  for (let i = 0; i < CLIST_HOSTS.length; i++) {
-    const host = CLIST_HOSTS[(pn + i) % CLIST_HOSTS.length]
-    const url =
-      `https://${host}/api/qt/clist/get?pn=${pn}&pz=${CLIST_PZ}&po=1&np=1&fltt=2&invt=2&fid=f3` +
-      `&fs=${encodeURIComponent(SCREENER.CLIST_FS)}&fields=${CLIST_FIELDS}`
-    try {
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
-      if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
-      const json = await res.json()
-      return { rows: (json?.data?.diff ?? []) as Record<string, unknown>[], total: Number(json?.data?.total) || 0 }
-    } catch {
-      /* 试下一个镜像 */
-    }
-  }
-  if (attempt < 1) {
-    await new Promise((r) => setTimeout(r, 800))
-    return fetchClistPage(pn, attempt + 1)
-  }
-  throw new Error('clist 全部镜像均失败')
-}
-
-interface UnivStock {
-  code: string
-  name: string
-}
-
-async function buildUniverse(): Promise<UnivStock[]> {
-  const first = await fetchClistPage(1)
-  const total = first.total || first.rows.length
-  const pages = Math.min(Math.ceil(total / CLIST_PZ), 60)
-  const diff: Record<string, unknown>[] = [...first.rows]
-  for (let pn = 2; pn <= pages; pn++) {
-    await new Promise((r) => setTimeout(r, 120))
-    try {
-      const page = await fetchClistPage(pn)
-      if (page.rows.length === 0) break
-      diff.push(...page.rows)
-    } catch {
-      console.warn(`[Backtest] clist 第 ${pn} 页失败,使用已取 ${diff.length} 只继续`)
-      break
-    }
-  }
-
-  const eligible: UnivStock[] = []
-  for (const d of diff) {
-    const code = String(d.f12 ?? '')
-    const name = String(d.f14 ?? '')
-    const price = num(d.f2)
-    const amount = num(d.f6)
-    const mcap = num(d.f20)
-    if (!code || price <= 0) continue
-    if (/ST|退/i.test(name)) continue
-    if (amount < SCREENER.LIQUIDITY_MIN) continue // 当下流动性(近似:活跃票才有历史可测)
-    if (mcap < SCREENER.MCAP_MIN) continue
-    eligible.push({ code, name })
-  }
-  // 按代码排序后等距分层抽样,跨 600/000/300/688 各段均匀覆盖,避免偏向某板块。
-  eligible.sort((a, b) => a.code.localeCompare(b.code))
-  if (eligible.length <= SAMPLE) return eligible
-  const step = eligible.length / SAMPLE
-  const sampled: UnivStock[] = []
-  for (let i = 0; i < SAMPLE; i++) sampled.push(eligible[Math.floor(i * step)])
-  return sampled
-}
-
-// ── 取 K 线(并发受限)────────────────────────────────────────────────
-interface StockBars {
-  code: string
-  name: string
-  bars: Bar[]
-}
-
+// 宇宙构建与 K 线取数/缓存已抽到 ./universe(StockBars / loadBarsCached,经顶部 import 复用)。
+// 以下两者仍留本地:供调研/龙虎榜/板块历史缓存复用。
 async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T, i: number) => Promise<R>): Promise<R[]> {
   const out = new Array<R>(items.length)
   let idx = 0
@@ -187,131 +108,10 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T, i: number) =
   return out
 }
 
-async function loadBars(univ: UnivStock[]): Promise<StockBars[]> {
-  let done = 0
-  const res = await mapLimit(univ, CONCURRENCY, async (s) => {
-    try {
-      const { klines } = await fetchStockKline(s.code, 101, KLINE)
-      done++
-      if (done % 50 === 0) console.log(`[Backtest] 取K线 ${done}/${univ.length}`)
-      if (!klines || klines.length < SCREENER.MA_LONG + SCREENER.MA_LONG_RISE_LOOKBACK + 1 + HOLD + 2) return null
-      return { code: s.code, name: s.name, bars: klines as Bar[] }
-    } catch {
-      done++
-      return null
-    }
-  })
-  return res.filter((x): x is StockBars => x != null)
-}
+const USE_CACHE = process.env.CACHE !== '0' // CACHE=0 强制重取(调研/龙虎榜/板块缓存)
 
-// 抽样宇宙是确定性的(按代码分层),故同 SAMPLE+KLINE 的 K 线可缓存到盘上,
-// 重跑(调参/换指数)免再打 EM,也避免触发限流。CACHE=0 强制重取。
-const USE_CACHE = process.env.CACHE !== '0'
-const BARS_CACHE = join(OUT_DIR, `.bars-${SAMPLE}-${KLINE}.json`)
-
-async function loadBarsCached(): Promise<StockBars[]> {
-  if (USE_CACHE && existsSync(BARS_CACHE)) {
-    try {
-      const data = JSON.parse(readFileSync(BARS_CACHE, 'utf8')) as StockBars[]
-      if (Array.isArray(data) && data.length) {
-        console.log(`[Backtest] 复用缓存 K 线 ${data.length} 只 (${BARS_CACHE};CACHE=0 可强制重取)`)
-        return data
-      }
-    } catch {
-      /* 缓存损坏,重取 */
-    }
-  }
-  console.log('[Backtest] 构建宇宙(clist 全市场 → 过滤 → 抽样)...')
-  const univ = await buildUniverse()
-  console.log(`[Backtest] 抽样 ${univ.length} 只,开始取 K 线...`)
-  const data = await loadBars(univ)
-  // 仅在取数较完整时落缓存,避免把"被限流的残缺结果"写进缓存毒化后续重跑。
-  if (data.length >= univ.length * 0.6) {
-    try {
-      mkdirSync(OUT_DIR, { recursive: true })
-      writeFileSync(BARS_CACHE, JSON.stringify(data))
-    } catch {
-      /* 缓存写失败非致命 */
-    }
-  } else {
-    console.warn(`[Backtest] 有效样本仅 ${data.length}/${univ.length}(疑似限流),不落缓存`)
-  }
-  return data
-}
-
-// ── 一笔模拟成交 ──────────────────────────────────────────────────────
-interface Trade {
-  code: string
-  date: string // 信号日(进场日)
-  entry: number
-  stop: number
-  target: number
-  exit: number
-  exitDate: string
-  reason: 'target' | 'target-gap' | 'stop' | 'stop-gap' | 'time' | 'trail'
-  retPct: number
-  R: number
-  bars: number // 持有交易日数
-  regime?: MarketRegime // 信号日的大盘环境(动态目标位用)
-  divGroup?: DivergenceGroup // 打板分歧组(lianban/pullback2),供分组聚合
-  hdConsolDays?: number // 连续新高分歧:整理持续天数,供因子分桶验证
-  vbBurstDays?: number // 放量突破:近窗口放量达标天数,供因子分桶验证
-  frSurveyOrgs?: number // 资金流共振:信号日前 SURVEY_LOOKBACK 日内调研机构家数,供因子分桶验证
-  bhConsolDays?: number // 突破整理:整理小K线根数,供因子分桶验证
-  tnNhDays?: number // 趋势新高:近窗口创新高天数,供因子分桶验证
-  bpDaysSinceBreak?: number // 突破次日回踩:突破日距回踩日的交易日数,供因子分桶验证
-  taBias?: 'demand' | 'supply' | 'neutral' // 技术分析组合:信号日 TA bias,供因子分桶
-  taDist?: boolean // 技术分析组合:信号日是否强派发(distribution)
-}
-
-/** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。 */
-function simForward(
-  bars: Bar[],
-  i: number,
-  stop: number,
-  target: number,
-  hold: number,
-): { exit: number; reason: Trade['reason']; exitIdx: number } {
-  const len = bars.length
-  const end = Math.min(i + hold, len - 1)
-  let exit = bars[end].close // 默认时间止损
-  let reason: Trade['reason'] = 'time'
-  let exitIdx = end
-  for (let j = i + 1; j <= end; j++) {
-    const b = bars[j]
-    if (b.open <= stop) { exit = b.open; reason = 'stop-gap'; exitIdx = j; break }
-    if (b.open >= target) { exit = b.open; reason = 'target-gap'; exitIdx = j; break }
-    if (b.low <= stop) { exit = stop; reason = 'stop'; exitIdx = j; break } // 保守:同日止损优先
-    if (b.high >= target) { exit = target; reason = 'target'; exitIdx = j; break }
-  }
-  return { exit, reason, exitIdx }
-}
-
-/** 组装一笔 Trade 记录。 */
-function makeTrade(
-  code: string,
-  bars: Bar[],
-  i: number,
-  entry: number,
-  stop: number,
-  target: number,
-  risk: number,
-  sim: { exit: number; reason: Trade['reason']; exitIdx: number },
-): Trade {
-  return {
-    code,
-    date: bars[i].date,
-    entry: r2(entry),
-    stop: r2(stop),
-    target: r2(target),
-    exit: r2(sim.exit),
-    exitDate: bars[sim.exitIdx].date,
-    reason: sim.reason,
-    retPct: r2((sim.exit / entry - 1) * 100),
-    R: r2((sim.exit - entry) / risk),
-    bars: sim.exitIdx - i,
-  }
-}
+// Trade / simForward / makeTrade / aggregate / Metrics 已抽到 ./engine(与线上
+// forward-test 共用同一撮合·指标口径);此处经顶部 import 复用。
 
 /** 走查回测某一组(默认 breakout 买点),hold 可变(供 HOLD 扫描)。
  *  regimeByDate 给定则给每笔打上信号日大盘环境;rMap 给定则按环境覆盖目标位 = 进场 + R×风险。 */
@@ -774,62 +574,7 @@ async function loadSurveyHistory(data: StockBars[], fromDate: string): Promise<M
   return m
 }
 
-// ── 指标聚合 ──────────────────────────────────────────────────────────
-interface Metrics {
-  n: number
-  winRate: number
-  avgRetPct: number
-  avgWinPct: number
-  avgLossPct: number
-  payoff: number // 平均盈 / |平均亏| (R)
-  profitFactor: number // ΣR+ / |ΣR-|
-  expectancyR: number // 平均 R
-  maxDDR: number // R 资金曲线最大回撤
-  avgHoldBars: number
-  targetRate: number
-  stopRate: number
-  timeRate: number
-}
-
-function aggregate(trades: Trade[]): Metrics {
-  const n = trades.length
-  if (n === 0) {
-    return {
-      n: 0, winRate: 0, avgRetPct: 0, avgWinPct: 0, avgLossPct: 0, payoff: 0,
-      profitFactor: 0, expectancyR: 0, maxDDR: 0, avgHoldBars: 0, targetRate: 0, stopRate: 0, timeRate: 0,
-    }
-  }
-  const wins = trades.filter((t) => t.R > 0)
-  const losses = trades.filter((t) => t.R <= 0)
-  const grossWin = wins.reduce((s, t) => s + t.R, 0)
-  const grossLoss = Math.abs(losses.reduce((s, t) => s + t.R, 0))
-  // R 资金曲线最大回撤(按信号日时序)
-  const ordered = [...trades].sort((a, b) => a.date.localeCompare(b.date))
-  let cum = 0
-  let peak = 0
-  let maxDD = 0
-  for (const t of ordered) {
-    cum += t.R
-    if (cum > peak) peak = cum
-    if (peak - cum > maxDD) maxDD = peak - cum
-  }
-  const cnt = (r: Trade['reason'][]) => trades.filter((t) => r.includes(t.reason)).length
-  return {
-    n,
-    winRate: r2((wins.length / n) * 100),
-    avgRetPct: r2(mean(trades.map((t) => t.retPct))),
-    avgWinPct: r2(mean(wins.map((t) => t.retPct))),
-    avgLossPct: r2(mean(losses.map((t) => t.retPct))),
-    payoff: r2(mean(wins.map((t) => t.R)) / Math.max(Math.abs(mean(losses.map((t) => t.R))), 1e-9)),
-    profitFactor: r2(grossWin / Math.max(grossLoss, 1e-9)),
-    expectancyR: r2(mean(trades.map((t) => t.R))),
-    maxDDR: r2(maxDD),
-    avgHoldBars: r2(mean(trades.map((t) => t.bars))),
-    targetRate: r2((cnt(['target', 'target-gap', 'trail']) / n) * 100),
-    stopRate: r2((cnt(['stop', 'stop-gap']) / n) * 100),
-    timeRate: r2((cnt(['time']) / n) * 100),
-  }
-}
+// 指标聚合(aggregate)与 Metrics 已抽到 ./engine,经顶部 import 复用。
 
 function runConfig(
   data: StockBars[],

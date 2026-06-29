@@ -1,0 +1,147 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
+
+export type BuyGroup =
+  | 'breakout' | 'trigger' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew'
+
+export type ForwardReason =
+  | 'target' | 'target-gap' | 'stop' | 'stop-gap' | 'time' | 'trail' | 'open' | 'pending'
+
+/** Mirror of server Metrics (server/backtest/engine.ts). */
+export interface Metrics {
+  n: number
+  winRate: number
+  avgRetPct: number
+  avgWinPct: number
+  avgLossPct: number
+  payoff: number
+  profitFactor: number
+  expectancyR: number
+  maxDDR: number
+  avgHoldBars: number
+  targetRate: number
+  stopRate: number
+  timeRate: number
+}
+
+/** Mirror of server ForwardPick (server/services/screenerForward.ts). */
+export interface ForwardPick {
+  asof: string
+  group: BuyGroup
+  code: string
+  name: string
+  entry: number
+  stop: number
+  target: number
+  status: 'open' | 'closed' | 'pending'
+  exit: number
+  exitDate: string
+  reason: ForwardReason
+  R: number
+  retPct: number
+  barsHeld: number
+  barsElapsed: number
+}
+
+/** Mirror of server StrategyTrack. */
+export interface StrategyTrack {
+  group: BuyGroup
+  closed: Metrics
+  closedCount: number
+  openCount: number
+  pendingCount: number
+  unrealizedAvgR: number
+  backtestExpectancyR?: number
+  backtestProfitFactor?: number
+  note?: string
+  picks: ForwardPick[]
+}
+
+/** Mirror of server ScreenerForwardResult. */
+export interface ScreenerForwardResult {
+  asof: string
+  generatedAt: string
+  hold: number
+  snapshotCount: number
+  dateRange: [string, string] | null
+  totalPicks: number
+  pendingCount: number
+  strategies: StrategyTrack[]
+  overall: Metrics
+  fromCache?: boolean
+}
+
+export interface ScreenerForwardHookResult {
+  data: ScreenerForwardResult | null
+  loading: boolean
+  error: string | null
+  lastUpdated: Date | null
+  /** Re-run the rolling eval: clears the server cache then re-fetches. */
+  refresh: () => void
+}
+
+/**
+ * Fetches the 滚动实盘回测 result from /api/screener/forward. Same error policy as
+ * useScreener: keep last-good data, surface `error`. A cold compute fetches fresh
+ * klines for every unique archived code, so the timeout is generous.
+ */
+export function useScreenerForward(): ScreenerForwardHookResult {
+  const [data, setData] = useState<ScreenerForwardResult | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const fetching = useRef(false)
+
+  const load = useCallback(async (rescan: boolean) => {
+    if (rescan) {
+      await fetch('/api/refresh?market=screener-forward', { method: 'POST' }).catch(() => {})
+    }
+    const res = await fetchWithTimeout('/api/screener/forward', 200_000)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const json = (await res.json()) as ScreenerForwardResult & { error?: string }
+    if (json.error) throw new Error(json.error)
+    setData(json)
+    setLastUpdated(new Date())
+    setError(null)
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    if (fetching.current) return
+    fetching.current = true
+    setLoading(true)
+    ;(async () => {
+      try {
+        await load(false)
+      } catch {
+        if (!cancelled) setError('实盘战绩获取失败')
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+          fetching.current = false
+        }
+      }
+    })()
+    return () => {
+      cancelled = true
+      fetching.current = false
+    }
+  }, [load])
+
+  const refresh = useCallback(async () => {
+    if (fetching.current) return
+    fetching.current = true
+    setLoading(true)
+    setError(null)
+    try {
+      await load(true)
+    } catch {
+      setError('实盘战绩获取失败')
+    } finally {
+      setLoading(false)
+      fetching.current = false
+    }
+  }, [load])
+
+  return { data, loading, error, lastUpdated, refresh }
+}

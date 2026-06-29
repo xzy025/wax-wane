@@ -259,7 +259,13 @@ export function classify(bars: Bar[], C: ScreenerConfig = SCREENER): Candidate |
     group = 'breakout'
     pattern = '放量突破前高'
     volScore = clamp01((today.volume / volSlow - 1) / 2)
-    firstBreakout = prev.close <= pivot // 今日首次站上前高(昨收≤前高)→「今日首次突破」组
+    // 「今日首次突破」须用【昨日视角】的前高(排除昨日与今日)再判昨天是否已突破:
+    // 当日 pivot 含昨高,而 昨收≤昨高≤pivot 恒成立 → 若直接用 pivot,该标志永远为真,
+    // 连续新高票(每天收在昨高之上)会天天被误判「首次突破」。挪窗一天修正:
+    // 昨天没站上它自己的前高(昨收≤昨日pivot)才算今天是首次突破。
+    const prevPrior = bars.slice(last - 1 - C.RESIST_LOOKBACK, last - 1) // 排除昨日(n-2)与今日(n-1)
+    const pivotPrevDay = prevPrior.length ? Math.max(...prevPrior.map((b) => b.high)) : pivot
+    firstBreakout = prev.close <= pivotPrevDay
   } else if (distToPivotPct > 0 && distToPivotPct <= C.NEAR_PCT && volDry) {
     // 扳机:强趋势 + 贴近 52 周高 + 量能未放大(尚未启动)。ATR 收敛作为加分项(coil),
     // 不做硬门槛——强势龙头逼近新高时波动通常偏大,强求收敛会让清单恒空。

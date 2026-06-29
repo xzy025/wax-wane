@@ -66,6 +66,24 @@ describe('classify', () => {
     expect(c!.signals.breakoutVol).toBe(true)
   })
 
+  it('firstBreakout=true：昨日仍在前高之下,今日才是真·首次突破', () => {
+    // makeBars 的昨日(idx 298)收 38.8 < 昨日pivot 40 → 今日首次站上。
+    const c = classify(makeBars(breakoutToday))!
+    expect(c.group).toBe('breakout')
+    expect(c.firstBreakout).toBe(true)
+  })
+
+  it('firstBreakout=false：昨日已站上前高(连续新高)→ 不再判「首次突破」', () => {
+    // 复现 太极实业/中晶科技:昨日已突破前高,今日续创新高仍在突破组,但非首次。
+    // 旧逻辑(昨收≤含昨高的pivot)会恒判 true;修正后用昨日视角pivot=40 → 昨收41.2>40 → false。
+    const bars = makeBars(breakoutToday)
+    bars[298] = { date: 'y', open: 40.2, close: 41.2, high: 41.5, low: 40.0, volume: 1000 } // 昨日已突破
+    bars[299] = { date: 'today', open: 41.2, close: 41.8, high: 42.0, low: 41.0, volume: 3000 } // 今日续新高
+    const c = classify(bars)!
+    expect(c.group).toBe('breakout') // 今收 41.8 > pivot(=昨高 41.5)
+    expect(c.firstBreakout).toBe(false)
+  })
+
   it('rejects an extended (chased) breakout > pivot×1.05 — the 追高 guard', () => {
     expect(classify(makeBars(extendedToday))).toBeNull()
   })

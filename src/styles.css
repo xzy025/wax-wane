@@ -776,6 +776,16 @@ p {
   background: var(--orange-soft);
 }
 
+/* 盘后「快照+实盘战绩已存」回执徽标(绿=成功)。 */
+.sc-saved-badge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--green-soft);
+}
+
 /* Clickable column header: inherits the table-head look, toggles sort on click. */
 .th-sort {
   display: inline-flex;
@@ -2482,4 +2492,160 @@ body {
   margin-top: 6px;
   font-size: 0.72rem;
   color: var(--blue);
+}
+
+/* ── 实盘战绩(滚动 forward-test)面板 ─────────────────────────────── */
+.track-record {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tr-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tr-summary {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+.tr-summary b {
+  color: var(--text, #e8edf6);
+  font-weight: 700;
+}
+.tr-method {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 6px 10px;
+  border-left: 2px solid var(--orange);
+  background: var(--orange-soft);
+  border-radius: 0 6px 6px 0;
+}
+.tr-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.tr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.tr-table th {
+  text-align: right;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-soft);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+.tr-table th.tr-strat {
+  text-align: left;
+}
+.tr-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.tr-table td.tr-num {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.tr-table td.tr-strat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+}
+.tr-muted {
+  color: var(--muted);
+}
+.tr-overall td {
+  font-weight: 700;
+  background: var(--surface-soft);
+}
+.tr-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.tr-row:hover {
+  background: var(--surface-soft);
+}
+.tr-note-flag {
+  color: var(--orange);
+  cursor: help;
+}
+.tr-detail-row td {
+  padding: 6px 10px 10px;
+  background: rgba(0, 0, 0, 0.12);
+}
+.tr-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+.tr-pick {
+  display: grid;
+  grid-template-columns: 92px minmax(120px, 1.4fr) 64px 110px 64px 80px 70px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+.tr-pick:hover {
+  background: var(--surface-soft);
+}
+.tr-pick-date {
+  color: var(--muted);
+}
+.tr-pick-name {
+  font-family: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tr-pick-code {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.tr-pick-status {
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+.tr-status-closed {
+  color: var(--muted);
+}
+.tr-status-open {
+  color: var(--blue);
+}
+.tr-status-pending {
+  color: var(--orange);
+}
+.tr-pick-r {
+  text-align: right;
+  font-weight: 850;
+}
+.tr-pick-reason,
+.tr-pick-held {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+@media (max-width: 720px) {
+  .tr-pick {
+    grid-template-columns: 80px 1fr 56px 70px;
+  }
+  .tr-pick-px,
+  .tr-pick-reason,
+  .tr-pick-held {
+    display: none;
+  }
 }

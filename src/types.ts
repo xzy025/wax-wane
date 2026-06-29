@@ -479,6 +479,8 @@ export interface Translation {
     titlePullback: string
     desc: string
     scan: string
+    scanTip: string
+    dailySaved: string
     scanning: string
     lastUpdated: string
     dataAsof: string
@@ -489,8 +491,8 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string }
-    groups: { breakout: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; trendnew: string; trendwatch: string }
+    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string; track: string }
+    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; trendnew: string; trendwatch: string }
     phNote: string
     hdDesc: string
     hdCard: {
@@ -654,6 +656,51 @@ export interface Translation {
       tr: string
       relStr: string
       counterTrend: string
+    }
+    track: {
+      desc: string
+      signalRange: string
+      snapshots: string
+      snapshotsUnit: string
+      hold: string
+      holdUnit: string
+      tracked: string
+      trackedUnit: string
+      generatedAt: string
+      refresh: string
+      refreshing: string
+      empty: string
+      loadFail: string
+      overall: string
+      colStrategy: string
+      colLiveExpR: string
+      colBtExpR: string
+      colDelta: string
+      colLivePF: string
+      colWin: string
+      colHold: string
+      colCounts: string
+      colFloatR: string
+      pending: string
+      status: { closed: string; open: string; pending: string }
+      reason: {
+        target: string
+        'target-gap': string
+        stop: string
+        'stop-gap': string
+        time: string
+        trail: string
+        open: string
+        pending: string
+      }
+      pickSignal: string
+      pickExit: string
+      held: string
+      heldUnit: string
+      expand: string
+      collapse: string
+      na: string
+      methodNote: string
     }
   }
 }
