@@ -90,6 +90,18 @@ describe('groupSeatsByCode', () => {
     ])
     expect(map.size).toBe(0)
   })
+
+  it('窗口累计:同营业部跨多日的金额合并(3日/5日榜营业部 = 各日席位原始行 flat 后归组)', () => {
+    // 模拟 buildWindow:把 3 天的席位原始行拼在一起喂给 groupSeatsByCode → 同营业部跨日累加。
+    const day1 = [{ code: 'A', name: '沪股通专用', amount: 100 }, { code: 'A', name: '游资甲', amount: 40 }]
+    const day2 = [{ code: 'A', name: '沪股通专用', amount: 60 }] // 同营业部第二天再买
+    const day3 = [{ code: 'A', name: '游资甲', amount: 50 }]
+    const a = groupSeatsByCode([day1, day2, day3].flat(), 3).get('A')!
+    expect(a).toEqual([
+      { name: '沪股通专用', amount: 160 }, // 100 + 60 跨日累加
+      { name: '游资甲', amount: 90 }, // 40 + 50
+    ])
+  })
 })
 
 describe('pickConcepts', () => {

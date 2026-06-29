@@ -3,7 +3,7 @@
 //     1) 主报表 RPT_DAILYBILLBOARD_DETAILSNEW（按日期取，按个股聚合）→ 净买入/成交额/上榜原因
 //     2) 营业部明细 RPT_BILLBOARD_DAILYDETAILS{BUY,SELL}（各一次取全市场当日 ~510 行）→ 主要买/卖营业部
 //     3) 逐股 push2 slist/get（spt=3，个股所属板块）→ 概念标签（过滤掉风格/统计板，并发 8）
-//   3日/5日：取「截至所选日期的最近 N 个交易日」各日主报表，按个股累计净额 + 上榜天数（营业部按日不累计，故置空）。
+//   3日/5日：取「截至所选日期的最近 N 个交易日」各日主报表，按个股累计净额 + 上榜天数 + 营业部（跨窗口同营业部累加金额取 top N）。
 //   结果组织为「主力在买什么(净流入) / 主力在卖什么(净流出)」两列卡片 + 4 个汇总 + 概念计数。
 //   按 交易日×窗口 缓存：历史日期不可变长缓存，当日短缓存。概念另按 code 缓存（跨日期/窗口复用）。
 import { EM_HEADERS } from '../lib/emHeaders'
@@ -332,8 +332,11 @@ async function fetchMainReport(date?: string): Promise<{ tradeDate: string; rows
   return { tradeDate, rows }
 }
 
-/** 营业部明细（买入或卖出）：一次取当日全市场，按个股分组返回 top 营业部。 */
-async function fetchSeats(date: string, side: 'BUY' | 'SELL'): Promise<Map<string, Seat[]>> {
+/** 营业部明细原始行（买/卖）：一次取当日全市场。供单日分组 + 多日窗口累计复用。 */
+async function fetchSeatRows(
+  date: string,
+  side: 'BUY' | 'SELL',
+): Promise<Array<{ code: string; name: string; amount: number }>> {
   try {
     const reportName = side === 'BUY' ? 'RPT_BILLBOARD_DAILYDETAILSBUY' : 'RPT_BILLBOARD_DAILYDETAILSSELL'
     const amountCol = side === 'BUY' ? 'BUY' : 'SELL'
@@ -342,16 +345,19 @@ async function fetchSeats(date: string, side: 'BUY' | 'SELL'): Promise<Map<strin
       `&columns=SECURITY_CODE,OPERATEDEPT_NAME,${amountCol}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
       `&filter=(TRADE_DATE='${date}')`
     const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
-    if (!res.ok) return new Map()
+    if (!res.ok) return []
     const json = (await res.json()) as any
     const data: any[] = json.result?.data ?? []
-    return groupSeatsByCode(
-      data.map((d) => ({ code: d.SECURITY_CODE, name: d.OPERATEDEPT_NAME, amount: Number(d[amountCol]) || 0 })),
-    )
+    return data.map((d) => ({ code: d.SECURITY_CODE, name: d.OPERATEDEPT_NAME, amount: Number(d[amountCol]) || 0 }))
   } catch (err) {
     console.warn(`[DragonTiger] ${side} seat fetch failed:`, err instanceof Error ? err.message : err)
-    return new Map()
+    return []
   }
+}
+
+/** 营业部明细（买入或卖出）：一次取当日全市场，按个股分组返回 top 营业部。 */
+async function fetchSeats(date: string, side: 'BUY' | 'SELL'): Promise<Map<string, Seat[]>> {
+  return groupSeatsByCode(await fetchSeatRows(date, side))
 }
 
 /** 单只个股的概念标签：push2 slist 取所属板块（data.diff 为对象非数组），过滤后取前 N。 */
@@ -523,7 +529,7 @@ async function buildSingleDay(date?: string): Promise<DragonTigerResult> {
   return assemble(tradeDate, stocks, stocks)
 }
 
-/** N 日窗口榜（window=3/5）：累计净额 + 上榜天数 + 概念（不含营业部）。 */
+/** N 日窗口榜（window=3/5）：累计净额 + 上榜天数 + 概念 + 营业部（窗口累计）。 */
 async function buildWindow(date: string | undefined, window: number): Promise<DragonTigerResult> {
   const dates = (await fetchTradingDates(date)).slice(0, window)
   if (dates.length === 0) return emptyResult(date ?? shanghaiDateStr())
@@ -535,9 +541,22 @@ async function buildWindow(date: string | undefined, window: number): Promise<Dr
   const buyAll = aggregated.filter((s) => s.netAmt > 0)
   const sellAll = aggregated.filter((s) => s.netAmt < 0).sort((a, b) => a.netAmt - b.netAmt)
   const display = [...buyAll.slice(0, WINDOW_TOP_N), ...sellAll.slice(0, WINDOW_TOP_N)]
-  const withConcepts = await attachConcepts(display)
+  const displayCodes = new Set(display.map((s) => s.code))
 
-  const stocks: LhbStock[] = withConcepts.map((s) => ({ ...s, buySeats: [], sellSeats: [] }))
+  // 营业部窗口累计:逐日取全市场买/卖席位原始行 → 只留展示个股 → 跨窗口同营业部累加金额取 top N。
+  const [buyRowsDays, sellRowsDays, withConcepts] = await Promise.all([
+    Promise.all(dates.map((d) => fetchSeatRows(d, 'BUY'))),
+    Promise.all(dates.map((d) => fetchSeatRows(d, 'SELL'))),
+    attachConcepts(display),
+  ])
+  const buySeatMap = groupSeatsByCode(buyRowsDays.flat().filter((r) => displayCodes.has(r.code)))
+  const sellSeatMap = groupSeatsByCode(sellRowsDays.flat().filter((r) => displayCodes.has(r.code)))
+
+  const stocks: LhbStock[] = withConcepts.map((s) => ({
+    ...s,
+    buySeats: buySeatMap.get(s.code) ?? [],
+    sellSeats: sellSeatMap.get(s.code) ?? [],
+  }))
   return assemble(dates[0], stocks, aggregated)
 }
 

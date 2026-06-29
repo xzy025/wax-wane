@@ -54,3 +54,11 @@ export function getMarketStatus(now: Date = new Date()): MarketStatus {
     lastTradingDayStr: fmt(lastTradingDay(now)),
   }
 }
+
+/**
+ * 日终复盘窗口:收盘后(工作日 15:00 后)或周末——此时最近交易日数据已定盘,
+ * 适合一键「存当日快照 + 复盘并保存实盘战绩」。盘中与午休返回 false(全天未收盘)。
+ */
+export function isPostCloseReview(status: MarketStatus = getMarketStatus()): boolean {
+  return status.isAfterMarket || status.isWeekend
+}

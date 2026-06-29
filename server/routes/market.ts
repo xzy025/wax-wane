@@ -8,6 +8,7 @@ import { fetchSentiment, clearSentimentCache } from '../services/kaipanla'
 import { clearMacroCache } from '../services/macro'
 import { clearThemesCache } from '../services/themes'
 import { clearScreenerCache } from '../services/screener'
+import { clearScreenerForwardCache } from '../services/screenerForward'
 import { clearRotationCache } from '../services/rotation'
 import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
 
@@ -27,6 +28,7 @@ const cacheClearers: Record<string, () => void> = {
   themes: clearThemesCache,
   moneyflow: clearMoneyFlowCache,
   screener: clearScreenerCache,
+  'screener-forward': clearScreenerForwardCache,
   rotation: clearRotationCache,
 }
 
