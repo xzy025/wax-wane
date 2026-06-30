@@ -491,8 +491,8 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string; track: string }
-    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; trendnew: string; trendwatch: string }
+    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string; accum: string; track: string }
+    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; trendnew: string; trendwatch: string; accum: string }
     phNote: string
     hdDesc: string
     hdCard: {
@@ -604,6 +604,21 @@ export interface Translation {
       days: string
       monitorNote: string
     }
+    acDesc: string
+    acCard: {
+      vol: string
+      flat: string
+      flatOk: string
+      consol: string
+      trigger: string
+      pos: string
+      days: string
+      buy: string
+      stop: string
+      target: string
+      plan: string
+      monitorNote: string
+    }
     crossTitle: string
     crossDesc: string
     crossEmpty: string
@@ -701,6 +716,8 @@ export interface Translation {
       collapse: string
       na: string
       methodNote: string
+      matured: string
+      prematureNote: string
     }
   }
 }
