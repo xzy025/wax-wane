@@ -21,7 +21,7 @@ import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { fetchIndexKline } from '../services/ashare'
-import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, PBREAK, TRENDNEW, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig, type FundResConfig, type BreakoutHoldConfig, type BreakoutPullbackConfig, type TrendNewConfig } from '../config/screener'
+import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, PBREAK, TRENDNEW, ACCUM, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig, type FundResConfig, type BreakoutHoldConfig, type BreakoutPullbackConfig, type TrendNewConfig, type AccumConfig } from '../config/screener'
 import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
 import { simForward, makeTrade, aggregate, type Trade, type Metrics } from './engine'
 import { type StockBars, loadBarsCached } from './universe'
@@ -32,6 +32,7 @@ import { classifyFundResonance } from '../services/fundResonanceRules'
 import { classifyBreakoutHold } from '../services/breakoutHoldRules'
 import { classifyTrendNewHigh } from '../services/trendNewHighRules'
 import { classifyBreakoutPullback } from '../services/breakoutPullbackRules'
+import { classifyAccum } from '../services/accumRules'
 import { technicalCombo } from '../services/technicalScore'
 import { fetchOrgSurveyHistory, countOrgsInRange, type SurveyEvent } from '../services/orgSurvey'
 import { boardStrengthAsOf } from '../services/rotationRules'
@@ -78,6 +79,8 @@ const RUN_BHOLD = process.env.BHOLD === '1'
 const RUN_PBREAK = process.env.PBREAK === '1'
 // TRENDNEW: 趋势新高(多头排列+持续创新高+贴52周高,纯OHLCV,可真回测;默认关;TRENDNEW=1 开启)
 const RUN_TRENDNEW = process.env.TRENDNEW === '1'
+// ACCUM: 放量吸筹(持续异常放量+均线走平+横盘,监控清单;特征回测裁决"检测到吸筹"是否有正向前收益;默认关;ACCUM=1 开启)
+const RUN_ACCUM = process.env.ACCUM === '1'
 // RS: 突破组收强「相对大盘自适应」(Part B)裁决——大盘暴跌日逆势红盘+站MA5 视同收强达标,对比 baseline。RS=1 开启。
 const RUN_RS = process.env.RS === '1'
 // TA: 技术分析组合(Wyckoff+道氏+AlBrooks)因子分桶检验(把现有战法成交按 TA bias/distribution 分桶;默认关;TA=1 开启)
@@ -380,6 +383,81 @@ function simulateTrendNewHigh(sb: StockBars, cfg: TrendNewConfig, hold: number):
     t.tnNhDays = cand.nhDays
     trades.push(t)
     i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 走查回测「放量吸筹」**收盘入场版**(纯 OHLCV)——监控清单本身无买卖点,此处为特征回测构造入场:
+ *  检测到持续放量吸筹的信号日收盘进,stop=max(箱体下沿, 收盘×(1−stopPct%)),target=进场+rMult×风险,持有 hold 日。
+ *  验证"检测到吸筹"本身是否预示正向前收益。stopPct/rMult 由 env ACCUM_STOP/ACCUM_R 注入。 */
+function simulateAccum(sb: StockBars, cfg: AccumConfig, hold: number, stopPct: number, rMult: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyAccum(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const entry = bars[i].close
+    const stop = Math.max(cand.boxLow, entry * (1 - stopPct / 100))
+    const risk = entry - stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const target = entry + rMult * risk
+    const t = makeTrade(code, bars, i, entry, stop, target, risk, simForward(bars, i, stop, target, hold))
+    t.acConsolDays = cand.consolDays
+    trades.push(t)
+    i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** 走查回测「放量吸筹」**确认入场版**:检测到吸筹后,其后 confirmWin 日内放量站上箱体上沿(boxHigh)才进
+ *  =吸筹转拉升突破确认(用户形态的真正买点);若先跌破箱体下沿则作废。entry=max(boxHigh, 当日开)。 */
+function simulateAccumConfirm(sb: StockBars, cfg: AccumConfig, hold: number, stopPct: number, rMult: number, confirmWin: number): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const start = cfg.MIN_BARS
+  const trades: Trade[] = []
+  let i = start
+  while (i <= len - 2) {
+    const cand = classifyAccum(bars.slice(0, i + 1), code, cfg)
+    if (!cand) {
+      i++
+      continue
+    }
+    const end = Math.min(i + confirmWin, len - 1)
+    let entryIdx = -1
+    let entry = 0
+    for (let j = i + 1; j <= end; j++) {
+      if (bars[j].low < cand.boxLow) break // 箱体破位,放弃
+      if (bars[j].high >= cand.boxHigh) {
+        entry = Math.max(cand.boxHigh, bars[j].open) // 跳空高开则按开盘
+        entryIdx = j
+        break
+      }
+    }
+    if (entryIdx < 0) {
+      i++
+      continue
+    }
+    const stop = Math.max(cand.boxLow * 0.997, entry * (1 - stopPct / 100))
+    const risk = entry - stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const target = entry + rMult * risk
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold))
+    t.acConsolDays = cand.consolDays
+    trades.push(t)
+    i = entryIdx + hold + 1 // 冷却从实际入场日起
   }
   return trades
 }
@@ -1285,6 +1363,80 @@ async function main() {
       metrics: m,
       baselineExpectancyR: base.metrics.expectancyR,
       sweep: tnSweep,
+    }
+  }
+
+  // ACCUM: 放量吸筹(持续异常放量+均线走平+横盘,监控清单)。特征回测裁决:"检测到吸筹"是否预示正向前收益,
+  //   并验证用户核心诉求「横盘越久越加分」是否真有正向前收益(横盘天数因子分桶)。过线→可升级为带买点战法。
+  if (RUN_ACCUM) {
+    const HOLD_AC = Number(process.env.HOLD_AC) || 40 // 吸筹→拉升需时,默认放长(40 日)
+    const STOP_AC = Number(process.env.STOP_AC) || 8
+    const R_AC = Number(process.env.R_AC) || 2
+    const CONFIRM_AC = Number(process.env.CONFIRM_AC) || 3
+    console.log(`\n========== 放量吸筹(持续异常放量+均线走平+横盘,检测日收盘进/箱体突破确认进→${HOLD_AC}日撮合)==========`)
+    console.log('（监控清单·此为特征回测;对照突破基线 0.08R / 分歧 0.19R。通过线=期望明显正、PF>1.3、样本足→可升级为带买点战法)')
+    const mClose = aggregate(data.flatMap((sb) => simulateAccum(sb, ACCUM, HOLD_AC, STOP_AC, R_AC)))
+    const mConfirm = aggregate(data.flatMap((sb) => simulateAccumConfirm(sb, ACCUM, HOLD_AC, STOP_AC, R_AC, CONFIRM_AC)))
+    console.log(fmtMetrics('accum-close(检测日收盘进)', mClose))
+    console.log(fmtMetrics('accum-confirm(箱体突破确认进)', mConfirm))
+    console.log(`→ confirm vs close 期望差 ${r2(mConfirm.expectancyR - mClose.expectancyR)}R · vs 突破基线 ${base.metrics.expectancyR}R`)
+
+    console.log('\n---------- ACCUM 扫描(close 入场为主)----------')
+    const acSweep: Array<Record<string, unknown>> = []
+    const sweepClose = (over: Partial<AccumConfig>, hold = HOLD_AC) =>
+      aggregate(data.flatMap((sb) => simulateAccum(sb, { ...ACCUM, ...over }, hold, STOP_AC, R_AC)))
+    const sweepConfirm = (over: Partial<AccumConfig>, hold = HOLD_AC) =>
+      aggregate(data.flatMap((sb) => simulateAccumConfirm(sb, { ...ACCUM, ...over }, hold, STOP_AC, R_AC, CONFIRM_AC)))
+    for (const VM of [2.0, 2.5, 3.0, 4.0]) {
+      const mm = sweepClose({ VOL_MULT: VM })
+      console.log(fmtMetrics(`VOL_MULT=${VM}`, mm))
+      acSweep.push({ knob: 'VOL_MULT', value: VM, entry: 'close', metrics: mm })
+    }
+    for (const MB of [8, 12, 16, 20]) {
+      const mm = sweepClose({ MIN_BURST_DAYS: MB })
+      console.log(fmtMetrics(`MIN_BURST_DAYS=${MB}`, mm))
+      acSweep.push({ knob: 'MIN_BURST_DAYS', value: MB, entry: 'close', metrics: mm })
+    }
+    for (const BR of [10, 15, 18, 25]) {
+      const mm = sweepClose({ BOX_RANGE_PCT: BR })
+      console.log(fmtMetrics(`BOX_RANGE_PCT=${BR}`, mm))
+      acSweep.push({ knob: 'BOX_RANGE_PCT', value: BR, entry: 'close', metrics: mm })
+    }
+    for (const VW of [15, 20, 30]) {
+      const mm = sweepClose({ VOL_WIN: VW })
+      console.log(fmtMetrics(`VOL_WIN=${VW}`, mm))
+      acSweep.push({ knob: 'VOL_WIN', value: VW, entry: 'close', metrics: mm })
+    }
+    for (const H of [20, 40, 60]) {
+      const mm = sweepClose({}, H)
+      console.log(fmtMetrics(`HOLD=${H}(close)`, mm))
+      acSweep.push({ knob: 'HOLD', value: H, entry: 'close', metrics: mm })
+    }
+    for (const H of [20, 40, 60]) {
+      const mm = sweepConfirm({}, H)
+      console.log(fmtMetrics(`HOLD=${H}(confirm)`, mm))
+      acSweep.push({ knob: 'HOLD', value: H, entry: 'confirm', metrics: mm })
+    }
+
+    // 因子分桶:横盘天数(consolDays)分桶,验证用户核心诉求「横盘越久越加分」是否真有正向前收益。
+    const allClose = data.flatMap((sb) => simulateAccum(sb, ACCUM, HOLD_AC, STOP_AC, R_AC))
+    console.log('\n---------- 横盘天数因子分桶(close 入场;验证「横盘越久越加分」)----------')
+    for (const [lo, hi] of [[1, 5], [5, 10], [10, 20], [20, 9999]] as const) {
+      const mm = aggregate(allClose.filter((t) => (t.acConsolDays ?? 0) >= lo && (t.acConsolDays ?? 0) < hi))
+      console.log(fmtMetrics(`横盘 ${lo}~${hi === 9999 ? '∞' : hi} 日`, mm))
+      acSweep.push({ knob: 'consolBucket', value: `${lo}-${hi}`, entry: 'close', metrics: mm })
+    }
+
+    out.accumEval = {
+      hold: HOLD_AC,
+      stopPct: STOP_AC,
+      rMult: R_AC,
+      confirmWin: CONFIRM_AC,
+      config: ACCUM,
+      metricsClose: mClose,
+      metricsConfirm: mConfirm,
+      baselineExpectancyR: base.metrics.expectancyR,
+      sweep: acSweep,
     }
   }
 

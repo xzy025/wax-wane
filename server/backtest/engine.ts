@@ -31,6 +31,7 @@ export interface Trade {
   bhConsolDays?: number // 突破整理:整理小K线根数,供因子分桶验证
   tnNhDays?: number // 趋势新高:近窗口创新高天数,供因子分桶验证
   bpDaysSinceBreak?: number // 突破次日回踩:突破日距回踩日的交易日数,供因子分桶验证
+  acConsolDays?: number // 放量吸筹:横盘箱体维持天数,供"横盘越久越加分"因子分桶验证
   taBias?: 'demand' | 'supply' | 'neutral' // 技术分析组合:信号日 TA bias,供因子分桶
   taDist?: boolean // 技术分析组合:信号日是否强派发(distribution)
 }

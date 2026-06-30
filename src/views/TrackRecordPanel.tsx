@@ -47,6 +47,13 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
   if (!data) return <div className="themes-desc">{tr.refreshing}</div>
   if (data.strategies.length === 0) return <div className="sc-empty">{tr.empty}</div>
 
+  // Maturity = fraction of *entered* positions (closed+open, excl. pending) that have resolved.
+  // Low maturity ⇒ closed sample is stop-dominated (winners still open), so closed expR is understated.
+  const closedTotal = data.overall.n
+  const enteredTotal = data.totalPicks - data.pendingCount
+  const maturedPct = enteredTotal > 0 ? Math.round((100 * closedTotal) / enteredTotal) : 0
+  const premature = enteredTotal > 0 && maturedPct < 60
+
   const toggle = (g: BuyGroup) => {
     setExpanded((prev) => {
       const next = new Set(prev)
@@ -117,6 +124,14 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
           {tr.snapshots} {data.snapshotCount}{tr.snapshotsUnit} · {tr.hold} {data.hold}
           {tr.holdUnit} · {tr.tracked} {data.totalPicks}{tr.trackedUnit}
           {data.pendingCount ? ` · ${tr.pending} ${data.pendingCount}` : ''}
+          {enteredTotal > 0 && (
+            <>
+              {' · '}
+              {tr.matured}{' '}
+              <b className={premature ? 'negative-text' : 'positive-text'}>{maturedPct}%</b>{' '}
+              ({closedTotal}/{enteredTotal})
+            </>
+          )}
           {data.fromCache && <span className="sc-cache-badge">{sc.cached}</span>}
         </span>
         <button className="sc-scan-btn" onClick={fwd.refresh} disabled={loading}>
@@ -124,6 +139,7 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
           {loading ? tr.refreshing : tr.refresh}
         </button>
       </div>
+      {premature && <div className="sc-watch-note">⚠ {tr.prematureNote}</div>}
       <div className="tr-method">{tr.methodNote}</div>
 
       <div className="tr-table-wrap">

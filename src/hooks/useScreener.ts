@@ -281,6 +281,41 @@ export interface TrendWatchScreenerCandidate {
   counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
 }
 
+/** Mirror of server AccumScreenerCandidate (放量吸筹·监控:持续异常放量+均线走平+横盘的发现型清单·非买点). */
+export interface AccumScreenerCandidate {
+  group: 'accum'
+  code: string
+  name: string
+  price: number
+  changePct: number
+  maRef: number // MA20
+  baseVol: number // 放量前基准均量
+  avgVolRatio: number // 近窗均量 / 基准(放量倍数)
+  burstDays: number // 窗内单日放量达标天数
+  surgeRunDays: number // 自今日向前持续放量约 N 日
+  maSlopePct: number // MA20 斜率(绝对%,越小越走平)
+  consolDays: number // 横盘箱体维持的连续天数(越长越吸筹)
+  boxLow: number // 横盘箱体下沿
+  boxHigh: number // 横盘箱体上沿
+  breakLevel: number // 观察触发位(= boxHigh):放量站上＝吸筹转拉升
+  entryTrigger: number // 确认买点:放量站上箱体上沿才介入(回测 0.20R/PF1.33)
+  stopRef: number // 止损:max(箱体下沿, 进场×(1−ENTRY_STOP_PCT/100))
+  targetRef: number // 目标:进场 + ENTRY_R_MULT×风险
+  posPct: number // 收盘在 52 周区间的分位%
+  winNetChgPct: number // 放量窗内净涨跌幅%
+  vol01: number // 放量强度因子 0..1
+  flat01: number // 均线走平因子 0..1
+  consol01: number // 横盘时长因子 0..1
+  tier: number
+  score: number
+  reason: string
+  riskNote?: string
+  lhbInst?: LhbConfluence
+  appearStreak?: number
+  relStrength?: number // 相对大盘强度(个股−指数 当日涨跌幅 pp)
+  counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
+}
+
 export interface ScreenerRegime {
   phase: 'attack' | 'caution' | 'retreat'
   temperature: number
@@ -306,6 +341,7 @@ export interface ScreenerResult {
   bhold?: BHoldScreenerCandidate[] // 第七组:突破整理·延续(可选,兼容旧快照)
   trendnew?: TrendNewScreenerCandidate[] // 第八组:趋势新高(可选,兼容旧快照)
   trendwatch?: TrendWatchScreenerCandidate[] // 趋势中军·监控(可选,兼容旧快照)
+  accum?: AccumScreenerCandidate[] // 放量吸筹·监控(可选,兼容旧快照)
   scanned: number
   scannedPullback: number
   universe: number

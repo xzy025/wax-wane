@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars, Fire, Coins, FlagBanner } from 'phosphor-react'
+import { ArrowClockwise, Lightning, Crosshair, CheckCircle, Trophy, TrendUp, Binoculars, Fire, Coins, FlagBanner, Stack } from 'phosphor-react'
 import {
   useScreener,
   type ScreenerCandidate,
@@ -10,6 +10,7 @@ import {
   type BHoldScreenerCandidate,
   type TrendNewScreenerCandidate,
   type TrendWatchScreenerCandidate,
+  type AccumScreenerCandidate,
   type TechnicalCombo,
   type ScreenerRegime,
 } from '../hooks/useScreener'
@@ -835,13 +836,89 @@ function TrendLeaderCard({ c, t }: { c: TrendWatchScreenerCandidate; t: Translat
   )
 }
 
+/** 放量吸筹·监控卡(发现型·非买点):持续异常放量 + 均线走平 + 横盘 = 主力箱体内吸筹。
+ *  突出用户关心的三因子(放量倍数/MA20走平/横盘天数)+ 观察触发位(箱体上沿)。无买卖点。 */
+function AccumCard({ c, t }: { c: AccumScreenerCandidate; t: Translation }) {
+  const k = t.screener.card
+  const ac = t.screener.acCard
+  const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
+  const flatOk = c.flat01 >= 0.5 // 均线走平(斜率小)
+  return (
+    <div className="sc-card">
+      <div className="sc-card-top">
+        <div className="sc-card-id">
+          <span className="sc-card-name">{c.name}</span>
+          <span className="sc-card-code">{c.code}</span>
+          <span className="sc-card-tag" title={`tier ${c.tier}`}>{stars}</span>
+        </div>
+        <StreakScore c={c} k={k} />
+      </div>
+
+      <div className="sc-card-metrics">
+        <div className="sc-metric">
+          <span className="sc-metric-label">{k.price}</span>
+          <span className="sc-metric-value mono">
+            {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{ac.vol}</span>
+          <span className="sc-metric-value mono positive-text">
+            {c.avgVolRatio.toFixed(2)}× <small>({c.surgeRunDays}{ac.days})</small>
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{ac.flat}</span>
+          <span className={`sc-metric-value mono ${flatOk ? 'positive-text' : ''}`}>
+            {c.maSlopePct.toFixed(1)}%{flatOk ? ` ${ac.flatOk}` : ''}
+          </span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{ac.consol}</span>
+          <span className="sc-metric-value mono positive-text">{c.consolDays}{ac.days}</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label" title={`${fmtPrice(c.boxLow)} ~ ${fmtPrice(c.boxHigh)}`}>{ac.trigger}</span>
+          <span className="sc-metric-value mono">{fmtPrice(c.breakLevel)}</span>
+        </div>
+        <div className="sc-metric">
+          <span className="sc-metric-label">{ac.pos}</span>
+          <span className="sc-metric-value mono">{Math.round(c.posPct)}%</span>
+        </div>
+      </div>
+
+      {/* 确认买点(回测 0.20R/PF1.33):放量站上箱体上沿才介入,非吸筹途中埋伏。 */}
+      <div className="sc-watch-note">
+        {ac.plan}: {ac.buy} <span className="positive-text">{fmtPrice(c.entryTrigger)}</span> · {ac.stop}{' '}
+        {fmtPrice(c.stopRef)} · {ac.target} <span className="positive-text">{fmtPrice(c.targetRef)}</span>
+      </div>
+
+      <div className="sc-monitor-note" title={c.reason}>
+        {ac.monitorNote}
+      </div>
+      <RelStrBadge c={c} k={k} />
+      {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+
+      <div className="sc-chips">
+        <span className="sc-chip hot">
+          {ac.vol} {c.avgVolRatio.toFixed(1)}×
+        </span>
+        {flatOk && <span className="sc-chip ok">{ac.flatOk}</span>}
+        <span className="sc-chip ok">
+          {ac.consol} {c.consolDays}{ac.days}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const fwd = useScreenerForward()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch' | 'track'>('newhigh')
-  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch, track: sc.tabs.track }[tab]
-  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc, track: sc.track.desc }[tab]
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch' | 'accum' | 'track'>('newhigh')
+  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch, accum: sc.tabs.accum, track: sc.tabs.track }[tab]
+  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc, accum: sc.acDesc, track: sc.track.desc }[tab]
   // 「每日扫描」日终一键:重扫+存当日快照;盘后(15:00后/周末)再连带复盘并保存实盘战绩。
   const [dailySavedAt, setDailySavedAt] = useState<Date | null>(null)
   const handleScan = useCallback(async () => {
@@ -944,6 +1021,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 onClick={() => setTab('trendwatch')}
               >
                 {sc.tabs.trendWatch} ({data.trendwatch?.length ?? 0})
+              </button>
+              <button
+                className={`seg-btn${tab === 'accum' ? ' active' : ''}`}
+                onClick={() => setTab('accum')}
+              >
+                {sc.tabs.accum} ({data.accum?.length ?? 0})
               </button>
               <button
                 className={`seg-btn${tab === 'track' ? ' active' : ''}`}
@@ -1217,6 +1300,26 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 <div className="sc-grid">
                   {(data.trendwatch ?? []).map((c) => (
                     <TrendLeaderCard key={`tw-${c.code}`} c={c} t={t} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {tab === 'accum' && (
+            <>
+              <div className="sc-meta">
+                {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
+              </div>
+              <div className="sc-group-head">
+                <Stack size={16} weight="fill" /> {sc.groups.accum} ({data.accum?.length ?? 0})
+              </div>
+              {(data.accum?.length ?? 0) === 0 ? (
+                <div className="sc-empty">{sc.empty}</div>
+              ) : (
+                <div className="sc-grid">
+                  {(data.accum ?? []).map((c) => (
+                    <AccumCard key={`ac-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
               )}

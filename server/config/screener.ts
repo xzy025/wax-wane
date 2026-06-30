@@ -734,3 +734,79 @@ export const TECH = {
   MULT_MAX: 1.3,
   WEIGHTS: { wyckoff: 0.4, priceAction: 0.4, dow: 0.2 },
 } as const satisfies TechnicalComboConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 放量吸筹 · 持续异常放量横盘 监控清单(发现型,纯 OHLCV,见 services/accumRules.classifyAccum)。
+// 来源:用户给 激智科技(300566) 截图——「从某日起(约 5/20)每天成交量都是之前均量的好几倍(持续异常放量)」。
+//   主力吸筹/换庄的典型量价背离:量持续巨幅放大,但价格横盘、均线走平 = 资金在低位/箱体内换手吸筹。
+// 核心硬门槛＝持续放量;用户要的两条「加分」做成打分因子:① 均线走平(MA_REF 斜率近 0)
+//   ② 横盘越久越加分(价格箱体维持的连续天数)。发现型清单:吸筹本身是 setup,真正的买点＝
+//   「放量站上箱体上沿(吸筹转拉升)」的【确认买点】(entryTrigger=箱体上沿 / stopRef=箱体下沿 /
+//   targetRef=+ENTRY_R_MULT×R),卡片以此呈现;吸筹途中不埋伏。
+//
+// 回测校准(ACCUM=1,300只/2023-07~2026-06,对照突破基线 0.08R/PF1.11):
+//   **入场机制是命门**(同 BHOLD/PBREAK)——检测日收盘进(吸筹途中埋伏)−0.24R/PF0.76(止损62%/回撤121R,负);
+//   改「箱体突破确认进(放量站上箱体上沿)」→ **0.20R/PF1.33/胜率39.9%/回撤18.8R/n281**(过线:>突破基线、
+//   PF>1.3、样本足、近分歧0.19R)。confirm vs close **+0.44R**。HOLD(confirm) 20~60 均过线(0.19~0.22R),20 最优。
+//   **用户核心诉求「横盘越久越加分」被数据单调证实**(横盘天数因子分桶,close 入场):横盘 1~5 日 −0.63R/PF0.55
+//   → 5~10 日 −0.06R → 10~20 日 **+0.24R/PF1.42/n99** → 20+ 日(n5 退化仅参考)。⇒ 真横盘吸筹(≥10日)才有
+//   edge,短横盘是拉升途中噪音(故 consol 因子权重正确)。close-entry 旁扫:VOL_MULT 越高越差(高倍放量+横盘
+//   ＝已剧烈换手,埋伏被洗)、箱体越宽(25%)越不差——印证"埋伏"无 edge,买点在突破那一刻。
+//   结论:**过线上线为「监控清单 + 确认买点」**(entry=放量站上箱体上沿,stop=箱体下沿,target=+2R,确认窗3日);
+//   监控卡的「观察触发位」即此买点。⚠ 单窗口、confirm 触发依赖箱体口径,有一定过拟合风险;一键回退为纯监控:
+//   卡片忽略 stopRef/targetRef 即可(规则仍输出,不强制)。
+export interface AccumConfig {
+  MIN_BARS: number
+  VOL_WIN: number // 放量观察窗(根,≈"从5/20起"4~5周)
+  BASE_LOOKBACK: number // 放量启动前的基准均量窗(根)
+  VOL_MULT: number // "好几倍"放量倍数:窗内均量 / 基准 ≥ 此值(硬门槛)
+  MIN_BURST_DAYS: number // VOL_WIN 内单日量 ≥ VOL_MULT×基准 的天数下限(持续,非一日脉冲)
+  SURGE_SOFT_MULT: number // 持续放量天数 surgeRunDays 的软门槛倍数(walk-back 计天数,展示+评分)
+  SURGE_TOL: number // walk-back 允许的连续 sub-threshold 容忍天数
+  SURGE_FULL: number // 持续放量天数评分封顶(满分)
+  MA_REF: number // 均线走平判定的均线窗(20)
+  FLAT_WIN: number // MA 斜率回看窗(根)
+  FLAT_MAX_PCT: number // MA_REF 在 FLAT_WIN 内偏移 ≤ 此% 视为走平(0 偏移=满分)
+  BOX_RANGE_PCT: number // 横盘箱体:连续区间 (最高−最低)/最低 ≤ 此% 算"在箱内"(walk-back 求 consolDays)
+  CONSOL_FULL: number // 横盘天数评分封顶(满分),越长越加分
+  HI_POS_PCT: number // 收盘落在 52 周区间 ≥ 此分位＝高位放量(谨防出货 riskNote)
+  LO_POS_PCT: number // ≤ 此分位＝低位放量(偏吸筹,favorable)
+  DROP_WARN_PCT: number // 放量窗内净跌幅 ≤ −此%＝放量下跌·出货嫌疑 riskNote
+  LIMITUP_MAX: number // 连板软门槛(妖股剔除)
+  MAX: number // 清单容量上限
+  /** 专用初筛:除 nh(动量)/pb(量比) 两切片外,额外按 换手率(f8,float归一·偏小中盘) 取 top 此数并入并集,
+   *  不卡 mom60——专为捞「低位横盘吸筹」(长flat基底 mom60 常≈0/微负、当日量比可<1.3 而被两切片漏掉)。 */
+  PREFILTER_MAX: number
+  // ── 确认买点(回测裁决:放量站上箱体上沿确认进 0.20R/PF1.33)──
+  ENTRY_STOP_PCT: number // 触发买点止损封顶距进场%(进场=箱体上沿;stop=max(箱体下沿, 进场×(1−此%/100)))
+  ENTRY_R_MULT: number // 触发买点目标 = 进场 + 此×风险
+  CONFIRM_WINDOW: number // 确认窗(交易日):检测后 N 日内放量站上箱体上沿才介入(实战触发位提示用)
+  /** 打分权重(按权重和归一):放量强度 / 均线走平 / 横盘时长。 */
+  WEIGHTS: { vol: number; flat: number; consol: number }
+}
+
+export const ACCUM = {
+  MIN_BARS: 70,
+  VOL_WIN: 20,
+  BASE_LOOKBACK: 40,
+  VOL_MULT: 2.5,
+  MIN_BURST_DAYS: 12,
+  SURGE_SOFT_MULT: 1.8,
+  SURGE_TOL: 3,
+  SURGE_FULL: 40,
+  MA_REF: 20,
+  FLAT_WIN: 10,
+  FLAT_MAX_PCT: 8,
+  BOX_RANGE_PCT: 18,
+  CONSOL_FULL: 40,
+  HI_POS_PCT: 70,
+  LO_POS_PCT: 40,
+  DROP_WARN_PCT: 8,
+  LIMITUP_MAX: 2,
+  MAX: 40,
+  PREFILTER_MAX: 300, // 额外按换手率取 top300 并入并集(不卡 mom60),专捞低位横盘吸筹;增量取数有限(与 nh/pb 多有重叠)
+  ENTRY_STOP_PCT: 8, // 回测同口径(STOP_AC=8)
+  ENTRY_R_MULT: 2, // 回测同口径(R_AC=2)
+  CONFIRM_WINDOW: 3, // 回测同口径(CONFIRM_AC=3)
+  WEIGHTS: { vol: 0.4, flat: 0.3, consol: 0.3 },
+} as const satisfies AccumConfig
