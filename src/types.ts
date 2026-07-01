@@ -92,6 +92,19 @@ export interface Translation {
       empty: string
       breakout: string
       trigger: string
+      topMovers: string
+    }
+    structure: {
+      title: string
+      limitUp: string
+      limitDown: string
+      advance: string
+      decline: string
+      breakRate: string
+      topHs: string
+      topLs: string
+      generatedAt: string
+      loadFail: string
     }
   }
   themes: {
@@ -485,6 +498,7 @@ export interface Translation {
     lastUpdated: string
     dataAsof: string
     cached: string
+    generatedAt: string
     loadFail: string
     empty: string
     universe: string
@@ -513,6 +527,7 @@ export interface Translation {
       consol: string
       turnover: string
       days: string
+      hsBadge: string
     }
     pbDesc: string
     pbCard: {
@@ -670,6 +685,8 @@ export interface Translation {
       bo: string
       tr: string
       relStr: string
+      relStrChinext: string
+      relStrStar: string
       counterTrend: string
     }
     track: {
