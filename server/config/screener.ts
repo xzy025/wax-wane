@@ -41,6 +41,8 @@ export interface ScreenerConfig {
   TARGET_R_DYNAMIC: boolean
   TARGET_R_BY_REGIME: { strong: number; neutral: number; weak: number }
   MARKET_INDEX_SECID: string
+  CHINEXT_INDEX_SECID: string
+  STAR50_INDEX_SECID: string
   MARKET_MA_FAST: number
   MARKET_MA_SLOW: number
   CONCURRENCY: number
@@ -158,6 +160,11 @@ export const SCREENER = {
   TARGET_R_BY_REGIME: { strong: 2.0, neutral: 3.0, weak: 3.5 },
   /** 大盘温度代理指数(完整 secid):沪深300=1.000300 / 创业板指=0.399006 / 中证全指=1.000985。 */
   MARKET_INDEX_SECID: '1.000300',
+  /** 双创专属基准:300/301 开头(创业板)用创业板指、688 开头(科创板)用科创50,其余仍用沪深300。
+   *  仅供「相对大盘强度」(逆势强)因子动态选基准;不影响 MARKET_INDEX_SECID(大盘温度/regime/targetRMult
+   *  仍锚沪深300,其余战法回测基线按此校准,不动)。 */
+  CHINEXT_INDEX_SECID: '0.399006', // 创业板指(与 ashare.ts INDEX_SECIDS 一致)
+  STAR50_INDEX_SECID: '1.000688', // 科创50(上交所,secid 前缀 1)
   /** 大盘趋势判定的均线窗口(收盘 vs MA_FAST/MA_SLOW)。 */
   MARKET_MA_FAST: 20,
   MARKET_MA_SLOW: 50,

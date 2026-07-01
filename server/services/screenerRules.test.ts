@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { trendTemplate, classify, finalScore, marketRegime, targetRMultFor, type Bar, type Candidate } from './screenerRules'
+import { trendTemplate, classify, finalScore, marketRegime, targetRMultFor, enrichRelStrength, type Bar, type Candidate } from './screenerRules'
 import { SCREENER, type ScreenerConfig } from '../config/screener'
 
 /**
@@ -236,5 +236,55 @@ describe('marketRegime + targetRMultFor (动态目标位)', () => {
     expect(targetRMultFor('strong')).toBe(SCREENER.TARGET_R_BY_REGIME.strong)
     expect(targetRMultFor('weak')).toBe(SCREENER.TARGET_R_BY_REGIME.weak)
     expect(targetRMultFor('weak')).toBeGreaterThan(targetRMultFor('strong'))
+  })
+})
+
+describe('enrichRelStrength(按代码动态换基准)', () => {
+  type Cand = { code: string; changePct: number; relStrength?: number; counterTrend?: boolean }
+
+  // 双创结构性下跌场景:沪深300 只跌 −0.5%(未到 −1.5% 明显下跌日),创业板指暴跌 −3%、科创50 −2%。
+  const benchmarkFor = (code: string): number => {
+    if (code.startsWith('300') || code.startsWith('301')) return -3
+    if (code.startsWith('688')) return -2
+    return -0.5
+  }
+
+  it('300/301 开头(创业板)用创业板指基准,而非沪深300', () => {
+    const cands: Cand[] = [
+      { code: '300750', changePct: 1 }, // 老创业板
+      { code: '301269', changePct: 1 }, // 注册制新股同属创业板
+    ]
+    enrichRelStrength(cands, benchmarkFor, -1.5)
+    expect(cands[0].relStrength).toBe(4) // 1 - (-3)
+    expect(cands[1].relStrength).toBe(4)
+    // 创业板指本身已达"明显下跌日"(-3 ≤ -1.5),个股逆势收红 → 逆势强。
+    expect(cands[0].counterTrend).toBe(true)
+    expect(cands[1].counterTrend).toBe(true)
+  })
+
+  it('688 开头(科创板)用科创50基准', () => {
+    const cands: Cand[] = [{ code: '688981', changePct: 0.5 }]
+    enrichRelStrength(cands, benchmarkFor, -1.5)
+    expect(cands[0].relStrength).toBe(2.5) // 0.5 - (-2)
+    expect(cands[0].counterTrend).toBe(true) // 科创50 -2 ≤ -1.5
+  })
+
+  it('其余代码仍用沪深300基准 —— 今天沪深300未到明显下跌日,不会被误判逆势强', () => {
+    const cands: Cand[] = [{ code: '600519', changePct: 1 }]
+    enrichRelStrength(cands, benchmarkFor, -1.5)
+    expect(cands[0].relStrength).toBe(1.5) // 1 - (-0.5)
+    expect(cands[0].counterTrend).toBe(false) // 沪深300 -0.5 > -1.5,非"明显下跌日"
+  })
+
+  it('同一批候选混合板块时,各自按自己的代码取对应基准(而非统一用同一个数字)', () => {
+    const cands: Cand[] = [
+      { code: '300750', changePct: 1 },
+      { code: '688981', changePct: 0.5 },
+      { code: '600519', changePct: 1 },
+    ]
+    enrichRelStrength(cands, benchmarkFor, -1.5)
+    expect(cands[0].relStrength).toBe(4)
+    expect(cands[1].relStrength).toBe(2.5)
+    expect(cands[2].relStrength).toBe(1.5)
   })
 })

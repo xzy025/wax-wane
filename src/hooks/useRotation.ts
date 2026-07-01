@@ -128,6 +128,8 @@ export interface BoardStocksResult {
   scanned: number
   breakout: BoardStock[]
   trigger: BoardStock[]
+  /** 成分股当日涨跌幅榜(前10,不依赖新高战法命中);蓝筹反转板块靠这个看具体标的。 */
+  topMovers: { code: string; name: string; changePct: number }[]
 }
 
 /** 取某板块成分股的新高战法候选(突破/扳机)。code=null 时不取。 */

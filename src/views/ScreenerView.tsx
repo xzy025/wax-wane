@@ -15,6 +15,7 @@ import {
   type ScreenerRegime,
 } from '../hooks/useScreener'
 import { useScreenerForward } from '../hooks/useScreenerForward'
+import { useMarketStructure } from '../hooks/useMarketStructure'
 import TrackRecordPanel from './TrackRecordPanel'
 import { isPostCloseReview } from '../utils/marketStatus'
 import type { Translation } from '../types'
@@ -132,14 +133,21 @@ function StreakScore({ c, k }: { c: { appearStreak?: number; score: number }; k:
   )
 }
 
-/** 相对大盘强度徽标:个股−指数 当日涨跌幅(pp);暴跌日逆势红盘(counterTrend)红色高亮「逆势强」。 */
-function RelStrBadge({ c, k }: { c: { relStrength?: number; counterTrend?: boolean }; k: Translation['screener']['card'] }) {
+/** 基准按板块选展示文案:300/301(创业板)→ 相对创业板、688(科创板)→ 相对科创50、其余 → 相对大盘。 */
+function benchmarkLabel(code: string, k: Translation['screener']['card']): string {
+  if (code.startsWith('300') || code.startsWith('301')) return k.relStrChinext
+  if (code.startsWith('688')) return k.relStrStar
+  return k.relStr
+}
+
+/** 相对大盘强度徽标:个股−基准指数 当日涨跌幅(pp);暴跌日逆势红盘(counterTrend)红色高亮「逆势强」。 */
+function RelStrBadge({ c, k }: { c: { code: string; relStrength?: number; counterTrend?: boolean }; k: Translation['screener']['card'] }) {
   if (c.relStrength == null) return null
   const sign = c.relStrength >= 0 ? '+' : ''
   return (
     <div className={`sc-relstr${c.counterTrend ? ' sc-countertrend' : ''}`}>
       {c.counterTrend && '🔴 '}
-      {k.relStr} <span className="mono">{sign}{c.relStrength.toFixed(1)}pp</span>
+      {benchmarkLabel(c.code, k)} <span className="mono">{sign}{c.relStrength.toFixed(1)}pp</span>
       {c.counterTrend && ` · ${k.counterTrend}`}
     </div>
   )
@@ -398,6 +406,7 @@ function HighDivCard({ c, t }: { c: HighDivScreenerCandidate; t: Translation }) 
         {c.bodyRatio <= 0.2 && <span className="sc-chip">{hk.doji}≤20%</span>}
         {c.upperHalf && <span className="sc-chip ok">{hk.w2s}✓</span>}
         {c.lowerWick >= 0.3 && <span className="sc-chip">{hk.wick}</span>}
+        {c.board?.quadrant === 'hs' && <span className="sc-chip hot">🔥 {hk.hsBadge}</span>}
       </div>
     </div>
   )
@@ -915,6 +924,7 @@ function AccumCard({ c, t }: { c: AccumScreenerCandidate; t: Translation }) {
 export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const fwd = useScreenerForward()
+  const structure = useMarketStructure()
   const sc = t.screener
   const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch' | 'accum' | 'track'>('newhigh')
   const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch, accum: sc.tabs.accum, track: sc.tabs.track }[tab]
@@ -929,10 +939,18 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
     await refresh() // 重扫 + 存档当日快照(先落盘,forward 才能纳入今天 picks)
     if (isPostCloseReview()) {
       await fwd.refresh() // 盘后:实盘战绩复盘重算 + 存 forward-<date>.json
+      await structure.refresh() // 盘后:市场结构(板块集中度/抱团象限)重算 + 存 structure-<date>.json
       setDailySavedAt(new Date())
     }
-  }, [tab, refresh, fwd])
+  }, [tab, refresh, fwd, structure])
   const activeBusy = loading || fwd.loading // 串联期间任一忙都禁用
+  // 缓存/磁盘兜底响应用后端真实生成时刻(savedAt),而非"刚刚 fetch 到"的客户端时间——
+  // 避免旧数据顶着"刚更新"的假象(缺 savedAt 的旧快照则优雅回退)。
+  const updatedLabel = data?.fromCache && data.savedAt
+    ? `${sc.generatedAt} ${new Date(data.savedAt).toLocaleString()}`
+    : lastUpdated
+      ? `${sc.lastUpdated} ${lastUpdated.toLocaleTimeString()}`
+      : null
 
   return (
     <section className="view-stack">
@@ -948,10 +966,10 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               <>
                 {sc.dataAsof} {data.asof}
                 {data.fromCache && <span className="sc-cache-badge">{sc.cached}</span>}
-                {lastUpdated && ' · '}
+                {updatedLabel && ' · '}
               </>
             )}
-            {lastUpdated && `${sc.lastUpdated} ${lastUpdated.toLocaleTimeString()}`}
+            {updatedLabel}
             {tab !== 'track' && dailySavedAt && (
               <>
                 {' · '}

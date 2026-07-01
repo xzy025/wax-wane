@@ -86,6 +86,8 @@ export interface HighDivScreenerCandidate extends HighDivCandidate {
   turnoverRate?: number
   /** 龙虎榜加分(机构/游资,无则未上榜)。 */
   lhbInst?: LhbConfluence
+  /** 板块强弱加分(无则不存在=板块数据不可用);quadrant==='hs' 时属今日抱团强势板块内的分歧候选。 */
+  board?: BoardConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
@@ -405,19 +407,43 @@ async function confirmUnion(
   }
 }
 
-/** 取大盘趋势(指数代理)→ 动态目标位 R 倍数 + 大盘当日涨跌幅(相对强度用)。失败兜底中性/0。 */
-async function resolveMarketTarget(): Promise<{ marketTrend: MarketRegime; targetRMult: number; marketChgPct: number }> {
-  try {
-    const idx = await fetchIndexKline(C.MARKET_INDEX_SECID, C.MARKET_MA_SLOW + 10)
-    const closes = idx.map((b) => b.close)
-    const marketTrend = marketRegime(closes)
-    // 大盘当日涨跌幅:最后两根 close(零额外取数,这段 K 线已为趋势档位取过)。
-    const n = closes.length
-    const marketChgPct = n >= 2 && closes[n - 2] > 0 ? (closes[n - 1] / closes[n - 2] - 1) * 100 : 0
-    return { marketTrend, targetRMult: targetRMultFor(marketTrend), marketChgPct }
-  } catch {
-    return { marketTrend: 'neutral', targetRMult: targetRMultFor('neutral'), marketChgPct: 0 }
+/** 取大盘趋势(指数代理)→ 动态目标位 R 倍数 + 大盘当日涨跌幅(相对强度用)。失败兜底中性/0。
+ *  另并行取双创(创业板指/科创50)当日涨跌幅,供相对大盘强度按板块动态换基准(见 relBenchmarkFor);
+ *  单独取数失败时兜底退回沪深300 marketChgPct,与既有单基准行为一致,不引入新失败模式。 */
+async function resolveMarketTarget(): Promise<{
+  marketTrend: MarketRegime
+  targetRMult: number
+  marketChgPct: number
+  chinextChgPct: number
+  star50ChgPct: number
+}> {
+  const base = await (async () => {
+    try {
+      const idx = await fetchIndexKline(C.MARKET_INDEX_SECID, C.MARKET_MA_SLOW + 10)
+      const closes = idx.map((b) => b.close)
+      const marketTrend = marketRegime(closes)
+      // 大盘当日涨跌幅:最后两根 close(零额外取数,这段 K 线已为趋势档位取过)。
+      const n = closes.length
+      const marketChgPct = n >= 2 && closes[n - 2] > 0 ? (closes[n - 1] / closes[n - 2] - 1) * 100 : 0
+      return { marketTrend, targetRMult: targetRMultFor(marketTrend), marketChgPct }
+    } catch {
+      return { marketTrend: 'neutral' as MarketRegime, targetRMult: targetRMultFor('neutral'), marketChgPct: 0 }
+    }
+  })()
+  const chgPctOf = async (secid: string): Promise<number> => {
+    try {
+      const k = await fetchIndexKline(secid, 2)
+      const n = k.length
+      return n >= 2 && k[n - 2].close > 0 ? (k[n - 1].close / k[n - 2].close - 1) * 100 : base.marketChgPct
+    } catch {
+      return base.marketChgPct
+    }
   }
+  const [chinextChgPct, star50ChgPct] = await Promise.all([
+    chgPctOf(C.CHINEXT_INDEX_SECID),
+    chgPctOf(C.STAR50_INDEX_SECID),
+  ])
+  return { ...base, chinextChgPct, star50ChgPct }
 }
 
 /** 有界并发。 */
@@ -435,15 +461,17 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R
 }
 
 /** 给候选挂上「龙虎榜机构/游资净买」+「板块强弱」加分(best-effort:失败/取不到数据则该因子缺省=中性,不伤分)。
- *  龙虎榜对 新高 + 回调 候选都挂(近 K 日索引取一次,全候选共享);板块强弱仅新高候选。 */
+ *  龙虎榜对 新高 + 回调 候选都挂(近 K 日索引取一次,全候选共享);板块强弱给 新高 + 连续新高分歧低吸(highdiv)——
+ *  后者用于识别"今日抱团强势板块(HS象限)内的分歧低吸候选"(quadrant==='hs')。 */
 async function enrichConfluence(
   nhCands: (ScreenerCandidate & { liqAmount: number })[],
   pbCands: PullbackScreenerCandidate[],
   frCands: FundResScreenerCandidate[],
   bhCands: BHoldScreenerCandidate[],
   tnCands: TrendNewScreenerCandidate[],
+  hdCands: HighDivScreenerCandidate[],
 ): Promise<void> {
-  const lhbTargets: Array<{ code: string; lhbInst?: LhbConfluence }> = [...nhCands, ...pbCands, ...frCands, ...bhCands, ...tnCands]
+  const lhbTargets: Array<{ code: string; lhbInst?: LhbConfluence }> = [...nhCands, ...pbCands, ...frCands, ...bhCands, ...tnCands, ...hdCands]
   if (lhbTargets.length === 0) return
   // ① 龙虎榜:近 K 交易日机构/游资/资金净买(新高 + 回调 候选共享同一索引)
   try {
@@ -469,10 +497,10 @@ async function enrichConfluence(
   } catch (err) {
     console.warn('[Screener] 龙虎榜加分取数失败(忽略):', err instanceof Error ? err.message : err)
   }
-  // ② 板块强弱:仅新高候选(回调卡不展示板块)。个股→行业板块→板块日线→当前 2×2 强弱(同板块 closes 缓存复用)
+  // ② 板块强弱:新高 + highdiv 候选(回调等其余组不展示板块)。个股→行业板块→板块日线→当前 2×2 强弱(同板块 closes 缓存复用)
   try {
     const closesByBk = new Map<string, number[]>()
-    await mapLimit(nhCands, 6, async (c) => {
+    await mapLimit([...nhCands, ...hdCands], 6, async (c) => {
       const { bk, name } = await resolveStockIndustryBoard(c.code)
       if (!bk) return
       let closes = closesByBk.get(bk)
@@ -607,11 +635,16 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   }
 
   // 大盘趋势 → 动态目标位 R(逆向:弱市新高=龙头给更远目标)+ 大盘当日涨跌幅(相对强度)。回填 regime + 注入扫描 cfg。
-  const { marketTrend, targetRMult, marketChgPct } = await resolveMarketTarget()
+  const { marketTrend, targetRMult, marketChgPct, chinextChgPct, star50ChgPct } = await resolveMarketTarget()
   regime.marketTrend = marketTrend
   regime.targetRMult = targetRMult
   regime.marketChgPct = Math.round(marketChgPct * 100) / 100
   const scanCfg: ScreenerConfig = { ...C, TARGET_R_MULT: targetRMult, MARKET_CHG_PCT: marketChgPct }
+  // 相对大盘强度按板块动态换基准:300/301(创业板)→ 创业板指、688(科创板)→ 科创50,其余仍用沪深300。
+  const relBenchmarkFor = (code: string): number =>
+    code.startsWith('300') || code.startsWith('301') ? chinextChgPct
+      : code.startsWith('688') ? star50ChgPct
+      : marketChgPct
 
   const { rows, pullbackRows, accumRows, universe, turnoverRankByCode } = await prefilter()
   const truncated = rows.length > C.MAX_KLINE
@@ -687,8 +720,9 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   // 资金流加成:成交量排名(免费)+ 主力净流入/资金共振(实盘 live·未回测·env 门控)。
   await enrichFundFlow(fundres, turnoverRankByCode)
 
-  // 龙虎榜机构/游资 + 板块强弱 加分(龙虎榜对新高+回调+资金流共振+突破整理+趋势新高都挂,板块仅新高;best-effort)
-  await enrichConfluence(enriched, pullback, fundres, bhold, trendnew)
+  // 龙虎榜机构/游资 + 板块强弱 加分(龙虎榜对新高+回调+资金流共振+突破整理+趋势新高+分歧低吸都挂,
+  // 板块仅新高+分歧低吸(用于标出"抱团强势板块(HS)内的分歧候选");best-effort)
+  await enrichConfluence(enriched, pullback, fundres, bhold, trendnew, highdiv)
 
   // 技术分析组合(Wyckoff+道氏+AlBrooks)整体评分:其余组 score 按 ta 因子缩放、distribution 降档+⚠,再按调整后重排。
   applyTaPenalty(highdiv)
@@ -704,12 +738,12 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   bhold.sort((a, b) => b.tier - a.tier || b.score - a.score)
   trendnew.sort((a, b) => b.tier - a.tier || b.score - a.score)
   // 相对大盘强度:给趋势中军监控打 relStrength/counterTrend(逆势强),并在截断前对逆势龙头加分(排前+保住名额)。
-  enrichRelStrength(trendwatch, marketChgPct, C.RELSTR.CRASH_DAY_PCT)
+  enrichRelStrength(trendwatch, relBenchmarkFor, C.RELSTR.CRASH_DAY_PCT)
   for (const c of trendwatch) if (c.counterTrend) c.score = Math.round(c.score * C.RELSTR.COUNTER_BOOST)
   trendwatch.sort((a, b) => b.tier - a.tier || b.score - a.score)
   trendwatch.splice(TRENDWATCH.MAX) // 监控清单容量上限(末尾截断,保留分数高的趋势龙头)
   // 放量吸筹·监控:同为发现型清单,打 relStrength/counterTrend(逆势放量吸筹更值得留意),按分排序后截断。
-  enrichRelStrength(accum, marketChgPct, C.RELSTR.CRASH_DAY_PCT)
+  enrichRelStrength(accum, relBenchmarkFor, C.RELSTR.CRASH_DAY_PCT)
   for (const c of accum) if (c.counterTrend) c.score = Math.round(c.score * C.RELSTR.COUNTER_BOOST)
   accum.sort((a, b) => b.tier - a.tier || b.score - a.score)
   accum.splice(ACCUM.MAX) // 监控清单容量上限(末尾截断,保留高分吸筹票)
@@ -734,7 +768,7 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     .map(strip)
   const watchAll = enriched.filter((c) => c.group === 'watch')
   // 相对大盘强度:临界观察也打 relStrength/counterTrend,逆势强加分 → 暴跌日逆势红盘能扛过 WATCH_MAX 截断。
-  enrichRelStrength(watchAll, marketChgPct, C.RELSTR.CRASH_DAY_PCT)
+  enrichRelStrength(watchAll, relBenchmarkFor, C.RELSTR.CRASH_DAY_PCT)
   for (const c of watchAll) if (c.counterTrend) c.score = Math.round(c.score * C.RELSTR.COUNTER_BOOST)
   const watch = watchAll
     .sort((a, b) => b.score - a.score)

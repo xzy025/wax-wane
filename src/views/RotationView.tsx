@@ -8,6 +8,7 @@ import {
   type Quadrant,
   type BoardStock,
 } from '../hooks/useRotation'
+import { useMarketStructure, type MarketStructureBoard } from '../hooks/useMarketStructure'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 import type { Translation } from '../types'
 
@@ -142,6 +143,60 @@ function StockCard({ c, t }: { c: BoardStock; t: Translation }) {
   )
 }
 
+function BoardMiniRow({ b }: { b: MarketStructureBoard }) {
+  return (
+    <div className="rot-mover-row">
+      <span className="rot-mover-name">{b.name}</span>
+      <span className={`mono ${colorClass(b.shortChg)}`}>{fmtPct(b.shortChg)}</span>
+    </div>
+  )
+}
+
+/** 每日市场结构快照:涨跌停宽度 + 板块集中度(2×2象限计数)+ Top抱团/反转板块——
+ *  固化"K型分化/抱团"分析,复用已有 rotation 象限 + kaipanla 情绪数据,盘后随「每日扫描」落盘。 */
+function StructureCard({ t }: { t: Translation }) {
+  const st = t.rotation.structure
+  const { data, loading, error } = useMarketStructure()
+  if (loading && !data) return null
+  if (error && !data) return <div className="alert-item danger">{st.loadFail}</div>
+  if (!data) return null
+  return (
+    <div className="rot-structure">
+      <div className="rot-structure-head">
+        <span className="rot-structure-title">{st.title}</span>
+        <span className="themes-updated">
+          {st.generatedAt} {new Date(data.generatedAt).toLocaleString()}
+        </span>
+      </div>
+      <div className="rot-structure-stats">
+        <span>{st.limitUp} <b className="positive-text">{data.limitUp}</b></span>
+        <span>{st.limitDown} <b className="negative-text">{data.limitDown}</b></span>
+        <span>{st.advance} <b className="positive-text">{data.advanceCount}</b></span>
+        <span>{st.decline} <b className="negative-text">{data.declineCount}</b></span>
+        <span>{st.breakRate} <b>{data.breakRate}%</b></span>
+      </div>
+      <div className="rot-structure-cols">
+        <div className="rot-structure-col">
+          <div className="rot-drill-grouptag">{st.topHs} ({data.hsCount})</div>
+          <div className="rot-movers-list">
+            {data.topHs.map((b) => (
+              <BoardMiniRow key={b.code} b={b} />
+            ))}
+          </div>
+        </div>
+        <div className="rot-structure-col">
+          <div className="rot-drill-grouptag">{st.topLs} ({data.lsCount})</div>
+          <div className="rot-movers-list">
+            {data.topLs.map((b) => (
+              <BoardMiniRow key={b.code} b={b} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function RotationView({ t }: RotationViewProps) {
   const rt = t.rotation
   const [category, setCategory] = useState<RotationCategory>('industry')
@@ -217,6 +272,8 @@ function RotationView({ t }: RotationViewProps) {
         </div>
       </div>
 
+      <StructureCard t={t} />
+
       {error && !data && <div className="alert-item danger">{rt.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{rt.scanning}</div>}
 
@@ -288,10 +345,26 @@ function RotationView({ t }: RotationViewProps) {
               {drill.loading && <div className="themes-desc">{rt.drill.loading}</div>}
               {drill.error && <div className="alert-item danger">{rt.drill.loadFail}</div>}
               {drill.data &&
-                (drill.data.breakout.length === 0 && drill.data.trigger.length === 0 ? (
+                (drill.data.breakout.length === 0 && drill.data.trigger.length === 0 && drill.data.topMovers.length === 0 ? (
                   <div className="sc-empty">{rt.drill.empty}</div>
                 ) : (
                   <>
+                    {drill.data.topMovers.length > 0 && (
+                      <div className="rot-drill-group">
+                        <div className="rot-drill-grouptag">
+                          {rt.drill.topMovers} ({drill.data.topMovers.length})
+                        </div>
+                        <div className="rot-movers-list">
+                          {drill.data.topMovers.map((m) => (
+                            <div key={m.code} className="rot-mover-row">
+                              <span className="rot-mover-name">{m.name}</span>
+                              <span className="rot-mover-code mono">{m.code}</span>
+                              <span className={`mono ${colorClass(m.changePct)}`}>{fmtPct(m.changePct)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {drill.data.breakout.length > 0 && (
                       <div className="rot-drill-group">
                         <div className="rot-drill-grouptag">

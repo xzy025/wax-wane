@@ -9,6 +9,7 @@ import { clearMacroCache } from '../services/macro'
 import { clearThemesCache } from '../services/themes'
 import { clearScreenerCache } from '../services/screener'
 import { clearScreenerForwardCache } from '../services/screenerForward'
+import { clearMarketStructureCache } from '../services/marketStructure'
 import { clearRotationCache } from '../services/rotation'
 import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
 
@@ -29,6 +30,7 @@ const cacheClearers: Record<string, () => void> = {
   moneyflow: clearMoneyFlowCache,
   screener: clearScreenerCache,
   'screener-forward': clearScreenerForwardCache,
+  'market-structure': clearMarketStructureCache,
   rotation: clearRotationCache,
 }
 

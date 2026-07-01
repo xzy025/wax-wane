@@ -129,6 +129,7 @@ export interface HighDivScreenerCandidate {
   reason: string
   riskNote?: string
   lhbInst?: LhbConfluence
+  board?: BoardConfluence // 板块强弱(无则板块数据不可用);quadrant==='hs' = 今日抱团强势板块内的分歧候选
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }

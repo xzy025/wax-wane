@@ -162,16 +162,20 @@ export function rsRaw(closes: number[]): number {
 
 /**
  * 相对大盘强度 enrich(事后批量处理,仿 applyTaPenalty,不改各 classifier):
- *  relStrength = 个股当日涨跌幅 − 大盘当日涨跌幅(pp);counterTrend = 大盘明显下跌日逆势收红。
+ *  relStrength = 个股当日涨跌幅 − 基准指数当日涨跌幅(pp);counterTrend = 基准明显下跌日逆势收红。
  *  绝对收强只看个股自身振幅、看不到大盘背景;本因子捕捉"暴跌日逆势抗跌"的真·相对强度。
- *  crashDayPct = config RELSTR.CRASH_DAY_PCT(如 −1.5,大盘当日涨跌幅 ≤ 此值算"明显下跌日")。
+ *  基准按板块动态选取(300/301→创业板指、688→科创50、其余→沪深300,见 screener.ts relBenchmarkFor),
+ *  故传入按 code 取基准涨跌幅的解析函数而非单一数字——双创结构性下跌时(仅双创崩、沪深300尚可)
+ *  仍能算出对该股真正相关的相对强度。crashDayPct = config RELSTR.CRASH_DAY_PCT(如 −1.5,
+ *  基准当日涨跌幅 ≤ 此值算"明显下跌日")。
  */
-export function enrichRelStrength<T extends { changePct: number; relStrength?: number; counterTrend?: boolean }>(
+export function enrichRelStrength<T extends { code: string; changePct: number; relStrength?: number; counterTrend?: boolean }>(
   cands: T[],
-  marketChgPct: number,
+  benchmarkChgPctFor: (code: string) => number,
   crashDayPct: number,
 ): void {
   for (const c of cands) {
+    const marketChgPct = benchmarkChgPctFor(c.code)
     c.relStrength = Math.round((c.changePct - marketChgPct) * 100) / 100
     c.counterTrend = marketChgPct <= crashDayPct && c.changePct > 0
   }

@@ -301,17 +301,29 @@ export interface BoardStocksResult {
   scanned: number
   breakout: BoardStock[]
   trigger: BoardStock[]
+  /** 成分股当日涨跌幅榜(按 changePct 降序,前 TOP_MOVERS_N);不跑 K线/classify,
+   *  蓝筹反转板块(如保险)不符合新高战法趋势模板,靠这个才能看清"具体是谁在涨"。 */
+  topMovers: { code: string; name: string; changePct: number }[]
 }
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
+const TOP_MOVERS_N = 10
 
-/** 板块成分股(报价调用 fs=b:BKxxxx,不受 kline 限流);按成交额降序。 */
-async function fetchBoardConstituents(bkCode: string): Promise<{ code: string; name: string; amount: number }[]> {
+/** 成分股当日涨跌幅榜(按 changePct 降序取前 n);纯函数,不跑 K线/classify——
+ *  蓝筹反转板块(如保险)成分股基本不符合新高战法趋势模板,靠这个才能看清"具体是谁在涨"。 */
+export function rankTopMovers<T extends { changePct: number }>(members: T[], n: number): T[] {
+  return [...members].sort((a, b) => b.changePct - a.changePct).slice(0, n)
+}
+
+/** 板块成分股(报价调用 fs=b:BKxxxx,不受 kline 限流);按成交额降序。changePct=当日涨跌幅%(f3)。 */
+async function fetchBoardConstituents(
+  bkCode: string,
+): Promise<{ code: string; name: string; amount: number; changePct: number }[]> {
   for (let i = 0; i < CLIST_HOSTS.length; i++) {
     const host = CLIST_HOSTS[i]
     const url =
       `https://${host}/api/qt/clist/get?pn=1&pz=200&po=1&np=1&fltt=2&invt=2&fid=f6` +
-      `&fs=${encodeURIComponent(`b:${bkCode}`)}&fields=f12,f14,f6`
+      `&fs=${encodeURIComponent(`b:${bkCode}`)}&fields=f12,f14,f6,f3`
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`clist b: HTTP ${res.status}`)
@@ -319,7 +331,7 @@ async function fetchBoardConstituents(bkCode: string): Promise<{ code: string; n
       const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]
       if (diff.length) {
         return diff
-          .map((d) => ({ code: String(d.f12 ?? ''), name: String(d.f14 ?? ''), amount: num(d.f6) }))
+          .map((d) => ({ code: String(d.f12 ?? ''), name: String(d.f14 ?? ''), amount: num(d.f6), changePct: num(d.f3) }))
           .filter((x) => x.code)
       }
     } catch {
@@ -330,7 +342,9 @@ async function fetchBoardConstituents(bkCode: string): Promise<{ code: string; n
 }
 
 async function fetchBoardStocksFresh(bkCode: string): Promise<BoardStocksResult> {
-  const members = (await fetchBoardConstituents(bkCode)).slice(0, ROTATION.DRILL_CAP)
+  const allMembers = await fetchBoardConstituents(bkCode)
+  const topMovers = rankTopMovers(allMembers, TOP_MOVERS_N).map(({ code, name, changePct }) => ({ code, name, changePct }))
+  const members = allMembers.slice(0, ROTATION.DRILL_CAP)
   const enriched = (
     await mapLimit(members, ROTATION.CONCURRENCY, async (m): Promise<(BoardStock & { liqAmount: number }) | null> => {
       try {
@@ -356,7 +370,7 @@ async function fetchBoardStocksFresh(bkCode: string): Promise<BoardStocksResult>
   const breakout = enriched.filter((c) => c.group === 'breakout').sort((a, b) => b.score - a.score).map(strip)
   const trigger = enriched.filter((c) => c.group === 'trigger').sort((a, b) => b.score - a.score).map(strip)
   console.log(`[Rotation] 下钻 ${bkCode}:成分 ${members.length} → 突破 ${breakout.length}/扳机 ${trigger.length}`)
-  return { code: bkCode, name: bkCode, scanned: members.length, breakout, trigger }
+  return { code: bkCode, name: bkCode, scanned: members.length, breakout, trigger, topMovers }
 }
 
 const drillCaches = new Map<string, Cache<BoardStocksResult>>()
