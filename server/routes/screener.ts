@@ -2,6 +2,8 @@
 import { Router } from 'express'
 import { fetchScreener } from '../services/screener'
 import { fetchMarketStructure } from '../services/marketStructure'
+import { fetchFundResonanceBoard } from '../services/fundResonanceBoard'
+import { fetchOrgSurveyBoard } from '../services/orgSurveyBoard'
 
 const router = Router()
 
@@ -19,6 +21,28 @@ router.get('/api/screener', async (_req, res) => {
 router.get('/api/screener/market-structure', async (_req, res) => {
   try {
     const data = await fetchMarketStructure()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// 资金共振榜(Top10,纯排行·非战法·非买点·未回测)。GET /api/screener/fund-resonance-board。
+router.get('/api/screener/fund-resonance-board', async (_req, res) => {
+  try {
+    const data = await fetchFundResonanceBoard()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// 机构调研榜(纯排行·非战法·非买点·未回测)。GET /api/screener/org-survey-board。
+router.get('/api/screener/org-survey-board', async (_req, res) => {
+  try {
+    const data = await fetchOrgSurveyBoard()
     res.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

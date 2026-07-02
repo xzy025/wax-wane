@@ -823,3 +823,15 @@ export const ACCUM = {
   CONFIRM_WINDOW: 3, // 回测同口径(CONFIRM_AC=3)
   WEIGHTS: { vol: 0.4, flat: 0.3, consol: 0.3 },
 } as const satisfies AccumConfig
+
+// ════════════════════════════════════════════════════════════════════════
+// 资金共振榜 / 机构调研榜(纯排行·非战法·非买点·未回测)—— 与 FUNDRES 第6战法(classifyFundResonance,
+// 回测0.26R/PF2.08)完全独立,不共享阈值,互不影响。
+export const FUND_RESONANCE_BOARD = {
+  TOPN: 200, // 成交额/净流入各取 top-N 做交集
+  TOP_K: 10, // 交集内按净流入降序取前K展示
+} as const
+export const ORG_SURVEY_BOARD = {
+  LOOKBACK_TRADING_DAYS: 20, // 机构调研聚合回看窗(交易日)
+  MAX: 40, // 展示上限(20日窗口下全市场调研覆盖面广,按机构家数砍到40是真实的关注度分水岭)
+} as const

@@ -33,13 +33,19 @@ export function isFundFlowEnabled(): boolean {
   return process.env.FUNDRES_FUNDFLOW !== '0'
 }
 
-/** 取一页资金流排名(按 fid 降序)。镜像轮换 + 重试一次。 */
-async function fetchRankPage(fid: string, pn: number, attempt = 0): Promise<Record<string, unknown>[]> {
+/** 取一页资金流排名(按 fid 降序)。镜像轮换 + 重试一次。fields 默认净流入排名用的三字段,
+ *  成交额排名(fetchTurnoverRankTop)传更全的字段以一次取够展示用的名称/现价/涨幅。 */
+async function fetchRankPage(
+  fid: string,
+  pn: number,
+  attempt = 0,
+  fields = 'f12,f62,f184',
+): Promise<Record<string, unknown>[]> {
   for (let i = 0; i < FF_HOSTS.length; i++) {
     const host = FF_HOSTS[(pn + i) % FF_HOSTS.length]
     const url =
       `https://${host}/api/qt/clist/get?pn=${pn}&pz=${FF_PZ}&po=1&np=1&fltt=2&invt=2&ut=${FF_UT}&fid=${fid}` +
-      `&fs=${encodeURIComponent(SCREENER.CLIST_FS)}&fields=f12,f62,f184`
+      `&fs=${encodeURIComponent(SCREENER.CLIST_FS)}&fields=${fields}`
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`fundflow HTTP ${res.status}`)
@@ -51,7 +57,7 @@ async function fetchRankPage(fid: string, pn: number, attempt = 0): Promise<Reco
   }
   if (attempt < 1) {
     await new Promise((r) => setTimeout(r, 600))
-    return fetchRankPage(fid, pn, attempt + 1)
+    return fetchRankPage(fid, pn, attempt + 1, fields)
   }
   throw new Error('fundflow 全部镜像均失败')
 }
@@ -130,6 +136,56 @@ export async function fetchFundFlowForCodes(codes: string[]): Promise<Map<string
   return out
 }
 
+export interface TurnoverRankEntry {
+  rank: number // 成交额排名,1-based
+  name: string
+  price: number
+  changePct: number
+  amount: number // 成交额(元,f6)
+  netInflow: number // 主力净流入额(元,f62)
+  netInflowPct: number // 主力净流入占比(%,f184)
+}
+
+const turnoverCache = new Map<string, { data: Map<string, TurnoverRankEntry>; expires: number }>()
+
+/** 成交额排名 top-N(含名称/现价/涨幅/主力净流入),一次 clist 调用(fid=f6 降序,多字段)取完,
+ *  免走 prefilter 全市场翻页。资金共振榜专用;不影响 fetchInflowRankTop/enrichFundFlow。 */
+export async function fetchTurnoverRankTop(topN = 200): Promise<Map<string, TurnoverRankEntry>> {
+  const key = String(topN)
+  const hit = turnoverCache.get(key)
+  if (hit && hit.expires > Date.now()) return hit.data
+  const out = new Map<string, TurnoverRankEntry>()
+  try {
+    const pages = Math.ceil(topN / FF_PZ)
+    for (let pn = 1; pn <= pages; pn++) {
+      const rows = await fetchRankPage('f6', pn, 0, 'f12,f14,f2,f3,f6,f62,f184')
+      if (rows.length === 0) break
+      for (const row of rows) {
+        const code = String(row.f12 ?? '')
+        if (!code) continue
+        out.set(code, {
+          rank: out.size + 1,
+          name: String(row.f14 ?? ''),
+          price: num(row.f2),
+          changePct: num(row.f3),
+          amount: num(row.f6),
+          netInflow: num(row.f62),
+          netInflowPct: num(row.f184),
+        })
+        if (out.size >= topN) break
+      }
+      if (out.size >= topN) break
+      if (pn < pages) await new Promise((r) => setTimeout(r, 120))
+    }
+  } catch (err) {
+    console.warn('[FundFlow] 成交额排名取数失败(忽略):', err instanceof Error ? err.message : err)
+    return out
+  }
+  turnoverCache.set(key, { data: out, expires: Date.now() + TTL })
+  return out
+}
+
 export function clearFundFlowCache(): void {
   rankCache.clear()
+  turnoverCache.clear()
 }

@@ -10,6 +10,8 @@ import { clearThemesCache } from '../services/themes'
 import { clearScreenerCache } from '../services/screener'
 import { clearScreenerForwardCache } from '../services/screenerForward'
 import { clearMarketStructureCache } from '../services/marketStructure'
+import { clearFundResonanceBoardCache } from '../services/fundResonanceBoard'
+import { clearOrgSurveyBoardCache } from '../services/orgSurveyBoard'
 import { clearRotationCache } from '../services/rotation'
 import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
 
@@ -31,6 +33,8 @@ const cacheClearers: Record<string, () => void> = {
   screener: clearScreenerCache,
   'screener-forward': clearScreenerForwardCache,
   'market-structure': clearMarketStructureCache,
+  'fund-resonance-board': clearFundResonanceBoardCache,
+  'org-survey-board': clearOrgSurveyBoardCache,
   rotation: clearRotationCache,
 }
 

@@ -505,8 +505,8 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string; accum: string; track: string }
-    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; bholdWatch: string; trendnew: string; trendwatch: string; accum: string }
+    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string; accum: string; orgSurvey: string; track: string }
+    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; bholdWatch: string; trendnew: string; trendwatch: string; accum: string; orgSurvey: string }
     phNote: string
     hdDesc: string
     hdCard: {
@@ -578,6 +578,20 @@ export interface Translation {
       turnRank: string
       inRank: string
     }
+    frBoard: {
+      title: string
+      disclaimer: string
+      backtestNote: string
+      empty: string
+      colRank: string
+      colName: string
+      colPrice: string
+      colChange: string
+      colNetInflow: string
+      colTurnRank: string
+      colInRank: string
+      colLhb: string
+    }
     ta: { title: string; demand: string; supply: string; neutral: string; distribution: string }
     bhDesc: string
     bhCard: {
@@ -634,6 +648,19 @@ export interface Translation {
       target: string
       plan: string
       monitorNote: string
+    }
+    osDesc: string
+    osBoard: {
+      title: string
+      disclaimer: string
+      empty: string
+      colRank: string
+      colName: string
+      colPrice: string
+      colChange: string
+      colOrgs: string
+      colSurveyDays: string
+      colLatest: string
     }
     crossTitle: string
     crossDesc: string

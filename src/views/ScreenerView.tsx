@@ -16,6 +16,8 @@ import {
 } from '../hooks/useScreener'
 import { useScreenerForward } from '../hooks/useScreenerForward'
 import { useMarketStructure } from '../hooks/useMarketStructure'
+import { useFundResonanceBoard, type FundResonanceBoardRow } from '../hooks/useFundResonanceBoard'
+import { useOrgSurveyBoard, type OrgSurveyBoardRow } from '../hooks/useOrgSurveyBoard'
 import TrackRecordPanel from './TrackRecordPanel'
 import { isPostCloseReview } from '../utils/marketStatus'
 import type { Translation } from '../types'
@@ -490,6 +492,90 @@ function VolBreakCard({ c, t }: { c: VolBreakScreenerCandidate; t: Translation }
 }
 
 /** 资金流共振·机构调研卡片(放量+短期多头+机构调研);含交易计划 + 资金共振徽标。 */
+/** 资金共振榜 Top10(纯排行·非战法·非买点·未回测):成交额前200∩净流入前200,按净流入降序,叠加龙虎榜。 */
+function FundResonanceBoardTable({ rows, t }: { rows: FundResonanceBoardRow[]; t: Translation }) {
+  const fb = t.screener.frBoard
+  return (
+    <>
+      <div className="sc-group-head">
+        <Coins size={16} weight="fill" /> {fb.title}
+      </div>
+      <div className="sc-watch-note">{fb.disclaimer}</div>
+      {rows.length === 0 ? (
+        <div className="sc-empty">{fb.empty}</div>
+      ) : (
+        <div className="data-table fr-board-table">
+          <div className="table-head">
+            <span>{fb.colRank}</span>
+            <span>{fb.colName}</span>
+            <span>{fb.colPrice}</span>
+            <span>{fb.colChange}</span>
+            <span>{fb.colNetInflow}</span>
+            <span>{fb.colTurnRank}</span>
+            <span>{fb.colInRank}</span>
+            <span>{fb.colLhb}</span>
+          </div>
+          {rows.map((r, i) => (
+            <div key={r.code} className="table-row">
+              <span className="mono">{i + 1}</span>
+              <span>
+                {r.name} <span className="sc-card-code">{r.code}</span>
+              </span>
+              <span className="mono">{fmtPrice(r.price)}</span>
+              <span className={`mono ${colorClass(r.changePct)}`}>{fmtPct(r.changePct)}</span>
+              <span className="mono positive-text">{fmtYi(r.netInflow)}</span>
+              <span className="mono">#{r.turnoverRank}</span>
+              <span className="mono">#{r.inflowRank}</span>
+              <span>
+                {r.lhb ? (
+                  <span title={r.lhb.reason}>
+                    {fmtYi(r.lhb.netAmt)}
+                    {r.lhb.buySeats[0] ? ` · ${r.lhb.buySeats[0].name}` : ''}
+                  </span>
+                ) : (
+                  '—'
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
+
+/** 机构调研榜(纯排行·非战法·非买点·未回测):近20交易日机构调研关注度排行,按机构家数降序。 */
+function OrgSurveyBoardTable({ rows, t }: { rows: OrgSurveyBoardRow[]; t: Translation }) {
+  const ob = t.screener.osBoard
+  if (rows.length === 0) return <div className="sc-empty">{ob.empty}</div>
+  return (
+    <div className="data-table os-board-table">
+      <div className="table-head">
+        <span>{ob.colRank}</span>
+        <span>{ob.colName}</span>
+        <span>{ob.colPrice}</span>
+        <span>{ob.colChange}</span>
+        <span>{ob.colOrgs}</span>
+        <span>{ob.colSurveyDays}</span>
+        <span>{ob.colLatest}</span>
+      </div>
+      {rows.map((r, i) => (
+        <div key={r.code} className="table-row">
+          <span className="mono">{i + 1}</span>
+          <span>
+            {r.name} <span className="sc-card-code">{r.code}</span>
+          </span>
+          <span className="mono">{fmtPrice(r.price)}</span>
+          <span className={`mono ${colorClass(r.changePct)}`}>{fmtPct(r.changePct)}</span>
+          <span className="mono positive-text">{r.orgs}</span>
+          <span className="mono">{r.surveyDays}</span>
+          <span className="mono">{r.latestDate}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function FundResCard({ c, t }: { c: FundResScreenerCandidate; t: Translation }) {
   const k = t.screener.card
   const fk = t.screener.frCard
@@ -926,10 +1012,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const fwd = useScreenerForward()
   const structure = useMarketStructure()
+  const resBoard = useFundResonanceBoard()
+  const osBoard = useOrgSurveyBoard()
   const sc = t.screener
-  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch' | 'accum' | 'track'>('newhigh')
-  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch, accum: sc.tabs.accum, track: sc.tabs.track }[tab]
-  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc, accum: sc.acDesc, track: sc.track.desc }[tab]
+  const [tab, setTab] = useState<'newhigh' | 'pullback' | 'highdiv' | 'volbreak' | 'fundres' | 'bhold' | 'trendnew' | 'trendwatch' | 'accum' | 'orgsurvey' | 'track'>('newhigh')
+  const tabTitle = { newhigh: sc.title, pullback: sc.titlePullback, highdiv: sc.tabs.highDiv, volbreak: sc.tabs.volBreak, fundres: sc.tabs.fundRes, bhold: sc.tabs.bhold, trendnew: sc.tabs.trendNew, trendwatch: sc.tabs.trendWatch, accum: sc.tabs.accum, orgsurvey: sc.tabs.orgSurvey, track: sc.tabs.track }[tab]
+  const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc, accum: sc.acDesc, orgsurvey: sc.osDesc, track: sc.track.desc }[tab]
   // 「每日扫描」日终一键:重扫+存当日快照;盘后(15:00后/周末)再连带复盘并保存实盘战绩。
   const [dailySavedAt, setDailySavedAt] = useState<Date | null>(null)
   const handleScan = useCallback(async () => {
@@ -1046,6 +1134,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 onClick={() => setTab('accum')}
               >
                 {sc.tabs.accum} ({data.accum?.length ?? 0})
+              </button>
+              <button
+                className={`seg-btn${tab === 'orgsurvey' ? ' active' : ''}`}
+                onClick={() => setTab('orgsurvey')}
+              >
+                {sc.tabs.orgSurvey} ({osBoard.data?.length ?? 0})
               </button>
               <button
                 className={`seg-btn${tab === 'track' ? ' active' : ''}`}
@@ -1247,11 +1341,14 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
 
           {tab === 'fundres' && (
             <>
+              <FundResonanceBoardTable rows={resBoard.data ?? []} t={t} />
+
               <div className="sc-meta">
                 {sc.universe} {data.universe} · {sc.scanned} {data.scanned}
               </div>
               <div className="sc-group-head">
                 <Coins size={16} weight="fill" /> {sc.groups.fundres} ({data.fundres?.length ?? 0})
+                <small className="tr-muted"> · {sc.frBoard.backtestNote}</small>
               </div>
               {(data.fundres?.length ?? 0) === 0 ? (
                 <div className="sc-empty">{sc.empty}</div>
@@ -1354,6 +1451,22 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                     <AccumCard key={`ac-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
+              )}
+            </>
+          )}
+
+          {tab === 'orgsurvey' && (
+            <>
+              <div className="sc-group-head">
+                <Binoculars size={16} weight="fill" /> {sc.osBoard.title} ({osBoard.data?.length ?? 0})
+              </div>
+              <div className="sc-watch-note">{sc.osBoard.disclaimer}</div>
+              {osBoard.loading && !osBoard.data ? (
+                <div className="themes-desc">{sc.scanning}</div>
+              ) : osBoard.error && !osBoard.data ? (
+                <div className="alert-item danger">{sc.loadFail}</div>
+              ) : (
+                <OrgSurveyBoardTable rows={osBoard.data ?? []} t={t} />
               )}
             </>
           )}
