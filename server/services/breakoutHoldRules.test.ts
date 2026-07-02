@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { classifyBreakoutHold } from './breakoutHoldRules'
-import { BHOLD } from '../config/screener'
+import { BHOLD, BHOLD_WATCH } from '../config/screener'
 import type { Bar } from './screenerRules'
 
 const dt = (i: number) => `2026-${String(1 + Math.floor(i / 28)).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`
@@ -95,5 +95,51 @@ describe('classifyBreakoutHold', () => {
 
   it('K线不足 MIN_BARS → null', () => {
     expect(classifyBreakoutHold(mkBars().slice(-50), '300567', BHOLD)).toBeNull()
+  })
+})
+
+describe('classifyBreakoutHold · 突破整理观察层(BHOLD_WATCH,精测电子300567真实案例)', () => {
+  // 真实前复权K线(东财 secid=0.300567,fqt=1,klt=101),pole=2026-06-24、整理=2026-06-25。
+  // 诊断结论:pole 实体+18.73%✓/突破前高223.62✓,量比152900/93997.9=1.627×——
+  // 唯一不过 BHOLD 严格门槛(POLE_VOL_MULT=2.2);6/25 整理日十字星(实体率7.5%)+高低点双抬+
+  // EXT_MAX_PCT(4.73%≤8%)全部吻合 → BHOLD_WATCH(仅放宽量比到1.5×)应命中。
+  // 注:若把整理窗延到 6/26(consolN=2),6/26 收盘较 pole 已 +9.5%,超过 EXT_MAX_PCT=8%——
+  // 即"两天整理"的后一天已脱离该门槛保护的"不追高"范围,故本用例锁定 consolN=1(6/25)这个真实吻合的窗口。
+  const REAL_300567: Bar[] = [
+    { date: '2026-06-09', open: 183, close: 188.88, high: 191, low: 179, volume: 67427 },
+    { date: '2026-06-10', open: 186.62, close: 188.79, high: 199.5, low: 184, volume: 72569 },
+    { date: '2026-06-11', open: 188.7, close: 192.9, high: 199.1, low: 187.1, volume: 72558 },
+    { date: '2026-06-12', open: 205, close: 196.3, high: 212, low: 195, volume: 110748 },
+    { date: '2026-06-15', open: 200, close: 208.46, high: 210, low: 192.15, volume: 106073 },
+    { date: '2026-06-16', open: 210, close: 204.83, high: 213, low: 198.01, volume: 107252 },
+    { date: '2026-06-17', open: 200, close: 215.76, high: 217.99, low: 197.01, volume: 105320 },
+    { date: '2026-06-18', open: 211.59, close: 213.86, high: 218.35, low: 209, volume: 102249 },
+    { date: '2026-06-22', open: 218.14, close: 213.8, high: 222.2, low: 204.5, volume: 106788 },
+    { date: '2026-06-23', open: 210, close: 212.6, high: 223.62, low: 205.36, volume: 88995 },
+    { date: '2026-06-24', open: 211.52, close: 251.13, high: 255.1, low: 210.02, volume: 152900 }, // pole
+    { date: '2026-06-25', open: 261.58, close: 263, high: 269.5, low: 250.53, volume: 121143 }, // 整理(consolN=1)
+  ]
+
+  function real300567Bars(): Bar[] {
+    const padCount = BHOLD.MIN_BARS - REAL_300567.length
+    const pad: Bar[] = Array.from({ length: padCount }, (_, i) => ({
+      date: `2025-${String(1 + Math.floor(i / 28)).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
+      open: 150, close: 150, high: 151.5, low: 148.5, volume: 50000,
+    }))
+    return [...pad, ...REAL_300567]
+  }
+
+  it('严格版 BHOLD:量比1.63×<2.2×门槛 → null', () => {
+    expect(classifyBreakoutHold(real300567Bars(), '300567', BHOLD)).toBeNull()
+  })
+
+  it('观察版 BHOLD_WATCH(量比门槛放宽到1.5×):命中,且整理形态(十字星/高低点双抬)与严格版一致', () => {
+    const c = classifyBreakoutHold(real300567Bars(), '300567', BHOLD_WATCH)
+    expect(c).not.toBeNull()
+    expect(c!.consolDays).toBe(1)
+    expect(c!.higherHigh).toBe(true)
+    expect(c!.higherLow).toBe(true)
+    expect(c!.poleVolRatio).toBeCloseTo(1.63, 1)
+    expect(c!.poleBodyPct).toBeCloseTo(18.73, 1)
   })
 })

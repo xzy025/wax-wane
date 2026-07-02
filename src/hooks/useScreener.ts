@@ -340,6 +340,7 @@ export interface ScreenerResult {
   volbreak?: VolBreakScreenerCandidate[] // 第五组:放量新高·资金驱动突破(可选,兼容旧快照)
   fundres?: FundResScreenerCandidate[] // 第六组:资金流共振·机构调研(可选,兼容旧快照)
   bhold?: BHoldScreenerCandidate[] // 第七组:突破整理·延续(可选,兼容旧快照)
+  bholdWatch?: BHoldScreenerCandidate[] // 突破整理·观察(超集,可选,兼容旧快照;监控·非买点·未回测)
   trendnew?: TrendNewScreenerCandidate[] // 第八组:趋势新高(可选,兼容旧快照)
   trendwatch?: TrendWatchScreenerCandidate[] // 趋势中军·监控(可选,兼容旧快照)
   accum?: AccumScreenerCandidate[] // 放量吸筹·监控(可选,兼容旧快照)

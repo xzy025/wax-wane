@@ -36,7 +36,7 @@ const BUY_GROUPS = [
   'breakout', 'trigger', 'pullback', 'highdiv', 'volbreak', 'fundres', 'bhold', 'trendnew',
 ] as const
 export type BuyGroup = (typeof BUY_GROUPS)[number]
-const NON_BUY = new Set(['watch', 'trendwatch'])
+const NON_BUY = new Set(['watch', 'trendwatch', 'bholdwatch'])
 
 // 各战法回测基线(取自 screener.ts 注释/回测产物;缺者前端显示「—」)。
 const BACKTEST_BASELINE: Partial<Record<BuyGroup, { expectancyR: number; profitFactor?: number }>> = {

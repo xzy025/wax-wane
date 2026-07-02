@@ -618,12 +618,12 @@ function FundResCard({ c, t }: { c: FundResScreenerCandidate; t: Translation }) 
 }
 
 /** 突破整理·延续卡片(放量大阳过前高 + 十字星整理 + 高低点双抬);信号日=整理日,实战次日突破 trigger 介入。 */
-function BHoldCard({ c, t }: { c: BHoldScreenerCandidate; t: Translation }) {
+function BHoldCard({ c, t, variant }: { c: BHoldScreenerCandidate; t: Translation; variant?: 'watch' }) {
   const k = t.screener.card
   const bk = t.screener.bhCard
   const stars = '★'.repeat(Math.max(1, Math.min(3, c.tier)))
   return (
-    <div className="sc-card">
+    <div className={`sc-card${variant === 'watch' ? ' sc-card--watch' : ''}`}>
       <div className="sc-card-top">
         <div className="sc-card-id">
           <span className="sc-card-name">{c.name}</span>
@@ -673,6 +673,7 @@ function BHoldCard({ c, t }: { c: BHoldScreenerCandidate; t: Translation }) {
         {bk.plan}: 次日突破 <span className="positive-text">{fmtPrice(c.trigger)}</span> {bk.buy} · {fmtPrice(c.consolLow)} {bk.hold} · {bk.pos} {c.positionHint}
       </div>
       {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
+      {variant === 'watch' && <div className="sc-watch-note">{bk.watchNote}</div>}
 
       {c.lhbInst && (
         <div className="sc-badges">
@@ -1280,6 +1281,19 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                     <BHoldCard key={`bh-${c.code}`} c={c} t={t} />
                   ))}
                 </div>
+              )}
+
+              {(data.bholdWatch?.length ?? 0) > 0 && (
+                <>
+                  <div className="sc-group-head sc-group-head--watch">
+                    <FlagBanner size={16} weight="fill" /> {sc.groups.bholdWatch} ({data.bholdWatch?.length ?? 0})
+                  </div>
+                  <div className="sc-grid">
+                    {(data.bholdWatch ?? []).map((c) => (
+                      <BHoldCard key={`bhw-${c.code}`} c={c} t={t} variant="watch" />
+                    ))}
+                  </div>
+                </>
               )}
             </>
           )}

@@ -651,6 +651,12 @@ export const BHOLD = {
   WEIGHTS: { poleVol: 0.35, poleBody: 0.25, tight: 0.2, stepUp: 0.2 },
 } as const satisfies BreakoutHoldConfig
 
+// 突破整理·观察(超集,非战法):BHOLD 只放宽 POLE_VOL_MULT(2.2→1.5),其余7道硬门槛原样不变。
+// 【监控·非买点·未回测】只为形态吻合但放量不足确认线的候选提供可见性,不进任何评分/回测口径。
+// 来源:精测电子(300567)2026-06-24 实测——pole 实体+18.73%✓、突破前高✓,但量比仅1.63×<2.2×,
+// 是唯一不过的门槛(整理日高低点抬升/十字星/守突破位/EXT_MAX_PCT 全部吻合,验证过 consolN=1 场景)。
+export const BHOLD_WATCH = { ...BHOLD, POLE_VOL_MULT: 1.5 } as const satisfies BreakoutHoldConfig
+
 // ════════════════════════════════════════════════════════════════════════
 // 突破次日回踩 战法(第八类,纯 OHLCV,见 services/breakoutPullbackRules.classifyBreakoutPullback)。
 // 来源:用户「突破生命周期」拆分——① 今日首次突破(screenerRules firstBreakout) → ② 突破后首次回踩(本战法)

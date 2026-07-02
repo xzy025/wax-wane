@@ -461,7 +461,7 @@ export default {
     truncatedNote: 'scan cap reached (some not covered)',
     disclaimer: 'Screening reference from live quotes + rules, not investment advice; thresholds are baselines — calibrate with backtest and your own system.',
     tabs: { newHigh: 'New-High', pullback: 'Pullback', highDiv: 'NH-Divergence', volBreak: 'Vol-Breakout', fundRes: 'Fund Resonance', bhold: 'Breakout-Hold', trendNew: 'Trend New-High', trendWatch: 'Trend Leaders', accum: 'Vol Accumulation', track: 'Track Record' },
-    groups: { breakout: 'First Breakout Today', breakoutCont: 'Extended · Continuation (consecutive highs, not first)', trigger: 'About to Break · Trigger List', watch: 'Near-miss Watch · Closing In / Weak Close', persistentHigh: 'Sustained New-High · ≥3 sessions', pullback: 'Pullback Restart · Rounding Bottom', highdiv: 'Consecutive New-High · Dry-up Doji Dip', volbreak: 'Volume Breakout · Money-driven', fundres: 'Fund Resonance · Institutional Surveys', bhold: 'Breakout-Hold · Continuation', trendnew: 'Trend New-High · Leaders', trendwatch: 'Trend Leaders · Monitor (relaxed)', accum: 'Vol Accumulation · Sustained-volume base' },
+    groups: { breakout: 'First Breakout Today', breakoutCont: 'Extended · Continuation (consecutive highs, not first)', trigger: 'About to Break · Trigger List', watch: 'Near-miss Watch · Closing In / Weak Close', persistentHigh: 'Sustained New-High · ≥3 sessions', pullback: 'Pullback Restart · Rounding Bottom', highdiv: 'Consecutive New-High · Dry-up Doji Dip', volbreak: 'Volume Breakout · Money-driven', fundres: 'Fund Resonance · Institutional Surveys', bhold: 'Breakout-Hold · Continuation', bholdWatch: 'Pattern Match · Light Volume (Watch)', trendnew: 'Trend New-High · Leaders', trendwatch: 'Trend Leaders · Monitor (relaxed)', accum: 'Vol Accumulation · Sustained-volume base' },
     phNote: 'Names on the new-high screener for ≥3 sessions in a row (lifted out of Trigger/Watch). Persistence often means money is staying in — watch for stalling at highs.',
     hdDesc: 'Pullback day of a consecutive-new-high leader: dry-up volume + doji + holds the 5-day line + did not collapse (close in the upper half) = a shakeout low-suck entry. Pure price/volume (no turnover/intraday needed); backtested ≈0.19R, PF 1.30 (beats the breakout baseline 0.08R).',
     hdCard: {
@@ -548,6 +548,7 @@ export default {
       days: 'd',
       stepUp: 'HH+HL',
       hold: 'abandon below',
+      watchNote: '⚠ Not a buy signal · not backtested · volume below the 2.2x confirmation gate (actual 1.5~2.2x) — informational only',
     },
     tnDesc: 'Trend New-High · Leaders (e.g. 中国巨石600176): full bull alignment (C>MA20>MA60>MA120>MA250, MA250 rising) + price at/within 5% of the 52-week high + sustained new highs recently (≥3 of the last 20 sessions made a fresh 40-day high). It deliberately collects the trend leaders the breakout strategy rejects as "too extended" (it intercepts chasing above pivot×1.05). Pure price/volume; backtested ≈0.28R, PF 1.52 (EXT-guard 15% + 40-day lookback tuning; max drawdown actually dropped). Enter at close as a trend-follow, stop below MA20.',
     tnCard: {
