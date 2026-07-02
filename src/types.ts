@@ -106,6 +106,29 @@ export interface Translation {
       generatedAt: string
       loadFail: string
     }
+    review: {
+      title: string
+      secGlobal: string
+      secNews: string
+      secCalendar: string
+      secMarket: string
+      expand: string
+      collapse: string
+      more: string
+      dragonBuy: string
+      dragonSell: string
+      calJin10: string
+      calBuiltin: string
+      calMixed: string
+      approx: string
+      approxTip: string
+      prev: string
+      cons: string
+      turnover: string
+      cached: string
+      noNarrative: string
+      loadFail: string
+    }
   }
   themes: {
     heatTitle: string
