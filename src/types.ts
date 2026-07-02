@@ -736,6 +736,17 @@ export interface Translation {
       methodNote: string
       matured: string
       prematureNote: string
+      confidence: { low: string; medium: string }
+      segments: {
+        title: string
+        taBias: string
+        lhb: string
+        board: string
+        scoreTier: string
+        taBiasLabel: { demand: string; supply: string; neutral: string }
+        lhbLabel: { inst: string; none: string }
+        scoreTierLabel: { high: string; mid: string; low: string }
+      }
     }
   }
 }

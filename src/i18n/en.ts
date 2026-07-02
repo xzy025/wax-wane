@@ -682,6 +682,17 @@ export default {
       methodNote: 'Pure out-of-sample forward tracking (not a backtest). Adjustment re-basing does not affect R (matched by entry-relative ratios). Breakout-Hold (bhold) v1 enters at the consolidation-day close — more conservative than the real next-day-confirm entry, so its R is understated.',
       matured: 'Matured',
       prematureNote: 'Sample not yet matured: closed trades are mostly fast stop-outs, while winners are still open (they need close to the full ~20 sessions to hit target). So the closed-only expectancy is badly understated and biased to the loss side. Read Float R for now; as positions mature the closed figures will converge toward the backtest baseline.',
+      confidence: { low: 'Very thin sample (n<10)', medium: 'Thin sample (n<30)' },
+      segments: {
+        title: 'Attribution segments (out-of-sample, breakout only)',
+        taBias: 'TA Bias',
+        lhb: 'Dragon-Tiger Inst.',
+        board: 'Board Quadrant',
+        scoreTier: 'Score Tier',
+        taBiasLabel: { demand: 'Demand', supply: 'Supply', neutral: 'Neutral' },
+        lhbLabel: { inst: 'Inst. Listed', none: 'Not Listed' },
+        scoreTierLabel: { high: 'High (≥80)', mid: 'Mid (60~79)', low: 'Low (<60)' },
+      },
     },
   },
   macro: {

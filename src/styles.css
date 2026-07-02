@@ -2647,6 +2647,63 @@ body {
   gap: 3px;
   margin-top: 4px;
 }
+.tr-confidence-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-family: var(--font-sans);
+  cursor: help;
+  vertical-align: middle;
+}
+.tr-confidence-low {
+  color: var(--red, #ef4444);
+  background: rgba(239, 68, 68, 0.12);
+}
+.tr-confidence-medium {
+  color: var(--orange);
+  background: rgba(245, 158, 11, 0.12);
+}
+.tr-segments {
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+.tr-segments-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text, #e8edf6);
+}
+.tr-segment {
+  margin-bottom: 6px;
+}
+.tr-segment-title {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.tr-segment-buckets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tr-segment-bucket {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+}
+.tr-segment-label {
+  min-width: 110px;
+  font-family: var(--font-sans);
+  color: var(--text, #e8edf6);
+}
 .tr-pick {
   display: grid;
   grid-template-columns: 92px minmax(120px, 1.4fr) 64px 110px 64px 80px 70px;

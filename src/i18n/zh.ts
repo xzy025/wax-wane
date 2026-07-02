@@ -681,6 +681,17 @@ export default {
       methodNote: '纯样本外前向跟踪(非回测)。复权再调整不影响 R(按相对介入比率撮合)。突破整理(bhold)v1 按整理日收盘介入,较真策略「次日确认介入」偏保守、回撤高估。',
       matured: '已成熟',
       prematureNote: '样本未成熟:已平仓多为快速止损出局,而赢家仍在持仓中(需持有到接近 20 交易日才止盈),故「已平仓期望」被严重低估、偏向止损一侧。当前应以「浮动R」为准;待持仓陆续到期,已平口径会向回测基线收敛。',
+      confidence: { low: '样本极少(n<10)', medium: '样本不足(n<30)' },
+      segments: {
+        title: '归因切片(样本外,仅 breakout)',
+        taBias: '技术面偏向',
+        lhb: '龙虎榜机构',
+        board: '板块象限',
+        scoreTier: '评分档',
+        taBiasLabel: { demand: '需求', supply: '供给', neutral: '中性' },
+        lhbLabel: { inst: '机构上榜', none: '未上榜' },
+        scoreTierLabel: { high: '高分(≥80)', mid: '中分(60~79)', low: '低分(<60)' },
+      },
     },
   },
   macro: {
