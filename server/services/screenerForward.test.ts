@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { pickLevels, classifyForward, neededBars, evaluateTask } from './screenerForward'
+import { pickLevels, classifyForward, neededBars, evaluateTask, sampleConfidenceFor, segmentClosedPicks } from './screenerForward'
 import type { Bar } from './screenerRules'
+import type { ForwardPick } from './screenerForward'
 
 const bar = (date: string, open: number, high: number, low: number, close: number): Bar => ({
   date, open, high, low, close, volume: 1000,
@@ -133,5 +134,69 @@ describe('evaluateTask — 单笔前向评估', () => {
     expect(p.status).toBe('closed')
     expect(p.reason).toBe('stop')
     expect(p.exitDate).toBe('2026-01-05')
+  })
+})
+
+describe('sampleConfidenceFor — 样本量可信度(仿 optimize.ts MIN_N=30 门槛)', () => {
+  it('n<10 → low', () => {
+    expect(sampleConfidenceFor(0)).toBe('low')
+    expect(sampleConfidenceFor(2)).toBe('low')
+    expect(sampleConfidenceFor(9)).toBe('low')
+  })
+  it('10<=n<30 → medium', () => {
+    expect(sampleConfidenceFor(10)).toBe('medium')
+    expect(sampleConfidenceFor(15)).toBe('medium')
+    expect(sampleConfidenceFor(29)).toBe('medium')
+  })
+  it('n>=30 → high', () => {
+    expect(sampleConfidenceFor(30)).toBe('high')
+    expect(sampleConfidenceFor(43)).toBe('high')
+    expect(sampleConfidenceFor(92)).toBe('high')
+  })
+})
+
+describe('segmentClosedPicks — 通用切片归因', () => {
+  const mkPick = (over: Partial<ForwardPick> = {}): ForwardPick => ({
+    asof: '2026-06-24', group: 'breakout', code: '000001', name: '测试',
+    entry: 10, stop: 9, target: 12, status: 'closed',
+    exit: 11, exitDate: '2026-06-25', reason: 'target', R: 1, retPct: 10, barsHeld: 1, barsElapsed: 1,
+    ...over,
+  })
+
+  it('按 taBias 分桶:demand 组高 R、supply 组低 R,互不混入', () => {
+    const picks = [
+      mkPick({ code: 'a', taBias: 'demand', R: 2 }),
+      mkPick({ code: 'b', taBias: 'demand', R: 1 }),
+      mkPick({ code: 'c', taBias: 'supply', R: -1 }),
+      mkPick({ code: 'd', taBias: 'supply', R: -2 }),
+    ]
+    const buckets = segmentClosedPicks(picks, (p) => p.taBias ?? null)
+    const demand = buckets.find((b) => b.label === 'demand')
+    const supply = buckets.find((b) => b.label === 'supply')
+    expect(demand).toBeDefined()
+    expect(supply).toBeDefined()
+    expect(demand?.metrics.n).toBe(2)
+    expect(demand?.metrics.expectancyR).toBeCloseTo(1.5, 5)
+    expect(supply?.metrics.n).toBe(2)
+    expect(supply?.metrics.expectancyR).toBeCloseTo(-1.5, 5)
+  })
+
+  it('缺失该因子(keyFn 返回 null)的 pick 不进任何桶', () => {
+    const picks = [mkPick({ taBias: 'demand' }), mkPick({ taBias: undefined })]
+    const buckets = segmentClosedPicks(picks, (p) => p.taBias ?? null)
+    expect(buckets).toHaveLength(1)
+    expect(buckets[0].metrics.n).toBe(1)
+  })
+
+  it('未平仓(open/pending)的 pick 不参与分桶', () => {
+    const picks = [mkPick({ taBias: 'demand', status: 'open' }), mkPick({ taBias: 'demand', status: 'pending' })]
+    expect(segmentClosedPicks(picks, (p) => p.taBias ?? null)).toHaveLength(0)
+  })
+
+  it('每桶按内部样本量算 sampleConfidence(仿 sampleConfidenceFor)', () => {
+    const picks = Array.from({ length: 12 }, (_, i) => mkPick({ code: `c${i}`, taBias: 'demand' }))
+    const buckets = segmentClosedPicks(picks, (p) => p.taBias ?? null)
+    expect(buckets[0].metrics.n).toBe(12)
+    expect(buckets[0].sampleConfidence).toBe('medium') // 10<=12<30
   })
 })

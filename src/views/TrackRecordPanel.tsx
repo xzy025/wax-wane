@@ -6,7 +6,9 @@ import type {
   ForwardPick,
   ForwardReason,
   Metrics,
+  SampleConfidence,
   ScreenerForwardHookResult,
+  SegmentGroup,
   StrategyTrack,
 } from '../hooks/useScreenerForward'
 
@@ -23,6 +25,47 @@ function rColor(n: number | null | undefined): string {
 function fmtR(n: number | null | undefined): string {
   if (n == null) return '—'
   return `${n >= 0 ? '+' : ''}${n.toFixed(2)}R`
+}
+
+/** 样本量可信度徽标(仿 optimize.ts MIN_N=30 门槛);high 不展示,避免小样本数字被误读为信号。 */
+function ConfidenceBadge({ level, tr }: { level: SampleConfidence; tr: Translation['screener']['track'] }) {
+  if (level === 'high') return null
+  return (
+    <span className={`tr-confidence-badge tr-confidence-${level}`} title={tr.confidence[level]}>
+      {tr.confidence[level]}
+    </span>
+  )
+}
+
+/** breakout 切片归因的单个维度小表(标签→n/期望R/PF/胜率 + 样本可信度)。 */
+function SegmentTable({ seg, t }: { seg: SegmentGroup; t: Translation }) {
+  const sg = t.screener.track.segments
+  const rt = t.rotation.quads
+  const dimLabel: Record<string, string> = { taBias: sg.taBias, lhb: sg.lhb, board: sg.board, scoreTier: sg.scoreTier }
+  const bucketLabel = (by: string, label: string): string => {
+    if (by === 'taBias') return sg.taBiasLabel[label as 'demand' | 'supply' | 'neutral'] ?? label
+    if (by === 'lhb') return sg.lhbLabel[label as 'inst' | 'none'] ?? label
+    if (by === 'board') return rt[label as 'hs' | 'ls' | 'hw' | 'lw']?.tag ?? label
+    if (by === 'scoreTier') return sg.scoreTierLabel[label as 'high' | 'mid' | 'low'] ?? label
+    return label
+  }
+  return (
+    <div className="tr-segment">
+      <div className="tr-segment-title">{dimLabel[seg.by] ?? seg.by}</div>
+      <div className="tr-segment-buckets">
+        {seg.buckets.map((b) => (
+          <div key={b.label} className="tr-segment-bucket">
+            <span className="tr-segment-label">{bucketLabel(seg.by, b.label)}</span>
+            <span className="tr-num">n={b.metrics.n}</span>
+            <span className={`tr-num ${rColor(b.metrics.expectancyR)}`}>{fmtR(b.metrics.expectancyR)}</span>
+            <span className="tr-num">PF {b.metrics.profitFactor.toFixed(2)}</span>
+            <span className="tr-num">{b.metrics.winRate.toFixed(0)}%</span>
+            <ConfidenceBadge level={b.sampleConfidence} tr={t.screener.track} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
@@ -88,6 +131,7 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
           </td>
           <td className="tr-num">
             {s.closedCount}/{s.openCount}/{s.pendingCount}
+            <ConfidenceBadge level={s.sampleConfidence} tr={tr} />
           </td>
           {metricCells(s.closed)}
           <td className="tr-num tr-muted">{bt != null ? fmtR(bt) : tr.na}</td>
@@ -100,6 +144,14 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
           <tr className="tr-detail-row">
             <td colSpan={9}>
               {s.note && <div className="sc-watch-note">⚠ {s.note}</div>}
+              {s.group === 'breakout' && (data?.breakoutSegments ?? []).length > 0 && (
+                <div className="tr-segments">
+                  <div className="tr-segments-title">{tr.segments.title}</div>
+                  {(data?.breakoutSegments ?? []).map((seg) => (
+                    <SegmentTable key={seg.by} seg={seg} t={t} />
+                  ))}
+                </div>
+              )}
               <div className="tr-picks">
                 {s.picks.map((p, i) => (
                   <PickRow key={`${p.code}-${p.asof}-${i}`} p={p} tr={tr} reasonLabel={reasonLabel} />

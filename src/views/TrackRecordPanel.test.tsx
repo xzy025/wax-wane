@@ -34,6 +34,7 @@ const sampleResult = (): ScreenerForwardResult => ({
       closedCount: 1,
       openCount: 1,
       pendingCount: 1,
+      sampleConfidence: 'low',
       unrealizedAvgR: 0.5,
       backtestExpectancyR: 0.08,
       picks: [

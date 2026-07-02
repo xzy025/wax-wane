@@ -50,6 +50,14 @@ const BACKTEST_BASELINE: Partial<Record<BuyGroup, { expectancyR: number; profitF
 const BHOLD_NOTE =
   'v1 按信号日(整理日)收盘入场;真策略为「次日突破 trigger 确认入场」(回测 0.45R)。此处实盘 R 偏保守、回撤高估。'
 
+export type SampleConfidence = 'low' | 'medium' | 'high'
+/** n<10 视为噪声、10~29 方向性参考、≥30 与 optimize.ts 网格搜索的 MIN_N 门槛一致、可信。 */
+export function sampleConfidenceFor(n: number): SampleConfidence {
+  if (n < 10) return 'low'
+  if (n < 30) return 'medium'
+  return 'high'
+}
+
 const num = (v: unknown): number => {
   const n = typeof v === 'string' ? parseFloat(v) : (v as number)
   return Number.isFinite(n) ? n : 0
@@ -83,6 +91,11 @@ export interface ForwardPick {
   retPct: number
   barsHeld: number // 实际持有交易日数
   barsElapsed: number // 信号日至今经过的交易日数
+  // 归因切片标签(事后分析用,从归档候选透传,不参与撮合计算;缺失=该因子当时未挂上)。
+  score?: number
+  taBias?: string // 'demand' | 'supply' | 'neutral'
+  lhbInstDays?: number
+  boardQuadrant?: string // 'hs' | 'ls' | 'hw' | 'lw'
 }
 
 export interface StrategyTrack {
@@ -91,11 +104,22 @@ export interface StrategyTrack {
   closedCount: number
   openCount: number
   pendingCount: number
+  sampleConfidence: SampleConfidence // 已平仓样本量可信度(仿 optimize.ts MIN_N=30)
   unrealizedAvgR: number // 持仓中样本的平均浮动 R
   backtestExpectancyR?: number
   backtestProfitFactor?: number
   note?: string
   picks: ForwardPick[]
+}
+
+export interface SegmentBucket {
+  label: string
+  metrics: Metrics
+  sampleConfidence: SampleConfidence
+}
+export interface SegmentGroup {
+  by: string // 'taBias' | 'lhb' | 'board' | 'scoreTier'
+  buckets: SegmentBucket[]
 }
 
 export interface ScreenerForwardResult {
@@ -108,6 +132,7 @@ export interface ScreenerForwardResult {
   pendingCount: number
   strategies: StrategyTrack[]
   overall: Metrics // 全战法已平仓汇总
+  breakoutSegments?: SegmentGroup[] // breakout 通用切片归因(仅样本够格时才有意义,用户先聚焦这一个战法)
   fromCache?: boolean // 本次来自磁盘兜底
 }
 
@@ -120,6 +145,11 @@ interface RawCandidate {
   stopLoss?: number
   stop?: number
   target?: number
+  // 归因切片标签源字段(形状同 screener.ts 的 ScreenerCandidate,直接从归档 JSON 读,best-effort)。
+  score?: number
+  ta?: { bias?: string }
+  lhbInst?: { instDays?: number }
+  board?: { quadrant?: string }
 }
 
 /** 位价归一化:吸收字段名漂移(stopLoss/stop、entry 缺失→price);非买点/缺位价/非正风险→null。 */
@@ -160,6 +190,10 @@ interface Task {
   entry: number
   stop: number
   target: number
+  score?: number
+  taBias?: string
+  lhbInstDays?: number
+  boardQuadrant?: string
 }
 
 function pendingPick(t: Task): ForwardPick {
@@ -167,6 +201,7 @@ function pendingPick(t: Task): ForwardPick {
     asof: t.asof, group: t.group, code: t.code, name: t.name,
     entry: r2(t.entry), stop: r2(t.stop), target: r2(t.target),
     status: 'pending', exit: 0, exitDate: '', reason: 'pending', R: 0, retPct: 0, barsHeld: 0, barsElapsed: 0,
+    score: t.score, taBias: t.taBias, lhbInstDays: t.lhbInstDays, boardQuadrant: t.boardQuadrant,
   }
 }
 
@@ -204,6 +239,7 @@ export function evaluateTask(t: Task, bars: Bar[] | undefined): ForwardPick {
     retPct: trade.retPct,
     barsHeld: trade.bars,
     barsElapsed: lenAfter,
+    score: t.score, taBias: t.taBias, lhbInstDays: t.lhbInstDays, boardQuadrant: t.boardQuadrant,
   }
 }
 
@@ -270,15 +306,37 @@ function emptyResult(): ScreenerForwardResult {
   }
 }
 
+/** 已平仓 pick → 回测撮合内核的 Trade 形状(buildTrack/segmentClosedPicks 共用,避免两处重复维护映射)。 */
+function toTrade(p: ForwardPick): Trade {
+  return {
+    code: p.code, date: p.asof, entry: p.entry, stop: p.stop, target: p.target,
+    exit: p.exit, exitDate: p.exitDate, reason: p.reason as Trade['reason'],
+    retPct: p.retPct, R: p.R, bars: p.barsHeld,
+  }
+}
+
+/** 按 keyFn 给已平仓 picks 分桶聚合(纯函数,复用回测同款 aggregate);keyFn 返回 null 的
+ *  pick 不进任何桶(该因子当时未挂上/缺失)。每桶附带样本可信度,避免小样本桶被误读为信号。 */
+export function segmentClosedPicks(picks: ForwardPick[], keyFn: (p: ForwardPick) => string | null): SegmentBucket[] {
+  const byKey = new Map<string, Trade[]>()
+  for (const p of picks) {
+    if (p.status !== 'closed') continue
+    const key = keyFn(p)
+    if (key == null) continue
+    const arr = byKey.get(key) ?? []
+    arr.push(toTrade(p))
+    byKey.set(key, arr)
+  }
+  return [...byKey.entries()].map(([label, trades]) => ({
+    label, metrics: aggregate(trades), sampleConfidence: sampleConfidenceFor(trades.length),
+  }))
+}
+
 function buildTrack(group: BuyGroup, picks: ForwardPick[]): StrategyTrack {
   const closed = picks.filter((p) => p.status === 'closed')
   const open = picks.filter((p) => p.status === 'open')
   const pending = picks.filter((p) => p.status === 'pending')
-  const closedTrades: Trade[] = closed.map((p) => ({
-    code: p.code, date: p.asof, entry: p.entry, stop: p.stop, target: p.target,
-    exit: p.exit, exitDate: p.exitDate, reason: p.reason as Trade['reason'],
-    retPct: p.retPct, R: p.R, bars: p.barsHeld,
-  }))
+  const closedTrades: Trade[] = closed.map(toTrade)
   const bl = BACKTEST_BASELINE[group]
   // 展示排序:信号日 DESC(最新在前)。
   const sorted = [...picks].sort((a, b) => (a.asof < b.asof ? 1 : a.asof > b.asof ? -1 : 0))
@@ -288,6 +346,7 @@ function buildTrack(group: BuyGroup, picks: ForwardPick[]): StrategyTrack {
     closedCount: closed.length,
     openCount: open.length,
     pendingCount: pending.length,
+    sampleConfidence: sampleConfidenceFor(closed.length),
     unrealizedAvgR: open.length ? r2(mean(open.map((p) => p.R))) : 0,
     backtestExpectancyR: bl?.expectancyR,
     backtestProfitFactor: bl?.profitFactor,
@@ -320,7 +379,10 @@ async function computeForward(): Promise<ScreenerForwardResult> {
         if (!cand || typeof cand.code !== 'string') continue
         const lv = pickLevels(g, cand)
         if (!lv) continue
-        tasks.push({ asof: snap.asof, group: g, code: cand.code, name: cand.name ?? cand.code, ...lv })
+        tasks.push({
+          asof: snap.asof, group: g, code: cand.code, name: cand.name ?? cand.code, ...lv,
+          score: cand.score, taBias: cand.ta?.bias, lhbInstDays: cand.lhbInst?.instDays, boardQuadrant: cand.board?.quadrant,
+        })
         const prev = earliest.get(cand.code)
         if (!prev || snap.asof < prev) earliest.set(cand.code, snap.asof)
       }
@@ -354,16 +416,21 @@ async function computeForward(): Promise<ScreenerForwardResult> {
     const pick = evaluateTask(t, barsByCode.get(t.code))
     byGroup.get(t.group)?.push(pick)
     if (pick.status === 'pending') pendingCount++
-    else if (pick.status === 'closed') {
-      allClosed.push({
-        code: pick.code, date: pick.asof, entry: pick.entry, stop: pick.stop, target: pick.target,
-        exit: pick.exit, exitDate: pick.exitDate, reason: pick.reason as Trade['reason'],
-        retPct: pick.retPct, R: pick.R, bars: pick.barsHeld,
-      })
-    }
+    else if (pick.status === 'closed') allClosed.push(toTrade(pick))
   }
 
   const strategies = BUY_GROUPS.map((g) => buildTrack(g, byGroup.get(g) ?? [])).filter((s) => s.picks.length > 0)
+
+  // breakout 通用切片归因(用户先聚焦这一个战法,其余样本太薄先不接):按技术面偏向/龙虎榜机构/
+  // 板块象限/评分档四个维度分桶,帮着看是哪个子集在拖累整体实盘表现。
+  const breakoutPicks = byGroup.get('breakout') ?? []
+  const breakoutSegments: SegmentGroup[] = [
+    { by: 'taBias', buckets: segmentClosedPicks(breakoutPicks, (p) => p.taBias ?? null) },
+    { by: 'lhb', buckets: segmentClosedPicks(breakoutPicks, (p) => (p.lhbInstDays == null ? null : p.lhbInstDays > 0 ? 'inst' : 'none')) },
+    { by: 'board', buckets: segmentClosedPicks(breakoutPicks, (p) => p.boardQuadrant ?? null) },
+    { by: 'scoreTier', buckets: segmentClosedPicks(breakoutPicks, (p) => (p.score == null ? null : p.score >= 80 ? 'high' : p.score >= 60 ? 'mid' : 'low')) },
+  ].filter((s) => s.buckets.length > 0)
+
   const result: ScreenerForwardResult = {
     asof: todayShanghai(),
     generatedAt: new Date().toISOString(),
@@ -374,6 +441,7 @@ async function computeForward(): Promise<ScreenerForwardResult> {
     pendingCount,
     strategies,
     overall: aggregate(allClosed),
+    breakoutSegments: breakoutSegments.length ? breakoutSegments : undefined,
   }
   console.log(
     `[ScreenerForward] 完成:快照 ${snapshots.length} 份 / 唯一票 ${codes.length}(取K ${fetched}) / ` +

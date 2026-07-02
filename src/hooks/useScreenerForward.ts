@@ -7,6 +7,9 @@ export type BuyGroup =
 export type ForwardReason =
   | 'target' | 'target-gap' | 'stop' | 'stop-gap' | 'time' | 'trail' | 'open' | 'pending'
 
+/** Mirror of server SampleConfidence (server/services/screenerForward.ts). */
+export type SampleConfidence = 'low' | 'medium' | 'high'
+
 /** Mirror of server Metrics (server/backtest/engine.ts). */
 export interface Metrics {
   n: number
@@ -41,6 +44,11 @@ export interface ForwardPick {
   retPct: number
   barsHeld: number
   barsElapsed: number
+  // 归因切片标签(事后分析用,缺失=该因子当时未挂上)。
+  score?: number
+  taBias?: string
+  lhbInstDays?: number
+  boardQuadrant?: string
 }
 
 /** Mirror of server StrategyTrack. */
@@ -50,11 +58,23 @@ export interface StrategyTrack {
   closedCount: number
   openCount: number
   pendingCount: number
+  sampleConfidence: SampleConfidence
   unrealizedAvgR: number
   backtestExpectancyR?: number
   backtestProfitFactor?: number
   note?: string
   picks: ForwardPick[]
+}
+
+/** Mirror of server SegmentBucket/SegmentGroup. */
+export interface SegmentBucket {
+  label: string
+  metrics: Metrics
+  sampleConfidence: SampleConfidence
+}
+export interface SegmentGroup {
+  by: string
+  buckets: SegmentBucket[]
 }
 
 /** Mirror of server ScreenerForwardResult. */
@@ -68,6 +88,7 @@ export interface ScreenerForwardResult {
   pendingCount: number
   strategies: StrategyTrack[]
   overall: Metrics
+  breakoutSegments?: SegmentGroup[]
   fromCache?: boolean
 }
 
