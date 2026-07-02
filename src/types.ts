@@ -506,7 +506,7 @@ export interface Translation {
     truncatedNote: string
     disclaimer: string
     tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string; accum: string; track: string }
-    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; trendnew: string; trendwatch: string; accum: string }
+    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; bholdWatch: string; trendnew: string; trendwatch: string; accum: string }
     phNote: string
     hdDesc: string
     hdCard: {
@@ -593,6 +593,7 @@ export interface Translation {
       days: string
       stepUp: string
       hold: string
+      watchNote: string
     }
     tnDesc: string
     tnCard: {
