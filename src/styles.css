@@ -2558,6 +2558,150 @@ body {
   justify-content: space-between;
 }
 
+/* ── 每日复盘综述卡(板块轮动顶部) ─────────────────────────────────── */
+.rot-review {
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  padding: 12px 14px;
+}
+.rot-review-badge {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted);
+  vertical-align: 1px;
+}
+.rot-review-narrative {
+  margin-bottom: 10px;
+}
+.rot-review-tone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--orange);
+  border-radius: 4px;
+  background: var(--orange-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text, #e8edf6);
+}
+.rot-review-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  background: none;
+  padding: 2px 0;
+  font-size: 0.74rem;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.rot-review-toggle:hover {
+  color: var(--text, #e8edf6);
+}
+.rot-review-md {
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 0.82rem;
+}
+.rot-review-nonarrative {
+  margin-bottom: 10px;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.rot-review-sec {
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+.rot-review-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rot-review-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.rot-review-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+.rot-review-boards {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.rot-review-boards-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.rot-review-news {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 5px;
+  font-size: 0.8rem;
+}
+.rot-review-news a {
+  color: var(--text, #e8edf6);
+  text-decoration: none;
+}
+.rot-review-news a:hover {
+  color: var(--blue);
+}
+.rot-review-newstag {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+.rot-review-cal-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+  font-size: 0.78rem;
+  color: var(--text, #e8edf6);
+}
+.rot-review-cal-date {
+  flex: none;
+  color: var(--muted);
+}
+.rot-review-cal-star {
+  color: var(--orange);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+.rot-review-cal-vals {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
 /* ── 实盘战绩(滚动 forward-test)面板 ─────────────────────────────── */
 .track-record {
   display: flex;

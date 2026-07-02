@@ -9,6 +9,7 @@ import {
   type BoardStock,
 } from '../hooks/useRotation'
 import { useMarketStructure, type MarketStructureBoard } from '../hooks/useMarketStructure'
+import DailyReviewCard from '../components/DailyReviewCard'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 import type { Translation } from '../types'
 
@@ -271,6 +272,8 @@ function RotationView({ t }: RotationViewProps) {
           </button>
         </div>
       </div>
+
+      <DailyReviewCard t={t} />
 
       <StructureCard t={t} />
 

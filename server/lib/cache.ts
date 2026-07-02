@@ -14,7 +14,7 @@
 //      us), we return the last good value instead of failing the request.
 
 /** Minutes since midnight in the Asia/Shanghai timezone, plus weekday (0=Sun). */
-function shanghaiClock(): { day: number; minutes: number } {
+export function shanghaiClock(): { day: number; minutes: number } {
   const now = new Date()
   // Shanghai is UTC+8 year-round (no DST), so a fixed offset is exact.
   const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000

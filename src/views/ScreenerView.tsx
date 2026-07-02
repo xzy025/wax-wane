@@ -16,6 +16,7 @@ import {
 } from '../hooks/useScreener'
 import { useScreenerForward } from '../hooks/useScreenerForward'
 import { useMarketStructure } from '../hooks/useMarketStructure'
+import { useDailyReview } from '../hooks/useDailyReview'
 import { useFundResonanceBoard, type FundResonanceBoardRow } from '../hooks/useFundResonanceBoard'
 import { useOrgSurveyBoard, type OrgSurveyBoardRow } from '../hooks/useOrgSurveyBoard'
 import TrackRecordPanel from './TrackRecordPanel'
@@ -1012,6 +1013,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
   const { data, loading, error, lastUpdated, refresh } = useScreener()
   const fwd = useScreenerForward()
   const structure = useMarketStructure()
+  const review = useDailyReview(false) // 只用 refresh 串联盘后落盘,不做挂载拉取(卡片在板块轮动视图)
   const resBoard = useFundResonanceBoard()
   const osBoard = useOrgSurveyBoard()
   const sc = t.screener
@@ -1029,9 +1031,10 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
     if (isPostCloseReview()) {
       await fwd.refresh() // 盘后:实盘战绩复盘重算 + 存 forward-<date>.json
       await structure.refresh() // 盘后:市场结构(板块集中度/抱团象限)重算 + 存 structure-<date>.json
+      await review.refresh() // 盘后:每日复盘综述(吃到刚刷新的结构数据+LLM叙事) + 存 review-<date>.json
       setDailySavedAt(new Date())
     }
-  }, [tab, refresh, fwd, structure])
+  }, [tab, refresh, fwd, structure, review])
   const activeBusy = loading || fwd.loading // 串联期间任一忙都禁用
   // 缓存/磁盘兜底响应用后端真实生成时刻(savedAt),而非"刚刚 fetch 到"的客户端时间——
   // 避免旧数据顶着"刚更新"的假象(缺 savedAt 的旧快照则优雅回退)。

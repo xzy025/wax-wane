@@ -4,6 +4,7 @@ import { fetchScreener } from '../services/screener'
 import { fetchMarketStructure } from '../services/marketStructure'
 import { fetchFundResonanceBoard } from '../services/fundResonanceBoard'
 import { fetchOrgSurveyBoard } from '../services/orgSurveyBoard'
+import { fetchDailyReview } from '../services/dailyReview'
 
 const router = Router()
 
@@ -21,6 +22,17 @@ router.get('/api/screener', async (_req, res) => {
 router.get('/api/screener/market-structure', async (_req, res) => {
   try {
     const data = await fetchMarketStructure()
+    res.json(data)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+// 每日复盘综述(外围→消息面→宏观日历→A股→板块轮动,数据卡+盘后LLM叙事)。GET /api/screener/daily-review。
+router.get('/api/screener/daily-review', async (_req, res) => {
+  try {
+    const data = await fetchDailyReview()
     res.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
