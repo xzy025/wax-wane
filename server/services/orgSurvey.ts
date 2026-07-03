@@ -9,10 +9,12 @@ const SURVEY_RPT = 'RPT_ORG_SURVEYNEW'
 const PAGE_SIZE = 500
 const MAX_PAGES = 12 // 单股/单次取数翻页上限(单股 ~600 条/数年 → 2 页足;全市场近一周 → 数页)
 
-/** 一条调研记录:调研日(YYYY-MM-DD) + 接待机构名。 */
+/** 一条调研记录:调研日(YYYY-MM-DD) + 接待机构名 + 披露日(公告挂网日,回测防前视用)。 */
 export interface SurveyEvent {
   date: string
   org: string
+  /** NOTICE_DATE:该记录对市场可见的日期。调研≠当天可知——实测披露滞后 1 天占 85%+,长尾可达 30 天+。 */
+  noticeDate?: string
 }
 
 /** code → 调研事件(按日期升序)。 */
@@ -35,11 +37,14 @@ export function isInstitution(org: string): boolean {
   return !MEDIA_BLOCKLIST.some((b) => s.includes(b))
 }
 
-/** 窗口 [startDate, endDate](含端点,YYYY-MM-DD)内 distinct 机构家数(剔除媒体)。events 无需有序。 */
-export function countOrgsInRange(events: SurveyEvent[], startDate: string, endDate: string): number {
+/** 窗口 [startDate, endDate](含端点,YYYY-MM-DD)内 distinct 机构家数(剔除媒体)。events 无需有序。
+ *  knownBy(回测防前视):只计披露日 ≤ knownBy 的记录——调研发生了但公告还没挂网的,信号日实盘查不到,
+ *  回测也不许看。缺 noticeDate 的记录退回按调研日判断(与 live 语义一致)。live 路径不传则不过滤。 */
+export function countOrgsInRange(events: SurveyEvent[], startDate: string, endDate: string, knownBy?: string): number {
   const set = new Set<string>()
   for (const e of events) {
     if (e.date < startDate || e.date > endDate) continue
+    if (knownBy !== undefined && (e.noticeDate ?? e.date) > knownBy) continue
     if (isInstitution(e.org)) set.add(e.org)
   }
   return set.size
@@ -64,7 +69,7 @@ const norm = (d: unknown): string => String(d ?? '').slice(0, 10)
 async function fetchSurveyPage(filter: string, pageNumber: number): Promise<{ rows: SurveyEvent[]; pages: number }> {
   const url =
     `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=${SURVEY_RPT}` +
-    `&columns=SECURITY_CODE,RECEIVE_START_DATE,RECEIVE_OBJECT&source=WEB&client=WEB` +
+    `&columns=SECURITY_CODE,RECEIVE_START_DATE,NOTICE_DATE,RECEIVE_OBJECT&source=WEB&client=WEB` +
     `&sortColumns=RECEIVE_START_DATE&sortTypes=-1&pageSize=${PAGE_SIZE}&pageNumber=${pageNumber}` +
     `&filter=${encodeURIComponent(filter)}`
   const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(12000) })
@@ -72,7 +77,11 @@ async function fetchSurveyPage(filter: string, pageNumber: number): Promise<{ ro
   const json = (await res.json()) as any
   const data: any[] = json?.result?.data ?? []
   const pages = Number(json?.result?.pages) || 1
-  const rows: SurveyEvent[] = data.map((d) => ({ date: norm(d.RECEIVE_START_DATE), org: String(d.RECEIVE_OBJECT ?? '') }))
+  const rows: SurveyEvent[] = data.map((d) => ({
+    date: norm(d.RECEIVE_START_DATE),
+    org: String(d.RECEIVE_OBJECT ?? ''),
+    ...(d.NOTICE_DATE ? { noticeDate: norm(d.NOTICE_DATE) } : {}),
+  }))
   return { rows, pages }
 }
 
