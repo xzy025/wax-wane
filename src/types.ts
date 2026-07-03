@@ -517,6 +517,7 @@ export interface Translation {
     scan: string
     scanTip: string
     dailySaved: string
+    dailySaveFail: string
     scanning: string
     lastUpdated: string
     dataAsof: string
@@ -621,6 +622,7 @@ export interface Translation {
       pole: string
       consol: string
       trigger: string
+      planBreak: string
       buy: string
       stop: string
       target: string

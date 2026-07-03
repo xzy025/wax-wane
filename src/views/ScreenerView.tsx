@@ -757,7 +757,7 @@ function BHoldCard({ c, t, variant }: { c: BHoldScreenerCandidate; t: Translatio
       </div>
 
       <div className="sc-watch-note">
-        {bk.plan}: 次日突破 <span className="positive-text">{fmtPrice(c.trigger)}</span> {bk.buy} · {fmtPrice(c.consolLow)} {bk.hold} · {bk.pos} {c.positionHint}
+        {bk.plan}: {bk.planBreak} <span className="positive-text">{fmtPrice(c.trigger)}</span> {bk.buy} · {fmtPrice(c.consolLow)} {bk.hold} · {bk.pos} {c.positionHint}
       </div>
       {c.riskNote && <div className="sc-watch-note">⚠ {c.riskNote}</div>}
       {variant === 'watch' && <div className="sc-watch-note">{bk.watchNote}</div>}
@@ -1022,17 +1022,26 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
   const tabDesc = { newhigh: sc.desc, pullback: sc.pbDesc, highdiv: sc.hdDesc, volbreak: sc.vbDesc, fundres: sc.frDesc, bhold: sc.bhDesc, trendnew: sc.tnDesc, trendwatch: sc.twDesc, accum: sc.acDesc, orgsurvey: sc.osDesc, track: sc.track.desc }[tab]
   // 「每日扫描」日终一键:重扫+存当日快照;盘后(15:00后/周末)再连带复盘并保存实盘战绩。
   const [dailySavedAt, setDailySavedAt] = useState<Date | null>(null)
+  const [dailySaveFailed, setDailySaveFailed] = useState(false)
   const handleScan = useCallback(async () => {
     if (tab === 'track') {
       await fwd.refresh() // 在战绩 tab:只刷战绩
       return
     }
-    await refresh() // 重扫 + 存档当日快照(先落盘,forward 才能纳入今天 picks)
+    const okScan = await refresh() // 重扫 + 存档当日快照(先落盘,forward 才能纳入今天 picks)
     if (isPostCloseReview()) {
-      await fwd.refresh() // 盘后:实盘战绩复盘重算 + 存 forward-<date>.json
-      await structure.refresh() // 盘后:市场结构(板块集中度/抱团象限)重算 + 存 structure-<date>.json
-      await review.refresh() // 盘后:每日复盘综述(吃到刚刷新的结构数据+LLM叙事) + 存 review-<date>.json
-      setDailySavedAt(new Date())
+      // 各环节 refresh 返回真实成败——全部成功才亮 ✓,任一失败(如后端 500/断网)明确报出来,
+      // 否则屏上有旧数据时链条全挂也会亮「已保存」假回执,次日 forward 就缺当日 picks。
+      const okFwd = await fwd.refresh() // 盘后:实盘战绩复盘重算 + 存 forward-<date>.json
+      const okStructure = await structure.refresh() // 盘后:市场结构(板块集中度/抱团象限)重算 + 存 structure-<date>.json
+      const okReview = await review.refresh() // 盘后:每日复盘综述(吃到刚刷新的结构数据+LLM叙事) + 存 review-<date>.json
+      if (okScan && okFwd && okStructure && okReview) {
+        setDailySavedAt(new Date())
+        setDailySaveFailed(false)
+      } else {
+        setDailySavedAt(null)
+        setDailySaveFailed(true)
+      }
     }
   }, [tab, refresh, fwd, structure, review])
   const activeBusy = loading || fwd.loading // 串联期间任一忙都禁用
@@ -1068,6 +1077,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                 <span className="sc-saved-badge">✓ {sc.dailySaved} {dailySavedAt.toLocaleTimeString()}</span>
               </>
             )}
+            {tab !== 'track' && dailySaveFailed && (
+              <>
+                {' · '}
+                <span className="sc-save-fail-badge">⚠ {sc.dailySaveFail}</span>
+              </>
+            )}
           </span>
         )}
         <button className="sc-scan-btn" onClick={handleScan} disabled={activeBusy} title={sc.scanTip}>
@@ -1077,7 +1092,8 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
       </div>
       <p className="themes-desc">{tabDesc}</p>
 
-      {error && !data && <div className="alert-item danger">{sc.loadFail}</div>}
+      {/* 有旧数据时错误也要露出——否则刷新失败被 last-good 数据完全遮住,用户读到的是旧盘面。 */}
+      {error && <div className="alert-item danger">{sc.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{sc.scanning}</div>}
 
       {data && (
@@ -1344,7 +1360,14 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
 
           {tab === 'fundres' && (
             <>
-              <FundResonanceBoardTable rows={resBoard.data ?? []} t={t} />
+              {/* 三分支同 orgsurvey:加载中/失败不可与「今日确实无共振」混为同一个空态——那是交易信号误读。 */}
+              {resBoard.loading && !resBoard.data ? (
+                <div className="themes-desc">{sc.scanning}</div>
+              ) : resBoard.error && !resBoard.data ? (
+                <div className="alert-item danger">{sc.loadFail}</div>
+              ) : (
+                <FundResonanceBoardTable rows={resBoard.data ?? []} t={t} />
+              )}
 
               <div className="sc-meta">
                 {sc.universe} {data.universe} · {sc.scanned} {data.scanned}

@@ -161,21 +161,26 @@ function StructureCard({ t }: { t: Translation }) {
   if (loading && !data) return null
   if (error && !data) return <div className="alert-item danger">{st.loadFail}</div>
   if (!data) return null
+  // 情绪源(涨跌停/宽度)全 0 = 上游故障的退化档,不是「极端冰点」——零值面板会误导仓位判断,整段隐藏。
+  const breadthOk = data.limitUp + data.limitDown + data.advanceCount + data.declineCount > 0
   return (
     <div className="rot-structure">
       <div className="rot-structure-head">
         <span className="rot-structure-title">{st.title}</span>
+        {data.fromCache && <span className="rot-review-badge">{t.rotation.review.cached}</span>}
         <span className="themes-updated">
           {st.generatedAt} {new Date(data.generatedAt).toLocaleString()}
         </span>
       </div>
-      <div className="rot-structure-stats">
-        <span>{st.limitUp} <b className="positive-text">{data.limitUp}</b></span>
-        <span>{st.limitDown} <b className="negative-text">{data.limitDown}</b></span>
-        <span>{st.advance} <b className="positive-text">{data.advanceCount}</b></span>
-        <span>{st.decline} <b className="negative-text">{data.declineCount}</b></span>
-        <span>{st.breakRate} <b>{data.breakRate}%</b></span>
-      </div>
+      {breadthOk && (
+        <div className="rot-structure-stats">
+          <span>{st.limitUp} <b className="positive-text">{data.limitUp}</b></span>
+          <span>{st.limitDown} <b className="negative-text">{data.limitDown}</b></span>
+          <span>{st.advance} <b className="positive-text">{data.advanceCount}</b></span>
+          <span>{st.decline} <b className="negative-text">{data.declineCount}</b></span>
+          <span>{st.breakRate} <b>{data.breakRate}%</b></span>
+        </div>
+      )}
       <div className="rot-structure-cols">
         <div className="rot-structure-col">
           <div className="rot-drill-grouptag">{st.topHs} ({data.hsCount})</div>
@@ -211,6 +216,8 @@ function RotationView({ t }: RotationViewProps) {
   const drill = useBoardStocks(sel?.code ?? null)
 
   // 搜个股 → 防抖取其所属板块名(用于过滤象限里的板块)。
+  // cancelled 守卫:clearTimeout 只拦未发出的请求,已在飞的旧响应回来若照常 setMatchBoards,
+  // 清空搜索框后象限会被已删除的搜索词幽灵过滤;res.ok 检查:500 的 {error} 体不能读成「该股无板块」。
   useEffect(() => {
     const q = query.trim()
     if (!q) {
@@ -218,18 +225,25 @@ function RotationView({ t }: RotationViewProps) {
       setSearchInfo('')
       return
     }
+    let cancelled = false
     const h = setTimeout(async () => {
       try {
         const res = await fetchWithTimeout(`/api/rotation/stock-boards?q=${encodeURIComponent(q)}`, 15_000)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const json = (await res.json()) as { code?: string; name?: string; boards?: string[] }
+        if (cancelled) return
         setMatchBoards(json.boards ?? [])
         setSearchInfo(json.name ? `${json.name}${json.code ? ` (${json.code})` : ''}` : '')
       } catch {
+        if (cancelled) return
         setMatchBoards(null)
         setSearchInfo('')
       }
     }, 400)
-    return () => clearTimeout(h)
+    return () => {
+      cancelled = true
+      clearTimeout(h)
+    }
   }, [query])
 
   const norm = (s: string) => s.replace(/概念$/, '')

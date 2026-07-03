@@ -97,8 +97,8 @@ export interface ScreenerForwardHookResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
-  /** Re-run the rolling eval: clears the server cache then re-fetches. */
-  refresh: () => void
+  /** Re-run the rolling eval: clears the server cache then re-fetches. Resolves true on success. */
+  refresh: () => Promise<boolean>
 }
 
 /**
@@ -149,15 +149,17 @@ export function useScreenerForward(): ScreenerForwardHookResult {
     }
   }, [load])
 
-  const refresh = useCallback(async () => {
-    if (fetching.current) return
+  const refresh = useCallback(async (): Promise<boolean> => {
+    if (fetching.current) return false // 已在拉取,本次未执行,不可当成功
     fetching.current = true
     setLoading(true)
     setError(null)
     try {
       await load(true)
+      return true
     } catch {
       setError('实盘战绩获取失败')
+      return false
     } finally {
       setLoading(false)
       fetching.current = false

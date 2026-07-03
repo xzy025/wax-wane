@@ -49,9 +49,13 @@ export function useRotation(category: RotationCategory, longWin: number, shortWi
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const fetching = useRef(false)
+  // 单调递增请求号:参数切换/手动刷新都会发新请求但不中止旧 fetch(概念冷扫可跑数十秒),
+  // 只允许最新一次请求提交状态——否则慢的旧响应回来会覆盖新数据(界面选行业、数据是概念)。
+  const seq = useRef(0)
 
   const load = useCallback(
     async (rescan: boolean) => {
+      const id = ++seq.current
       if (rescan) {
         await fetch('/api/refresh?market=rotation', { method: 'POST' }).catch(() => {})
       }
@@ -60,6 +64,7 @@ export function useRotation(category: RotationCategory, longWin: number, shortWi
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = (await res.json()) as RotationResult & { error?: string }
       if (json.error) throw new Error(json.error)
+      if (id !== seq.current) return // 已有更新的请求在飞/已完成,旧响应丢弃
       setData(json)
       setLastUpdated(new Date())
       setError(null)

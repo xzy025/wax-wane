@@ -794,6 +794,16 @@ p {
   background: var(--green-soft);
 }
 
+/* 盘后落盘链条有环节失败的回执徽标(红=未完整落盘,勿当已保存)。 */
+.sc-save-fail-badge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--red);
+  background: var(--red-soft);
+}
+
 /* Clickable column header: inherits the table-head look, toggles sort on click. */
 .th-sort {
   display: inline-flex;

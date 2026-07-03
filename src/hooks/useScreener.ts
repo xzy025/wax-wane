@@ -299,7 +299,7 @@ export interface AccumScreenerCandidate {
   boxLow: number // 横盘箱体下沿
   boxHigh: number // 横盘箱体上沿
   breakLevel: number // 观察触发位(= boxHigh):放量站上＝吸筹转拉升
-  entryTrigger: number // 确认买点:放量站上箱体上沿才介入(回测 0.20R/PF1.33)
+  entryTrigger: number // 触发位提示:放量站上箱体上沿(2026-07 入场日撮合修正后不再过线,无回测背书)
   stopRef: number // 止损:max(箱体下沿, 进场×(1−ENTRY_STOP_PCT/100))
   targetRef: number // 目标:进场 + ENTRY_R_MULT×风险
   posPct: number // 收盘在 52 周区间的分位%
@@ -358,8 +358,8 @@ export interface ScreenerHookResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
-  /** Re-run the scan: clears the server cache then re-fetches (the 每日扫描 button). */
-  refresh: () => void
+  /** Re-run the scan: clears the server cache then re-fetches (the 每日扫描 button). Resolves true on success. */
+  refresh: () => Promise<boolean>
 }
 
 /**
@@ -410,15 +410,18 @@ export function useScreener(): ScreenerHookResult {
     }
   }, [load])
 
-  const refresh = useCallback(async () => {
-    if (fetching.current) return
+  // 返回本次刷新是否真实成功——「每日扫描」串联落盘要靠它汇总,吞错误静默 resolve 会亮假 ✓。
+  const refresh = useCallback(async (): Promise<boolean> => {
+    if (fetching.current) return false // 已在拉取,本次未执行,不可当成功
     fetching.current = true
     setLoading(true)
     setError(null)
     try {
       await load(true)
+      return true
     } catch {
       setError('选股数据获取失败')
+      return false
     } finally {
       setLoading(false)
       fetching.current = false

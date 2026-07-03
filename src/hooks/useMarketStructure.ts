@@ -35,8 +35,8 @@ export interface MarketStructureHookResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
-  /** Re-run the daily structure snapshot: clears the server cache then re-fetches. */
-  refresh: () => void
+  /** Re-run the daily structure snapshot: clears the server cache then re-fetches. Resolves true on success. */
+  refresh: () => Promise<boolean>
 }
 
 /** Fetches the 每日市场结构(板块集中度/抱团象限)快照 from /api/screener/market-structure. */
@@ -83,15 +83,17 @@ export function useMarketStructure(): MarketStructureHookResult {
     }
   }, [load])
 
-  const refresh = useCallback(async () => {
-    if (fetching.current) return
+  const refresh = useCallback(async (): Promise<boolean> => {
+    if (fetching.current) return false // 已在拉取,本次未执行,不可当成功
     fetching.current = true
     setLoading(true)
     setError(null)
     try {
       await load(true)
+      return true
     } catch {
       setError('市场结构获取失败')
+      return false
     } finally {
       setLoading(false)
       fetching.current = false
