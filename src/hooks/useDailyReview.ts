@@ -85,8 +85,8 @@ export interface DailyReviewHookResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
-  /** Re-run the daily review: clears the server cache then re-fetches. */
-  refresh: () => void
+  /** Re-run the daily review: clears the server cache then re-fetches. Resolves true on success. */
+  refresh: () => Promise<boolean>
 }
 
 /**
@@ -142,14 +142,16 @@ export function useDailyReview(immediate = true): DailyReviewHookResult {
   // 与模板 useMarketStructure 不同:refresh 不做 fetching 静默跳过——每日扫描串联
   // await review.refresh() 时若恰与挂载拉取撞车,静默 no-op 会让"重扫+落盘"悄悄没发生。
   // 并发的 GET 由服务端 createCache 的 in-flight 去重兜底,重复 setState 无害。
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (): Promise<boolean> => {
     fetching.current = true
     setLoading(true)
     setError(null)
     try {
       await load(true)
+      return true
     } catch {
       setError('每日复盘综述获取失败')
+      return false
     } finally {
       setLoading(false)
       fetching.current = false

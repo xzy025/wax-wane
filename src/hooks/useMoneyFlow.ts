@@ -66,9 +66,13 @@ export function useMoneyFlow(date?: string, window: 1 | 3 | 5 = 1): MoneyFlowRes
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const fetching = useRef(false)
+  // 单调递增请求号:切日期/窗口发新请求但旧 fetch 不中止(冷加载可达 30s),只允许最新
+  // 请求提交状态——否则慢的 1 日榜旧响应会盖掉已选中的 5 日榜数据(且 payload 无 window 字段,全然无声)。
+  const seq = useRef(0)
 
   const load = useCallback(
     async (clearServerCache: boolean) => {
+      const id = ++seq.current
       if (clearServerCache) {
         await fetch('/api/refresh?market=moneyflow', { method: 'POST' }).catch(() => {})
       }
@@ -80,6 +84,7 @@ export function useMoneyFlow(date?: string, window: 1 | 3 | 5 = 1): MoneyFlowRes
       const res = await fetchWithTimeout(`/api/moneyflow${qs}`, 30_000)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = (await res.json()) as DragonTigerData
+      if (id !== seq.current) return // 已有更新的请求在飞/已完成,旧响应丢弃
       setData(json)
       setLastUpdated(new Date())
       setError(null)
