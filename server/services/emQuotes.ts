@@ -38,13 +38,34 @@ interface EMUlistItem {
 
 const FIELDS = 'f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18'
 
+// push2 主站高频抓取后会整段 RST 连接(实测限流可持续数十分钟),轮换 delay 镜像兜底
+// (同 ashare.ts INDEX_KLINE_HOSTS 模式;delay 镜像约延迟 15 分钟,盘后取收盘数据无差别)。
+const ULIST_HOSTS = ['push2.eastmoney.com', 'push2delay.eastmoney.com']
+
+/** ulist.np/get with host rotation. Throws only after every mirror fails. */
+async function fetchUlistJson(query: string, timeoutMs: number): Promise<unknown> {
+  let lastErr: unknown
+  for (const host of ULIST_HOSTS) {
+    try {
+      const res = await fetch(`https://${host}/api/qt/ulist.np/get?${query}`, {
+        headers: EM_HEADERS,
+        signal: AbortSignal.timeout(timeoutMs),
+      })
+      if (!res.ok) throw new Error(`EastMoney ulist HTTP ${res.status}`)
+      return await res.json()
+    } catch (err) {
+      lastErr = err
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error('EastMoney ulist unreachable')
+}
+
 /** Fetch quotes for explicit secids. Throws on network/HTTP failure. */
 export async function fetchQuotesBySecids(secids: string[]): Promise<IndexQuote[]> {
   if (secids.length === 0) return []
-  const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secids.join(',')}&fields=${FIELDS}`
-  const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
-  if (!res.ok) throw new Error(`EastMoney ulist HTTP ${res.status}`)
-  const json = (await res.json()) as { data?: { diff?: EMUlistItem[] } }
+  const json = (await fetchUlistJson(`fltt=2&secids=${secids.join(',')}&fields=${FIELDS}`, 5000)) as {
+    data?: { diff?: EMUlistItem[] }
+  }
   const diff = json.data?.diff ?? []
   return diff.map((d) => ({
     code: d.f12 ?? '',
@@ -148,10 +169,9 @@ const emNum = (v: unknown): number | null =>
 /** Batch-fetch valuation+trend quotes for theme constituents. Throws on failure. */
 export async function fetchThemeQuotes(secids: string[]): Promise<ThemeQuote[]> {
   if (secids.length === 0) return []
-  const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secids.join(',')}&fields=${THEME_FIELDS}`
-  const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(6000) })
-  if (!res.ok) throw new Error(`EastMoney ulist HTTP ${res.status}`)
-  const json = (await res.json()) as { data?: { diff?: EMThemeItem[] } }
+  const json = (await fetchUlistJson(`fltt=2&secids=${secids.join(',')}&fields=${THEME_FIELDS}`, 6000)) as {
+    data?: { diff?: EMThemeItem[] }
+  }
   const diff = json.data?.diff ?? []
   return diff.map((d) => ({
     code: d.f12 ?? '',
