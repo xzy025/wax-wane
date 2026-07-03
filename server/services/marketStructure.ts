@@ -18,9 +18,8 @@ const TOP_N = 5 // Top HS/LS 板块展示上限
 
 /** 今天的上海日(YYYY-MM-DD);上海固定 UTC+8 无夏令时。 */
 function todayShanghai(): string {
-  const now = new Date()
-  const sh = new Date(now.getTime() + now.getTimezoneOffset() * 60_000 + 8 * 3_600_000)
-  return sh.toISOString().slice(0, 10)
+  // epoch+8h 经 toISOString(UTC getter)读出即上海日期,与进程时区无关。
+  return new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)
 }
 
 export interface MarketStructureBoard {
