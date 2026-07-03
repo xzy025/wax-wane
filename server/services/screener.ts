@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl, isAShareSession } from '../lib/cache'
+import { todayShanghai } from '../lib/time'
 import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult } from './screenerArchive'
 import { isDbReady, upsertScreenerSnapshot, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { computeStreaks } from './screenerStreak'
@@ -621,15 +622,8 @@ function buildRegime(s: {
   return { phase, temperature, limitUp, limitDown, breakRate, note, marketTrend: 'neutral', targetRMult: C.TARGET_R_MULT, marketChgPct: 0 }
 }
 
-function todayStr(): string {
-  // 用 Shanghai 日期作为存档键
-  const now = new Date()
-  const sh = new Date(now.getTime() + now.getTimezoneOffset() * 60_000 + 8 * 3_600_000)
-  return `${sh.getFullYear()}-${String(sh.getMonth() + 1).padStart(2, '0')}-${String(sh.getDate()).padStart(2, '0')}`
-}
-
 async function fetchScreenerFresh(): Promise<ScreenerResult> {
-  const asof = todayStr()
+  const asof = todayShanghai() // 用 Shanghai 日期作为存档键
   const t0 = Date.now()
 
   // Regime(尽力而为,失败给中性)

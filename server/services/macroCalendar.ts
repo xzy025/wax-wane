@@ -5,7 +5,11 @@
 // 拉不到的那天落回规则事件(非农首个周五/LPR 20日/FOMC 硬编码等)。
 // 解析/规则/合并全部是纯函数,零网络可测。
 import { createCache } from '../lib/cache'
+import { todayShanghai } from '../lib/time'
 import { mapLimit } from './ashare'
+
+// 唯一实现在 lib/time.ts;此处 re-export 维持 dailyReview 等既有导入路径。
+export { todayShanghai } from '../lib/time'
 
 export interface MacroEvent {
   date: string // YYYY-MM-DD
@@ -27,13 +31,6 @@ export interface MacroCalendarResult {
 
 const CAL_DAYS = 7 // 未来一周
 const CAL_TTL = 12 * 3_600_000 // 日历一天内基本不变,固定长 TTL
-
-/** 今天的上海日(YYYY-MM-DD);上海固定 UTC+8 无夏令时。 */
-export function todayShanghai(): string {
-  // epoch+8h 经 toISOString(UTC getter)读出即上海日期,与进程时区无关。
-  // (勿叠加 getTimezoneOffset:那是本地 getter 读法的配套,混用会双算偏移。)
-  return new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)
-}
 
 // ── 日期运算(全部基于 UTC 字符串,不依赖本机时区) ──────────────────────
 function toUTC(date: string): Date {

@@ -14,6 +14,7 @@ import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl } from '../lib/cache'
+import { todayShanghai } from '../lib/time'
 import { parseScreenerArchiveName } from './screenerArchive'
 import { isDbReady, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { fetchStockKline, mapLimit } from './ashare'
@@ -64,12 +65,6 @@ const num = (v: unknown): number => {
 }
 const r2 = (n: number) => Math.round(n * 100) / 100
 const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0)
-
-/** 今天的上海日(YYYY-MM-DD);上海固定 UTC+8 无夏令时。 */
-function todayShanghai(): string {
-  // epoch+8h 经 toISOString(UTC getter)读出即上海日期,与进程时区无关。
-  return new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)
-}
 
 // ── 输出类型 ──────────────────────────────────────────────────────────
 export type ForwardReason = Trade['reason'] | 'open' | 'pending'
