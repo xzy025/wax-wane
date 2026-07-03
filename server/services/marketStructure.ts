@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl } from '../lib/cache'
+import { todayShanghai } from '../lib/time'
 import { fetchSentiment } from './kaipanla'
 import { fetchRotation, type RotationBoard } from './rotation'
 
@@ -15,12 +16,6 @@ const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
 const CLOSED_TTL = 12 * 3_600_000 // 盘后长 TTL,同 screener/forward,避免盘后反复打接口
 const STRUCTURE_RE = /^structure-(\d{4}-\d{2}-\d{2})\.json$/
 const TOP_N = 5 // Top HS/LS 板块展示上限
-
-/** 今天的上海日(YYYY-MM-DD);上海固定 UTC+8 无夏令时。 */
-function todayShanghai(): string {
-  // epoch+8h 经 toISOString(UTC getter)读出即上海日期,与进程时区无关。
-  return new Date(Date.now() + 8 * 3_600_000).toISOString().slice(0, 10)
-}
 
 export interface MarketStructureBoard {
   code: string
@@ -54,6 +49,12 @@ async function computeMarketStructure(): Promise<MarketStructureSummary> {
     fetchSentiment().catch(() => null), // 情绪源独立,取不到就整体因子中性(0),不拖垮板块结构
     fetchRotation('industry', 60, 5),
   ])
+  // 板块象限是本卡主源:东财限流时 120 板块可能全部取不到日线(rows=0),此时的
+  // "全 0 象限"是故障不是事实,绝不能落盘覆盖当日好档——throw 交给 createCache
+  // 走 serve-stale/磁盘兜底(对齐 dailyReview hasReviewContent 的空壳保护语义)。
+  if (rotation.summary.total === 0) {
+    throw new Error('[MarketStructure] rotation 板块全量失败,保留既有缓存/存档')
+  }
   const byQuad = (q: RotationBoard['quadrant']) => rotation.boards.filter((b) => b.quadrant === q)
   const topBy = (boards: RotationBoard[]): MarketStructureBoard[] =>
     [...boards]
