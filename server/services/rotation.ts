@@ -2,6 +2,7 @@
 // 板块即指数(secid 90.BKxxxx),复用 fetchIndexKline 取日线;所有窗口从同一段 closes 现算。
 import { EM_HEADERS } from '../lib/emHeaders'
 import { createCache, sessionTtl, type Cache } from '../lib/cache'
+import { todayShanghai } from '../lib/time'
 import { fetchIndexKline, fetchStockKline } from './ashare'
 import { toSecids } from './emQuotes'
 import { resolveStock } from './stockSearch'
@@ -120,7 +121,8 @@ async function getBoardCloses(secid: string): Promise<number[]> {
   if (hit && hit.expires > Date.now()) return hit.closes
   const bars = await fetchIndexKline(secid, ROTATION.KLINE_BARS)
   const closes = bars.map((b) => b.close)
-  closesCache.set(secid, { closes, expires: Date.now() + CLOSES_TTL })
+  // 空序列=上游失败(限流/镜像全挂),缓存它会把故障固化 24h——只缓存有效数据。
+  if (closes.length > 0) closesCache.set(secid, { closes, expires: Date.now() + CLOSES_TTL })
   return closes
 }
 
@@ -136,12 +138,6 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R
   }
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
   return out
-}
-
-function todayStr(): string {
-  const now = new Date()
-  const sh = new Date(now.getTime() + now.getTimezoneOffset() * 60_000 + 8 * 3_600_000)
-  return `${sh.getFullYear()}-${String(sh.getMonth() + 1).padStart(2, '0')}-${String(sh.getDate()).padStart(2, '0')}`
 }
 
 async function fetchRotationFresh(
@@ -189,7 +185,7 @@ async function fetchRotationFresh(
   }
 
   console.log(`[Rotation] ${category} 板块 ${universe.length}→有效 ${rows.length};长${longWin}/短${shortWin}日`)
-  return { asof: todayStr(), category, longWin, shortWin, boards: rows, summary }
+  return { asof: todayShanghai(), category, longWin, shortWin, boards: rows, summary }
 }
 
 // 结果按 分类|长窗|短窗 分别缓存(共享 closesCache,切窗口免重取日线)。
