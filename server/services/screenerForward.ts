@@ -19,6 +19,7 @@ import { parseScreenerArchiveName } from './screenerArchive'
 import { isDbReady, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { fetchStockKline, mapLimit } from './ashare'
 import { simForward, makeTrade, aggregate, type Trade, type Metrics } from '../backtest/engine'
+import { FUNDRES } from '../config/screener'
 import type { Bar } from './screenerRules'
 import type { ScreenerResult } from './screener'
 
@@ -26,7 +27,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
 
 // ── 调参 ──────────────────────────────────────────────────────────────
-const HOLD = 20 // 持有/观察的最大交易日数(与回测 HOLD 默认一致)
+const HOLD = 20 // 持有/观察的最大交易日数(回测全局默认;fundres/bhold 见 HOLD_BY_GROUP)
 const SNAP_LIMIT = 250 // 回溯多少份历史快照(≈1 交易年上限)
 const CONCURRENCY = 12 // 每唯一 code 取K并发(与回测一致)
 const FORWARD_CLOSED_TTL = 12 * 3_600_000 // 盘后长 TTL(同 screener)
@@ -39,12 +40,17 @@ const BUY_GROUPS = [
 export type BuyGroup = (typeof BUY_GROUPS)[number]
 const NON_BUY = new Set(['watch', 'trendwatch', 'bholdwatch'])
 
+// 基线对照必须同持有期口径:fundres 基线(0.26R/PF2.08)是 HOLD=3 跑出的、bhold 基线
+// (0.45R/PF1.9)是 HOLD=10——统一按 20 撮合会让「实盘 vs 回测」对这两战法不可判读。
+const HOLD_BY_GROUP: Partial<Record<BuyGroup, number>> = { fundres: FUNDRES.HOLD, bhold: 10 }
+export const holdFor = (g: BuyGroup): number => HOLD_BY_GROUP[g] ?? HOLD
+
 // 各战法回测基线(取自 screener.ts 注释/回测产物;缺者前端显示「—」)。
 const BACKTEST_BASELINE: Partial<Record<BuyGroup, { expectancyR: number; profitFactor?: number }>> = {
   breakout: { expectancyR: 0.08 }, // 突破基线(PF 未单列)
   highdiv: { expectancyR: 0.19, profitFactor: 1.3 },
   volbreak: { expectancyR: 0.27, profitFactor: 1.41 },
-  fundres: { expectancyR: 0.26, profitFactor: 2.08 },
+  fundres: { expectancyR: 0.25, profitFactor: 1.96 }, // 2026-07-03 防前视重跑(披露日≤信号日才计调研)
   bhold: { expectancyR: 0.45, profitFactor: 1.9 },
   trendnew: { expectancyR: 0.28, profitFactor: 1.52 },
 }
@@ -217,9 +223,10 @@ export function evaluateTask(t: Task, bars: Bar[] | undefined): ForwardPick {
   const risk = entryRef - stopRef
   if (risk <= 0) return pendingPick(t)
   const lenAfter = bars.length - 1 - i
-  const sim = simForward(bars, i, stopRef, targetRef, HOLD)
+  const hold = holdFor(t.group) // 与该战法回测基线同持有期口径
+  const sim = simForward(bars, i, stopRef, targetRef, hold)
   const trade = makeTrade(t.code, bars, i, entryRef, stopRef, targetRef, risk, sim)
-  const status = classifyForward(sim.reason, HOLD, lenAfter)
+  const status = classifyForward(sim.reason, hold, lenAfter)
   // open 情形:lenAfter<HOLD 且未触发 → sim 末根即最新收盘 → trade 已是盯市 R,仅改 reason。
   // 展示 entry/stop/target 用前复权基准(trade.*),与 exit 同基准 → (exit-entry)/(entry-stop)=R 恒成立。
   return {
@@ -360,19 +367,38 @@ async function computeForward(): Promise<ScreenerForwardResult> {
   }
 
   // Phase 1:摊平任务 + 每 code 最早信号日。
+  // 同票冷却去重:同一 (战法, code) 在 hold 窗口内连续上榜只算最早那笔——回测基线全部
+  // 带「i = 入场+hold+1 一仓在手不重叠」冷却,实盘战绩不去重的话同段行情被复制 N 次
+  // (实测 660 笔里 34% 是重叠窗口伪样本),n 虚高、sampleConfidence 与基线对照全失真。
+  // 交易日距离用快照序号近似(每交易日一份快照)。
+  const snapsAsc = [...snapshots].sort((a, b) => (a.asof < b.asof ? -1 : 1))
+  const dateRank = new Map<string, number>()
+  for (const snap of snapsAsc) {
+    if (typeof snap.asof === 'string' && !dateRank.has(snap.asof)) dateRank.set(snap.asof, dateRank.size)
+  }
   const tasks: Task[] = []
   const earliest = new Map<string, string>()
+  const lastKeptRank = new Map<string, number>()
+  let dedupSkipped = 0
   let minAsof = ''
   let maxAsof = ''
-  for (const snap of snapshots) {
+  for (const snap of snapsAsc) {
     if (typeof snap.asof !== 'string') continue
     if (!minAsof || snap.asof < minAsof) minAsof = snap.asof
     if (!maxAsof || snap.asof > maxAsof) maxAsof = snap.asof
+    const rank = dateRank.get(snap.asof) ?? 0
     for (const g of BUY_GROUPS) {
       for (const cand of groupArray(snap, g)) {
         if (!cand || typeof cand.code !== 'string') continue
         const lv = pickLevels(g, cand)
         if (!lv) continue
+        const key = `${g}|${cand.code}`
+        const last = lastKeptRank.get(key)
+        if (last !== undefined && rank - last <= holdFor(g)) {
+          dedupSkipped++ // 仍在上一笔持有窗口内的重复上榜,不另计一笔
+          continue
+        }
+        lastKeptRank.set(key, rank)
         tasks.push({
           asof: snap.asof, group: g, code: cand.code, name: cand.name ?? cand.code, ...lv,
           score: cand.score, taBias: cand.ta?.bias, lhbInstDays: cand.lhbInst?.instDays, boardQuadrant: cand.board?.quadrant,
@@ -382,6 +408,7 @@ async function computeForward(): Promise<ScreenerForwardResult> {
       }
     }
   }
+  if (dedupSkipped > 0) console.log(`[ScreenerForward] 冷却去重:跳过 ${dedupSkipped} 笔重叠窗口内的重复上榜`)
 
   // Phase 2:每唯一 code 取一次 K(按最早信号日定窗),失败该 code 全部 picks 记 pending。
   const nowMs = Date.now()

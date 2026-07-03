@@ -36,19 +36,31 @@ export interface Trade {
   taDist?: boolean // 技术分析组合:信号日是否强派发(distribution)
 }
 
-/** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。 */
+/** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。
+ *
+ *  checkEntryBar:入场发生在 bar i 盘中/开盘(confirm 触发价、次日开盘)时必须传 true——
+ *  入场当日剩余走势也要参与撮合(low≤stop→止损、high≥target→止盈,同日止损优先;
+ *  不做 open 跳空判断,因入场价即当日成交价)。默认 false 保持「信号日收盘进场」语义
+ *  (收盘进场后当日已无走势)。漏掉入场日曾让所有 confirm/nextOpen 变体系统性偏乐观。 */
 export function simForward(
   bars: Bar[],
   i: number,
   stop: number,
   target: number,
   hold: number,
+  checkEntryBar = false,
 ): { exit: number; reason: Trade['reason']; exitIdx: number } {
   const len = bars.length
   const end = Math.min(i + hold, len - 1)
   let exit = bars[end].close // 默认时间止损
   let reason: Trade['reason'] = 'time'
   let exitIdx = end
+  if (checkEntryBar) {
+    const b = bars[i]
+    // 日线无法分辨盘中先后,按引擎「保守:同日止损优先」约定处理入场日。
+    if (b.low <= stop) return { exit: stop, reason: 'stop', exitIdx: i }
+    if (b.high >= target) return { exit: target, reason: 'target', exitIdx: i }
+  }
   for (let j = i + 1; j <= end; j++) {
     const b = bars[j]
     if (b.open <= stop) { exit = b.open; reason = 'stop-gap'; exitIdx = j; break }

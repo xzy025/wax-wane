@@ -454,7 +454,8 @@ function simulateAccumConfirm(sb: StockBars, cfg: AccumConfig, hold: number, sto
       continue
     }
     const target = entry + rMult * risk
-    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold))
+    // 盘中触发价入场 → 入场日剩余走势必须参与撮合(checkEntryBar)
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold, true))
     t.acConsolDays = cand.consolDays
     trades.push(t)
     i = entryIdx + hold + 1 // 冷却从实际入场日起
@@ -500,7 +501,8 @@ function simulateBreakoutHoldConfirm(sb: StockBars, cfg: BreakoutHoldConfig, hol
       continue
     }
     const target = entry + cfg.R_MULT * risk
-    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold))
+    // 盘中触发价入场 → 入场日剩余走势必须参与撮合(checkEntryBar)
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold, true))
     t.bhConsolDays = cand.consolDays
     trades.push(t)
     i = entryIdx + hold + 1 // 冷却从实际入场日起
@@ -573,7 +575,8 @@ function simulateBreakoutPullbackConfirm(sb: StockBars, cfg: BreakoutPullbackCon
       continue
     }
     const target = entry + cfg.R_MULT * risk
-    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold))
+    // 盘中触发价入场 → 入场日剩余走势必须参与撮合(checkEntryBar)
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold, true))
     t.bpDaysSinceBreak = cand.daysSinceBreak
     trades.push(t)
     i = entryIdx + hold + 1
@@ -581,8 +584,10 @@ function simulateBreakoutPullbackConfirm(sb: StockBars, cfg: BreakoutPullbackCon
   return trades
 }
 
-/** 走查回测「资金流共振·机构调研」可回测子集;信号日收盘进场,调研家数按信号日窗口实时算(零前视)。
- *  surveyEvents=该股调研全史(date/org);止损/目标来自规则,短持有撮合。 */
+/** 走查回测「资金流共振·机构调研」可回测子集;信号日收盘进场。
+ *  防前视:调研窗口按调研日算(新鲜度),但只计披露日 ≤ 信号日的记录——调研纪要公告
+ *  滞后 1 天占 85%+(长尾 30 天+),信号日实盘查不到的调研回测也不许看。
+ *  surveyEvents=该股调研全史(date/org/noticeDate);止损/目标来自规则,短持有撮合。 */
 function simulateFundResonance(sb: StockBars, surveyEvents: SurveyEvent[], cfg: FundResConfig, hold: number): Trade[] {
   const { bars, code } = sb
   const len = bars.length
@@ -590,9 +595,9 @@ function simulateFundResonance(sb: StockBars, surveyEvents: SurveyEvent[], cfg: 
   const trades: Trade[] = []
   let i = start
   while (i <= len - 2) {
-    // 信号日(含)前 SURVEY_LOOKBACK 个交易日的窗口 → distinct 机构家数(只用 ≤信号日的调研,零前视)
+    // 信号日(含)前 SURVEY_LOOKBACK 个交易日的窗口 → distinct 机构家数(knownBy=信号日,含披露滞后)
     const startDate = bars[Math.max(0, i - cfg.SURVEY_LOOKBACK)].date
-    const surveyOrgs = countOrgsInRange(surveyEvents, startDate, bars[i].date)
+    const surveyOrgs = countOrgsInRange(surveyEvents, startDate, bars[i].date, bars[i].date)
     const cand = classifyFundResonance(bars.slice(0, i + 1), code, surveyOrgs, cfg)
     if (!cand) {
       i++

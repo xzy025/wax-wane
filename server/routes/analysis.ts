@@ -12,6 +12,7 @@ import {
   toOpenAIRequest,
   anthropicToOpenAIStream,
 } from '../lib/llm'
+import { todayShanghai } from '../lib/time'
 import { fetchStockFundamentals } from '../services/ashare'
 import { fetchCompanyProfile, fetchFinancialHistory, fetchTopHolders } from '../services/f10'
 import { resolveStock } from '../services/stockSearch'
@@ -104,7 +105,7 @@ async function archiveReport(args: {
   reportMd: string
 }): Promise<{ archived: boolean; warning?: string }> {
   const { stockCode, stockName, reportMd } = args
-  const date = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+  const date = todayShanghai() // 存档键必须是上海日,UTC 日期在北京 0-8 点会错一天
 
   // 1) Markdown file (always, even if DB is down — never lose a report).
   let warning: string | undefined

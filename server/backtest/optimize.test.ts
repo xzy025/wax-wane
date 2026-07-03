@@ -20,16 +20,36 @@ describe('simulateEntry — 入场模式 + 比率重锚', () => {
     expect(r!.trade.R).toBe(2) // (12-10)/1
   })
 
-  it('nextOpen:次日开盘入场,entryIdx=i+1、撮合从 i+2;重锚后 R 不变', () => {
+  it('nextOpen:次日开盘入场,entryIdx=i+1、入场日起参与撮合;重锚后 R 不变', () => {
     const bars = [bar('d0', 10, 10, 10, 10), bar('d1', 10.2, 10.5, 10, 10.3), bar('d2', 10.3, 13, 10.2, 12.5)]
     const r = simulateEntry(bars, 0, lv, 'nextOpen', 0, 20, 'X')
     expect(r).not.toBeNull()
     expect(r!.entryIdx).toBe(1)
     expect(r!.trade.entry).toBe(10.2) // 次日开盘
-    // 重锚:stop=10.2*0.9=9.18, target=10.2*1.2=12.24;d2 high13≥12.24 → target
+    // 重锚:stop=10.2*0.9=9.18, target=10.2*1.2=12.24;d1 未触发,d2 high13≥12.24 → target
     expect(r!.trade.reason).toBe('target')
     expect((r!.trade.exit - r!.trade.entry) / (r!.trade.entry - r!.trade.stop)).toBeCloseTo(r!.trade.R, 5)
     expect(r!.trade.R).toBe(2) // 比率保留 → 仍 2R
+  })
+
+  it('nextOpen:入场日盘中触及重锚止损 → 当日 stop、R=-1(修复前被漏撮合记成后日结果)', () => {
+    // d1 open=10.2 → stop=9.18;d1 low=9.0≤9.18,当日止损;d2 涨停也救不回。
+    const bars = [bar('d0', 10, 10, 10, 10), bar('d1', 10.2, 10.6, 9.0, 9.2), bar('d2', 10, 13, 10, 12.9)]
+    const r = simulateEntry(bars, 0, lv, 'nextOpen', 0, 20, 'X')
+    expect(r).not.toBeNull()
+    expect(r!.trade.reason).toBe('stop')
+    expect(r!.trade.exitDate).toBe('d1')
+    expect(r!.trade.R).toBe(-1)
+  })
+
+  it('nextOpen:入场日冲高触及重锚目标 → 当日 target', () => {
+    // d1 open=10.2 → target=12.24;d1 high=12.5≥12.24 当日止盈。
+    const bars = [bar('d0', 10, 10, 10, 10), bar('d1', 10.2, 12.5, 10.1, 12.2)]
+    const r = simulateEntry(bars, 0, lv, 'nextOpen', 0, 20, 'X')
+    expect(r).not.toBeNull()
+    expect(r!.trade.reason).toBe('target')
+    expect(r!.trade.exitDate).toBe('d1')
+    expect(r!.trade.R).toBe(2)
   })
 
   it('nextGapUp:未达高开阈值 → null', () => {

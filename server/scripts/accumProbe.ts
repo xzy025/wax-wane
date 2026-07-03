@@ -47,7 +47,7 @@ async function probeOne(code: string): Promise<{ code: string; name: string; hit
     console.log(`   ② 均线走平:MA${C.MA_REF}斜率 ${r.maSlopePct}%(≤${C.FLAT_MAX_PCT}%=走平)  → flat因子 ${r.flat01}`)
     console.log(`   ③ 横盘时长:箱体 ${r.boxLow}~${r.boxHigh} 维持 ${r.consolDays}日  → consol因子 ${r.consol01}`)
     console.log(`   横盘箱体 ${r.boxLow}~${r.boxHigh}  ·  52周分位 ${r.posPct}%  ·  放量窗内净涨跌 ${pct(r.winNetChgPct)}`)
-    console.log(`   确认买点(放量站上箱体上沿确认进,回测0.20R/PF1.33):介入 ${r.entryTrigger}  止损 ${r.stopRef}  目标 ${r.targetRef}  (吸筹途中收盘埋伏回测−0.24R,不进)`)
+    console.log(`   触发位提示(放量站上箱体上沿;2026-07入场日撮合修正后0.01R不再过线,无回测背书):介入 ${r.entryTrigger}  止损 ${r.stopRef}  目标 ${r.targetRef}  (吸筹途中收盘埋伏回测−0.24R,不进)`)
     if (r.riskNote) console.log(`   ⚠ ${r.riskNote}`)
     return { code, name, hit: true, score: r.score }
   } catch (e) {

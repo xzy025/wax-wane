@@ -26,7 +26,7 @@ export interface AccumCandidate {
   boxLow: number // 横盘箱体下沿
   boxHigh: number // 横盘箱体上沿
   breakLevel: number // 观察触发位(= boxHigh):放量站上＝吸筹转拉升
-  // ── 确认买点(回测裁决:放量站上箱体上沿确认进 0.20R/PF1.33;吸筹途中收盘进 −0.24R)──
+  // ── 确认买点(2026-07-03 入场日撮合修正后 0.01R/PF1.02 不再过线,降级为触发位提示;吸筹途中收盘进 −0.24R)──
   entryTrigger: number // 触发买点:放量站上箱体上沿(= boxHigh)才介入,确认窗 CONFIRM_WINDOW 日
   stopRef: number // 止损:max(箱体下沿, 进场×(1−ENTRY_STOP_PCT/100))
   targetRef: number // 目标:进场 + ENTRY_R_MULT×风险

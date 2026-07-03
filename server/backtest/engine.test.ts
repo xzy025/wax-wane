@@ -61,6 +61,40 @@ describe('simForward', () => {
   })
 })
 
+describe('simForward — checkEntryBar(盘中/开盘入场,入场日参与撮合)', () => {
+  // 入场日 i=0:盘中触发价 10 入场,当日冲高回落。
+  it('入场日 low 触及止损 → 当日 stop,exitIdx=i(此前被系统性漏掉的场景)', () => {
+    const bars = [bar('2026-01-05', 9.8, 10.6, 9.1, 9.3), bar('2026-01-06', 10, 12, 9.8, 11.5)]
+    const sim = simForward(bars, 0, 9.3, 12, 20, true)
+    expect(sim).toEqual({ exit: 9.3, reason: 'stop', exitIdx: 0 }) // 次日大涨也救不回当日止损
+  })
+
+  it('入场日 high 触及目标 → 当日 target,exitIdx=i', () => {
+    const bars = [bar('2026-01-05', 9.8, 12.1, 9.7, 11.9), bar('2026-01-06', 11, 11.5, 10.5, 11)]
+    const sim = simForward(bars, 0, 9, 12, 20, true)
+    expect(sim).toEqual({ exit: 12, reason: 'target', exitIdx: 0 })
+  })
+
+  it('入场日同现止损与目标 → 保守止损优先(同引擎约定)', () => {
+    const bars = [bar('2026-01-05', 10, 12.5, 8.9, 11), bar('2026-01-06', 11, 11.5, 10.5, 11)]
+    const sim = simForward(bars, 0, 9, 12, 20, true)
+    expect(sim).toEqual({ exit: 9, reason: 'stop', exitIdx: 0 })
+  })
+
+  it('入场日未触发 → 从次日起照旧撮合', () => {
+    const bars = [bar('2026-01-05', 10, 10.5, 9.9, 10.2), bar('2026-01-06', 10.2, 12.1, 10, 11.9)]
+    const sim = simForward(bars, 0, 9, 12, 20, true)
+    expect(sim).toEqual({ exit: 12, reason: 'target', exitIdx: 1 })
+  })
+
+  it('默认 false(收盘进场)不检查入场日,维持既有语义', () => {
+    // 入场日 low 已破 stop,但收盘进场后当日无走势 → 不撮合,次日才 time-out。
+    const bars = [bar('2026-01-05', 9.8, 10.6, 8.5, 10), bar('2026-01-06', 10, 10.5, 9.5, 10.1)]
+    const sim = simForward(bars, 0, 9, 12, 1)
+    expect(sim).toEqual({ exit: 10.1, reason: 'time', exitIdx: 1 })
+  })
+})
+
 describe('makeTrade', () => {
   it('计算 R=(exit-entry)/risk、retPct、持有根数', () => {
     const bars = [bar('2026-01-05', 10, 10, 10, 10), bar('2026-01-06', 10, 12, 9.8, 11)]

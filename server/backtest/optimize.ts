@@ -147,7 +147,8 @@ export function simulateEntry(
   const target = entryPx * targetFrac
   const risk = entryPx - stop
   if (risk <= 0) return null
-  const sim = simForward(bars, entryIdx, stop, target, hold)
+  // 非 close 入场(次日开盘/高开)发生在 entryIdx 日盘初,当日剩余走势必须参与撮合
+  const sim = simForward(bars, entryIdx, stop, target, hold, mode !== 'close')
   return { trade: makeTrade(code, bars, entryIdx, entryPx, stop, target, risk, sim), entryIdx }
 }
 

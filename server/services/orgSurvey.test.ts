@@ -35,6 +35,20 @@ describe('countOrgsInRange', () => {
   it('窗口外不计', () => {
     expect(countOrgsInRange(events, '2026-06-01', '2026-06-05')).toBe(0)
   })
+
+  it('knownBy 防前视:披露日晚于 knownBy 的调研不计(调研发生≠当天可知)', () => {
+    const lagged: SurveyEvent[] = [
+      { date: '2026-06-10', org: '易方达基金', noticeDate: '2026-06-11' }, // 次日披露(典型)
+      { date: '2026-06-12', org: '高瓴资本', noticeDate: '2026-07-04' }, // 长尾:滞后近一月
+      { date: '2026-06-12', org: '融通基金' }, // 无披露日 → 退回按调研日判断
+    ]
+    // 信号日 6-12:高瓴 7-04 才披露,实盘查不到 → 只计易方达 + 融通
+    expect(countOrgsInRange(lagged, '2026-06-09', '2026-06-12', '2026-06-12')).toBe(2)
+    // 信号日 6-10:易方达 6-11 披露也还看不到,融通/高瓴在窗口但未披露或窗口外
+    expect(countOrgsInRange(lagged, '2026-06-08', '2026-06-10', '2026-06-10')).toBe(0)
+    // 不传 knownBy(live 语义)→ 不做披露过滤
+    expect(countOrgsInRange(lagged, '2026-06-09', '2026-06-12')).toBe(3)
+  })
 })
 
 describe('aggregateSurvey', () => {
