@@ -6,6 +6,7 @@
 // a documented heuristic we compute here, NOT an official value from the app.
 
 import { createCache, sessionTtl } from '../lib/cache'
+import { fetchAShareData } from './ashare'
 
 export interface SentimentData {
   date: string
@@ -16,6 +17,12 @@ export interface SentimentData {
   fallCount: number // 下跌家数 (XDJS)
   yestLimitPerf: number // 昨日涨停今日表现 % (yestRase) — 赚钱效应
   temperature: number // 0-100 综合情绪温度 (heuristic)
+  /**
+   * 数据来源:kaipanla=开盘啦原始;derived=开盘啦挂掉后由东财真实涨跌停/宽度推导
+   * (破板率/昨停表现无免费替代源,取中性值);mock=连东财也挂了的最后兜底(全假数据)。
+   * 下游(screener regime/市场结构)据此判断可信度,勿把 mock 当真实情绪落盘分析。
+   */
+  source: 'kaipanla' | 'derived' | 'mock'
 }
 
 const KPL_URL = 'https://apphq.longhuvip.com/w1/api/index.php'
@@ -114,11 +121,35 @@ async function fetchSentimentFresh(): Promise<SentimentData> {
       riseCount: nums.SZJS ?? 0,
       fallCount: nums.XDJS ?? 0,
       yestLimitPerf: nums.yestRase ?? 0,
+      source: 'kaipanla',
     })
   } catch (err) {
-    console.warn('[Sentiment] fetch failed, using mock:', err instanceof Error ? err.message : err)
+    console.warn('[Sentiment] 开盘啦失败,改用东财推导:', err instanceof Error ? err.message : err)
+  }
+  // 二级兜底:东财真实涨跌停池 + 涨跌家数(ashare.ts 自带 EM 主源 + Sina 备源)。
+  // 2026-07 起开盘啦 DailyLimitResumption 返回空 list(payload 变形),若不推导,
+  // 静默 mock 会把假 涨停60/跌停10 喂给 screener regime 与市场结构存档。
+  try {
+    return await deriveSentimentFromAShare()
+  } catch (err) {
+    console.warn('[Sentiment] 东财推导也失败,退最后 mock:', err instanceof Error ? err.message : err)
     return getMockSentiment()
   }
+}
+
+async function deriveSentimentFromAShare(): Promise<SentimentData> {
+  const a = await fetchAShareData()
+  if (a.limitUpCount + a.limitDownCount === 0) throw new Error('ashare limit pools empty')
+  return withTemperature({
+    date: '',
+    limitUp: a.limitUpCount,
+    limitDown: a.limitDownCount,
+    breakRate: 25, // 破板率无免费替代源→中性(仅占温度权重 0.15)
+    riseCount: a.advance,
+    fallCount: a.decline,
+    yestLimitPerf: 0, // 昨停表现同上→中性(0 经 clamp 映射为 0.5)
+    source: 'derived',
+  })
 }
 
 function getMockSentiment(): SentimentData {
@@ -130,5 +161,6 @@ function getMockSentiment(): SentimentData {
     riseCount: 2800,
     fallCount: 2200,
     yestLimitPerf: 0.5,
+    source: 'mock',
   })
 }
