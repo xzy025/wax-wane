@@ -26,6 +26,10 @@ function fmtR(n: number | null | undefined): string {
   if (n == null) return '—'
   return `${n >= 0 ? '+' : ''}${n.toFixed(2)}R`
 }
+/** PF:null=∞(零亏损,server 约定)。 */
+function fmtPF(pf: number | null): string {
+  return pf == null ? '∞' : pf.toFixed(2)
+}
 
 /** 样本量可信度徽标(仿 optimize.ts MIN_N=30 门槛);high 不展示,避免小样本数字被误读为信号。 */
 function ConfidenceBadge({ level, tr }: { level: SampleConfidence; tr: Translation['screener']['track'] }) {
@@ -41,12 +45,17 @@ function ConfidenceBadge({ level, tr }: { level: SampleConfidence; tr: Translati
 function SegmentTable({ seg, t }: { seg: SegmentGroup; t: Translation }) {
   const sg = t.screener.track.segments
   const rt = t.rotation.quads
-  const dimLabel: Record<string, string> = { taBias: sg.taBias, lhb: sg.lhb, board: sg.board, scoreTier: sg.scoreTier }
+  const dimLabel: Record<string, string> = {
+    taBias: sg.taBias, lhb: sg.lhb, board: sg.board, scoreTier: sg.scoreTier,
+    regimePhase: sg.regimePhase, marketTrend: sg.marketTrend,
+  }
   const bucketLabel = (by: string, label: string): string => {
     if (by === 'taBias') return sg.taBiasLabel[label as 'demand' | 'supply' | 'neutral'] ?? label
     if (by === 'lhb') return sg.lhbLabel[label as 'inst' | 'none'] ?? label
     if (by === 'board') return rt[label as 'hs' | 'ls' | 'hw' | 'lw']?.tag ?? label
     if (by === 'scoreTier') return sg.scoreTierLabel[label as 'high' | 'mid' | 'low'] ?? label
+    if (by === 'regimePhase') return sg.regimePhaseLabel[label as 'attack' | 'caution' | 'retreat'] ?? label
+    if (by === 'marketTrend') return sg.marketTrendLabel[label as 'strong' | 'neutral' | 'weak'] ?? label
     return label
   }
   return (
@@ -58,7 +67,7 @@ function SegmentTable({ seg, t }: { seg: SegmentGroup; t: Translation }) {
             <span className="tr-segment-label">{bucketLabel(seg.by, b.label)}</span>
             <span className="tr-num">n={b.metrics.n}</span>
             <span className={`tr-num ${rColor(b.metrics.expectancyR)}`}>{fmtR(b.metrics.expectancyR)}</span>
-            <span className="tr-num">PF {b.metrics.profitFactor.toFixed(2)}</span>
+            <span className="tr-num">PF {fmtPF(b.metrics.profitFactor)}</span>
             <span className="tr-num">{b.metrics.winRate.toFixed(0)}%</span>
             <ConfidenceBadge level={b.sampleConfidence} tr={t.screener.track} />
           </div>
@@ -93,7 +102,7 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
   // Maturity = fraction of *entered* positions (closed+open, excl. pending) that have resolved.
   // Low maturity ⇒ closed sample is stop-dominated (winners still open), so closed expR is understated.
   const closedTotal = data.overall.n
-  const enteredTotal = data.totalPicks - data.pendingCount
+  const enteredTotal = data.totalPicks - data.pendingCount - (data.skippedCount ?? 0) // skipped=未入场,不算已入场
   const maturedPct = enteredTotal > 0 ? Math.round((100 * closedTotal) / enteredTotal) : 0
   const premature = enteredTotal > 0 && maturedPct < 60
 
@@ -111,7 +120,7 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
   const metricCells = (m: Metrics) => (
     <>
       <td className={`tr-num ${rColor(m.expectancyR)}`}>{m.n ? fmtR(m.expectancyR) : tr.na}</td>
-      <td className="tr-num">{m.n ? m.profitFactor.toFixed(2) : tr.na}</td>
+      <td className="tr-num">{m.n ? fmtPF(m.profitFactor) : tr.na}</td>
       <td className="tr-num">{m.n ? `${m.winRate.toFixed(0)}%` : tr.na}</td>
       <td className="tr-num">{m.n ? m.avgHoldBars.toFixed(1) : tr.na}</td>
     </>
@@ -131,6 +140,12 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
           </td>
           <td className="tr-num">
             {s.closedCount}/{s.openCount}/{s.pendingCount}
+            {(s.staleCount ?? 0) > 0 && (
+              <span className="tr-note-flag" title={tr.reason.stale}>{tr.staleShort}{s.staleCount}</span>
+            )}
+            {(s.skippedCount ?? 0) > 0 && (
+              <span className="tr-note-flag" title={tr.reason.skipped}>{tr.skippedShort}{s.skippedCount}</span>
+            )}
             <ConfidenceBadge level={s.sampleConfidence} tr={tr} />
           </td>
           {metricCells(s.closed)}
@@ -194,6 +209,15 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
       {premature && <div className="sc-watch-note">⚠ {tr.prematureNote}</div>}
       <div className="tr-method">{tr.methodNote}</div>
 
+      {(data.regimeSegments ?? []).length > 0 && (
+        <div className="tr-segments">
+          <div className="tr-segments-title">{tr.segments.regimeTitle}</div>
+          {(data.regimeSegments ?? []).map((seg) => (
+            <SegmentTable key={seg.by} seg={seg} t={t} />
+          ))}
+        </div>
+      )}
+
       <div className="tr-table-wrap">
         <table className="tr-table">
           <thead>
@@ -215,7 +239,7 @@ export default function TrackRecordPanel({ fwd, t }: TrackRecordPanelProps) {
                 <Trophy size={13} weight="fill" /> {tr.overall}
               </td>
               <td className="tr-num">
-                {data.overall.n}/{data.totalPicks - data.overall.n - data.pendingCount}/{data.pendingCount}
+                {data.overall.n}/{Math.max(0, data.totalPicks - data.overall.n - data.pendingCount - (data.skippedCount ?? 0))}/{data.pendingCount}
               </td>
               {metricCells(data.overall)}
               <td className="tr-num tr-muted">{tr.na}</td>

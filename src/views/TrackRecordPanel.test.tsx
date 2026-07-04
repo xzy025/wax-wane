@@ -87,6 +87,42 @@ describe('TrackRecordPanel', () => {
     expect(screen.getByText(t.screener.track.empty)).toBeInTheDocument()
   })
 
+  it('regimeSegments → 渲染市场环境切片(情绪桶按词典映射)', () => {
+    const res = sampleResult()
+    res.regimeSegments = [
+      {
+        by: 'regimePhase',
+        buckets: [{ label: 'caution', metrics: metrics({ n: 12, expectancyR: -0.3, profitFactor: 0.6, winRate: 25 }), sampleConfidence: 'medium' }],
+      },
+    ]
+    render(<TrackRecordPanel fwd={hook({ data: res })} t={t} />)
+    expect(screen.getByText(t.screener.track.segments.regimeTitle)).toBeInTheDocument()
+    expect(screen.getByText(t.screener.track.segments.regimePhaseLabel.caution)).toBeInTheDocument()
+  })
+
+  it('stale/skipped:计数徽标 + 明细行状态/原因标签', async () => {
+    const res = sampleResult()
+    res.strategies[0].staleCount = 1
+    res.strategies[0].skippedCount = 2
+    res.strategies[0].picks.push({
+      asof: '2026-06-23', group: 'breakout', code: '000003', name: '停牌股', entry: 10, stop: 9, target: 12,
+      status: 'closed', exit: 9.8, exitDate: '2026-06-24', reason: 'stale', R: -0.2, retPct: -2, barsHeld: 1, barsElapsed: 8,
+    })
+    render(<TrackRecordPanel fwd={hook({ data: res })} t={t} />)
+    expect(screen.getByText(`${t.screener.track.staleShort}1`)).toBeInTheDocument()
+    expect(screen.getByText(`${t.screener.track.skippedShort}2`)).toBeInTheDocument()
+    await userEvent.click(screen.getByText('Breakout'))
+    expect(screen.getByText(t.screener.track.reason.stale)).toBeInTheDocument()
+  })
+
+  it('profitFactor=null(零亏损)→ 显示 ∞ 而非崩溃/伪数', () => {
+    const res = sampleResult()
+    res.overall = metrics({ n: 2, winRate: 100, expectancyR: 1.5, profitFactor: null, avgHoldBars: 2 })
+    res.strategies[0].closed = metrics({ n: 2, winRate: 100, expectancyR: 1.5, profitFactor: null, avgHoldBars: 2 })
+    render(<TrackRecordPanel fwd={hook({ data: res })} t={t} />)
+    expect(screen.getAllByText('∞').length).toBeGreaterThan(0)
+  })
+
   it('加载中 / 加载失败 文案', () => {
     const { rerender } = render(<TrackRecordPanel fwd={hook({ data: null, loading: true })} t={t} />)
     expect(screen.getByText(t.screener.track.refreshing)).toBeInTheDocument()

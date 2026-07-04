@@ -351,6 +351,7 @@ export interface ScreenerResult {
   savedAt?: string
   closed?: boolean
   fromCache?: boolean // 本次响应来自服务端磁盘存档兜底(重启/盘后/过0点)
+  degraded?: boolean // 本次扫描不健康(clist 空/取K成功率过低),服务端未落盘(结果仅供参考)
 }
 
 export interface ScreenerHookResult {

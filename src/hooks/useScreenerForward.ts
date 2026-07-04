@@ -6,6 +6,8 @@ export type BuyGroup =
 
 export type ForwardReason =
   | 'target' | 'target-gap' | 'stop' | 'stop-gap' | 'time' | 'trail' | 'open' | 'pending'
+  | 'stale' // 停牌/退市 mark-to-last 平仓(计入 closed)
+  | 'skipped' // bhold 确认口径:确认窗未触发/先破位废弃(不进指标)
 
 /** Mirror of server SampleConfidence (server/services/screenerForward.ts). */
 export type SampleConfidence = 'low' | 'medium' | 'high'
@@ -18,7 +20,7 @@ export interface Metrics {
   avgWinPct: number
   avgLossPct: number
   payoff: number
-  profitFactor: number
+  profitFactor: number | null // null=∞(零亏损;server engine.aggregate 约定,显示层出「∞」)
   expectancyR: number
   maxDDR: number
   avgHoldBars: number
@@ -36,7 +38,7 @@ export interface ForwardPick {
   entry: number
   stop: number
   target: number
-  status: 'open' | 'closed' | 'pending'
+  status: 'open' | 'closed' | 'pending' | 'skipped'
   exit: number
   exitDate: string
   reason: ForwardReason
@@ -49,6 +51,8 @@ export interface ForwardPick {
   taBias?: string
   lhbInstDays?: number
   boardQuadrant?: string
+  regimePhase?: string // 信号日情绪环境 attack/caution/retreat
+  marketTrend?: string // 信号日大盘趋势 strong/neutral/weak
 }
 
 /** Mirror of server StrategyTrack. */
@@ -58,6 +62,8 @@ export interface StrategyTrack {
   closedCount: number
   openCount: number
   pendingCount: number
+  staleCount?: number // 停牌 mark-to-last 平仓笔数(已含在 closedCount;旧归档缺失)
+  skippedCount?: number // bhold 确认口径废弃笔数(旧归档缺失)
   sampleConfidence: SampleConfidence
   unrealizedAvgR: number
   backtestExpectancyR?: number
@@ -86,9 +92,11 @@ export interface ScreenerForwardResult {
   dateRange: [string, string] | null
   totalPicks: number
   pendingCount: number
+  skippedCount?: number
   strategies: StrategyTrack[]
-  overall: Metrics
+  overall: Metrics // 买点口径(trigger 等观察组不计)
   breakoutSegments?: SegmentGroup[]
+  regimeSegments?: SegmentGroup[] // 全买点战法按信号日市场环境切片
   fromCache?: boolean
 }
 

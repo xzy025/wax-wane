@@ -136,6 +136,12 @@ function StreakScore({ c, k }: { c: { appearStreak?: number; score: number }; k:
   )
 }
 
+/** 近5日龙虎榜机构净买的突破候选(COMBO 修正前视后 0.71R/PF2.32/n14 方向证据)——
+ *  仅展示置顶+金标,不过滤不改分(样本瘦,权重已降 0.05,见 config WEIGHTS 注释)。稳定排序保持组内按分。 */
+const isInstConfirmed = (c: ScreenerCandidate): boolean => (c.lhbInst?.instDays ?? 0) > 0
+const pinInstConfirmed = (list: ScreenerCandidate[]): ScreenerCandidate[] =>
+  [...list].sort((a, b) => Number(isInstConfirmed(b)) - Number(isInstConfirmed(a)))
+
 /** 基准按板块选展示文案:300/301(创业板)→ 相对创业板、688(科创板)→ 相对科创50、其余 → 相对大盘。 */
 function benchmarkLabel(code: string, k: Translation['screener']['card']): string {
   if (code.startsWith('300') || code.startsWith('301')) return k.relStrChinext
@@ -159,13 +165,10 @@ function RelStrBadge({ c, k }: { c: { code: string; relStrength?: number; counte
 function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; tag?: string; variant?: 'watch' }) {
   const k = t.screener.card
   const s = c.signals
-  // 突破组:介入(突破日收盘)→ 加仓(金字塔+1R,高于介入);扳机/观察组:试探(现价)→ 加主仓(突破位)。
+  // 突破组=买点卡:介入(突破日收盘)→ 加仓(金字塔+1R)+ 止损/目标。
+  // 扳机/临界观察组 2026-07-04 改观察卡:实盘战绩 −0.43R(11日) vs 当前配置回测 +0.39R 矛盾待裁,
+  // 不再渲染「试探→加主仓」交易计划,只留「突破确认位」——放量站上才转为突破买点。
   const isBreakout = c.group === 'breakout'
-  const entryLabel = isBreakout ? k.entry : k.probe
-  const addLabel = isBreakout ? k.add : k.addMain
-  const entryVal = c.entry ?? c.price
-  const addVal = c.add ?? (isBreakout ? undefined : c.pivot)
-  const lvlTip = isBreakout ? k.entryTip : k.probeTip
   return (
     <div className={`sc-card${variant === 'watch' ? ' sc-card--watch' : ''}`}>
       <div className="sc-card-top">
@@ -184,22 +187,31 @@ function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; ta
             {fmtPrice(c.price)} <small className={colorClass(c.changePct)}>{fmtPct(c.changePct)}</small>
           </span>
         </div>
-        <div className="sc-metric">
-          <span className="sc-metric-label" title={lvlTip}>
-            {entryLabel} → {addLabel}
-          </span>
-          <span className="sc-metric-value mono">
-            <span className="positive-text">{fmtPrice(entryVal)}</span> →{' '}
-            {addVal != null ? fmtPrice(addVal) : '—'}
-          </span>
-        </div>
-        <div className="sc-metric">
-          <span className="sc-metric-label">{k.stop} → {k.target}</span>
-          <span className="sc-metric-value mono">
-            <span className="negative-text">{fmtPrice(c.stopLoss)}</span> →{' '}
-            <span className="positive-text">{fmtPrice(c.target)}</span>
-          </span>
-        </div>
+        {isBreakout ? (
+          <>
+            <div className="sc-metric">
+              <span className="sc-metric-label" title={k.entryTip}>
+                {k.entry} → {k.add}
+              </span>
+              <span className="sc-metric-value mono">
+                <span className="positive-text">{fmtPrice(c.entry ?? c.price)}</span> →{' '}
+                {c.add != null ? fmtPrice(c.add) : '—'}
+              </span>
+            </div>
+            <div className="sc-metric">
+              <span className="sc-metric-label">{k.stop} → {k.target}</span>
+              <span className="sc-metric-value mono">
+                <span className="negative-text">{fmtPrice(c.stopLoss)}</span> →{' '}
+                <span className="positive-text">{fmtPrice(c.target)}</span>
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="sc-metric">
+            <span className="sc-metric-label" title={k.confirmTip}>{k.confirmAt}</span>
+            <span className="sc-metric-value mono positive-text">{fmtPrice(c.pivot)}</span>
+          </div>
+        )}
         <div className="sc-metric">
           <span className="sc-metric-label">{k.hi52}</span>
           <span className="sc-metric-value mono">{c.dist52Pct.toFixed(1)}%</span>
@@ -211,6 +223,7 @@ function Card({ c, t, tag, variant }: { c: ScreenerCandidate; t: Translation; ta
         {c.pivots && <PivotRows p={c.pivots} k={k} />}
       </div>
 
+      {c.group === 'trigger' && <div className="sc-watch-note">{k.triggerNote}</div>}
       {c.watchReason && <div className="sc-watch-note">{c.watchReason}</div>}
       <RelStrBadge c={c} k={k} />
 
@@ -984,12 +997,8 @@ function AccumCard({ c, t }: { c: AccumScreenerCandidate; t: Translation }) {
         </div>
       </div>
 
-      {/* 确认买点(回测 0.20R/PF1.33):放量站上箱体上沿才介入,非吸筹途中埋伏。 */}
-      <div className="sc-watch-note">
-        {ac.plan}: {ac.buy} <span className="positive-text">{fmtPrice(c.entryTrigger)}</span> · {ac.stop}{' '}
-        {fmtPrice(c.stopRef)} · {ac.target} <span className="positive-text">{fmtPrice(c.targetRef)}</span>
-      </div>
-
+      {/* 2026-07-03 复裁:确认买点(旧 0.20R/PF1.33)在入场日撮合修正后 0.01R 不再过线——
+          买卖点计划块已删,只留上方「观察触发位」(breakLevel)行,与 trendwatch 同款纯监控形态。 */}
       <div className="sc-monitor-note" title={c.reason}>
         {ac.monitorNote}
       </div>
@@ -1067,6 +1076,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
               <>
                 {sc.dataAsof} {data.asof}
                 {data.fromCache && <span className="sc-cache-badge">{sc.cached}</span>}
+                {data.degraded && <span className="sc-save-fail-badge">⚠ {sc.degraded}</span>}
                 {updatedLabel && ' · '}
               </>
             )}
@@ -1234,7 +1244,9 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
 
               {(() => {
                 // 今日首次突破:只列今天首次站上前高的(firstBreakout!==false;旧快照无此字段→保留显示)。
-                const firstBreaks = data.breakout.filter((c) => c.firstBreakout !== false)
+                // 机构确认置顶:近5日龙虎榜机构净买的票排最前+金标(COMBO 修正前视后 0.71R/PF2.32 n14 +
+                // 实盘切片 lhb=inst 唯一接近打平桶,两路同向;仅展示优先级,不过滤不改分)。
+                const firstBreaks = pinInstConfirmed(data.breakout.filter((c) => c.firstBreakout !== false))
                 return (
                   <>
                     <div className="sc-group-head">
@@ -1245,7 +1257,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                     ) : (
                       <div className="sc-grid">
                         {firstBreaks.map((c) => (
-                          <Card key={c.code} c={c} t={t} />
+                          <Card key={c.code} c={c} t={t} tag={isInstConfirmed(c) ? sc.card.instConfirmed : undefined} />
                         ))}
                       </div>
                     )}
@@ -1255,7 +1267,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
 
               {(() => {
                 // 已突破·延续:昨日已站上前高(firstBreakout===false)→ 连续新高/趋势延续段,非「今日首次」。
-                const conts = data.breakout.filter((c) => c.firstBreakout === false)
+                const conts = pinInstConfirmed(data.breakout.filter((c) => c.firstBreakout === false))
                 if (conts.length === 0) return null
                 return (
                   <>
@@ -1264,7 +1276,7 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
                     </div>
                     <div className="sc-grid">
                       {conts.map((c) => (
-                        <Card key={`bc-${c.code}`} c={c} t={t} />
+                        <Card key={`bc-${c.code}`} c={c} t={t} tag={isInstConfirmed(c) ? sc.card.instConfirmed : undefined} />
                       ))}
                     </div>
                   </>
