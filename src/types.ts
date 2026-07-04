@@ -522,6 +522,7 @@ export interface Translation {
     lastUpdated: string
     dataAsof: string
     cached: string
+    degraded: string
     generatedAt: string
     loadFail: string
     empty: string
@@ -668,10 +669,6 @@ export interface Translation {
       trigger: string
       pos: string
       days: string
-      buy: string
-      stop: string
-      target: string
-      plan: string
       monitorNote: string
     }
     osDesc: string
@@ -709,10 +706,11 @@ export interface Translation {
       pivot: string
       entry: string
       add: string
-      probe: string
-      addMain: string
+      confirmAt: string
+      confirmTip: string
+      triggerNote: string
+      instConfirmed: string
       entryTip: string
-      probeTip: string
       stop: string
       target: string
       dist: string
@@ -767,7 +765,9 @@ export interface Translation {
       colCounts: string
       colFloatR: string
       pending: string
-      status: { closed: string; open: string; pending: string }
+      staleShort: string
+      skippedShort: string
+      status: { closed: string; open: string; pending: string; skipped: string }
       reason: {
         target: string
         'target-gap': string
@@ -777,6 +777,8 @@ export interface Translation {
         trail: string
         open: string
         pending: string
+        stale: string
+        skipped: string
       }
       pickSignal: string
       pickExit: string
@@ -791,13 +793,18 @@ export interface Translation {
       confidence: { low: string; medium: string }
       segments: {
         title: string
+        regimeTitle: string
         taBias: string
         lhb: string
         board: string
         scoreTier: string
+        regimePhase: string
+        marketTrend: string
         taBiasLabel: { demand: string; supply: string; neutral: string }
         lhbLabel: { inst: string; none: string }
         scoreTierLabel: { high: string; mid: string; low: string }
+        regimePhaseLabel: { attack: string; caution: string; retreat: string }
+        marketTrendLabel: { strong: string; neutral: string; weak: string }
       }
     }
   }
