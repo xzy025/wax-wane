@@ -105,7 +105,7 @@ export interface Metrics {
   avgWinPct: number
   avgLossPct: number
   payoff: number // 平均盈 / |平均亏| (R)
-  profitFactor: number // ΣR+ / |ΣR-|
+  profitFactor: number | null // ΣR+ / |ΣR-|;null=∞(零亏损——常见于小样本切片桶,显示层出「∞」,不可当数字比大小)
   expectancyR: number // 平均 R
   maxDDR: number // R 资金曲线最大回撤
   avgHoldBars: number
@@ -144,7 +144,8 @@ export function aggregate(trades: Trade[]): Metrics {
     avgWinPct: r2(mean(wins.map((t) => t.retPct))),
     avgLossPct: r2(mean(losses.map((t) => t.retPct))),
     payoff: r2(mean(wins.map((t) => t.R)) / Math.max(Math.abs(mean(losses.map((t) => t.R))), 1e-9)),
-    profitFactor: r2(grossWin / Math.max(grossLoss, 1e-9)),
+    // 零亏损时 grossWin/1e-9 会造出 ~10⁹ 的伪数误导小样本桶 → 用 null 表达 ∞(全败仍为 0)。
+    profitFactor: grossLoss === 0 ? (grossWin > 0 ? null : 0) : r2(grossWin / grossLoss),
     expectancyR: r2(mean(trades.map((t) => t.R))),
     maxDDR: r2(maxDD),
     avgHoldBars: r2(mean(trades.map((t) => t.bars))),

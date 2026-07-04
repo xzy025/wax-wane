@@ -20,9 +20,8 @@ import { classify } from '../services/screenerRules'
 import { classifyPullback } from '../services/pullbackRules'
 import { classifyHighDivergence } from '../services/divergenceRules'
 import { classifyVolBreakout } from '../services/volBreakoutRules'
-import { classifyBreakoutHold } from '../services/breakoutHoldRules'
 import { classifyTrendNewHigh } from '../services/trendNewHighRules'
-import { SCREENER, PULLBACK, HIGHDIV, VOLBREAK, BHOLD, TRENDNEW } from '../config/screener'
+import { SCREENER, PULLBACK, HIGHDIV, VOLBREAK, TRENDNEW } from '../config/screener'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const OUT_DIR = join(__dirname, '..', '..', 'docs', 'screener')
@@ -96,10 +95,9 @@ const STRATEGIES: StrategyDef[] = [
     key: 'volbreak', label: '放量新高', baseCfg: VOLBREAK, rMultKey: 'R_MULT', stopKey: 'STOP_MAX_PCT', start: minBarsStart,
     levels: (w, cfg, code) => { const c = classifyVolBreakout(w, code, cfg as never); return c ? { entry: c.entry, stop: c.stop } : null },
   },
-  {
-    key: 'bhold', label: '突破整理', baseCfg: BHOLD, rMultKey: 'R_MULT', stopKey: 'STOP_MAX_PCT', start: minBarsStart,
-    levels: (w, cfg, code) => { const c = classifyBreakoutHold(w, code, cfg as never); return c ? { entry: c.entry, stop: c.stop } : null },
-  },
+  // bhold 已移出网格:live/回测过线口径是「次日突破整理高点 trigger 确认入场」(0.45R),
+  // 网格的 close/nextOpen/gapUp 变体搜的是 classifyBreakoutHold 的收盘位(0.17R 的口径),
+  // 与真实策略不一致 → 网格结论无效。见 report.excluded。
   {
     key: 'trendnew', label: '趋势新高', baseCfg: TRENDNEW, rMultKey: 'R_MULT', stopKey: 'STOP_MAX_PCT', start: minBarsStart,
     levels: (w, cfg, code) => { const c = classifyTrendNewHigh(w, code, cfg as never); return c ? { entry: c.entry, stop: c.stop } : null },
@@ -204,16 +202,19 @@ function trainCutoff(data: StockBars[]): string {
   return sorted[Math.floor(sorted.length * TRAIN_FRAC)] ?? sorted[sorted.length - 1] ?? ''
 }
 
-function split(trades: Trade[], cutoff: string): { train: Metrics; test: Metrics } {
-  return {
-    train: aggregate(trades.filter((t) => t.date < cutoff)),
-    test: aggregate(trades.filter((t) => t.date >= cutoff)),
-  }
+/** 时序泄漏防护(purge):信号日在 cutoff 前、但持有窗跨过 cutoff 的交易,其出场价来自
+ *  test 段 K 线——旧版只按信号日二分,train 偷看了 test 段价格(边界带 ≈ max(HOLDS) 个
+ *  交易日)。按 exitDate 精确判定:持有窗完全落在 train 段内才进 train;跨界带两集都
+ *  不进,计入 purged 如实报告。 */
+export function split(trades: Trade[], cutoff: string): { train: Metrics; test: Metrics; purged: number } {
+  const train = trades.filter((t) => t.exitDate < cutoff)
+  const test = trades.filter((t) => t.date >= cutoff)
+  return { train: aggregate(train), test: aggregate(test), purged: trades.length - train.length - test.length }
 }
 
 // ── 输出格式 ─────────────────────────────────────────────────────────
 function fmtCell(label: string, c: Cell): string {
-  const f = (m: Metrics) => `胜率${String(m.winRate).padStart(5)}% 期望${String(m.expectancyR).padStart(6)}R PF${String(m.profitFactor).padStart(5)} n${String(m.n).padStart(4)}`
+  const f = (m: Metrics) => `胜率${String(m.winRate).padStart(5)}% 期望${String(m.expectancyR).padStart(6)}R PF${String(m.profitFactor ?? '∞').padStart(5)} n${String(m.n).padStart(4)}`
   return `${label.padEnd(30)} train[${f(c.train)}]  test[${f(c.test)}]`
 }
 
@@ -233,16 +234,18 @@ async function main() {
   const cellsPerStrat = variants.length * HOLDS.length * RMULTS.length * STOPS.length
   console.log(`[Optimize] 每战法 ${cellsPerStrat} 格 × ${strategies.length} 战法\n`)
 
-  const report: Record<string, unknown> = { asof, generatedAt: new Date().toISOString(), cutoff, params: { MIN_N, TRAIN_FRAC, HOLDS, RMULTS, STOPS, gapPcts: GAP_PCTS, winFloor: WIN_FLOOR, testWinFloor: TEST_WIN_FLOOR }, excluded: { divergence: '止损锚昨收·目标=涨停价,R_MULT 不适用', fundres: '需机构调研历史(非纯OHLCV)' }, strategies: {} }
+  const report: Record<string, unknown> = { asof, generatedAt: new Date().toISOString(), cutoff, params: { MIN_N, TRAIN_FRAC, HOLDS, RMULTS, STOPS, gapPcts: GAP_PCTS, winFloor: WIN_FLOOR, testWinFloor: TEST_WIN_FLOOR }, excluded: { divergence: '止损锚昨收·目标=涨停价,R_MULT 不适用', fundres: '需机构调研历史(非纯OHLCV)', bhold: 'live 口径=次日突破整理高点 trigger 确认入场(0.45R),网格 close/nextOpen 变体与之不符 → 结论无效;confirm 变体网格如需另行实现' }, strategies: {} }
 
   for (const def of strategies) {
     const cells: Cell[] = []
+    let purgedSum = 0 // 跨 cutoff 持有窗被 purge 的交易总数(全部格累计,如实报告)
     for (const stopVal of STOPS) {
       const signals = collectSignals(data, def, stopVal) // 每 strategy×STOP 跑一次 classify
       for (const v of variants) {
         for (const hold of HOLDS) {
           for (const rMult of RMULTS) {
             const sm = split(runCell(data, signals, rMult, v, hold), cutoff)
+            purgedSum += sm.purged
             cells.push({ entry: v.label, hold, rMult, stop: stopVal, train: sm.train, test: sm.test })
           }
         }
@@ -258,6 +261,7 @@ async function main() {
     const baseline: Cell = { entry: 'close', hold: 20, rMult: baseR, stop: baseStop, train: bsplit.train, test: bsplit.test }
 
     console.log(`========== ${def.label}(${def.key})==========`)
+    console.log(`  (purge:全格累计剔除跨 cutoff 持有窗交易 ${purgedSum} 笔,两集皆不计)`)
     console.log(fmtCell(`baseline(close/h20/R${baseR}/S${baseStop})`, baseline))
     if (recommended) {
       console.log(fmtCell(`✅推荐 ${recommended.entry}/h${recommended.hold}/R${recommended.rMult}/S${recommended.stop}`, recommended))
@@ -275,6 +279,7 @@ async function main() {
       suggestedConfigDiff: recommended ? { [def.rMultKey]: recommended.rMult, [def.stopKey]: recommended.stop, _entryMode: recommended.entry, _hold: recommended.hold } : null,
       frontier,
       allCells: cells,
+      purgedTradesTotal: purgedSum, // 跨 cutoff 持有窗、两集皆不进的交易(泄漏防护)累计
     }
   }
 

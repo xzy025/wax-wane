@@ -24,6 +24,11 @@ import { fetchIndexKline } from '../services/ashare'
 import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, PBREAK, TRENDNEW, ACCUM, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig, type FundResConfig, type BreakoutHoldConfig, type BreakoutPullbackConfig, type TrendNewConfig, type AccumConfig } from '../config/screener'
 import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
 import { simForward, makeTrade, aggregate, type Trade, type Metrics } from './engine'
+import { buildCalendar, windowDatesFor } from './calendar'
+import {
+  buildBreadthByDate, labelBreadth, labelChop, labelCombo, bucketTrades, gateEval, tercileEdges,
+  BREADTH_STRONG, BREADTH_WEAK, CHOP_ABS_PCT, COVERAGE_MIN,
+} from './regimeBucket'
 import { type StockBars, loadBarsCached } from './universe'
 import { classifyPullback } from '../services/pullbackRules'
 import { classifyDivergence, classifyHighDivergence } from '../services/divergenceRules'
@@ -85,6 +90,9 @@ const RUN_ACCUM = process.env.ACCUM === '1'
 const RUN_RS = process.env.RS === '1'
 // TA: 技术分析组合(Wyckoff+道氏+AlBrooks)因子分桶检验(把现有战法成交按 TA bias/distribution 分桶;默认关;TA=1 开启)
 const RUN_TA = process.env.TA === '1'
+// REGIMEBUCKET: 市场状态分桶——突破族(breakout/volbreak/trendnew/highdiv)按 指数MA(口径i)
+// 与 样本breadth/chop(口径ii,regimeBucket.ts) 分桶 + 闸门净收益模拟;默认关;REGIMEBUCKET=1 开启。
+const RUN_REGIMEBUCKET = process.env.REGIMEBUCKET === '1'
 const LHB_K = Number(process.env.LHB_K) || 5 // 龙虎榜回看窗口(交易日):信号日前 K 日有资金/机构埋伏
 const LHB_INST = process.env.INST !== '0' // 取机构专用席位净买(默认是;=0 仅全口径净买,更快)
 const LHB_CONC = Number(process.env.LHB_CONC) || 4 // 龙虎榜/板块取数并发(EM 限流,宜低)
@@ -694,10 +702,13 @@ function splitByRegime(trades: Trade[]): Record<MarketRegime, Trade[]> {
   return out
 }
 
+/** PF 显示:null=∞(零亏损,engine.aggregate 约定)。 */
+const pfStr = (pf: number | null): string => (pf == null ? '∞' : String(pf))
+
 function fmtMetrics(label: string, m: Metrics): string {
   return (
     `${label.padEnd(22)} n=${String(m.n).padStart(4)}  胜率 ${String(m.winRate).padStart(5)}%  ` +
-    `期望 ${String(m.expectancyR).padStart(6)}R  盈亏比 ${String(m.payoff).padStart(5)}  PF ${String(m.profitFactor).padStart(5)}  ` +
+    `期望 ${String(m.expectancyR).padStart(6)}R  盈亏比 ${String(m.payoff).padStart(5)}  PF ${pfStr(m.profitFactor).padStart(5)}  ` +
     `平均收益 ${String(m.avgRetPct).padStart(6)}%  最大回撤 ${String(m.maxDDR).padStart(6)}R  ` +
     `[目标 ${m.targetRate}% / 止损 ${m.stopRate}% / 时间 ${m.timeRate}%]`
   )
@@ -938,6 +949,15 @@ async function main() {
       out.comboEval = await runCombo(data, base.metrics)
     } catch (err) {
       console.warn('[Combo] 因子检验失败:', err)
+    }
+  }
+
+  // REGIMEBUCKET: 市场状态分桶 + 闸门净收益(REGIMEBUCKET=1 开启)
+  if (RUN_REGIMEBUCKET) {
+    try {
+      out.regimeBucketEval = await runRegimeBucket(data)
+    } catch (err) {
+      console.warn('[RegimeBucket] 分桶评估失败:', err)
     }
   }
 
@@ -1293,7 +1313,7 @@ async function main() {
       console.log(fmtMetrics('adaptive(flag on)', adaptRs.metrics))
       console.log(
         `→ 期望 ${baseRs.metrics.expectancyR}→${adaptRs.metrics.expectancyR}R(差 ${r2(adaptRs.metrics.expectancyR - baseRs.metrics.expectancyR)}R)· ` +
-          `PF ${baseRs.metrics.profitFactor}→${adaptRs.metrics.profitFactor} · 胜率 ${baseRs.metrics.winRate}→${adaptRs.metrics.winRate}% · 回撤 ${baseRs.metrics.maxDDR}→${adaptRs.metrics.maxDDR}R`,
+          `PF ${pfStr(baseRs.metrics.profitFactor)}→${pfStr(adaptRs.metrics.profitFactor)} · 胜率 ${baseRs.metrics.winRate}→${adaptRs.metrics.winRate}% · 回撤 ${baseRs.metrics.maxDDR}→${adaptRs.metrics.maxDDR}R`,
       )
       // 逆势新增子样本:adaptive 比 baseline 多出的 breakout 成交(暴跌日弱收盘升入)。冷却致时序略有出入,作近似。
       const baseKeys = new Set(baseRs.trades.map((t) => `${t.code}@${t.date}`))
@@ -1613,22 +1633,9 @@ interface BoardSeries {
   closes: number[]
 }
 
-/** 样本所有 K 线日期并集 = 交易日历(升序)+ date→下标。 */
-function buildCalendar(data: StockBars[]): { calendar: string[]; idxByDate: Map<string, number> } {
-  const set = new Set<string>()
-  for (const sb of data) for (const b of sb.bars) set.add(b.date)
-  const calendar = [...set].sort()
-  const idxByDate = new Map<string, number>()
-  calendar.forEach((d, i) => idxByDate.set(d, i))
-  return { calendar, idxByDate }
-}
-
-/** 信号日(含)及其前 k 个交易日。 */
-function windowDatesFor(calendar: string[], idxByDate: Map<string, number>, signalDate: string, k: number): string[] {
-  const i = idxByDate.get(signalDate)
-  if (i === undefined) return [signalDate]
-  return calendar.slice(Math.max(0, i - k), i + 1)
-}
+// buildCalendar / windowDatesFor 抽到 ./calendar(纯函数,可单测)。
+// ⚠ windowDatesFor 已修正前视:窗口=信号日**前** k 个交易日、不含当日——龙虎榜盘后
+// 才公布,回测按信号日收盘入场时当日榜不可见(旧版含当日曾抬高机构净买增益)。
 
 /** 龙虎榜索引磁盘缓存(增量:只补缺失日期再回写;CACHE=0 不读)。 */
 async function loadLhbIndexFor(neededDates: string[]): Promise<LhbIndex> {
@@ -1752,7 +1759,7 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
   console.log('\n========== COMBO 龙虎榜(机构) + 板块轮动 因子检验 ==========')
   console.log(`[Combo] breakout 信号 ${breakoutTrades.length} 笔 / trigger 信号 ${triggerTrades.length} 笔;K=${LHB_K} 长窗=${LONG_WIN} 短窗=${SHORT_WIN}`)
 
-  // 需要的龙虎榜日期 = 所有信号日的 [date-K..date] 并集
+  // 需要的龙虎榜日期 = 所有信号日的 [date-K..date) 并集(不含信号日,防前视)
   const neededSet = new Set<string>()
   for (const t of [...breakoutTrades, ...triggerTrades]) {
     for (const d of windowDatesFor(calendar, idxByDate, t.date, LHB_K)) neededSet.add(d)
@@ -1787,7 +1794,7 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
     return { low: seg(`  ${label} 低分位`, t1.map((x) => x.t)), high: seg(`  ${label} 高分位`, t3.map((x) => x.t)) }
   }
 
-  console.log(`\n--- breakout 按 龙虎榜 因子分桶(基线 n=${base.n} 期望 ${base.expectancyR}R PF ${base.profitFactor})---`)
+  console.log(`\n--- breakout 按 龙虎榜 因子分桶(基线 n=${base.n} 期望 ${base.expectancyR}R PF ${pfStr(base.profitFactor)})---`)
   const boInstMulti = taggedBO.filter((x) => x.lhb.instDays >= 2).map((x) => x.t)
   const boInst = taggedBO.filter((x) => x.lhb.instDays >= 1).map((x) => x.t)
   const boAnyNet = taggedBO.filter((x) => x.lhb.onDays >= 1 && x.lhb.netSum > 0).map((x) => x.t)
@@ -1891,6 +1898,137 @@ async function runCombo(data: StockBars[], base: Metrics): Promise<Record<string
     triggerSplit,
     triggerHotSplit,
     note: '相对基线比较;个股→板块为「当前」归属(轻度前视)、幸存者偏差同主回测;机构/游资席位仅单日榜可得。游资=hotMoneySeats 名单识别。',
+  }
+}
+
+// ── REGIMEBUCKET: 市场状态分桶 + 闸门净收益模拟(REGIMEBUCKET=1)─────────────
+// 动机:实盘 11 个交易日(caution/weak)突破族全灭(−0.33R/止损率 78.5%),但历史回测
+// 「弱市(指数MA口径)新高期望反而最高」——两个"弱"必须分开裁决。口径 i=指数MA
+// (buildRegimeByDate);口径 ii=样本横截面 breadth/chop(regimeBucket.ts,零外部数据)。
+// 闸门谓词全部固定阈值(线上可复算);按 70% 交易日切 train/test 验证两段同向。
+// 裁决判据(计划预写,跑完对号入座):上闸门当且仅当
+//   ①拦截桶 pooled n≥50 且期望≤−0.10R,且非拦截桶 pooled ≥+0.10R;
+//   ②该方向在 ≥2 个战法里单独成立;③闸门 pooled 改善 ≥+0.05R 且 PF 上升、train/test 同向;
+//   ④另一口径不反向恶化(Δ期望 ≥−0.05R)。不满足 → 在 TARGET_R_BY_REGIME 注释区记录"不上闸门"。
+async function runRegimeBucket(data: StockBars[]): Promise<Record<string, unknown>> {
+  console.log('\n========== REGIMEBUCKET 市场状态分桶(突破族 × 两套口径)==========')
+  const stratTrades: Record<string, Trade[]> = {
+    breakout: data.flatMap((sb) => simulate(sb, SCREENER, 'breakout', HOLD)),
+    volbreak: data.flatMap((sb) => simulateVolBreak(sb, VOLBREAK, HOLD)),
+    trendnew: data.flatMap((sb) => simulateTrendNewHigh(sb, TRENDNEW, HOLD)),
+    highdiv: data.flatMap((sb) => simulateHighDiv(sb, HIGHDIV, HOLD)),
+  }
+  const pooled = Object.values(stratTrades).flat()
+  console.log(
+    `[RegimeBucket] 信号:breakout ${stratTrades.breakout.length} / volbreak ${stratTrades.volbreak.length} / ` +
+      `trendnew ${stratTrades.trendnew.length} / highdiv ${stratTrades.highdiv.length} → pooled ${pooled.length}(HOLD=${HOLD})`,
+  )
+
+  // 口径 ii:样本横截面 breadth/chop(零网络)。
+  const breadth = buildBreadthByDate(data)
+  const labelOfBreadth = (d: string) => { const b = breadth.get(d); return b ? labelBreadth(b) : null }
+  const labelOfChop = (d: string) => { const b = breadth.get(d); return b ? labelChop(b) : null }
+  const labelOfCombo = (d: string) => { const b = breadth.get(d); return b ? labelCombo(b) : null }
+  const [t1, t2] = tercileEdges([...breadth.values()].map((b) => b.aboveMa20Pct))
+  const labelOfTercile = (d: string) => {
+    const b = breadth.get(d)
+    return b ? (b.aboveMa20Pct <= t1 ? 'T1(宽度弱)' : b.aboveMa20Pct <= t2 ? 'T2(中)' : 'T3(强)') : null
+  }
+
+  // 口径 i:指数 MA regime(唯一网络调用,失败跳过该口径不中断)。
+  let regimeByDate: Map<string, MarketRegime> | null = null
+  try {
+    const idxBars = await fetchIndexKline(SCREENER.MARKET_INDEX_SECID, KLINE + 60)
+    if (idxBars.length) regimeByDate = buildRegimeByDate(idxBars, SCREENER)
+  } catch (err) {
+    console.warn('[RegimeBucket] 指数取数失败,跳过口径 i(指数MA):', err instanceof Error ? err.message : err)
+  }
+  const rbd = regimeByDate
+
+  const calibers: Array<{ key: string; labelOf: (d: string) => string | null }> = [
+    ...(rbd ? [{ key: 'idxMA', labelOf: (d: string) => rbd.get(d) ?? null }] : []),
+    { key: 'breadth', labelOf: labelOfBreadth },
+    { key: 'chop', labelOf: labelOfChop },
+    { key: 'combo', labelOf: labelOfCombo },
+    { key: 'tercile', labelOf: labelOfTercile },
+  ]
+
+  // 桶天数占比(市场处在该状态的时间份额;分母=可标注的 breadth 交易日,保证跨口径可比)。
+  const allDates = [...breadth.keys()]
+  const dayShare = (labelOf: (d: string) => string | null): Record<string, number> => {
+    const cnt = new Map<string, number>()
+    let total = 0
+    for (const d of allDates) {
+      const l = labelOf(d)
+      if (l == null) continue
+      total++
+      cnt.set(l, (cnt.get(l) ?? 0) + 1)
+    }
+    return Object.fromEntries([...cnt.entries()].sort().map(([l, c]) => [l, r2((c / Math.max(total, 1)) * 100)]))
+  }
+  const daysShare = Object.fromEntries(calibers.map((c) => [c.key, dayShare(c.labelOf)]))
+
+  // pooled 分桶(console 全打;per-strategy 进 JSON,combo 口径另打简表)。
+  const pooledBuckets: Record<string, unknown> = {}
+  for (const c of calibers) {
+    const bt = bucketTrades(pooled, c.labelOf)
+    pooledBuckets[c.key] = bt
+    console.log(`\n--- pooled 按 ${c.key} 分桶(unlabeled=${bt.unlabeled};天数占比% ${JSON.stringify(daysShare[c.key])})---`)
+    for (const b of bt.buckets) console.log(fmtMetrics(`  ${b.label}`, b.metrics))
+  }
+  const strategies: Record<string, unknown> = {}
+  for (const [name, trades] of Object.entries(stratTrades)) {
+    strategies[name] = Object.fromEntries(calibers.map((c) => [c.key, bucketTrades(trades, c.labelOf)]))
+    const bt = bucketTrades(trades, labelOfCombo)
+    console.log(`\n--- ${name} 按 combo 分桶 ---`)
+    for (const b of bt.buckets) console.log(fmtMetrics(`  ${b.label}`, b.metrics))
+  }
+
+  // 闸门净收益模拟(固定谓词;train/test 同向性验证,不做参数选择故无需 purge)。
+  const isBWeak = (d: string) => { const b = breadth.get(d); return !!b && labelBreadth(b) === 'bWeak' }
+  const isMidChop = (d: string) => { const b = breadth.get(d); return !!b && labelBreadth(b) === 'bMid' && labelChop(b) === 'chop' }
+  const gDefs: Array<{ key: string; desc: string; blocked: (d: string) => boolean }> = [
+    ...(rbd ? [{ key: 'G1-idxWeak', desc: '拦 口径i=weak(指数MA)', blocked: (d: string) => rbd.get(d) === 'weak' }] : []),
+    { key: 'G2-bWeak', desc: '拦 breadth 弱(≤40% 站上MA20)', blocked: isBWeak },
+    { key: 'G3-midChop', desc: '拦 中性宽度×横盘(缩量磨人市)', blocked: isMidChop },
+    { key: 'G4-weakOrChop', desc: '拦 G2 ∨ G3', blocked: (d: string) => isBWeak(d) || isMidChop(d) },
+  ]
+  const { calendar } = buildCalendar(data)
+  const cutoff = calendar[Math.floor(calendar.length * 0.7)] ?? ''
+  console.log(`\n--- 闸门净收益模拟(train/test 同向性切分日=${cutoff})---`)
+  const gates: Record<string, unknown> = {}
+  for (const g of gDefs) {
+    const full = gateEval(pooled, g.blocked)
+    const tr = gateEval(pooled.filter((t) => t.date < cutoff), g.blocked)
+    const te = gateEval(pooled.filter((t) => t.date >= cutoff), g.blocked)
+    const perStrategy = Object.fromEntries(
+      Object.entries(stratTrades).map(([k, ts]) => [k, gateEval(ts, g.blocked)]),
+    )
+    gates[g.key] = { desc: g.desc, pooled: full, train: tr, test: te, perStrategy }
+    console.log(`  ${g.key} ${g.desc}`)
+    console.log(fmtMetrics('    all', full.all))
+    console.log(fmtMetrics('    kept(闸后)', full.kept))
+    console.log(fmtMetrics('    blocked(被拦)', full.blocked))
+    console.log(
+      `    Δ期望 pooled ${r2(full.kept.expectancyR - full.all.expectancyR)}R | ` +
+        `train Δ ${r2(tr.kept.expectancyR - tr.all.expectancyR)}R | test Δ ${r2(te.kept.expectancyR - te.all.expectancyR)}R | ` +
+        `保留 ${full.all.n ? r2((full.kept.n / full.all.n) * 100) : 0}% (n ${full.kept.n}/${full.all.n})`,
+    )
+  }
+
+  return {
+    params: {
+      BREADTH_STRONG, BREADTH_WEAK, CHOP_ABS_PCT, COVERAGE_MIN,
+      hold: HOLD, tercileEdges: [t1, t2], breadthDays: breadth.size, cutoff,
+    },
+    daysShare,
+    pooledBuckets,
+    strategies,
+    gates,
+    note:
+      '裁决判据:上闸门当且仅当 ①拦截桶 pooled n≥50 且期望≤−0.10R 且非拦截桶≥+0.10R ' +
+      '②≥2 战法单独同向 ③闸门 pooled 改善≥+0.05R 且 PF 升、train/test 同向 ④另一口径不反向恶化(Δ≥−0.05R)。' +
+      'tercile 仅诊断(事后分位数线上不可复算,不作闸门)。幸存者偏差同主回测,看相对比较。',
   }
 }
 

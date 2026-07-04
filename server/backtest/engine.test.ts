@@ -153,4 +153,15 @@ describe('aggregate', () => {
     const m = aggregate([mk('2026-01-01', 0, 0, 5, 'time')])
     expect(m.winRate).toBe(0)
   })
+
+  it('零亏损(全胜)→ profitFactor=null(∞ 语义),不再是 10⁹ 伪数', () => {
+    const m = aggregate([mk('2026-01-01', 2, 20, 3, 'target'), mk('2026-01-02', 1, 10, 2, 'target')])
+    expect(m.profitFactor).toBeNull()
+    expect(m.expectancyR).toBe(1.5)
+  })
+
+  it('全败(无盈利)→ profitFactor=0', () => {
+    const m = aggregate([mk('2026-01-01', -1, -5, 2, 'stop'), mk('2026-01-02', -1, -5, 2, 'stop')])
+    expect(m.profitFactor).toBe(0)
+  })
 })

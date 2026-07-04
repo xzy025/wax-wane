@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { simulateEntry, selectFrontier, type Cell } from './optimize'
-import type { Metrics } from './engine'
+import { simulateEntry, selectFrontier, split, type Cell } from './optimize'
+import type { Metrics, Trade } from './engine'
 import type { Bar } from '../services/screenerRules'
 
 const bar = (date: string, open: number, high: number, low: number, close: number): Bar => ({
@@ -73,6 +73,38 @@ describe('simulateEntry — 入场模式 + 比率重锚', () => {
   it('nextOpen 但无次根 → null', () => {
     const bars = [bar('d0', 10, 10, 10, 10)]
     expect(simulateEntry(bars, 0, lv, 'nextOpen', 0, 20, 'X')).toBeNull()
+  })
+})
+
+describe('split — train/test 时序切分(purge 泄漏防护)', () => {
+  const trade = (date: string, exitDate: string, R: number): Trade => ({
+    code: 'X', date, entry: 10, stop: 9, target: 12, exit: 10 + R, exitDate,
+    reason: 'time', retPct: R * 10, R, bars: 3,
+  })
+  const cutoff = '2025-06-01'
+
+  it('持有窗完全在 train 段 → train;信号日在 cutoff 后 → test', () => {
+    const { train, test, purged } = split(
+      [trade('2025-01-05', '2025-01-20', 1), trade('2025-07-01', '2025-07-10', -1)],
+      cutoff,
+    )
+    expect(train.n).toBe(1)
+    expect(test.n).toBe(1)
+    expect(purged).toBe(0)
+  })
+
+  it('信号日在 cutoff 前、出场在 cutoff 后(跨界带)→ 两集皆不进,计 purged', () => {
+    const crossing = trade('2025-05-20', '2025-06-10', 2) // train 交易的出场价来自 test 段 K 线
+    const { train, test, purged } = split([crossing], cutoff)
+    expect(train.n).toBe(0) // 旧版按信号日二分会把它计入 train=泄漏
+    expect(test.n).toBe(0)
+    expect(purged).toBe(1)
+  })
+
+  it('出场恰在 cutoff 当日 → 不进 train(train 需 exitDate < cutoff)', () => {
+    const { train, purged } = split([trade('2025-05-20', '2025-06-01', 1)], cutoff)
+    expect(train.n).toBe(0)
+    expect(purged).toBe(1)
   })
 })
 

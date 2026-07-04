@@ -19,7 +19,7 @@ import { parseScreenerArchiveName } from './screenerArchive'
 import { isDbReady, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { fetchStockKline, mapLimit } from './ashare'
 import { simForward, makeTrade, aggregate, type Trade, type Metrics } from '../backtest/engine'
-import { FUNDRES } from '../config/screener'
+import { FUNDRES, BHOLD } from '../config/screener'
 import type { Bar } from './screenerRules'
 import type { ScreenerResult } from './screener'
 
@@ -40,6 +40,12 @@ const BUY_GROUPS = [
 export type BuyGroup = (typeof BUY_GROUPS)[number]
 const NON_BUY = new Set(['watch', 'trendwatch', 'bholdwatch'])
 
+// trigger 2026-07-04 降级为「观察口径」:实盘战绩 −0.43R(n=57,11日 caution 窗)显著为负,
+// 但当前配置下回测直买为正(COMBO 全样本 0.39R/PF1.65/n202;旧"−0.11R"是 2026-06-22 扳机止损
+// 收紧前的结论,已过时)——两路证据矛盾。处置:**继续评估攒实盘样本裁决,但移出 overall/
+// totalPicks 总体口径**(不再稀释买点战法汇总),track 行挂矛盾说明;UI 卡片改"等突破确认"。
+const OVERALL_EXCLUDED: ReadonlySet<BuyGroup> = new Set<BuyGroup>(['trigger'])
+
 // 基线对照必须同持有期口径:fundres 基线(0.26R/PF2.08)是 HOLD=3 跑出的、bhold 基线
 // (0.45R/PF1.9)是 HOLD=10——统一按 20 撮合会让「实盘 vs 回测」对这两战法不可判读。
 const HOLD_BY_GROUP: Partial<Record<BuyGroup, number>> = { fundres: FUNDRES.HOLD, bhold: 10 }
@@ -48,14 +54,32 @@ export const holdFor = (g: BuyGroup): number => HOLD_BY_GROUP[g] ?? HOLD
 // 各战法回测基线(取自 screener.ts 注释/回测产物;缺者前端显示「—」)。
 const BACKTEST_BASELINE: Partial<Record<BuyGroup, { expectancyR: number; profitFactor?: number }>> = {
   breakout: { expectancyR: 0.08 }, // 突破基线(PF 未单列)
+  trigger: { expectancyR: 0.39, profitFactor: 1.65 }, // 2026-07-04 当前配置直买全样本(COMBO n202;观察口径对照用)
   highdiv: { expectancyR: 0.19, profitFactor: 1.3 },
   volbreak: { expectancyR: 0.27, profitFactor: 1.41 },
-  fundres: { expectancyR: 0.25, profitFactor: 1.96 }, // 2026-07-03 防前视重跑(披露日≤信号日才计调研)
+  fundres: { expectancyR: 0.29, profitFactor: 2.1 }, // 2026-07-04 SURVEY_LOOKBACK 5→20 复裁后基线(n110,披露日口径)
   bhold: { expectancyR: 0.45, profitFactor: 1.9 },
   trendnew: { expectancyR: 0.28, profitFactor: 1.52 },
 }
 const BHOLD_NOTE =
-  'v1 按信号日(整理日)收盘入场;真策略为「次日突破 trigger 确认入场」(回测 0.45R)。此处实盘 R 偏保守、回撤高估。'
+  '已对齐回测确认口径:信号日(整理日)后 3 日内突破整理高点 trigger 才入场(0.45R 基线可比);' +
+  'skipped=确认窗内未触发或先破整理低点废弃(不进胜率/期望)。旧快照缺 trigger 字段的笔回退整理日收盘口径。'
+const TRIGGER_NOTE =
+  '观察口径·不计入总体:扳机直买 实盘 −0.43R(11日/caution) vs 当前配置回测 +0.39R(n202)矛盾,' +
+  '继续攒实盘样本裁决;操作上等放量突破确认(转为突破信号)再买。'
+
+// 停牌/退市判定:末根 K 线距今超过该日历天数(≈10 个交易日)仍未走满 hold → 不再无限期
+// 挂 open(那会把走弱停牌票永远踢出 closed 分母=幸存者偏差),按最后可得收盘 mark-to-last
+// 计入 closed(reason='stale'),并单独计数供面板提示。
+const STALE_CAL_DAYS = 15
+
+/** 末根 K 线是否已陈旧(停牌/退市迹象):距 today 超过 STALE_CAL_DAYS 个日历日。 */
+export function isBarStale(lastBarDate: string, todayIso: string): boolean {
+  const last = Date.parse(`${lastBarDate}T00:00:00Z`)
+  const today = Date.parse(`${todayIso}T00:00:00Z`)
+  if (!Number.isFinite(last) || !Number.isFinite(today)) return false
+  return (today - last) / 86_400_000 > STALE_CAL_DAYS
+}
 
 export type SampleConfidence = 'low' | 'medium' | 'high'
 /** n<10 视为噪声、10~29 方向性参考、≥30 与 optimize.ts 网格搜索的 MIN_N 门槛一致、可信。 */
@@ -73,7 +97,8 @@ const r2 = (n: number) => Math.round(n * 100) / 100
 const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0)
 
 // ── 输出类型 ──────────────────────────────────────────────────────────
-export type ForwardReason = Trade['reason'] | 'open' | 'pending'
+// 'stale'=停牌/退市 mark-to-last 平仓;'skipped'=bhold 确认口径下未触发/破位废弃(不进指标)。
+export type ForwardReason = Trade['reason'] | 'open' | 'pending' | 'stale' | 'skipped'
 
 export interface ForwardPick {
   asof: string // 信号日(归档日)
@@ -83,8 +108,8 @@ export interface ForwardPick {
   entry: number // 候选记录的介入位(归档基准)
   stop: number
   target: number
-  status: 'open' | 'closed' | 'pending'
-  exit: number // 平仓价 / 盯市价(前复权基准);pending=0
+  status: 'open' | 'closed' | 'pending' | 'skipped'
+  exit: number // 平仓价 / 盯市价(前复权基准);pending/skipped=0
   exitDate: string
   reason: ForwardReason
   R: number // 已实现 R(closed)或浮动 R(open);pending=0
@@ -96,6 +121,8 @@ export interface ForwardPick {
   taBias?: string // 'demand' | 'supply' | 'neutral'
   lhbInstDays?: number
   boardQuadrant?: string // 'hs' | 'ls' | 'hw' | 'lw'
+  regimePhase?: string // 信号日快照的情绪环境 attack/caution/retreat(来自 snap.regime.phase)
+  marketTrend?: string // 信号日快照的大盘趋势 strong/neutral/weak(来自 snap.regime.marketTrend)
 }
 
 export interface StrategyTrack {
@@ -104,6 +131,8 @@ export interface StrategyTrack {
   closedCount: number
   openCount: number
   pendingCount: number
+  staleCount: number // closed 里按 mark-to-last 平仓的停牌/退市笔数(已含在 closedCount 内)
+  skippedCount: number // bhold 确认口径下废弃的笔数(不进任何指标)
   sampleConfidence: SampleConfidence // 已平仓样本量可信度(仿 optimize.ts MIN_N=30)
   unrealizedAvgR: number // 持仓中样本的平均浮动 R
   backtestExpectancyR?: number
@@ -130,9 +159,11 @@ export interface ScreenerForwardResult {
   dateRange: [string, string] | null // [最早信号日, 最晚信号日]
   totalPicks: number
   pendingCount: number
+  skippedCount?: number // bhold 确认口径下废弃的总笔数(不进任何指标)
   strategies: StrategyTrack[]
-  overall: Metrics // 全战法已平仓汇总
+  overall: Metrics // 买点战法已平仓汇总(observed 组如 trigger 不计,见 OVERALL_EXCLUDED)
   breakoutSegments?: SegmentGroup[] // breakout 通用切片归因(仅样本够格时才有意义,用户先聚焦这一个战法)
+  regimeSegments?: SegmentGroup[] // 全买点战法按信号日市场环境(情绪 phase / 大盘趋势)切片——攒实盘证据供环境闸门复裁
   fromCache?: boolean // 本次来自磁盘兜底
 }
 
@@ -150,6 +181,9 @@ interface RawCandidate {
   ta?: { bias?: string }
   lhbInst?: { instDays?: number }
   board?: { quadrant?: string }
+  // bhold 确认口径字段(BHoldScreenerCandidate 独有;旧快照缺失时回退收盘口径)。
+  trigger?: number // 确认入场位=整理段(含pole)最高
+  consolLow?: number // 整理段最低(结构止损/破位废弃线)
 }
 
 /** 位价归一化:吸收字段名漂移(stopLoss/stop、entry 缺失→price);非买点/缺位价/非正风险→null。 */
@@ -166,11 +200,19 @@ export function pickLevels(
   return { entry, stop, target }
 }
 
-/** 开/平仓判定:simForward 总会返回(默认 time 止于末根)→ 区分「真时间止损」与「窗口未走完」。 */
-export function classifyForward(reason: Trade['reason'], hold: number, lenAfter: number): 'open' | 'closed' {
+/** 开/平仓判定:simForward 总会返回(默认 time 止于末根)→ 区分「真时间止损」与「窗口未走完」。
+ *  lastBarStale=true(末根距今超 STALE_CAL_DAYS,停牌/退市迹象)时窗口未走完也不再挂 open,
+ *  返回 'stale' 由调用方按 mark-to-last 计入 closed——否则弱票停牌即永久 open、被踢出
+ *  closed 分母,是幸存者偏差。 */
+export function classifyForward(
+  reason: Trade['reason'],
+  hold: number,
+  lenAfter: number,
+  lastBarStale = false,
+): 'open' | 'closed' | 'stale' {
   if (reason !== 'time') return 'closed' // 已触发 stop/target(含跳空)
   if (lenAfter >= hold) return 'closed' // 走满 hold 根的真时间止损
-  return 'open' // 窗口未走完 → 盯市
+  return lastBarStale ? 'stale' : 'open' // 未走完:停牌陈旧 → mark-to-last;否则盯市
 }
 
 /** 估算需取的日线根数:覆盖最早信号日至今(日历→交易日近似)+ 充裕 pad,封顶 600。 */
@@ -190,10 +232,14 @@ interface Task {
   entry: number
   stop: number
   target: number
+  trigger?: number // bhold 确认口径:确认入场位(旧快照缺失→回退收盘口径)
+  consolLow?: number // bhold 确认口径:整理低点(破位废弃线)
   score?: number
   taBias?: string
   lhbInstDays?: number
   boardQuadrant?: string
+  regimePhase?: string
+  marketTrend?: string
 }
 
 function pendingPick(t: Task): ForwardPick {
@@ -202,12 +248,19 @@ function pendingPick(t: Task): ForwardPick {
     entry: r2(t.entry), stop: r2(t.stop), target: r2(t.target),
     status: 'pending', exit: 0, exitDate: '', reason: 'pending', R: 0, retPct: 0, barsHeld: 0, barsElapsed: 0,
     score: t.score, taBias: t.taBias, lhbInstDays: t.lhbInstDays, boardQuadrant: t.boardQuadrant,
+    regimePhase: t.regimePhase, marketTrend: t.marketTrend,
   }
 }
 
+/** bhold 确认口径:确认窗内未触发/先破位 → 废弃,不进任何指标(与回测 simulateBreakoutHoldConfirm 口径一致)。 */
+function skippedPick(t: Task, barsElapsed: number): ForwardPick {
+  return { ...pendingPick(t), status: 'skipped', reason: 'skipped', barsElapsed }
+}
+
 /** 把候选的止损/目标按「相对介入的比率」映射到前复权基准的信号日收盘,再撮合——
- *  令 entry/stop/target/exit 同基准,R 对 复权再调整 不变。 */
-export function evaluateTask(t: Task, bars: Bar[] | undefined): ForwardPick {
+ *  令 entry/stop/target/exit 同基准,R 对 复权再调整 不变。
+ *  todayIso:停牌陈旧判定基准日(生产传 todayShanghai(),测试注入固定值)。 */
+export function evaluateTask(t: Task, bars: Bar[] | undefined, todayIso: string): ForwardPick {
   if (!bars || bars.length < 2) return pendingPick(t)
   // 信号日索引:最后一根 date<=asof(用 <= 容忍周末/节假日戳的 asof)。
   let i = -1
@@ -215,6 +268,10 @@ export function evaluateTask(t: Task, bars: Bar[] | undefined): ForwardPick {
     if (bars[k].date <= t.asof) { i = k; break }
   }
   if (i < 0) return pendingPick(t) // 取到的窗口未覆盖信号日
+  // bhold 走确认口径(0.45R 基线的真实入场机制);旧快照缺 trigger 字段回退收盘口径。
+  if (t.group === 'bhold' && t.trigger != null && t.trigger > 0 && t.consolLow != null && t.consolLow > 0) {
+    return evaluateBholdConfirm(t, bars, i, todayIso)
+  }
   const stopFrac = t.stop / t.entry
   const targetFrac = t.target / t.entry
   const entryRef = bars[i].close
@@ -226,21 +283,73 @@ export function evaluateTask(t: Task, bars: Bar[] | undefined): ForwardPick {
   const hold = holdFor(t.group) // 与该战法回测基线同持有期口径
   const sim = simForward(bars, i, stopRef, targetRef, hold)
   const trade = makeTrade(t.code, bars, i, entryRef, stopRef, targetRef, risk, sim)
-  const status = classifyForward(sim.reason, hold, lenAfter)
+  const cls = classifyForward(sim.reason, hold, lenAfter, isBarStale(bars[bars.length - 1].date, todayIso))
   // open 情形:lenAfter<HOLD 且未触发 → sim 末根即最新收盘 → trade 已是盯市 R,仅改 reason。
+  // stale 情形:同一 sim 结果按 mark-to-last 计入 closed(exit=末根收盘),reason='stale'。
   // 展示 entry/stop/target 用前复权基准(trade.*),与 exit 同基准 → (exit-entry)/(entry-stop)=R 恒成立。
   return {
     asof: t.asof, group: t.group, code: t.code, name: t.name,
     entry: trade.entry, stop: trade.stop, target: trade.target,
-    status,
+    status: cls === 'open' ? 'open' : 'closed',
     exit: trade.exit,
     exitDate: trade.exitDate,
-    reason: status === 'open' ? 'open' : trade.reason,
+    reason: cls === 'open' ? 'open' : cls === 'stale' ? 'stale' : trade.reason,
     R: trade.R,
     retPct: trade.retPct,
     barsHeld: trade.bars,
     barsElapsed: lenAfter,
     score: t.score, taBias: t.taBias, lhbInstDays: t.lhbInstDays, boardQuadrant: t.boardQuadrant,
+    regimePhase: t.regimePhase, marketTrend: t.marketTrend,
+  }
+}
+
+/** bhold 确认口径评估(与回测 simulateBreakoutHoldConfirm 同款):信号日后 CONFIRM_WINDOW 根内
+ *  先破整理低点 → 废弃;high≥trigger → 以 max(trigger, 当日开) 入场(跳空高开按开盘),入场日
+ *  剩余走势参与撮合(checkEntryBar);窗口走完未触发 → 废弃;bars 不够看完确认窗 → pending。
+ *  trigger/consolLow 按相对快照 entry 的比率重锚到前复权基准 → 复权再调整不变。 */
+function evaluateBholdConfirm(t: Task, bars: Bar[], i: number, todayIso: string): ForwardPick {
+  const lenAfter = bars.length - 1 - i
+  const baseRef = bars[i].close // 前复权基准的整理日收盘(对应快照 entry)
+  const triggerRef = baseRef * ((t.trigger as number) / t.entry)
+  const consolLowRef = baseRef * ((t.consolLow as number) / t.entry)
+  const confirmWin = BHOLD.CONFIRM_WINDOW
+  const end = Math.min(i + confirmWin, bars.length - 1)
+  let entryIdx = -1
+  let entryPx = 0
+  for (let j = i + 1; j <= end; j++) {
+    if (bars[j].low < consolLowRef) return skippedPick(t, lenAfter) // 整理结构破位,放弃
+    if (bars[j].high >= triggerRef) {
+      entryPx = Math.max(triggerRef, bars[j].open) // 跳空高开则按开盘
+      entryIdx = j
+      break
+    }
+  }
+  if (entryIdx < 0) {
+    // 确认窗未触发:窗口已走完 → 废弃;bars 不够(信号太新)→ pending 等后续数据。
+    return lenAfter >= confirmWin ? skippedPick(t, lenAfter) : pendingPick(t)
+  }
+  const stop = Math.max(consolLowRef * 0.997, entryPx * (1 - BHOLD.STOP_MAX_PCT / 100))
+  const risk = entryPx - stop
+  if (risk <= 0) return pendingPick(t)
+  const target = entryPx + BHOLD.R_MULT * risk
+  const hold = holdFor('bhold')
+  const lenAfterEntry = bars.length - 1 - entryIdx
+  const sim = simForward(bars, entryIdx, stop, target, hold, true) // 盘中触发价入场 → 入场日参与撮合
+  const trade = makeTrade(t.code, bars, entryIdx, entryPx, stop, target, risk, sim)
+  const cls = classifyForward(sim.reason, hold, lenAfterEntry, isBarStale(bars[bars.length - 1].date, todayIso))
+  return {
+    asof: t.asof, group: t.group, code: t.code, name: t.name,
+    entry: trade.entry, stop: trade.stop, target: trade.target,
+    status: cls === 'open' ? 'open' : 'closed',
+    exit: trade.exit,
+    exitDate: trade.exitDate,
+    reason: cls === 'open' ? 'open' : cls === 'stale' ? 'stale' : trade.reason,
+    R: trade.R,
+    retPct: trade.retPct,
+    barsHeld: trade.bars,
+    barsElapsed: lenAfter,
+    score: t.score, taBias: t.taBias, lhbInstDays: t.lhbInstDays, boardQuadrant: t.boardQuadrant,
+    regimePhase: t.regimePhase, marketTrend: t.marketTrend,
   }
 }
 
@@ -337,6 +446,8 @@ function buildTrack(group: BuyGroup, picks: ForwardPick[]): StrategyTrack {
   const closed = picks.filter((p) => p.status === 'closed')
   const open = picks.filter((p) => p.status === 'open')
   const pending = picks.filter((p) => p.status === 'pending')
+  const skipped = picks.filter((p) => p.status === 'skipped')
+  const stale = closed.filter((p) => p.reason === 'stale')
   const closedTrades: Trade[] = closed.map(toTrade)
   const bl = BACKTEST_BASELINE[group]
   // 展示排序:信号日 DESC(最新在前)。
@@ -347,11 +458,13 @@ function buildTrack(group: BuyGroup, picks: ForwardPick[]): StrategyTrack {
     closedCount: closed.length,
     openCount: open.length,
     pendingCount: pending.length,
+    staleCount: stale.length,
+    skippedCount: skipped.length,
     sampleConfidence: sampleConfidenceFor(closed.length),
     unrealizedAvgR: open.length ? r2(mean(open.map((p) => p.R))) : 0,
     backtestExpectancyR: bl?.expectancyR,
     backtestProfitFactor: bl?.profitFactor,
-    note: group === 'bhold' ? BHOLD_NOTE : undefined,
+    note: group === 'bhold' ? BHOLD_NOTE : group === 'trigger' ? TRIGGER_NOTE : undefined,
     picks: sorted,
   }
 }
@@ -387,6 +500,9 @@ async function computeForward(): Promise<ScreenerForwardResult> {
     if (!minAsof || snap.asof < minAsof) minAsof = snap.asof
     if (!maxAsof || snap.asof > maxAsof) maxAsof = snap.asof
     const rank = dateRank.get(snap.asof) ?? 0
+    // 信号日市场环境标签(regime 切片归因用;旧快照缺失 → undefined 不进桶)。
+    const regimePhase = typeof snap.regime?.phase === 'string' ? snap.regime.phase : undefined
+    const marketTrend = typeof snap.regime?.marketTrend === 'string' ? snap.regime.marketTrend : undefined
     for (const g of BUY_GROUPS) {
       for (const cand of groupArray(snap, g)) {
         if (!cand || typeof cand.code !== 'string') continue
@@ -401,7 +517,9 @@ async function computeForward(): Promise<ScreenerForwardResult> {
         lastKeptRank.set(key, rank)
         tasks.push({
           asof: snap.asof, group: g, code: cand.code, name: cand.name ?? cand.code, ...lv,
+          trigger: num(cand.trigger) || undefined, consolLow: num(cand.consolLow) || undefined, // bhold 确认口径(他组无此字段)
           score: cand.score, taBias: cand.ta?.bias, lhbInstDays: cand.lhbInst?.instDays, boardQuadrant: cand.board?.quadrant,
+          regimePhase, marketTrend,
         })
         const prev = earliest.get(cand.code)
         if (!prev || snap.asof < prev) earliest.set(cand.code, snap.asof)
@@ -428,15 +546,22 @@ async function computeForward(): Promise<ScreenerForwardResult> {
     }
   })
 
-  // Phase 3:评估(无网络)。
+  // Phase 3:评估(无网络)。observed 组(OVERALL_EXCLUDED,如 trigger)照常评估出 track,
+  // 但不进 overall/totalPicks/pendingCount 总体口径——观察诊断,不稀释买点战法汇总。
   const byGroup = new Map<BuyGroup, ForwardPick[]>()
   for (const g of BUY_GROUPS) byGroup.set(g, [])
+  let overallTasks = 0
   let pendingCount = 0
+  let skippedCount = 0
+  const today = todayShanghai() // 停牌陈旧判定基准
   const allClosed: Trade[] = []
   for (const t of tasks) {
-    const pick = evaluateTask(t, barsByCode.get(t.code))
+    const pick = evaluateTask(t, barsByCode.get(t.code), today)
     byGroup.get(t.group)?.push(pick)
+    if (OVERALL_EXCLUDED.has(t.group)) continue
+    overallTasks++
     if (pick.status === 'pending') pendingCount++
+    else if (pick.status === 'skipped') skippedCount++
     else if (pick.status === 'closed') allClosed.push(toTrade(pick))
   }
 
@@ -450,6 +575,16 @@ async function computeForward(): Promise<ScreenerForwardResult> {
     { by: 'lhb', buckets: segmentClosedPicks(breakoutPicks, (p) => (p.lhbInstDays == null ? null : p.lhbInstDays > 0 ? 'inst' : 'none')) },
     { by: 'board', buckets: segmentClosedPicks(breakoutPicks, (p) => p.boardQuadrant ?? null) },
     { by: 'scoreTier', buckets: segmentClosedPicks(breakoutPicks, (p) => (p.score == null ? null : p.score >= 80 ? 'high' : p.score >= 60 ? 'mid' : 'low')) },
+    { by: 'regimePhase', buckets: segmentClosedPicks(breakoutPicks, (p) => p.regimePhase ?? null) },
+    { by: 'marketTrend', buckets: segmentClosedPicks(breakoutPicks, (p) => p.marketTrend ?? null) },
+  ].filter((s) => s.buckets.length > 0)
+
+  // 全买点战法 pooled 按信号日市场环境切片(REGIMEBUCKET 回测未过闸门线 → 不拦截,
+  // 但在实盘持续攒"环境×实盘表现"证据,供下一轮复裁;observed 组不进)。
+  const buyPicks = [...byGroup.entries()].filter(([g]) => !OVERALL_EXCLUDED.has(g)).flatMap(([, arr]) => arr)
+  const regimeSegments: SegmentGroup[] = [
+    { by: 'regimePhase', buckets: segmentClosedPicks(buyPicks, (p) => p.regimePhase ?? null) },
+    { by: 'marketTrend', buckets: segmentClosedPicks(buyPicks, (p) => p.marketTrend ?? null) },
   ].filter((s) => s.buckets.length > 0)
 
   const result: ScreenerForwardResult = {
@@ -458,15 +593,17 @@ async function computeForward(): Promise<ScreenerForwardResult> {
     hold: HOLD,
     snapshotCount: snapshots.length,
     dateRange: minAsof && maxAsof ? [minAsof, maxAsof] : null,
-    totalPicks: tasks.length,
+    totalPicks: overallTasks, // 买点口径(observed 组不计,见 OVERALL_EXCLUDED)
     pendingCount,
+    skippedCount,
     strategies,
     overall: aggregate(allClosed),
     breakoutSegments: breakoutSegments.length ? breakoutSegments : undefined,
+    regimeSegments: regimeSegments.length ? regimeSegments : undefined,
   }
   console.log(
     `[ScreenerForward] 完成:快照 ${snapshots.length} 份 / 唯一票 ${codes.length}(取K ${fetched}) / ` +
-      `pick ${tasks.length}(待定 ${pendingCount})/ 已平 ${allClosed.length}, 耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+      `pick ${tasks.length}(待定 ${pendingCount} 废弃 ${skippedCount})/ 已平 ${allClosed.length}, 耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   )
   writeForwardDisk(result)
   return result

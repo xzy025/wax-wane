@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { trendTemplate, classify, finalScore, marketRegime, targetRMultFor, enrichRelStrength, type Bar, type Candidate } from './screenerRules'
+import { trendTemplate, classify, finalScore, marketRegime, targetRMultFor, enrichRelStrength, scanHealthy, type Bar, type Candidate } from './screenerRules'
 import { SCREENER, type ScreenerConfig } from '../config/screener'
 
 /**
@@ -286,5 +286,18 @@ describe('enrichRelStrength(按代码动态换基准)', () => {
     expect(cands[0].relStrength).toBe(4)
     expect(cands[1].relStrength).toBe(2.5)
     expect(cands[2].relStrength).toBe(1.5)
+  })
+})
+
+describe('scanHealthy — 落盘守卫(空扫描不落盘)', () => {
+  it('union 为空(clist 软失败)→ 不健康(旧版短路判健康会写空快照断 streak)', () => {
+    expect(scanHealthy(0, 0)).toBe(false)
+  })
+  it('取K成功率 ≥60% → 健康;<60% → 不健康', () => {
+    expect(scanHealthy(100, 60)).toBe(true)
+    expect(scanHealthy(100, 59)).toBe(false)
+  })
+  it('小样本边界:union=1 取到 1 → 健康', () => {
+    expect(scanHealthy(1, 1)).toBe(true)
   })
 })

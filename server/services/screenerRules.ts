@@ -404,3 +404,9 @@ export function finalScore(
         taW * ta01),
   )
 }
+
+/** 扫描健康判定(落盘/入库守卫):union 为空(clist 软失败=HTTP 200+空 diff,初筛即空)
+ *  或取K成功率 <60% 视为不健康——不落盘不入库,防残缺快照覆盖好快照、断掉 appearStreak。 */
+export function scanHealthy(unionLen: number, fetched: number): boolean {
+  return unionLen > 0 && fetched >= unionLen * 0.6
+}

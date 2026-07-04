@@ -12,7 +12,7 @@ import { EM_HEADERS } from '../lib/emHeaders'
 import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
 import { SCREENER as C, PULLBACK, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, BHOLD_WATCH, TRENDNEW, TRENDWATCH, ACCUM, type ScreenerConfig } from '../config/screener'
-import { classify, finalScore, marketRegime, targetRMultFor, enrichRelStrength, type Bar, type Candidate, type MarketRegime } from './screenerRules'
+import { classify, finalScore, marketRegime, targetRMultFor, enrichRelStrength, scanHealthy, type Bar, type Candidate, type MarketRegime } from './screenerRules'
 import { classifyPullback, type PullbackCandidate } from './pullbackRules'
 import { classifyHighDivergence, type HighDivCandidate } from './divergenceRules'
 import { classifyVolBreakout, type VolBreakCandidate } from './volBreakoutRules'
@@ -210,6 +210,7 @@ export interface ScreenerResult {
   savedAt?: string // 落盘时刻(ISO);随存档持久化
   closed?: boolean // 扫描发生在收盘后(盘后快照);随存档持久化
   fromCache?: boolean // 本次响应来自磁盘存档兜底(仅内存标记,不落盘)
+  degraded?: boolean // 本次扫描不健康(clist 空/取K成功率过低),结果仍返回但未落盘(仅内存标记)
 }
 
 const num = (v: unknown): number => {
@@ -486,6 +487,9 @@ async function enrichConfluence(
   // ① 龙虎榜:近 K 交易日机构/游资/资金净买(新高 + 回调 候选共享同一索引)
   try {
     const dates = await fetchTradingDates() // 降序(最近在前)
+    // 窗口含「今天」是有意的、与回测口径不同:线上盘后跑批时当日榜已公布、候选供次日
+    // 执行 → 非前视;回测(backtest/calendar.ts windowDatesFor)按信号日收盘入场,当日榜
+    // 不可见,故回测窗不含当日。两处口径差异勿"顺手统一"。
     const win = dates.slice(0, C.LHB_LOOKBACK_K + 1)
     if (win.length) {
       const lhbIndex = await buildLhbIndex(win, { institutional: C.LHB_INSTITUTIONAL, concurrency: 4 })
@@ -824,8 +828,11 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   )
 
   // 按日落盘(无DB也可回看,并作为重启/盘后/过0点的磁盘兜底);失败不影响返回。
-  // 防污染:取K线成功率过低(数据源限流/异常)时跳过,避免用残缺结果覆盖当日好快照。
-  const healthy = union.length === 0 || stats.fetched >= union.length * 0.6
+  // 防污染:取K线成功率过低(数据源限流/异常)或 union 为空(clist 软失败=HTTP 200+空 diff,
+  // 初筛即空)时跳过——旧版空 union 短路判 healthy,空快照覆盖当日好快照后 computeStreaks
+  // 「首次缺席即断裂」会把全市场 appearStreak 重置。
+  const healthy = scanHealthy(union.length, stats.fetched)
+  if (!healthy) result.degraded = true
   if (healthy) {
     result.savedAt = new Date().toISOString()
     result.closed = !isAShareSession()
@@ -851,7 +858,7 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
       }
     }
   } else {
-    console.warn(`[Screener] 取K线成功率过低(${stats.fetched}/${union.length}),跳过存档以免覆盖好快照`)
+    console.warn(`[Screener] 扫描不健康(取K ${stats.fetched}/${union.length},空 union=clist 软失败),跳过存档以免覆盖好快照/断 streak`)
   }
 
   return result
