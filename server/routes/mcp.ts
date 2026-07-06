@@ -138,9 +138,6 @@ router.get('/api/mcp/ashare/breadth', async (_req, res) => {
       promotionRate: data.promotionRate,
       promotedCount: data.promotedCount,
       promotionTotal: data.promotionTotal,
-      newHighCount: data.newHighCount,
-      nearHighCount: data.nearHighCount,
-      nearHighStocks: data.nearHighStocks,
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

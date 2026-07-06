@@ -30,6 +30,10 @@ jobs:
       - name: Lint (src/ + server/)
         run: npm run lint
 
+      # server 全量类型检查(2026-07-06 引入,0 容忍);src/ 另有 46 个历史基线错误,清零前不进 CI 闸。
+      - name: Typecheck (server/)
+        run: npm run typecheck:server
+
       - name: Frontend tests (jsdom)
         run: npm test
 

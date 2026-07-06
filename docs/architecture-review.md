@@ -13,7 +13,7 @@
 ```
 前端 (React 19) ──→ Express 后端 ──→ PostgreSQL + pgvector
      │                    │
-     │                    ├── LLM Agent (16 tools, SSE streaming)
+     │                    ├── LLM Agent (28 tools, SSE streaming)
      │                    ├── RAG 向量搜索 (vectra / pgvector)
      │                    ├── 知识库 (Wyckoff / Dow / PriceAction / A股)
      │                    └── 市场数据 (A股 / 港股 / 美股 / 宏观 / 新闻)
@@ -26,7 +26,7 @@
 | 模块 | 路径 | 职责 |
 |------|------|------|
 | Agent Loop | `src/agent/agentLoop.ts` | 单 Agent 循环，最多 10 轮迭代 |
-| Tool Registry | `src/agent/tools/index.ts` | 注册 16 个工具函数 |
+| Tool Registry | `src/agent/tools/index.ts` | 注册 28 个工具函数(2026-07-06 更新;评审时为 16 个) |
 | System Prompt | `src/agent/prompts.ts` | 复盘流程、理论分析、K线识别 |
 | LLM Client | `src/agent/llmClient.ts` | SSE streaming，支持 OpenAI / Anthropic / MiMo |
 | 后端入口 | `server/index.ts` | Express 路由、LLM 代理、MCP 风格 API |
@@ -34,7 +34,7 @@
 | 向量搜索 | `server/rag/vectorStore.ts` | RAG 语义搜索 |
 | 知识库 | `server/knowledge/` | Wyckoff / Dow Theory / Price Action / A股板学 |
 
-### 现有 Agent Tools（16 个）
+### 现有 Agent Tools（评审时 16 个;2026-07-06 更新:已增至 28 个,下表为评审时快照）
 
 | Tool | 用途 |
 |------|------|
@@ -220,11 +220,11 @@ knowledge-mcp-server/
 
 ### 当前问题
 
-当前是**单 Agent + 16 tools**架构，存在以下问题：
+当前是**单 Agent + 16 tools**（现已 28 tools，2026-07-06 更新）架构，存在以下问题：
 
 1. **复盘流程容易跳步**：`prompts.ts` 定义了 5 步复盘流程，单 Agent 可能遗漏步骤
 2. **理论分析不够深入**：需要同时运用 4 种理论框架，单 Agent 难以深入
-3. **工具选择困难**：16 个工具太多，单 Agent 选择准确率下降
+3. **工具选择困难**：16 个（现 28 个）工具太多，单 Agent 选择准确率下降
 4. **上下文窗口压力**：所有工具 schema + 知识库 + 交易数据塞进一个 prompt
 
 ### 3.1 复盘流程 Agent（🔴 高优先级）

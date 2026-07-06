@@ -67,7 +67,7 @@ async function fetchTwelveData(apiKey: string): Promise<MacroIndicator[]> {
   const url = `${TWELVEDATA_BASE}/quotes?symbol=${symbols}&apikey=${apiKey}`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Twelve Data: ${res.status}`)
-  const json: TwelveDataResponse = await res.json()
+  const json = (await res.json()) as TwelveDataResponse
 
   const results: MacroIndicator[] = []
   const items = json.data ?? []
@@ -96,7 +96,7 @@ interface ExchangeRateResponse {
 async function fetchUSDCNY(): Promise<MacroIndicator | null> {
   const res = await fetch(EXCHANGERATE_BASE)
   if (!res.ok) return null
-  const json: ExchangeRateResponse = await res.json()
+  const json = (await res.json()) as ExchangeRateResponse
   const cny = json.rates?.CNY
   if (cny && typeof cny === 'number') {
     return { id: 'usdcny', value: cny, previousClose: PREVIOUS_CLOSE.usdcny, unit: '', source: 'live' }

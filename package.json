@@ -9,6 +9,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "lint": "eslint src/ server/",
     "lint:fix": "eslint src/ server/ --fix",
+    "typecheck:server": "tsc -p server --noEmit",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
     "test": "vitest run",
@@ -18,8 +19,6 @@
     "sync:cn-finance": "node scripts/sync-cn-finance.mjs"
   },
   "dependencies": {
-    "@types/pg": "^8.20.0",
-    "@zilliz/milvus2-sdk-node": "^3.0.1",
     "papaparse": "^5.5.3",
     "pg": "^8.21.0",
     "phosphor-react": "^1.4.1",
@@ -29,8 +28,6 @@
     "react-router-dom": "^7.6.1",
     "recharts": "^2.15.4",
     "remark-gfm": "^4.0.1",
-    "sql.js": "^1.14.1",
-    "vectra": "^0.12.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -38,7 +35,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/ioredis": "^4.28.10",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.59.4",
@@ -49,7 +46,6 @@
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "ioredis": "^5.11.0",
     "jsdom": "^29.1.1",
     "prettier": "^3.8.3",
     "typescript": "^5.9.3",
