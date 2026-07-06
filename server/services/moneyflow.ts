@@ -391,7 +391,9 @@ async function fetchConceptsCached(code: string): Promise<string[]> {
   const hit = conceptCache.get(code)
   if (hit && hit.expires > Date.now()) return hit.concepts
   const concepts = await fetchConcepts(code)
-  conceptCache.set(code, { concepts, expires: Date.now() + CONCEPT_TTL })
+  // 空结果不缓存(同 rotation closesCache 的守卫):fetchConcepts 把限流/网络错误
+  // 吞成 [],缓存空会让该股 12 小时无概念;真无概念的股重取一次代价可忽略。
+  if (concepts.length > 0) conceptCache.set(code, { concepts, expires: Date.now() + CONCEPT_TTL })
   return concepts
 }
 
@@ -418,7 +420,8 @@ export async function fetchTradingDates(upto?: string): Promise<string[]> {
     const json = (await res.json()) as any
     const data: any[] = json.result?.data ?? []
     const dates = [...new Set(data.map((d) => String(d.TRADE_DATE).slice(0, 10)))].sort((a, b) => (a < b ? 1 : -1))
-    datesCache.set(key, { dates, expires: Date.now() + DATES_TTL })
+    // 空日历=上游异常(龙虎榜交易日不可能为空),不缓存,下次调用重试。
+    if (dates.length > 0) datesCache.set(key, { dates, expires: Date.now() + DATES_TTL })
     return dates
   } catch (err) {
     console.warn('[DragonTiger] trading-dates fetch failed:', err instanceof Error ? err.message : err)
@@ -618,8 +621,12 @@ export async function fetchDragonTiger(date?: string, window = 1): Promise<Drago
   if (hit && hit.expires > Date.now()) return hit.data
   const data = await buildDragonTiger(date, win)
   // 当日（缺省或解析出的交易日==今日）短缓存，历史长缓存。
-  const ttl = !date || data.tradeDate === shanghaiDateStr() ? LATEST_TTL : HISTORICAL_TTL
-  cache.set(key, { data, expires: Date.now() + ttl })
+  // 空榜不缓存:buildWindow 在交易日历取数失败时返回 emptyResult,若按历史
+  // 长缓存(24h)存下,这个日期×窗口的榜单会整天空白;交易日真实榜单不会为空。
+  if (data.buy.length + data.sell.length > 0) {
+    const ttl = !date || data.tradeDate === shanghaiDateStr() ? LATEST_TTL : HISTORICAL_TTL
+    cache.set(key, { data, expires: Date.now() + ttl })
+  }
   return data
 }
 

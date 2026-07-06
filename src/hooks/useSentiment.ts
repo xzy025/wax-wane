@@ -11,6 +11,8 @@ export interface SentimentData {
   fallCount: number
   yestLimitPerf: number
   temperature: number
+  /** 服务端三级兜底链的来源标注(kaipanla→东财推导→mock);mock 不落 localStorage。 */
+  source?: 'kaipanla' | 'derived' | 'mock'
 }
 
 export interface SentimentResult {
@@ -44,7 +46,8 @@ export function useSentiment(date: string = getLastTradingDay()): SentimentResul
 
     const entry = getDay(date)
     const cached = entry?.sentiment as SentimentData | undefined
-    if (cached && typeof cached.temperature === 'number') {
+    // 历史上误存过 mock(修复前无守卫),读到就当没有:今日走重取,历史日显示空态。
+    if (cached && typeof cached.temperature === 'number' && cached.source !== 'mock') {
       setData(cached)
       setLastUpdated(entry ? new Date(entry.timestamp) : null)
       setError(null)
@@ -71,7 +74,8 @@ export function useSentiment(date: string = getLastTradingDay()): SentimentResul
         const result: SentimentData = await res.json()
         if (cancelled) return
         setData(result)
-        saveDay(date, { sentiment: result })
+        // mock 兜底数据只做当次展示,不写进日存档冒充真实历史情绪。
+        if (result.source !== 'mock') saveDay(date, { sentiment: result })
         setLastUpdated(new Date())
         setError(null)
       } catch {
@@ -102,7 +106,7 @@ export function useSentiment(date: string = getLastTradingDay()): SentimentResul
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: SentimentData = await res.json()
       setData(result)
-      saveDay(date, { sentiment: result })
+      if (result.source !== 'mock') saveDay(date, { sentiment: result })
       setLastUpdated(new Date())
       setError(null)
     } catch {
