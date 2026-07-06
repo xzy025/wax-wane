@@ -7,6 +7,13 @@ export interface MacroIndicator {
   value: number
   previousClose: number
   unit: string
+  /** 服务端来源标注:live=真实上游,mock=占位假数(不落 localStorage 日存档)。 */
+  source?: 'live' | 'mock'
+}
+
+/** mock 占位指标只做当次展示,过滤后再落日存档,避免假数冒充真实历史。 */
+function realOnly(indicators: MacroIndicator[]): MacroIndicator[] {
+  return indicators.filter((i) => i.source !== 'mock')
 }
 
 export interface MacroDataResult {
@@ -75,7 +82,8 @@ export function useMacroData(date: string = getLastTradingDay()): MacroDataResul
         setData(result)
         setLastUpdated(new Date())
         setError(null)
-        saveDay(date, { macro: result })
+        const real = realOnly(result)
+        if (real.length > 0) saveDay(date, { macro: real })
       } catch (e) {
         if (cancelled) return
         setError(e instanceof Error ? e.message : 'Unknown error')
@@ -105,7 +113,8 @@ export function useMacroData(date: string = getLastTradingDay()): MacroDataResul
       setData(result)
       setLastUpdated(new Date())
       setError(null)
-      saveDay(date, { macro: result })
+      const real = realOnly(result)
+      if (real.length > 0) saveDay(date, { macro: real })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')
     } finally {

@@ -158,7 +158,9 @@ export async function fetchRecentOrgSurvey(fromDate: string): Promise<Map<string
 
   const out = new Map<string, OrgSurveyAgg>()
   for (const [code, events] of byCode) out.set(code, aggregateSurvey(events))
-  recentCache.set(fromDate, { data: out, expires: Date.now() + RECENT_TTL })
+  // 空结果不缓存:第 1 页就取数失败时 out 为空,缓存会让"机构调研"因子
+  // 静默失效 30 分钟(近几日全市场调研真实为空的情况不存在)。
+  if (out.size > 0) recentCache.set(fromDate, { data: out, expires: Date.now() + RECENT_TTL })
   return out
 }
 

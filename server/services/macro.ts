@@ -10,6 +10,8 @@ export interface MacroIndicator {
   value: number
   previousClose: number
   unit: string
+  /** live=真实上游取到;mock=占位假数(上游缺失时补齐),前端不得当真数据落存档。 */
+  source: 'live' | 'mock'
 }
 
 // Twelve Data symbol -> our internal id + unit
@@ -34,16 +36,17 @@ const PREVIOUS_CLOSE: Record<string, number> = {
 
 // ── Mock data (fallback) ──────────────────────────────────
 
+// 静态占位值,不加随机抖动:抖动会让占位数每次刷新都"动",看起来像真实行情。
+// source:'mock' 是唯一的真假分界,前端据此跳过 localStorage 落档。
 function getMockData(): MacroIndicator[] {
-  const jitter = () => (Math.random() - 0.5) * 0.04
   return [
-    { id: 'us10y', value: 4.38 + jitter(), previousClose: PREVIOUS_CLOSE.us10y, unit: '%' },
-    { id: 'us5y', value: 4.02 + jitter(), previousClose: PREVIOUS_CLOSE.us5y, unit: '%' },
-    { id: 'gold', value: 3285 + jitter() * 100, previousClose: PREVIOUS_CLOSE.gold, unit: 'USD/oz' },
-    { id: 'dxy', value: 104.5 + jitter() * 5, previousClose: PREVIOUS_CLOSE.dxy, unit: '' },
-    { id: 'usdcny', value: 7.245 + jitter() * 0.2, previousClose: PREVIOUS_CLOSE.usdcny, unit: '' },
-    { id: 'crude', value: 78.5 + jitter() * 5, previousClose: PREVIOUS_CLOSE.crude, unit: 'USD/桶' },
-    { id: 'vix', value: 18.5 + jitter() * 3, previousClose: PREVIOUS_CLOSE.vix, unit: '' },
+    { id: 'us10y', value: 4.38, previousClose: PREVIOUS_CLOSE.us10y, unit: '%', source: 'mock' },
+    { id: 'us5y', value: 4.02, previousClose: PREVIOUS_CLOSE.us5y, unit: '%', source: 'mock' },
+    { id: 'gold', value: 3285, previousClose: PREVIOUS_CLOSE.gold, unit: 'USD/oz', source: 'mock' },
+    { id: 'dxy', value: 104.5, previousClose: PREVIOUS_CLOSE.dxy, unit: '', source: 'mock' },
+    { id: 'usdcny', value: 7.245, previousClose: PREVIOUS_CLOSE.usdcny, unit: '', source: 'mock' },
+    { id: 'crude', value: 78.5, previousClose: PREVIOUS_CLOSE.crude, unit: 'USD/桶', source: 'mock' },
+    { id: 'vix', value: 18.5, previousClose: PREVIOUS_CLOSE.vix, unit: '', source: 'mock' },
   ]
 }
 
@@ -79,6 +82,7 @@ async function fetchTwelveData(apiKey: string): Promise<MacroIndicator[]> {
         value,
         previousClose: isNaN(prev) ? (PREVIOUS_CLOSE[meta.id] ?? value) : prev,
         unit: meta.unit,
+        source: 'live',
       })
     }
   }
@@ -95,7 +99,7 @@ async function fetchUSDCNY(): Promise<MacroIndicator | null> {
   const json: ExchangeRateResponse = await res.json()
   const cny = json.rates?.CNY
   if (cny && typeof cny === 'number') {
-    return { id: 'usdcny', value: cny, previousClose: PREVIOUS_CLOSE.usdcny, unit: '' }
+    return { id: 'usdcny', value: cny, previousClose: PREVIOUS_CLOSE.usdcny, unit: '', source: 'live' }
   }
   return null
 }

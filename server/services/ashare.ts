@@ -2,6 +2,7 @@
 
 import { EM_HEADERS, SINA_HEADERS } from '../lib/emHeaders'
 import { createCache, sessionTtl } from '../lib/cache'
+import { todayShanghai } from '../lib/time'
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -269,8 +270,8 @@ async function fetchIndicesAndBreadth(): Promise<{ indices: IndexQuote[]; advanc
 
 async function fetchLimitPool(type: 'up' | 'down'): Promise<{ count: number; stocks: LimitStock[] }> {
   const endpoint = type === 'up' ? 'getTopicZTPool' : 'getTopicDTPool'
-  const today = new Date()
-  const date = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`
+  // 日期参数必须是上海口径:本地 getter 在非 UTC+8 进程(如沙箱 TZ=LA)会取错日。
+  const date = todayShanghai().replace(/-/g, '')
   const url = `https://push2ex.eastmoney.com/${endpoint}?ut=7eea3edcaed734bea9cb3fce871cbecd&dpt=wz.ztzt&date=${date}&_=${Date.now()}`
   const res = await fetch(url, { headers: EM_HEADERS })
   if (!res.ok) throw new Error(`East Money ${endpoint}: ${res.status}`)
@@ -380,18 +381,15 @@ async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: nu
 
 // ── Date helper ─────────────────────────────────────────
 
-function formatDate(d: Date): string {
-  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
-}
-
 function getRecentTradingDay(offset = 0): string {
-  const d = new Date()
-  d.setDate(d.getDate() - offset)
+  // 以上海今天为锚,用 UTC 算术回退,与进程时区解耦(同 lib/time.ts 的口径)。
+  const d = new Date(`${todayShanghai()}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() - offset)
   // Skip weekends
-  while (d.getDay() === 0 || d.getDay() === 6) {
-    d.setDate(d.getDate() - 1)
+  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) {
+    d.setUTCDate(d.getUTCDate() - 1)
   }
-  return formatDate(d)
+  return d.toISOString().slice(0, 10).replace(/-/g, '')
 }
 
 // ── Promotion rate (连板晋级率) ─────────────────────────
@@ -1216,7 +1214,13 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
     fetchVolumeHistory(),
   ])
 
-  const breadth = breadthResult.status === 'fulfilled' ? breadthResult.value : { indices: [], advance: 0, decline: 0, flat: 0 }
+  // 主源(指数+涨跌家数)失败即 throw:空壳若当"成功"返回,会以新鲜数据的身份
+  // 进缓存、顶掉 serve-stale 的最后一份好数据(对齐 dailyReview/marketStructure
+  // "主源失败即 throw" 的语义)。涨跌停池等副源失败仍按部分数据优雅降级。
+  if (breadthResult.status === 'rejected') throw breadthResult.reason
+  if (breadthResult.value.indices.length === 0) throw new Error('AShare: indices empty')
+
+  const breadth = breadthResult.value
   const limitUp = limitUpResult.status === 'fulfilled' ? limitUpResult.value : { count: 0, stocks: [] }
   const limitDown = limitDownResult.status === 'fulfilled' ? limitDownResult.value : { count: 0, stocks: [] }
   const promo = promoResult.status === 'fulfilled' ? promoResult.value : { rate: 0, promoted: 0, total: 0 }

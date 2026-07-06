@@ -40,12 +40,21 @@ const cacheClearers: Record<string, () => void> = {
   rotation: clearRotationCache,
 }
 
+// 无参 = 行情页顶栏「刷新」按钮:只清 5 张行情横幅对应的轻量缓存。选股/实盘战绩/
+// 每日复盘/轮动等重扫描(数百次上游取数、盘后 LLM 叙事)各自有显式 rescan 按钮,
+// 全局刷新不连坐,防一键击穿限流。
+const BANNER_MARKETS = ['ashare', 'hk', 'us', 'hotlist', 'sentiment', 'macro'] as const
+
 router.post('/api/refresh', (req, res) => {
   const market = req.query.market as string | undefined
-  if (market && cacheClearers[market]) {
+  if (market === undefined) {
+    for (const key of BANNER_MARKETS) cacheClearers[key]()
+  } else if (cacheClearers[market]) {
     cacheClearers[market]()
   } else {
-    for (const clear of Object.values(cacheClearers)) clear()
+    // 未知名字多半是拼写错误——报 400 而不是静默清空全部缓存。
+    res.status(400).json({ error: `unknown market "${market}"` })
+    return
   }
   res.json({ ok: true })
 })

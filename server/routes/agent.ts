@@ -13,7 +13,14 @@ import { isDbReady } from '../db/pgDatabase'
 const router = Router()
 
 router.post('/api/agent/chat', async (req, res) => {
-  const { messages, tools, llmConfig } = req.body
+  const { messages, tools, llmConfig } = req.body ?? {}
+
+  // 坏 body 必须走 {error} JSON 契约:裸解构后直接 messages.some 会抛 TypeError,
+  // 被 Express 默认处理器渲染成 HTML 500,前端按 JSON 解析即坏。
+  if (!Array.isArray(messages) || messages.length === 0) {
+    res.status(400).json({ error: 'messages must be a non-empty array' })
+    return
+  }
 
   // Debug: log image info
   const hasImages = messages.some((m: { images?: string[] }) => m.images && m.images.length > 0)
