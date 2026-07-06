@@ -640,11 +640,11 @@ p {
 }
 
 .fr-board-table .table-row {
-  grid-template-columns: 0.4fr 1.4fr 0.8fr 0.8fr 1fr 0.9fr 0.9fr 1.4fr;
+  grid-template-columns: 0.4fr 1.4fr 0.8fr 0.8fr 1fr 0.9fr 0.9fr 0.7fr 1.4fr;
 }
 
 .os-board-table .table-row {
-  grid-template-columns: 0.4fr 1.6fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr;
+  grid-template-columns: 0.4fr 1.6fr 0.8fr 0.8fr 0.8fr 0.9fr 1fr 1fr;
 }
 
 .table-row:last-child {

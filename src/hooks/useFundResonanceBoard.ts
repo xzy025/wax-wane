@@ -17,6 +17,7 @@ export interface FundResonanceBoardRow {
   netInflowPct: number
   turnoverRank: number
   inflowRank: number
+  surveyOrgs?: number // 近20交易日调研机构家数(best-effort,缺=显示 —)
   lhb?: { netAmt: number; buyAmt: number; sellAmt: number; buySeats: Seat[]; sellSeats: Seat[]; reason: string }
 }
 

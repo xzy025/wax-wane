@@ -4,6 +4,8 @@
 // 「机构家数」= 同窗口内 distinct 接待对象(剔除媒体/券商研报口径的明显非调研机构)。
 // 纯聚合(countOrgsInRange / isInstitution)无网络,可单测。关联 [[screener-feature]]。
 import { EM_HEADERS } from '../lib/emHeaders'
+import { fetchIndexKline } from './ashare'
+import { SCREENER } from '../config/screener'
 
 const SURVEY_RPT = 'RPT_ORG_SURVEYNEW'
 const PAGE_SIZE = 500
@@ -25,6 +27,22 @@ export interface OrgSurveyAgg {
   orgs: number // 窗口内 distinct 机构家数
   surveyDays: number // 窗口内有调研的不同交易日数
   latestDate: string // 最近一次调研日
+}
+
+/** 近 N 个交易日窗口的起始日(含最新交易日)——用大盘指数日线当交易日历。
+ *  ⚠ 别再用 moneyflow.fetchTradingDates 算这个窗:它从龙虎榜明细取 distinct 日期(pageSize=800,
+ *  每天几十上百行)只覆盖 ~4-8 个交易日,SURVEY_LOOKBACK=20 会被静默 clamp 成 4~6 天——
+ *  2026-07-04 的「调研窗 5→20 复裁」在 live 侧因此从未真正生效(2026-07-06 修复)。
+ *  失败回退日历天近似(N×1.5,吃掉周末;节假日误差可接受,best-effort 语义)。 */
+export async function surveyWindowStart(lookback: number): Promise<string> {
+  try {
+    const bars = await fetchIndexKline(SCREENER.MARKET_INDEX_SECID, lookback + 5)
+    const dates = bars.map((b) => b.date).filter(Boolean)
+    if (dates.length) return dates[Math.max(0, dates.length - lookback)]
+  } catch {
+    /* 走日历天回退 */
+  }
+  return new Date(Date.now() - Math.round(lookback * 1.5) * 86_400_000).toISOString().slice(0, 10)
 }
 
 // 接待对象里混入媒体/通讯社,非真正"机构调研",计家数时剔除(图里语义=买方/卖方机构)。
@@ -130,9 +148,12 @@ export async function fetchRecentOrgSurvey(fromDate: string): Promise<Map<string
     `&columns=SECURITY_CODE,RECEIVE_START_DATE,RECEIVE_OBJECT&source=WEB&client=WEB` +
     `&sortColumns=RECEIVE_START_DATE&sortTypes=-1&pageSize=${PAGE_SIZE}&pageNumber=${page}&filter=${encodeURIComponent(filter)}`
   // 边取边按 code 累积事件,最后聚合。
+  // 翻页上限单列(≠单股史的 MAX_PAGES):每行=个股×接待机构,全市场 20 交易日窗常见数万行,
+  // 12 页(6000行)会把窗口静默截断回几天(降序取数→丢的全是窗口前段)。40 页仍截断时打日志。
+  const RECENT_MAX_PAGES = 40
   const byCode = new Map<string, SurveyEvent[]>()
   let page = 1
-  while (page <= MAX_PAGES) {
+  while (page <= RECENT_MAX_PAGES) {
     let json: any
     try {
       const res = await fetch(url(page), { headers: EM_HEADERS, signal: AbortSignal.timeout(12000) })
@@ -152,7 +173,12 @@ export async function fetchRecentOrgSurvey(fromDate: string): Promise<Map<string
       if (arr) arr.push(ev)
       else byCode.set(code, [ev])
     }
-    if (page >= (Number(json?.result?.pages) || 1)) break
+    const totalPages = Number(json?.result?.pages) || 1
+    if (page >= totalPages) break
+    if (page === RECENT_MAX_PAGES) {
+      console.warn(`[OrgSurvey] 近期调研翻页达上限 ${RECENT_MAX_PAGES}/${totalPages} 页,窗口前段被截断(fromDate=${fromDate})`)
+      break
+    }
     page++
   }
 

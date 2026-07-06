@@ -10,6 +10,7 @@ export interface OrgSurveyBoardRow {
   orgs: number
   surveyDays: number
   latestDate: string
+  netInflow?: number // 当日主力净流入(元,best-effort;门控关/失败=显示 —)
 }
 
 export interface OrgSurveyBoardHookResult {
