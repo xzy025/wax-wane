@@ -26,7 +26,7 @@ interface Verdict {
   code: string
   name: string
   status: string // 一句话结论
-  group?: 'breakout' | 'trigger'
+  group?: 'breakout' | 'trigger' | 'watch'
   trendnew?: boolean // 命中第8战法趋势新高
   trendwatch?: boolean // 命中趋势中军·监控(放宽买点门槛)
 }
@@ -37,7 +37,7 @@ async function stage1(code: string): Promise<{ name: string; pass: boolean; reas
   const fields = 'f2,f3,f6,f10,f12,f14,f20,f24'
   const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&invt=2&secids=${secid}&fields=${fields}`
   const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
-  const json: Record<string, any> = await res.json()
+  const json = (await res.json()) as Record<string, any>
   const d = json?.data?.diff?.[0]
   if (!d) return null
   const name = String(d.f14 ?? code)
@@ -218,7 +218,7 @@ async function stage2(code: string, fallbackName: string): Promise<Verdict> {
     const label = cand.group === 'breakout' ? '突破' : cand.group === 'trigger' ? '扳机' : '临界观察'
     const icon = cand.group === 'watch' ? '👁' : '✅'
     console.log(`   >>> ${icon} 命中【${label}】${cand.signals.pattern}${cand.watchReason ? ` · ${cand.watchReason}` : ''}`)
-    console.log(`       介入 ${cand.pivot}  加仓(5日线) ${cand.ma5 ?? '—'}  止损 ${cand.stopLoss}  目标 ${cand.target}  评分 ${cand.score || '(单股探针不计排名分)'}`)
+    console.log(`       介入 ${cand.pivot}  加仓(5日线) ${cand.ma5 ?? '—'}  止损 ${cand.stopLoss}  目标 ${cand.target}  评分 ${(cand as { score?: number }).score || '(单股探针不计排名分)'}`)
     return { code, name, group: cand.group, status: `命中 ${label}:${cand.signals.pattern}`, trendnew: trendnewHit, trendwatch: trendwatchHit }
   }
 

@@ -68,7 +68,7 @@ export async function resolveStock(query: string): Promise<StockMatch | null> {
     )}&type=14&count=8&token=D43BF722C8E33BDC906FB84D85E326E8`
     const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
     if (!res.ok) return null
-    const json = await res.json()
+    const json = (await res.json()) as any
     return pickBestStockMatch(json?.QuotationCodeTable?.Data)
   } catch {
     return null

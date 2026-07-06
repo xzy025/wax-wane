@@ -38,7 +38,7 @@ async function fetchClistPage(pn: number, attempt = 0): Promise<{ rows: Record<s
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
-      const json = await res.json()
+      const json = (await res.json()) as any
       return { rows: (json?.data?.diff ?? []) as Record<string, unknown>[], total: Number(json?.data?.total) || 0 }
     } catch {
       /* 试下一个镜像 */

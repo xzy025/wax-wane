@@ -4,11 +4,9 @@
 // 本战法专收这类:完整多头排列(复用 trendTemplate)+ 贴近/站上 52 周高 + 近期持续创新高。
 // 价格口径(非突破口径),全部只读信号日及之前的 K 线,零前视。阈值见 config/screener.ts 的 TRENDNEW。
 import { TRENDNEW, type TrendNewConfig } from '../config/screener'
-import { type Bar, smaAt, rsRaw, trendTemplate } from './screenerRules'
+import { type Bar, smaAt, rsRaw, trendTemplate, r2, clamp01 } from './screenerRules'
 import { consecutiveLimitUps } from './divergenceRules'
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 
 export interface TrendNewCandidate {
   group: 'trendnew'

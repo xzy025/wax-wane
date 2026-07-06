@@ -77,7 +77,7 @@ export async function embedText(text: string): Promise<number[]> {
     })
 
     if (response.ok) {
-      const data = await response.json()
+      const data = (await response.json()) as any
       if (data.data?.[0]?.embedding) {
         return data.data[0].embedding
       }

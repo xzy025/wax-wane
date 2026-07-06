@@ -8,11 +8,9 @@
 // 【监控·非买点·未回测】——不产出 entry/stop/target 交易计划,只给监控指标(距52周高/持续新高次数/
 // 连续站上MA5天数/距MA20偏离度/RS),按趋势强度排序。阈值见 config/screener.ts 的 TRENDWATCH。
 import { TRENDWATCH, type TrendWatchConfig } from '../config/screener'
-import { type Bar, smaAt, rsRaw, trendTemplate } from './screenerRules'
+import { type Bar, smaAt, rsRaw, trendTemplate, r2, clamp01 } from './screenerRules'
 import { consecutiveLimitUps } from './divergenceRules'
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 
 /** 自 endIdx 末尾回数,连续满足 close ≥ MA5(SMA5) 的天数(站上五日线的持续性)。 */
 export function consecutiveAboveMA5(closes: number[], endIdx: number): number {

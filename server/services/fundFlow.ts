@@ -49,7 +49,7 @@ async function fetchRankPage(
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`fundflow HTTP ${res.status}`)
-      const json = await res.json()
+      const json = (await res.json()) as any
       return (json?.data?.diff ?? []) as Record<string, unknown>[]
     } catch {
       /* 试下一个镜像 */
@@ -119,7 +119,7 @@ export async function fetchFundFlowForCodes(codes: string[]): Promise<Map<string
       try {
         const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
         if (!res.ok) throw new Error(`ulist HTTP ${res.status}`)
-        const json = await res.json()
+        const json = (await res.json()) as any
         const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]
         for (const d of diff) {
           const code = String(d.f12 ?? '')

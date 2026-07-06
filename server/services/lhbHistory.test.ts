@@ -4,12 +4,13 @@ import {
   serializeLhbIndex,
   deserializeLhbIndex,
   type LhbIndex,
+  type LhbDay,
 } from './lhbHistory'
 import { boardStrengthAsOf } from './rotationRules'
 
 // 构造合成索引:600000 在 3/10(纯净买+游资)、3/11(机构单日)、3/12(机构多日第2天)上榜。
 function sampleIndex(): LhbIndex {
-  return new Map([
+  return new Map<string, Map<string, LhbDay>>([
     ['2026-03-10', new Map([['600000', { net: 5e7, instNet: 0, instBuy: false, hotNet: 4e7, hotBuy: true }]])],
     ['2026-03-11', new Map([['600000', { net: 8e7, instNet: 3e7, instBuy: true, hotNet: 0, hotBuy: false }]])],
     ['2026-03-12', new Map([['600000', { net: 9e7, instNet: 5e7, instBuy: true, hotNet: 0, hotBuy: false }]])],

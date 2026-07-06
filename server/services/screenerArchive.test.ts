@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { parseScreenerArchiveName, pickLatestArchiveName, isScreenerResult } from './screenerArchive'
+import { parseScreenerArchiveName, pickLatestArchiveName, isScreenerResult, shouldReplaceArchive } from './screenerArchive'
+import type { ScreenerResult } from './screener'
 
 describe('parseScreenerArchiveName', () => {
   it('parses a valid YYYY-MM-DD.json snapshot name', () => {
@@ -65,5 +66,39 @@ describe('isScreenerResult', () => {
     expect(isScreenerResult({})).toBe(false)
     expect(isScreenerResult({ ...valid, asof: 20260624 })).toBe(false) // asof not a string
     expect(isScreenerResult({ ...valid, breakout: undefined })).toBe(false) // breakout not an array
+  })
+})
+
+describe('shouldReplaceArchive — 同日快照择优(防部分降级覆盖)', () => {
+  const snap = (over: Partial<ScreenerResult> = {}): ScreenerResult =>
+    ({ asof: '2026-07-06', breakout: [], trigger: [], pullback: [], closed: true, fetched: 1000, ...over }) as ScreenerResult
+
+  it('无旧档 → 写', () => {
+    expect(shouldReplaceArchive(null, snap())).toBe(true)
+  })
+
+  it('旧档非同日(防御) → 写', () => {
+    expect(shouldReplaceArchive(snap({ asof: '2026-07-03', fetched: 2000 }), snap())).toBe(true)
+  })
+
+  it('部分降级不覆盖优质档:同为盘后,新取K 951 < 旧 1027 → 拒', () => {
+    expect(shouldReplaceArchive(snap({ fetched: 1027 }), snap({ fetched: 951 }))).toBe(false)
+  })
+
+  it('同盘态取K 持平或更高 → 写', () => {
+    expect(shouldReplaceArchive(snap({ fetched: 1027 }), snap({ fetched: 1027 }))).toBe(true)
+    expect(shouldReplaceArchive(snap({ fetched: 951 }), snap({ fetched: 1027 }))).toBe(true)
+  })
+
+  it('盘后档优先于盘中档,双向', () => {
+    // 盘中旧档 + 盘后新档 → 写(哪怕取K更低,收盘定盘是终态)
+    expect(shouldReplaceArchive(snap({ closed: false, fetched: 1027 }), snap({ closed: true, fetched: 951 }))).toBe(true)
+    // 盘后旧档 + 盘中新档 → 拒
+    expect(shouldReplaceArchive(snap({ closed: true, fetched: 951 }), snap({ closed: false, fetched: 1027 }))).toBe(false)
+  })
+
+  it('旧版快照缺 fetched → 允许覆盖(无从比较);新档缺 fetched(异常) → 保旧', () => {
+    expect(shouldReplaceArchive(snap({ fetched: undefined }), snap({ fetched: 10 }))).toBe(true)
+    expect(shouldReplaceArchive(snap({ fetched: 1027 }), snap({ fetched: undefined }))).toBe(false)
   })
 })

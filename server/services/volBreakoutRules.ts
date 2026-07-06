@@ -7,11 +7,9 @@
 //
 // 全部只读信号日及之前的 K 线,零前视。
 import { VOLBREAK, type VolBreakConfig } from '../config/screener'
-import { type Bar, mean, smaAt } from './screenerRules'
+import { type Bar, mean, smaAt, r2, clamp01 } from './screenerRules'
 import { consecutiveLimitUps } from './divergenceRules'
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 
 export interface VolBreakCandidate {
   group: 'volbreak'

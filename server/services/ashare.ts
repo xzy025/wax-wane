@@ -113,6 +113,8 @@ interface EMIndexItem {
   readonly f16: number  // low
   readonly f17: number  // open
   readonly f18: number  // prevClose
+  readonly f9?: number  // PE(动)
+  readonly f20?: number // 总市值(元)
   readonly f104?: number // advance count
   readonly f105?: number // decline count
   readonly f106?: number // flat count
@@ -165,7 +167,7 @@ async function fetchIndicesAndBreadth(): Promise<{ indices: IndexQuote[]; advanc
     clearTimeout(timeout)
 
     if (res.ok) {
-      const json = await res.json()
+      const json = (await res.json()) as any
       const diff = (json?.data?.diff ?? []) as EMIndexItem[]
       if (diff.length > 0) {
         const indices: IndexQuote[] = []
@@ -275,7 +277,7 @@ async function fetchLimitPool(type: 'up' | 'down'): Promise<{ count: number; sto
   const url = `https://push2ex.eastmoney.com/${endpoint}?ut=7eea3edcaed734bea9cb3fce871cbecd&dpt=wz.ztzt&date=${date}&_=${Date.now()}`
   const res = await fetch(url, { headers: EM_HEADERS })
   if (!res.ok) throw new Error(`East Money ${endpoint}: ${res.status}`)
-  const json = await res.json()
+  const json = (await res.json()) as any
 
   const pool = (json?.data?.pool ?? []) as EMLimitPoolItem[]
   const count = toNum(json?.data?.tc) || pool.length
@@ -340,7 +342,7 @@ async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: nu
     const res = await fetch(url, { headers: SINA_HEADERS })
     if (!res.ok) throw new Error(`Sina limit pool: ${res.status}`)
 
-    const data: SinaStock[] = await res.json()
+    const data: SinaStock[] = (await res.json()) as any
     if (!Array.isArray(data) || data.length === 0) break
 
     let hitLimit = false
@@ -420,7 +422,7 @@ async function fetchLimitPoolRaw(date: string): Promise<LimitStock[]> {
   const url = `https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cb3fce871cbecd&dpt=wz.ztzt&date=${date}&_=${Date.now()}`
   const res = await fetch(url, { headers: EM_HEADERS })
   if (!res.ok) return []
-  const json = await res.json()
+  const json = (await res.json()) as any
   const pool = (json?.data?.pool ?? []) as EMLimitPoolItem[]
   return pool.map((item) => ({
     code: toStr(item.c),
@@ -514,7 +516,7 @@ async function fetchKlineHighs(secid: string, lmt: number = HIGHS_KLINE_LMT): Pr
   try {
     const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(HIGHS_KLINE_TIMEOUT) })
     if (!res.ok) return []
-    const json = await res.json()
+    const json = (await res.json()) as any
     const klines = json?.data?.klines as string[] | undefined
     if (!Array.isArray(klines)) return []
     // kline line: date,open,close,high,low,volume,turnover → high = index 3
@@ -545,7 +547,7 @@ async function fetchHighsAnalysis(): Promise<HighsAnalysis> {
   try {
     const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
     if (!res.ok) return empty
-    const json = await res.json()
+    const json = (await res.json()) as any
     const diff = (json?.data?.diff ?? []) as EMNewHighItem[]
     candidates = diff
       .map((s) => ({ code: toStr(s.f12), name: toStr(s.f14), price: toNum(s.f2), changePct: toNum(s.f3) }))
@@ -605,7 +607,7 @@ export async function fetchIndexTrends(code: string): Promise<{ name: string; tr
   const url = `https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58`
   const res = await fetch(url, { headers: EM_HEADERS })
   if (!res.ok) throw new Error(`East Money trends: ${res.status}`)
-  const json = await res.json()
+  const json = (await res.json()) as any
 
   const name = toStr(json?.data?.name)
   const preClose = toNum(json?.data?.preClose)
@@ -705,7 +707,7 @@ export async function fetchStockQuote(stockCode: string): Promise<StockQuote | n
     clearTimeout(timeout)
 
     if (res.ok) {
-      const json = await res.json()
+      const json = (await res.json()) as any
       const items = json?.data?.diff as EMIndexItem[] | undefined
       if (items && items.length > 0) {
         const d = items[0]
@@ -784,7 +786,7 @@ export async function fetchStockKline(
       clearTimeout(timeout)
 
       if (res.ok) {
-        const json = await res.json()
+        const json = (await res.json()) as any
         const name = toStr(json?.data?.name)
         const klinesRaw = json?.data?.klines as string[] | undefined
         const klines: KlineBar[] = []
@@ -834,7 +836,7 @@ export async function fetchStockKline(
       clearTimeout(timeout)
 
       if (res.ok) {
-        const json = await res.json()
+        const json = (await res.json()) as any
         const node = json?.data?.[tcSym]
         // qfqday/qfqweek/qfqmonth when adjusted; fall back to plain key if absent.
         const rows = (node?.[`qfq${tcPeriod}`] ?? node?.[tcPeriod]) as (string | number)[][] | undefined
@@ -1005,7 +1007,7 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
     clearTimeout(timeout)
 
     if (res.ok) {
-      const json = await res.json()
+      const json = (await res.json()) as any
       if (json?.data && typeof json.data === 'object') {
         em = json.data as Record<string, unknown>
         // Prefer EM's UTF-8 name: the Sina quote is GBK and decodes to mojibake.
@@ -1066,7 +1068,7 @@ async function fetchEMKline(secid: string): Promise<Map<string, { volume: number
   try {
     const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
     if (!res.ok) throw new Error(`EM kline ${secid}: ${res.status}`)
-    const json = await res.json()
+    const json = (await res.json()) as any
     const klines = json?.data?.klines as string[] | undefined
     if (!klines || klines.length === 0) throw new Error(`EM kline ${secid}: empty`)
     const map = new Map<string, { volume: number; turnover: number }>()
@@ -1097,7 +1099,7 @@ export async function fetchIndexKline(secid: string, count: number): Promise<{ d
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`EM index kline ${secid}: ${res.status}`)
-      const json = await res.json()
+      const json = (await res.json()) as any
       const klines = json?.data?.klines as string[] | undefined
       if (!klines || klines.length === 0) throw new Error(`EM index kline ${secid}: empty`)
       return klines.map((line) => {

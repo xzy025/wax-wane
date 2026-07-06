@@ -16,7 +16,7 @@
 
 - 🤖 **自研 ReAct AI Agent** — `async generator` 实现「推理 → 调工具 → 观察」循环,**28 个领域工具**,SSE 全程流式、可中断,两层上下文压缩防止 context 爆炸。
 - 🧠 **多 Agent 编排** — **12 个专家 Agent**(宏观 / 消息 / 大盘 / 板块 / 基本面 / 技术 / 道氏 / 威科夫 / 价格行为 / 情绪…)+ Synthesizer 汇总,支持**串行流水线**与**并行扇出 + 跨理论投票**两种模式,以 **Agent-as-Tool** 模式对主 Agent 透明。
-- 🔍 **RAG + 知识图谱** — Embedding + 向量检索(pgvector / Vectra)做历史交易语义召回;GraphRAG + 交易理论知识库,让 Agent 基于框架点评交易。
+- 🔍 **RAG + 知识图谱** — Embedding + 向量检索(pgvector)+ BM25 混合搜索做历史交易语义召回;GraphRAG + 交易理论知识库,让 Agent 基于框架点评交易。
 - 📊 **多市场行情看板** — 聚合 A 股 / 港股 / 美股指数、热门股榜单、龙虎榜、市场情绪与宏观指标,按交易日缓存。
 - 🧾 **基本面分析** — 接入东方财富 F10 真实数据(公司快照、4 年财务、十大股东),Agent 可生成基本面研报并存档检索。
 - 🧮 **交割单解析引擎** — 纯函数实现 CSV / Excel 解析 → 买卖配对 → 持仓还原 → 交易分组,并计算胜率、盈亏比、R 倍数等量化指标。
@@ -32,8 +32,8 @@
 | 层 | 技术 |
 |---|---|
 | **前端** | React 19 · TypeScript 5.9 · Vite 7 · React Router 7 · Recharts · Phosphor Icons · react-markdown |
-| **后端** | Node.js · Express 5 · tsx (ESM) · PostgreSQL + pgvector · Redis (ioredis) |
-| **AI / 数据** | LLM API (SSE 流式) · RAG 向量检索 (Vectra / pgvector) · Embedding · GraphRAG · Multi-Agent 编排 |
+| **后端** | Node.js · Express 5 · tsx (ESM) · PostgreSQL + pgvector |
+| **AI / 数据** | LLM API (SSE 流式) · RAG 向量检索 (pgvector + BM25 混合) · Embedding · GraphRAG · Multi-Agent 编排 |
 | **工程化** | Vitest 4 + Testing Library (373 用例) · ESLint v10 + Prettier · 代码分包 / 懒加载 · 中英 i18n |
 
 ---
@@ -80,7 +80,7 @@ server/          Express API(按领域分层,独立 package.json)
 ├── graph/       GraphRAG 知识图谱
 ├── knowledge/   交易理论知识库(道氏 · 威科夫 · 价格行为)+ 基本面 / 教学语料
 ├── memory/      长期记忆(抽取 / 存储)
-└── lib/         LLM 客户端 · 缓存 · Redis
+└── lib/         LLM 客户端 · 缓存
 ```
 
 ---

@@ -84,7 +84,7 @@ async function fetchClistPage(category: RotationCategory, pn: number): Promise<R
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
-      const json = await res.json()
+      const json = (await res.json()) as any
       return (json?.data?.diff ?? []) as Record<string, unknown>[]
     } catch {
       /* 试下一个镜像 */
@@ -323,7 +323,7 @@ async function fetchBoardConstituents(
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`clist b: HTTP ${res.status}`)
-      const json = await res.json()
+      const json = (await res.json()) as any
       const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]
       if (diff.length) {
         return diff

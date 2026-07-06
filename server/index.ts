@@ -30,14 +30,16 @@ const allowedOrigins = process.env.CORS_ORIGINS?.split(',') ?? [
   'http://localhost:3000',
   'http://localhost:3002',
 ]
+// 私网来源(vite --host 0.0.0.0 的 LAN 访问,如 http://192.168.x.x:3000)同样放行。
+const PRIVATE_LAN_ORIGIN = /^http:\/\/(localhost|127\.0\.0\.1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$/
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, server-to-server)
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || PRIVATE_LAN_ORIGIN.test(origin)) {
         callback(null, true)
       } else {
-        callback(null, true) // Permissive for local dev; tighten for production
+        callback(null, false) // 服务无鉴权且监听 0.0.0.0——公网页面不得跨域调用
       }
     },
   }),

@@ -3,11 +3,9 @@
 // 与第7战法「突破整理」(breakoutHoldRules:小实体十字星整理·高低点抬)互补:本战法抓的是突破后的「回踩不破」低吸。
 // 信号日=回踩日(今日);全部只读信号日及之前的 K 线,零前视。阈值见 config/screener.ts 的 PBREAK。
 import { PBREAK, type BreakoutPullbackConfig } from '../config/screener'
-import { type Bar, mean, smaAt } from './screenerRules'
+import { type Bar, mean, smaAt, r2, clamp01 } from './screenerRules'
 import { consecutiveLimitUps } from './divergenceRules'
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 
 export interface BreakoutPullbackCandidate {
   group: 'breakpull'

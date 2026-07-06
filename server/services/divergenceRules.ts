@@ -4,10 +4,8 @@
 // 命门信号「收盘在均价线上方=弱转强」用当日均价(日内VWAP=成交额/成交量)实现,无需盘口/分时。
 // ⚠ 超短(T+1)赔率游戏,阈值待回测校准;主力净流入暂缺,用 连板+分歧+VWAP+量价 近似。
 import { DIVERGENCE, HIGHDIV, type DivergenceConfig, type HighDivConfig } from '../config/screener'
-import { type Bar, mean, smaAt } from './screenerRules'
+import { type Bar, mean, smaAt, r2, clamp01 } from './screenerRules'
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 
 /** 板块涨停幅(%):双创/科创 20、北交 30、主板 10。选股 universe 已排除 ST,故按代码前缀即可。 */
 export function boardLimitPct(code: string): number {

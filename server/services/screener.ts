@@ -5,7 +5,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl, isAShareSession } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
-import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult } from './screenerArchive'
+import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult, shouldReplaceArchive } from './screenerArchive'
 import { isDbReady, upsertScreenerSnapshot, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { computeStreaks } from './screenerStreak'
 import { EM_HEADERS } from '../lib/emHeaders'
@@ -207,6 +207,7 @@ export interface ScreenerResult {
   scannedPullback: number // 回调战法初筛(量比榜)入围只数
   universe: number // clist 全市场只数
   truncated: boolean // 是否触及 MAX_KLINE 上限
+  fetched?: number // 取K线成功数(覆盖率证据);随存档持久化,同日快照择优(shouldReplaceArchive)用
   savedAt?: string // 落盘时刻(ISO);随存档持久化
   closed?: boolean // 扫描发生在收盘后(盘后快照);随存档持久化
   fromCache?: boolean // 本次响应来自磁盘存档兜底(仅内存标记,不落盘)
@@ -245,7 +246,7 @@ async function fetchClistPage(pn: number, attempt = 0): Promise<{ rows: Record<s
     try {
       const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
       if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
-      const json = await res.json()
+      const json = (await res.json()) as any
       return { rows: (json?.data?.diff ?? []) as Record<string, unknown>[], total: Number(json?.data?.total) || 0 }
     } catch {
       /* 试下一个镜像 */
@@ -634,7 +635,7 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   // Regime(尽力而为,失败给中性)
   let regime: ScreenerRegime
   try {
-    regime = buildRegime((await fetchSentiment()) as Record<string, number>)
+    regime = buildRegime((await fetchSentiment()) as unknown as Record<string, number>)
   } catch {
     regime = {
       phase: 'caution', temperature: 0, limitUp: 0, limitDown: 0, breakRate: 0,
@@ -835,28 +836,39 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
   const healthy = scanHealthy(union.length, stats.fetched)
   if (!healthy) result.degraded = true
   if (healthy) {
+    result.fetched = stats.fetched
     result.savedAt = new Date().toISOString()
     result.closed = !isAShareSession()
-    try {
-      mkdirSync(SCREENER_DIR, { recursive: true })
-      writeFileSync(join(SCREENER_DIR, `${asof}.json`), JSON.stringify(result, null, 2))
-    } catch (err) {
-      console.warn('[Screener] 存档失败(非致命):', err)
-    }
-    // 同时存一份到数据库(best-effort,仅连库时;失败不影响返回)。
-    if (isDbReady()) {
+    // 同日择优:scanHealthy 只拦全挂(60% 下限),部分降级(如取K 951/1062)会通过门槛并覆盖
+    // 早前更优快照(2026-07-06 实发:隆达/海鸥/申联生物一度丢失)。覆盖前对比已存档的
+    // closed/fetched,新档不占优则跳过(本次结果仍正常返回/进内存缓存,只是不落盘)。
+    const prev = loadArchive(asof)
+    if (shouldReplaceArchive(prev, result)) {
       try {
-        await upsertScreenerSnapshot({
-          asof: result.asof,
-          resultJson: JSON.stringify(result),
-          regimePhase: result.regime?.phase,
-          universe: result.universe,
-          scanned: result.scanned,
-          closed: result.closed,
-        })
-      } catch (dbErr) {
-        console.warn('[Screener] DB 快照写入失败(非致命):', dbErr)
+        mkdirSync(SCREENER_DIR, { recursive: true })
+        writeFileSync(join(SCREENER_DIR, `${asof}.json`), JSON.stringify(result, null, 2))
+      } catch (err) {
+        console.warn('[Screener] 存档失败(非致命):', err)
       }
+      // 同时存一份到数据库(best-effort,仅连库时;失败不影响返回)。
+      if (isDbReady()) {
+        try {
+          await upsertScreenerSnapshot({
+            asof: result.asof,
+            resultJson: JSON.stringify(result),
+            regimePhase: result.regime?.phase,
+            universe: result.universe,
+            scanned: result.scanned,
+            closed: result.closed,
+          })
+        } catch (dbErr) {
+          console.warn('[Screener] DB 快照写入失败(非致命):', dbErr)
+        }
+      }
+    } else {
+      console.warn(
+        `[Screener] 同日已有更优快照(已存 取K ${prev?.fetched ?? '?'}/closed=${prev?.closed ?? '?'} vs 本次 ${stats.fetched}/closed=${result.closed}),跳过覆盖`,
+      )
     }
   } else {
     console.warn(`[Screener] 扫描不健康(取K ${stats.fetched}/${union.length},空 union=clist 软失败),跳过存档以免覆盖好快照/断 streak`)

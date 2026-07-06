@@ -11,10 +11,8 @@
 //   ⑤ 均线即将/已金叉
 //   ⑥ 异常放量启动(=触发/买点)
 import { PULLBACK, type PullbackConfig } from '../config/screener'
-import { type Bar, type Pivots, mean, smaAt, rsRaw, pivotLevels } from './screenerRules'
+import { type Bar, type Pivots, mean, smaAt, rsRaw, pivotLevels, r2, clamp01 } from './screenerRules'
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 const FIB = [0.382, 0.5, 0.618] // 评分用斐波档(深度越贴近越高分)
 
 export interface PullbackCandidate {

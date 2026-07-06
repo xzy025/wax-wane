@@ -2,6 +2,8 @@
 
 MCP (Model Context Protocol) servers for the Wax Wane application. These servers expose trading tools that can be used by any MCP client (Claude Desktop, Cursor, etc.).
 
+> ⚠️ **状态说明(2026-07-06)**:这些是面向外部 MCP 客户端(Claude Desktop 等)的独立 stdio server,**未接入本应用运行时**——app 本身不经由它们取数。工具实现状态见文末「Tool Status」表:market-data 仅 3 个工具为真实实现,其余为 stub;另外 3 个 server 未审计。
+
 ## Available Servers
 
 ### 1. Market Data (`market-data/`)
@@ -77,12 +79,13 @@ All servers use these environment variables:
 - `PG_USER` - Database user (default: postgres)
 - `PG_PASSWORD` - Database password (default: postgres)
 
-## Total Tools: 25
+## Tool Status (2026-07-06 audit)
 
-| Server | Tools |
-|--------|-------|
-| Market Data | 9 |
-| RAG | 4 |
-| Trade DB | 4 |
-| Memory + Graph | 8 |
-| **Total** | **25** |
+| Server | 声明工具数 | 实际状态 |
+|--------|-----------|---------|
+| Market Data | 9 | **3 真实 + 6 stub**。真实:`getAShareQuote`、`getAShareBreadth`、`getIndexTrends`。Stub(返回 mock/空数据):`getLimitPool`、`getHKData`、`getUSData`、`getMacroIndicators`、`getNewsSummary`、`getHotList` |
+| RAG | 4 | 未审计(工具数为声明值) |
+| Trade DB | 4 | 未审计(工具数为声明值) |
+| Memory + Graph | 8 | 未审计(工具数为声明值) |
+
+> 注:这些 server 是给外部 MCP 客户端(Claude Desktop / Cursor 等)用的独立 stdio 进程,**不被本应用运行时使用**。应用内的同名数据能力由 `server/services/` 直接实现。

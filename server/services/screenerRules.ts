@@ -63,8 +63,10 @@ export interface Candidate {
   counterTrend?: boolean // 逆势强:大盘明显下跌日(≤RELSTR.CRASH_DAY_PCT)逆势收红
 }
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
+/** 保留两位小数(展示口径)。导出供并列战法复用(此前 10 个规则文件各自复制一份)。 */
+export const r2 = (n: number) => Math.round(n * 100) / 100
+/** 夹取 [0,1](打分归一)。导出供并列战法复用。 */
+export const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 /** 算术均值(空数组=0)。导出供并列战法(pullbackRules)复用。 */
 export const mean = (a: number[]) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0)
 

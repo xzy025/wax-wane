@@ -4,11 +4,9 @@
 // 与「今日已突破」(只抓突破当天)互补:本战法的信号日是 pole 之后的整理日(今日=最后一根小K线)。
 // 全部只读信号日及之前的 K 线,零前视。阈值见 config/screener.ts 的 BHOLD。
 import { BHOLD, type BreakoutHoldConfig } from '../config/screener'
-import { type Bar, mean } from './screenerRules'
+import { type Bar, mean, r2, clamp01 } from './screenerRules'
 import { consecutiveLimitUps } from './divergenceRules'
 
-const r2 = (n: number) => Math.round(n * 100) / 100
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 
 export interface BreakoutHoldCandidate {
   group: 'bhold'

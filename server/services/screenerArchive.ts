@@ -45,3 +45,23 @@ export function isScreenerResult(v: unknown): v is ScreenerResult {
     Array.isArray(r.pullback)
   )
 }
+
+/** 同日快照择优:新扫描结果是否允许覆盖已存档的同日快照。
+ *  防「部分降级覆盖」:scanHealthy 只拦全挂(取K ≥60% 即算健康),一次 89% 覆盖率的扫描
+ *  会静默覆盖早前 97% 的优质快照(2026-07-06 实发,隆达/海鸥/申联生物一度从榜单丢失)。
+ *  规则(优先级从高到低):
+ *   1. 无旧档 / 旧档非同日(防御,按日存不应发生)→ 写
+ *   2. 盘后档(closed)优先于盘中档——收盘定盘数据是终态
+ *   3. 同盘态按取K成功数(fetched)不倒退;旧档缺 fetched(本字段引入前的旧版)→ 允许覆盖
+ *      (无从比较;新档带上 fetched 后即受保护),新档缺 fetched(异常)→ 保旧。
+ *  已知可接受边界:开盘前扫描会存成 closed=true,同日盘中(closed=false)不覆盖它——
+ *  实际不发生(盘前命中前一晚的 12h 缓存,不触发重扫)。 */
+export function shouldReplaceArchive(prev: ScreenerResult | null, next: ScreenerResult): boolean {
+  if (!prev || prev.asof !== next.asof) return true
+  const prevClosed = prev.closed === true
+  const nextClosed = next.closed === true
+  if (nextClosed !== prevClosed) return nextClosed
+  if (typeof prev.fetched !== 'number') return true
+  if (typeof next.fetched !== 'number') return false
+  return next.fetched >= prev.fetched
+}

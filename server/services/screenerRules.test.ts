@@ -196,6 +196,7 @@ describe('finalScore', () => {
     volScore: 0.5,
     distToPivotPct: 0,
     dist52Pct: 0,
+    pivots: { r1: 41, r2: 42, s1: 39, s2: 38 },
     signals: { trendOk: true, volDry: false, atrContract: true, breakoutVol: true, pattern: '' },
   }
 
