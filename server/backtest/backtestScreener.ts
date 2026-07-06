@@ -34,6 +34,7 @@ import { classifyPullback } from '../services/pullbackRules'
 import { classifyDivergence, classifyHighDivergence } from '../services/divergenceRules'
 import { classifyVolBreakout } from '../services/volBreakoutRules'
 import { classifyFundResonance } from '../services/fundResonanceRules'
+import { simulateEntry, type EntryMode } from './optimize'
 import { classifyBreakoutHold } from '../services/breakoutHoldRules'
 import { classifyTrendNewHigh } from '../services/trendNewHighRules'
 import { classifyBreakoutPullback } from '../services/breakoutPullbackRules'
@@ -620,6 +621,48 @@ function simulateFundResonance(sb: StockBars, surveyEvents: SurveyEvent[], cfg: 
     t.frSurveyOrgs = surveyOrgs
     trades.push(t)
     i = i + hold + 1 // 冷却:一仓在手不重叠
+  }
+  return trades
+}
+
+/** FUNDRES 入场方式对照的信号收集:一遍 walk-forward 收全部信号(无冷却,回放时再按臂冷却)。
+ *  STOP/R_MULT/入场模式/持有都不影响门槛判定 → 一遍收集可供全网格回放。
+ *  调研窗口与 simulateFundResonance 完全同口径(knownBy=信号日,披露日防前视)。 */
+interface FundResSignal {
+  idx: number
+  entry: number // 信号日收盘(重锚基准)
+  surveyOrgs: number
+}
+
+function collectFundResSignals(sb: StockBars, surveyEvents: SurveyEvent[], cfg: FundResConfig): FundResSignal[] {
+  const { bars, code } = sb
+  const out: FundResSignal[] = []
+  for (let i = cfg.MIN_BARS; i <= bars.length - 2; i++) {
+    const startDate = bars[Math.max(0, i - cfg.SURVEY_LOOKBACK)].date
+    const surveyOrgs = countOrgsInRange(surveyEvents, startDate, bars[i].date, bars[i].date)
+    const cand = classifyFundResonance(bars.slice(0, i + 1), code, surveyOrgs, cfg)
+    if (cand && cand.entry > 0) out.push({ idx: i, entry: cand.entry, surveyOrgs })
+  }
+  return out
+}
+
+/** 按入场臂回放 FUNDRES 信号。冷却=optimize.runCell 惯例(skip idx≤lastEntryIdx+hold,
+ *  gap 臂未高开不取不冷却);stop/target 按参数现算,重锚与入场日撮合在 simulateEntry 内。 */
+function replayFundRes(
+  sb: StockBars, signals: FundResSignal[], arm: { mode: EntryMode; gapPct: number },
+  stopPct: number, rMult: number, hold: number,
+): Trade[] {
+  const trades: Trade[] = []
+  let lastEntryIdx = -Infinity
+  for (const s of signals) {
+    if (s.idx <= lastEntryIdx + hold) continue // 冷却:一仓在手不重叠
+    const stop = s.entry * (1 - stopPct / 100)
+    const target = s.entry + rMult * (s.entry - stop)
+    const res = simulateEntry(sb.bars, s.idx, { entry: s.entry, stop, target }, arm.mode, arm.gapPct, hold, sb.code)
+    if (!res) continue // 未高开/无次根/风险≤0 → 不取、不冷却
+    res.trade.frSurveyOrgs = s.surveyOrgs
+    trades.push(res.trade)
+    lastEntryIdx = res.entryIdx
   }
   return trades
 }
@@ -1214,6 +1257,57 @@ async function main() {
       console.log(fmtMetrics(b.label, mm))
       factorEval.push({ bucket: b.label, metrics: mm })
     }
+    // 入场方式五臂对照(bhold 教训:入场机制是命门——收盘进 0.17R vs 次日确认 0.45R)。
+    // 原图洞察「高开=次日触发」在此直接检验:gapUp 臂=次日高开才买,未高开放弃(不取不冷却)。
+    console.log(`\n---------- FUNDRES 入场方式五臂对照(锁定 VOL${FUNDRES.VOL_MULT}/SO${FUNDRES.SURVEY_MIN_ORGS}/SL${FUNDRES.SURVEY_LOOKBACK}/S${FUNDRES.STOP_MAX_PCT}/R${FUNDRES.R_MULT}/HOLD${HOLD_FR}) ----------`)
+    const FR_ARMS: Array<{ key: string; label: string; mode: EntryMode; gapPct: number }> = [
+      { key: 'close', label: 'close(当日收盘进=现行)', mode: 'close', gapPct: 0 },
+      { key: 'nextOpen', label: 'nextOpen(次日开盘进)', mode: 'nextOpen', gapPct: 0 },
+      { key: 'gapUp0', label: 'gapUp0(次日高开>0%才进)', mode: 'nextGapUp', gapPct: 0 },
+      { key: 'gapUp1', label: 'gapUp1(次日高开≥1%才进)', mode: 'nextGapUp', gapPct: 1 },
+      { key: 'gapUp2', label: 'gapUp2(次日高开≥2%才进)', mode: 'nextGapUp', gapPct: 2 },
+    ]
+    const frSignals = data.map((sb) => collectFundResSignals(sb, evOf(sb.code), FUNDRES))
+    const entryComparison: Array<{ arm: string; metrics: Metrics }> = []
+    for (const arm of FR_ARMS) {
+      const mm = aggregate(data.flatMap((sb, si) => replayFundRes(sb, frSignals[si], arm, FUNDRES.STOP_MAX_PCT, FUNDRES.R_MULT, HOLD_FR)))
+      console.log(fmtMetrics(arm.label, mm))
+      entryComparison.push({ arm: arm.key, metrics: mm })
+    }
+    // parity 校验:close 臂(收集+回放)必须复现原 walk 基线,否则口径有 bug、对照不可信。
+    const closeArm = entryComparison[0].metrics
+    if (closeArm.n !== m.n || closeArm.expectancyR !== m.expectancyR) {
+      console.log(`⚠ parity 失败:close 臂 n=${closeArm.n}/期望${closeArm.expectancyR}R ≠ 基线 n=${m.n}/期望${m.expectancyR}R——以下对照不可信`)
+    } else {
+      console.log('✓ parity:close 臂与基线完全一致')
+    }
+    const bestEntry = entryComparison.reduce((a, b) => (b.metrics.expectancyR > a.metrics.expectancyR ? b : a))
+    console.log(`→ 最优臂 ${bestEntry.arm}:vs close 期望差 ${r2(bestEntry.metrics.expectancyR - closeArm.expectancyR)}R(换臂闸:≥+0.05R 且 PF≥1.3 且 n≥60)`)
+
+    // 入场×止损网格(STOP_MAX_PCT 从未扫过;单格尖峰=过拟合,须相邻趋势一致才采纳)。
+    console.log(`\n---------- FUNDRES 入场×止损网格(R${FUNDRES.R_MULT}/HOLD${HOLD_FR}) ----------`)
+    const FR_STOPS = [4, 5, 6, 8]
+    const entryStopGrid: Array<{ arm: string; stopPct: number; metrics: Metrics }> = []
+    for (const arm of FR_ARMS) {
+      for (const SP of FR_STOPS) {
+        const mm = aggregate(data.flatMap((sb, si) => replayFundRes(sb, frSignals[si], arm, SP, FUNDRES.R_MULT, HOLD_FR)))
+        console.log(fmtMetrics(`${arm.key}×STOP${SP}`, mm))
+        entryStopGrid.push({ arm: arm.key, stopPct: SP, metrics: mm })
+      }
+    }
+
+    // HOLD 复核:在(样本足的)最优 臂×止损 上复扫持有期,确认 HOLD3 仍最优。
+    const eligibleCells = entryStopGrid.filter((c) => c.metrics.n >= 60)
+    const bestCell = (eligibleCells.length ? eligibleCells : entryStopGrid).reduce((a, b) => (b.metrics.expectancyR > a.metrics.expectancyR ? b : a))
+    const bestCellArm = FR_ARMS.find((a) => a.key === bestCell.arm) ?? FR_ARMS[0]
+    console.log(`\n---------- FUNDRES HOLD 复核(${bestCell.arm}×STOP${bestCell.stopPct}) ----------`)
+    const entryHoldRecheck: Array<{ hold: number; metrics: Metrics }> = []
+    for (const H of [2, 3, 5]) {
+      const mm = aggregate(data.flatMap((sb, si) => replayFundRes(sb, frSignals[si], bestCellArm, bestCell.stopPct, FUNDRES.R_MULT, H)))
+      console.log(fmtMetrics(`HOLD=${H}`, mm))
+      entryHoldRecheck.push({ hold: H, metrics: mm })
+    }
+
     out.fundResEval = {
       hold: HOLD_FR,
       config: FUNDRES,
@@ -1222,6 +1316,9 @@ async function main() {
       baselineExpectancyR: base.metrics.expectancyR,
       sweep: frSweep,
       surveyOrgsBuckets: factorEval,
+      entryComparison,
+      entryStopGrid,
+      entryHoldRecheck,
     }
   }
 

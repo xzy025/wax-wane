@@ -25,7 +25,7 @@ import { technicalCombo, techMult, type TechnicalCombo } from './technicalScore'
 import { boardStrengthAsOf } from './rotationRules'
 import { resolveStockIndustryBoard } from './rotation'
 import { fetchTradingDates } from './moneyflow'
-import { fetchRecentOrgSurvey } from './orgSurvey'
+import { fetchRecentOrgSurvey, surveyWindowStart } from './orgSurvey'
 import { fetchInflowRankTop, fetchFundFlowForCodes, isFundFlowEnabled, type FundFlowInfo } from './fundFlow'
 import { buildLhbIndex, lhbFactorFor } from './lhbHistory'
 
@@ -108,7 +108,7 @@ export interface VolBreakScreenerCandidate extends VolBreakCandidate {
 }
 
 /** 资金流共振·机构调研候选(第六组):放量+短期多头+机构近N日调研,见 fundResonanceRules.classifyFundResonance。
- *  可回测子集已过线(0.26R/PF2.08);主力净流入∩成交额「资金共振」为实盘加成(未回测,env 门控)。 */
+ *  可回测子集已过线(0.42R/PF2.22,2026-07-06 止损校准 6→4);主力净流入∩成交额「资金共振」为实盘加成(未回测,env 门控)。 */
 export interface FundResScreenerCandidate extends FundResCandidate {
   code: string
   name: string
@@ -197,7 +197,7 @@ export interface ScreenerResult {
   pullback: PullbackScreenerCandidate[] // 第三组:回调二次启动/圆弧底反包
   highdiv: HighDivScreenerCandidate[] // 第四组:连续新高·缩量十字星·守MA5 分歧低吸(回测 0.19R)
   volbreak: VolBreakScreenerCandidate[] // 第五组:放量新高·资金驱动突破(MA5>MA21+持续放量+真52周高,回测 0.27R/PF1.41)
-  fundres: FundResScreenerCandidate[] // 第六组:资金流共振·机构调研(放量+短期多头+机构调研,回测 0.26R/PF2.08;资金共振为实盘加成)
+  fundres: FundResScreenerCandidate[] // 第六组:资金流共振·机构调研(放量+短期多头+机构调研,回测 0.42R/PF2.22;资金共振为实盘加成)
   bhold: BHoldScreenerCandidate[] // 第七组:突破整理·延续(放量大阳过前高+十字星整理+高低点双抬,确认入场回测 0.45R/PF1.90)
   bholdWatch: BHoldScreenerCandidate[] // 突破整理·观察(超集,仅放宽 POLE_VOL_MULT;纯监控·非买点·未回测)
   trendnew: TrendNewScreenerCandidate[] // 第八组:趋势新高(多头排列+持续创新高+贴52周高,纯OHLCV,回测 0.28R/PF1.52)
@@ -539,9 +539,10 @@ async function enrichConfluence(
 /** 全市场近 SURVEY_LOOKBACK 个交易日的机构调研家数(code→orgs)。best-effort:失败给空 Map(规则得 0)。 */
 async function resolveRecentSurvey(): Promise<Map<string, number>> {
   try {
-    const dates = await fetchTradingDates() // 降序(最近在前)
-    if (!dates.length) return new Map()
-    const fromDate = dates[Math.min(FUNDRES.SURVEY_LOOKBACK - 1, dates.length - 1)]
+    // 2026-07-06 修复:窗口起始日改用指数日线交易日历(surveyWindowStart);旧 fetchTradingDates
+    // 只覆盖 4~8 个交易日,20 日窗被静默 clamp → live 与回测口径背离(回测的 0.42R 是 20 日窗)。
+    const fromDate = await surveyWindowStart(FUNDRES.SURVEY_LOOKBACK)
+    if (!fromDate) return new Map()
     const agg = await fetchRecentOrgSurvey(fromDate)
     const out = new Map<string, number>()
     for (const [code, a] of agg) out.set(code, a.orgs)

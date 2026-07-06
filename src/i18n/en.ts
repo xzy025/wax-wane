@@ -535,7 +535,7 @@ export default {
       days: 'd',
       ma5ok: 'MA5>MA21',
     },
-    frDesc: 'Fund Resonance · Institutional Surveys (a Hangzhou quant short-term play): heavy volume (the volume factor) + short-term bull strength + institutional surveys within the last 5 days, ~3-day holds. The backtestable subset backtests at ≈0.26R, PF 2.08 (beats divergence 0.19R, near vol-breakout 0.27R; the survey factor lifts expectancy from 0.09R to 0.26R). The "Fund Resonance" badge = intersection of top-200 main net-inflow and top-200 turnover (a live add-on, unbacktested as there is no free history). "Gap-up" is a next-open entry trigger, not a screening condition.',
+    frDesc: 'Fund Resonance · Institutional Surveys (a Hangzhou quant short-term play): heavy volume (the volume factor) + short-term bull strength + institutional surveys within the last 20 days (disclosure-date basis), ~3-day holds, 4% stop. The backtestable subset backtests at ≈0.42R, PF 2.22 (beats divergence 0.19R and vol-breakout 0.27R; the survey factor lifts expectancy from 0.09R to 0.29R, stop calibration to 0.42R). A 5-arm entry comparison: same-day close entry beats next-day open (0.29R vs 0.19R), and "buy only on next-day gap-up" was rejected by backtest. The "Fund Resonance" badge = intersection of top-200 main net-inflow and top-200 turnover (a live add-on, unbacktested as there is no free history).',
     frCard: {
       survey: 'Surveys',
       orgs: 'orgs',
@@ -561,7 +561,7 @@ export default {
     frBoard: {
       title: 'Fund Resonance Top10',
       disclaimer: '⚠ Not a strategy · not a buy signal · not backtested: intersection of turnover-top-200 and main-inflow-top-200, sorted by net inflow, with recent Dragon-Tiger data overlaid for reference only',
-      backtestNote: 'Backtested candidates (0.26R/PF2.08)',
+      backtestNote: 'Backtested candidates (0.42R/PF2.22)',
       empty: 'No qualifying names (data source may be gated off, or no intersection today)',
       colRank: '#',
       colName: 'Name',
@@ -570,6 +570,7 @@ export default {
       colNetInflow: 'Net Inflow',
       colTurnRank: 'Vol Rank',
       colInRank: 'Inflow Rank',
+      colOrgs: 'Surveys(20d)',
       colLhb: 'Dragon-Tiger',
     },
     ta: { title: 'V/P', demand: 'Demand', supply: 'Supply', neutral: 'Balanced', distribution: 'Distribution?' },
@@ -637,6 +638,7 @@ export default {
       colChange: 'Chg',
       colOrgs: 'Institutions',
       colSurveyDays: 'Survey Days',
+      colNetInflow: 'Net Inflow',
       colLatest: 'Latest Survey',
     },
     crossTitle: 'LHB × Screener · Smart-money Confluence',

@@ -39,7 +39,7 @@ const GAP_PCTS = (process.env.GAP_PCTS ?? '0,1,2').split(',').map((s) => Number(
 const r2 = (n: number) => Math.round(n * 100) / 100
 
 // ── 入场模式 ─────────────────────────────────────────────────────────
-type EntryMode = 'close' | 'nextOpen' | 'nextGapUp'
+export type EntryMode = 'close' | 'nextOpen' | 'nextGapUp'
 interface EntryVariant {
   label: string
   mode: EntryMode

@@ -3,7 +3,8 @@
 import { createCache, sessionTtl } from '../lib/cache'
 import { fetchInflowRankTop, fetchTurnoverRankTop, isFundFlowEnabled, type TurnoverRankEntry } from './fundFlow'
 import { fetchDragonTiger, type Seat } from './moneyflow'
-import { FUND_RESONANCE_BOARD } from '../config/screener'
+import { fetchRecentOrgSurvey, surveyWindowStart } from './orgSurvey'
+import { FUND_RESONANCE_BOARD, FUNDRES } from '../config/screener'
 
 export interface FundResonanceBoardRow {
   code: string
@@ -14,6 +15,7 @@ export interface FundResonanceBoardRow {
   netInflowPct: number
   turnoverRank: number
   inflowRank: number
+  surveyOrgs?: number // 近 FUNDRES.SURVEY_LOOKBACK 交易日调研机构家数(best-effort,缺=前端显示 —)
   lhb?: { netAmt: number; buyAmt: number; sellAmt: number; buySeats: Seat[]; sellSeats: Seat[]; reason: string }
 }
 
@@ -22,6 +24,7 @@ export function buildResonanceRows(
   turnover: Map<string, TurnoverRankEntry>,
   inflowRank: Map<string, number>,
   topK = 10,
+  surveyByCode?: Map<string, number>,
 ): Omit<FundResonanceBoardRow, 'lhb'>[] {
   const rows: Omit<FundResonanceBoardRow, 'lhb'>[] = []
   for (const [code, t] of turnover) {
@@ -31,18 +34,31 @@ export function buildResonanceRows(
       code, name: t.name, price: t.price, changePct: t.changePct,
       netInflow: t.netInflow, netInflowPct: t.netInflowPct,
       turnoverRank: t.rank, inflowRank: inRank,
+      surveyOrgs: surveyByCode?.get(code),
     })
   }
   return rows.sort((a, b) => b.netInflow - a.netInflow).slice(0, topK)
 }
 
+/** 调研数量列数据:近 SURVEY_LOOKBACK 交易日 code→distinct 机构家数。窗口与 FundResCard 的
+ *  surveyOrgs 同口径(FUNDRES.SURVEY_LOOKBACK);fetchRecentOrgSurvey 内置 30min 缓存,与机构调研榜共享。 */
+async function resolveSurveyOrgs(): Promise<Map<string, number> | undefined> {
+  const fromDate = await surveyWindowStart(FUNDRES.SURVEY_LOOKBACK) // 指数日线交易日历(勿用 fetchTradingDates,只有4~8天)
+  if (!fromDate) return undefined
+  const agg = await fetchRecentOrgSurvey(fromDate)
+  const m = new Map<string, number>()
+  for (const [code, a] of agg) m.set(code, a.orgs)
+  return m
+}
+
 async function fetchFresh(): Promise<FundResonanceBoardRow[]> {
   if (!isFundFlowEnabled()) return [] // 整个"共振"概念依赖净流入数据,门控关闭时直接空
-  const [turnover, inflowRank] = await Promise.all([
+  const [turnover, inflowRank, surveyByCode] = await Promise.all([
     fetchTurnoverRankTop(FUND_RESONANCE_BOARD.TOPN),
     fetchInflowRankTop(FUND_RESONANCE_BOARD.TOPN),
+    resolveSurveyOrgs().catch(() => undefined), // 调研列 best-effort,失败整列 '—'
   ])
-  const base = buildResonanceRows(turnover, inflowRank, FUND_RESONANCE_BOARD.TOP_K)
+  const base = buildResonanceRows(turnover, inflowRank, FUND_RESONANCE_BOARD.TOP_K, surveyByCode)
   if (base.length === 0) return base
   let lhbByCode = new Map<string, { netAmt: number; buyAmt: number; sellAmt: number; buySeats: Seat[]; sellSeats: Seat[]; reason: string }>()
   try {

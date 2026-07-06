@@ -615,6 +615,7 @@ export interface Translation {
       colNetInflow: string
       colTurnRank: string
       colInRank: string
+      colOrgs: string
       colLhb: string
     }
     ta: { title: string; demand: string; supply: string; neutral: string; distribution: string }
@@ -682,6 +683,7 @@ export interface Translation {
       colChange: string
       colOrgs: string
       colSurveyDays: string
+      colNetInflow: string
       colLatest: string
     }
     crossTitle: string

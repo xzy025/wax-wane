@@ -527,6 +527,7 @@ function FundResonanceBoardTable({ rows, t }: { rows: FundResonanceBoardRow[]; t
             <span>{fb.colNetInflow}</span>
             <span>{fb.colTurnRank}</span>
             <span>{fb.colInRank}</span>
+            <span>{fb.colOrgs}</span>
             <span>{fb.colLhb}</span>
           </div>
           {rows.map((r, i) => (
@@ -540,6 +541,7 @@ function FundResonanceBoardTable({ rows, t }: { rows: FundResonanceBoardRow[]; t
               <span className="mono positive-text">{fmtYi(r.netInflow)}</span>
               <span className="mono">#{r.turnoverRank}</span>
               <span className="mono">#{r.inflowRank}</span>
+              <span className="mono">{r.surveyOrgs != null && r.surveyOrgs > 0 ? r.surveyOrgs : '—'}</span>
               <span>
                 {r.lhb ? (
                   <span title={r.lhb.reason}>
@@ -571,6 +573,7 @@ function OrgSurveyBoardTable({ rows, t }: { rows: OrgSurveyBoardRow[]; t: Transl
         <span>{ob.colChange}</span>
         <span>{ob.colOrgs}</span>
         <span>{ob.colSurveyDays}</span>
+        <span>{ob.colNetInflow}</span>
         <span>{ob.colLatest}</span>
       </div>
       {rows.map((r, i) => (
@@ -583,6 +586,7 @@ function OrgSurveyBoardTable({ rows, t }: { rows: OrgSurveyBoardRow[]; t: Transl
           <span className={`mono ${colorClass(r.changePct)}`}>{fmtPct(r.changePct)}</span>
           <span className="mono positive-text">{r.orgs}</span>
           <span className="mono">{r.surveyDays}</span>
+          <span className={`mono ${r.netInflow != null ? colorClass(r.netInflow) : ''}`}>{r.netInflow != null ? fmtYi(r.netInflow) : '—'}</span>
           <span className="mono">{r.latestDate}</span>
         </div>
       ))}

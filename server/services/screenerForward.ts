@@ -46,7 +46,7 @@ const NON_BUY = new Set(['watch', 'trendwatch', 'bholdwatch'])
 // totalPicks 总体口径**(不再稀释买点战法汇总),track 行挂矛盾说明;UI 卡片改"等突破确认"。
 const OVERALL_EXCLUDED: ReadonlySet<BuyGroup> = new Set<BuyGroup>(['trigger'])
 
-// 基线对照必须同持有期口径:fundres 基线(0.26R/PF2.08)是 HOLD=3 跑出的、bhold 基线
+// 基线对照必须同持有期口径:fundres 基线(0.42R/PF2.22,STOP4)是 HOLD=3 跑出的、bhold 基线
 // (0.45R/PF1.9)是 HOLD=10——统一按 20 撮合会让「实盘 vs 回测」对这两战法不可判读。
 const HOLD_BY_GROUP: Partial<Record<BuyGroup, number>> = { fundres: FUNDRES.HOLD, bhold: 10 }
 export const holdFor = (g: BuyGroup): number => HOLD_BY_GROUP[g] ?? HOLD
@@ -57,7 +57,7 @@ const BACKTEST_BASELINE: Partial<Record<BuyGroup, { expectancyR: number; profitF
   trigger: { expectancyR: 0.39, profitFactor: 1.65 }, // 2026-07-04 当前配置直买全样本(COMBO n202;观察口径对照用)
   highdiv: { expectancyR: 0.19, profitFactor: 1.3 },
   volbreak: { expectancyR: 0.27, profitFactor: 1.41 },
-  fundres: { expectancyR: 0.29, profitFactor: 2.1 }, // 2026-07-04 SURVEY_LOOKBACK 5→20 复裁后基线(n110,披露日口径)
+  fundres: { expectancyR: 0.42, profitFactor: 2.22 }, // 2026-07-06 止损校准 STOP 6→4 后基线(n110;入场五臂对照 close 维持最优)
   bhold: { expectancyR: 0.45, profitFactor: 1.9 },
   trendnew: { expectancyR: 0.28, profitFactor: 1.52 },
 }

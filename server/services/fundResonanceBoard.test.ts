@@ -50,4 +50,22 @@ describe('buildResonanceRows — 资金共振榜(成交额top-N ∩ 净流入top
     expect(turnover.size).toBe(1)
     expect(inflowRank.size).toBe(1)
   })
+
+  it('surveyByCode 提供时行带 surveyOrgs,榜上无调研的代码为 undefined', () => {
+    const turnover = new Map([
+      ['a', turnoverEntry({ rank: 1, name: 'A', netInflow: 5e7 })],
+      ['b', turnoverEntry({ rank: 2, name: 'B', netInflow: 3e7 })],
+    ])
+    const inflowRank = new Map([['a', 1], ['b', 2]])
+    const rows = buildResonanceRows(turnover, inflowRank, 10, new Map([['a', 13]]))
+    expect(rows.find((r) => r.code === 'a')?.surveyOrgs).toBe(13)
+    expect(rows.find((r) => r.code === 'b')?.surveyOrgs).toBeUndefined()
+  })
+
+  it('surveyByCode 缺省(best-effort 失败)时 surveyOrgs 全为 undefined', () => {
+    const turnover = new Map([['a', turnoverEntry({ rank: 1, name: 'A' })]])
+    const inflowRank = new Map([['a', 1]])
+    const rows = buildResonanceRows(turnover, inflowRank, 10)
+    expect(rows[0].surveyOrgs).toBeUndefined()
+  })
 })
