@@ -247,6 +247,7 @@ async function computeDailyReview(): Promise<DailyReviewData> {
       maxTokens: 800,
       temperature: 0.3,
       timeoutMs: 30_000,
+      llmId: 'gemini',
     })
     if (done) {
       narrative = { tone: extractTone(done.text), markdown: done.text.trim(), generatedAt: new Date().toISOString() }
