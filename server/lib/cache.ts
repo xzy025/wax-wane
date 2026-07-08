@@ -60,6 +60,13 @@ export interface Cache<T> {
   get(): Promise<T>
   /** Invalidate the cache so the next get() refetches. */
   clear(): void
+  /**
+   * Mark the value stale so the next get() refetches, but KEEP it as the
+   * serve-stale-on-error copy. For feeds whose serve-stale design a forced
+   * refresh must not destroy (clear() would leave nothing to fall back to
+   * when upstream is down).
+   */
+  expire(): void
 }
 
 export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
@@ -134,6 +141,11 @@ export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
       // The disk fallback still applies on a fetch *error* (catch path), so a
       // dead upstream after midnight is still covered.
       value = null
+      timestamp = 0
+      seeded = true
+    },
+
+    expire() {
       timestamp = 0
       seeded = true
     },

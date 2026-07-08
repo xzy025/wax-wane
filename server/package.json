@@ -19,7 +19,8 @@
     "https-proxy-agent": "^9.0.0",
     "node-fetch": "^3.3.2",
     "socks-proxy-agent": "^10.0.0",
-    "undici": "^7.26.0"
+    "undici": "^7.26.0",
+    "unpdf": "^1.6.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

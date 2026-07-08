@@ -15,6 +15,7 @@ import mcpRoutes from './routes/mcp'
 import dbRoutes from './routes/db'
 import memoryRoutes from './routes/memory'
 import analysisRoutes from './routes/analysis'
+import intelRoutes from './routes/intel'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -57,6 +58,7 @@ app.use(mcpRoutes)
 app.use(dbRoutes)
 app.use(memoryRoutes)
 app.use(analysisRoutes)
+app.use(intelRoutes)
 
 // Initialize database and start server
 async function startServer() {
