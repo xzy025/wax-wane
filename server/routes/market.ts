@@ -15,6 +15,8 @@ import { clearFundResonanceBoardCache } from '../services/fundResonanceBoard'
 import { clearOrgSurveyBoardCache } from '../services/orgSurveyBoard'
 import { clearRotationCache } from '../services/rotation'
 import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
+import { clearNewsFlashCache } from '../services/newsFlash'
+import { clearResearchCache } from '../services/research'
 
 const router = Router()
 
@@ -38,6 +40,8 @@ const cacheClearers: Record<string, () => void> = {
   'fund-resonance-board': clearFundResonanceBoardCache,
   'org-survey-board': clearOrgSurveyBoardCache,
   rotation: clearRotationCache,
+  'intel-flash': clearNewsFlashCache,
+  'intel-research': clearResearchCache,
 }
 
 // 无参 = 行情页顶栏「刷新」按钮:只清 5 张行情横幅对应的轻量缓存。选股/实盘战绩/

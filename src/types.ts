@@ -189,6 +189,49 @@ export interface Translation {
     sellSeats: string
     quote: string
   }
+  intel: {
+    tabFlash: string
+    tabResearch: string
+    flash: {
+      desc: string
+      refresh: string
+      loadFail: string
+      empty: string
+      important: string
+      lastUpdated: string
+      autoNote: string
+      sourceDown: string
+    }
+    research: {
+      desc: string
+      refresh: string
+      loadFail: string
+      empty: string
+      dirHint: string
+      dateLabel: string
+      digestTitle: string
+      digestPending: string
+      hotIndustries: string
+      keyStocks: string
+      consensus: string
+      reportCount: string
+      pending: string
+      extractFailed: string
+      analyzing: string
+      llmDown: string
+      rating: string
+      targetPrice: string
+      industry: string
+      brokerage: string
+      thesis: string
+      catalysts: string
+      risks: string
+      expand: string
+      collapse: string
+      truncatedNote: string
+      analyzedAt: string
+    }
+  }
   settings: string
   sidebar: { costLabel: string; costMode: string; costHint: string }
   metrics: Record<string, string[]>

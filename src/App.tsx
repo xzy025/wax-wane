@@ -14,6 +14,7 @@ import {
   Crosshair,
   ArrowsClockwise,
   Robot,
+  Newspaper,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
@@ -39,10 +40,12 @@ import ThemesView from './views/ThemesView'
 import MoneyFlowView from './views/MoneyFlowView'
 import ScreenerView from './views/ScreenerView'
 import RotationView from './views/RotationView'
+import IntelView from './views/IntelView'
 import type { Translation } from './types'
 
 const navItems = [
   { id: 'market', icon: TrendUp, path: '/market' },
+  { id: 'intel', icon: Newspaper, path: '/intel' },
   { id: 'themes', icon: SquaresFour, path: '/themes' },
   { id: 'moneyflow', icon: Trophy, path: '/moneyflow' },
   { id: 'rotation', icon: ArrowsClockwise, path: '/rotation' },
@@ -179,6 +182,7 @@ function AppLayout() {
         <ErrorBoundary>
           <Routes>
           <Route path="/market" element={<div />} />
+          <Route path="/intel" element={<IntelView t={t} />} />
           <Route path="/themes" element={<ThemesView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/moneyflow" element={<MoneyFlowView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/rotation" element={<RotationView t={t} language={language as 'zh' | 'en'} />} />

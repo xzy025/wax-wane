@@ -2924,3 +2924,44 @@ body {
     display: none;
   }
 }
+
+/* ── 消息面 tab(7x24 快讯 + 每日研报) ─────────────────────────────── */
+.intel-flash-list {
+  display: flex;
+  flex-direction: column;
+}
+.intel-flash-row {
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--line);
+}
+.intel-flash-row:last-child {
+  border-bottom: none;
+}
+.intel-flash-row .rot-review-news {
+  margin-top: 0;
+}
+.intel-flash-time {
+  flex: none;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.intel-flash-summary {
+  margin-top: 3px;
+  padding-left: 2px;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--muted);
+  cursor: pointer;
+}
+.intel-report-oneliner {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text, #e8edf6);
+}
+.intel-report-list {
+  margin: 3px 0 0 16px;
+  padding: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text, #e8edf6);
+}
