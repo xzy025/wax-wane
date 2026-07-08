@@ -519,7 +519,7 @@ function FundResonanceBoardTable({ rows, t }: { rows: FundResonanceBoardRow[]; t
         <div className="sc-empty">{fb.empty}</div>
       ) : (
         <div className="data-table fr-board-table">
-          <div className="table-head">
+          <div className="table-row table-head">
             <span>{fb.colRank}</span>
             <span>{fb.colName}</span>
             <span>{fb.colPrice}</span>
@@ -566,7 +566,7 @@ function OrgSurveyBoardTable({ rows, t }: { rows: OrgSurveyBoardRow[]; t: Transl
   if (rows.length === 0) return <div className="sc-empty">{ob.empty}</div>
   return (
     <div className="data-table os-board-table">
-      <div className="table-head">
+      <div className="table-row table-head">
         <span>{ob.colRank}</span>
         <span>{ob.colName}</span>
         <span>{ob.colPrice}</span>
