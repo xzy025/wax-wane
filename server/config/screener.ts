@@ -861,6 +861,62 @@ export const ACCUM = {
 } as const satisfies AccumConfig
 
 // ════════════════════════════════════════════════════════════════════════
+// 大盘反攻日·先锋股(reboundDay)—— 复盘卡 + 回测裁决用;回测过线前**非战法非买点**。
+// 事件判据:指数连续杀跌数日后放量大阳反攻(2026-07-09 上证+1.65%原型);
+// 先锋两型:长电科技型(率先涨停:低位首板/二板) + 东山精密型(连跌窗内抗跌·反攻日放量领涨)。
+// reversalDay 是独立事件判据,与 buildRegime(情绪 phase)/marketRegime(均线趋势)两套 regime 并存不合并。
+export interface ReboundConfig {
+  INDEX_SECID: string // 判据指数(上证综指;创业板 20cm 波动尺度不同,不做双指数判据)
+  SECONDARY_SECID: string // 展示用副指数(创业板指,仅复盘卡佐证,不参与判据)
+  MIN_BARS: number // classifier 最少K线根数(52周分位需要长窗,不足则不判)
+  DOWN_DAYS_MIN: number // 连跌口径A:反攻日前连续下跌天数 ≥ 此值
+  DOWN_WINDOW: number // 连跌口径B:回看窗(交易日)
+  DOWN_CUM_PCT: number // 口径B:窗内累计涨跌幅 ≤ 此%(负数)——捕捉非严格连续的杀跌
+  UP_PCT_MIN: number // 反攻日指数涨幅线(%)
+  VOL_BASE_WIN: number // 量比基准窗(日):当日量 / 前N日均量(指数与个股共用口径)
+  VOL_RATIO_MIN: number // 反攻日指数量比线
+  // ── 先锋(长电型:率先涨停) ──
+  PIONEER_MAX: number // 复盘卡先锋榜容量
+  PIONEER_LB_MAX: number // 低位首板/二板:连板数 ≤ 此值(剔除妖股高位板)
+  PIONEER_POS_MAX: number // 52周分位 ≤ 此%(低位;回测 classifier 用,涨停池无此字段)
+  // ── 抗跌领涨(东山型) ──
+  RESIL_CANDIDATES: number // 当日涨幅榜候选池(控 kline 取数量,参照 HIGHS_CANDIDATES=80 同量级)
+  RESIL_MAX: number // 复盘卡抗跌榜容量
+  LEAD_CHG_MIN: number // 反攻日个股涨幅 ≥ 此%
+  LEAD_VOL_MIN: number // 反攻日个股量比 ≥ 此值
+  LEAD_CUMREL_MIN: number // 连跌窗内累计相对强度 ≥ 此 pp(个股累计涨跌 − 指数累计涨跌)
+  // ── 回测入场参数(sweep 基线;裁决结论回填于此) ──
+  MAX_GAP_PCT: number // 长电型次日追高拦截:高开 > 此% 放弃(sweep 3/5/7/不拦)
+  STOP_PCT: number // 止损距参考位%(双保险:参考位与入场价取更紧)
+  R_MULT: number // 目标 = entry + 此×风险
+  HOLD: number // 持有(交易日)
+}
+
+export const REBOUND = {
+  INDEX_SECID: '1.000001',
+  SECONDARY_SECID: '0.399006',
+  MIN_BARS: 60,
+  DOWN_DAYS_MIN: 3,
+  DOWN_WINDOW: 5,
+  DOWN_CUM_PCT: -3,
+  UP_PCT_MIN: 1.5,
+  VOL_BASE_WIN: 5,
+  VOL_RATIO_MIN: 1.3,
+  PIONEER_MAX: 12,
+  PIONEER_LB_MAX: 2,
+  PIONEER_POS_MAX: 50,
+  RESIL_CANDIDATES: 60,
+  RESIL_MAX: 10,
+  LEAD_CHG_MIN: 5,
+  LEAD_VOL_MIN: 1.5,
+  LEAD_CUMREL_MIN: 0,
+  MAX_GAP_PCT: 7,
+  STOP_PCT: 7,
+  R_MULT: 2,
+  HOLD: 5,
+} as const satisfies ReboundConfig
+
+// ════════════════════════════════════════════════════════════════════════
 // 资金共振榜 / 机构调研榜(纯排行·非战法·非买点·未回测)—— 与 FUNDRES 第6战法(classifyFundResonance,
 // 回测0.42R/PF2.22)完全独立,不共享阈值,互不影响(榜的「调研数量」列窗口借用 FUNDRES.SURVEY_LOOKBACK 保持口径一致)。
 export const FUND_RESONANCE_BOARD = {
