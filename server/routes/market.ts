@@ -11,6 +11,7 @@ import { clearScreenerCache } from '../services/screener'
 import { clearScreenerForwardCache } from '../services/screenerForward'
 import { clearMarketStructureCache } from '../services/marketStructure'
 import { clearDailyReviewCache } from '../services/dailyReview'
+import { clearReboundCache } from '../services/reboundReview'
 import { clearFundResonanceBoardCache } from '../services/fundResonanceBoard'
 import { clearOrgSurveyBoardCache } from '../services/orgSurveyBoard'
 import { clearRotationCache } from '../services/rotation'
@@ -36,7 +37,11 @@ const cacheClearers: Record<string, () => void> = {
   screener: clearScreenerCache,
   'screener-forward': clearScreenerForwardCache,
   'market-structure': clearMarketStructureCache,
-  'daily-review': clearDailyReviewCache,
+  // 复盘卡刷新连带反攻日区块(reboundDay 是 daily-review 的子区块,无独立刷新入口)
+  'daily-review': () => {
+    clearDailyReviewCache()
+    clearReboundCache()
+  },
   'fund-resonance-board': clearFundResonanceBoardCache,
   'org-survey-board': clearOrgSurveyBoardCache,
   rotation: clearRotationCache,

@@ -26,6 +26,7 @@ import {
   type MacroCalendarResult,
 } from './macroCalendar'
 import { buildReviewFacts, extractTone, REVIEW_SYSTEM_PROMPT } from './dailyReviewPrompt'
+import { fetchReboundSection, type ReboundSection } from './reboundReview'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
@@ -101,6 +102,9 @@ export interface DailyReviewData {
     topLs: ReviewBoardChip[]
   } | null
   narrative: ReviewNarrative | null // LLM 未配置/失败/盘中未生成 → null
+  /** 反攻日区块(连跌后放量大阳→先锋涨停时间轴+抗跌领涨+券商佐证);可选:旧存档无此字段,
+   *  取数失败=null(该段消失整卡照常),非反攻日 detected:false(前端不渲染但落盘留档)。 */
+  reboundDay?: ReboundSection | null
   fromCache?: boolean // 本次响应来自磁盘存档兜底(仅内存标记)
 }
 
@@ -141,7 +145,7 @@ const toQuote = (q: IndexQuote): ReviewQuote => ({
 
 async function computeDailyReview(): Promise<DailyReviewData> {
   const asof = todayShanghai()
-  const [us, asiaQ, hk, news, hot, cal, ashare, structure] = await Promise.allSettled([
+  const [us, asiaQ, hk, news, hot, cal, ashare, structure, rebound] = await Promise.allSettled([
     fetchUSData(),
     fetchIndexQuotes(ASIA_INDICES),
     fetchHKData(),
@@ -150,6 +154,7 @@ async function computeDailyReview(): Promise<DailyReviewData> {
     fetchMacroCalendar(),
     fetchAShareData(),
     fetchMarketStructure(),
+    fetchReboundSection(),
   ])
   const val = <T,>(r: PromiseSettledResult<T>): T | null => (r.status === 'fulfilled' ? r.value : null)
 
@@ -224,6 +229,7 @@ async function computeDailyReview(): Promise<DailyReviewData> {
     ashare: ashareSec,
     structure: structureSec,
     narrative: null,
+    reboundDay: val(rebound),
   }
 
   // 空壳保护:上游大面积失败时不落盘不进缓存,抛给 createCache 走 serve-stale/磁盘兜底。

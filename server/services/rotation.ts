@@ -67,7 +67,7 @@ export function clampShort(n: number): number {
   return (ROTATION.SHORT_WINS as readonly number[]).includes(n) ? n : ROTATION.DEFAULT_SHORT
 }
 
-interface BoardMeta {
+export interface BoardMeta {
   code: string
   name: string
   todayChg: number
@@ -93,7 +93,8 @@ async function fetchClistPage(category: RotationCategory, pn: number): Promise<R
   return []
 }
 
-async function fetchBoardUniverse(category: RotationCategory): Promise<BoardMeta[]> {
+// 导出:reboundReview(反攻日复盘卡)按名字定位券商板块用;rotation 内部逻辑不变。
+export async function fetchBoardUniverse(category: RotationCategory): Promise<BoardMeta[]> {
   const out: BoardMeta[] = []
   for (let pn = 1; pn <= 6; pn++) {
     const rows = await fetchClistPage(category, pn)
@@ -311,8 +312,9 @@ export function rankTopMovers<T extends { changePct: number }>(members: T[], n: 
   return [...members].sort((a, b) => b.changePct - a.changePct).slice(0, n)
 }
 
-/** 板块成分股(报价调用 fs=b:BKxxxx,不受 kline 限流);按成交额降序。changePct=当日涨跌幅%(f3)。 */
-async function fetchBoardConstituents(
+/** 板块成分股(报价调用 fs=b:BKxxxx,不受 kline 限流);按成交额降序。changePct=当日涨跌幅%(f3)。
+ *  导出:reboundReview 取券商板块领涨成分用。 */
+export async function fetchBoardConstituents(
   bkCode: string,
 ): Promise<{ code: string; name: string; amount: number; changePct: number }[]> {
   for (let i = 0; i < CLIST_HOSTS.length; i++) {
