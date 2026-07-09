@@ -10,7 +10,8 @@
     "optimize": "tsx backtest/optimize.ts",
     "probe": "tsx scripts/screenerProbe.ts",
     "probe:pullback": "tsx scripts/pullbackProbe.ts",
-    "probe:accum": "tsx scripts/accumProbe.ts"
+    "probe:accum": "tsx scripts/accumProbe.ts",
+    "probe:rebound": "tsx scripts/reboundProbe.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

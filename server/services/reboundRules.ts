@@ -21,7 +21,8 @@ export interface IndexBar {
 export interface ReversalSignal {
   date: string
   chgPct: number // 反攻日指数涨幅%
-  volRatio: number // 当日量 / 前 VOL_BASE_WIN 日均量
+  volRatio: number // 当日量/昨日量(闸门口径:较缩量阴跌尾部回升,见 REBOUND.VOL_RATIO_MIN 注)
+  vol5Ratio: number // 当日量/前 VOL_BASE_WIN 日均量(仅记录,供回测 sweep 裁决是否有增量)
   downDays: number // 反攻日前连续下跌天数
   downCumPct: number // 前 DOWN_WINDOW 日累计涨跌幅%(负=杀跌)
 }
@@ -61,17 +62,25 @@ export function detectReversalDay(bars: IndexBar[], C: ReboundConfig = REBOUND):
   if (chgPct < C.UP_PCT_MIN) return null
   if (last.close <= last.open) return null // 须收阳(大阳反攻,排除低开高走仍收阴的弱反抽)
 
-  const baseVol = mean(bars.slice(len - 1 - C.VOL_BASE_WIN, len - 1).map((b) => b.volume))
-  if (baseVol <= 0) return null
-  const volRatio = last.volume / baseVol
+  if (prev.volume <= 0) return null
+  const volRatio = last.volume / prev.volume // 闸门:较昨日回升(阴跌尾部缩量,基准不用均量,见 config 注)
   if (volRatio < C.VOL_RATIO_MIN) return null
+  const baseVol = mean(bars.slice(len - 1 - C.VOL_BASE_WIN, len - 1).map((b) => b.volume))
+  const vol5Ratio = baseVol > 0 ? last.volume / baseVol : 0 // 仅记录,供回测 sweep
 
   const downDays = consecutiveDownDays(bars)
   const cumBase = bars[len - 2 - C.DOWN_WINDOW].close
   const downCumPct = cumBase > 0 ? ((prev.close - cumBase) / cumBase) * 100 : 0
   if (downDays < C.DOWN_DAYS_MIN && downCumPct > C.DOWN_CUM_PCT) return null
 
-  return { date: last.date, chgPct: r2(chgPct), volRatio: r2(volRatio), downDays, downCumPct: r2(downCumPct) }
+  return {
+    date: last.date,
+    chgPct: r2(chgPct),
+    volRatio: r2(volRatio),
+    vol5Ratio: r2(vol5Ratio),
+    downDays,
+    downCumPct: r2(downCumPct),
+  }
 }
 
 /** 逐日打标(回测事件闸门用;镜像 buildRegimeByDate 的逐日 slice 写法)。 */

@@ -873,8 +873,11 @@ export interface ReboundConfig {
   DOWN_WINDOW: number // 连跌口径B:回看窗(交易日)
   DOWN_CUM_PCT: number // 口径B:窗内累计涨跌幅 ≤ 此%(负数)——捕捉非严格连续的杀跌
   UP_PCT_MIN: number // 反攻日指数涨幅线(%)
-  VOL_BASE_WIN: number // 量比基准窗(日):当日量 / 前N日均量(指数与个股共用口径)
-  VOL_RATIO_MIN: number // 反攻日指数量比线
+  VOL_BASE_WIN: number // 个股量比基准窗(日):当日量 / 前N日均量(东山型领涨判定;指数侧仅作 vol5Ratio 记录字段)
+  /** 反攻日指数放量线 = 当日量/昨日量。基准用昨日而非N日均量:阴跌尾部缩量,均值被前期放量下跌日
+   *  抬高(07-09 原型:较昨日+11.5% 但对5日均量仅0.97)——"反攻放量"的日线特征是较缩量尾部回升。
+   *  对均量的口径以 vol5Ratio 记录进 ReversalSignal,是否有增量由回测 sweep 裁决。 */
+  VOL_RATIO_MIN: number
   // ── 先锋(长电型:率先涨停) ──
   PIONEER_MAX: number // 复盘卡先锋榜容量
   PIONEER_LB_MAX: number // 低位首板/二板:连板数 ≤ 此值(剔除妖股高位板)
@@ -901,7 +904,8 @@ export const REBOUND = {
   DOWN_CUM_PCT: -3,
   UP_PCT_MIN: 1.5,
   VOL_BASE_WIN: 5,
-  VOL_RATIO_MIN: 1.3,
+  VOL_RATIO_MIN: 1.05, // 较昨日回升 5% 即算(07-09 原型=1.11×;宽默认,收紧与否交回测 sweep)
+
   PIONEER_MAX: 12,
   PIONEER_LB_MAX: 2,
   PIONEER_POS_MAX: 50,
