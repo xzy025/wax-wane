@@ -34,6 +34,11 @@ export interface Trade {
   acConsolDays?: number // 放量吸筹:横盘箱体维持天数,供"横盘越久越加分"因子分桶验证
   taBias?: 'demand' | 'supply' | 'neutral' // 技术分析组合:信号日 TA bias,供因子分桶
   taDist?: boolean // 技术分析组合:信号日是否强派发(distribution)
+  rbEventDate?: string // 反攻日(事件日):同一反攻日多笔横截面强相关,trade 级 n 虚增统计力→供事件级聚合
+  rbCumRel?: number // 反攻日·东山型:连跌窗累计相对强度(pp),供因子分桶
+  rbLbc?: number // 反攻日·长电型:连板数,供因子分桶
+  rbVol5?: number // 反攻日:指数当日量/5日均量(仅记录口径),供"放量"定义 sweep
+  rbFbtMin?: number // 反攻日·长电型:首次封板分钟数(9:30起);历史涨停池可用时回填,供早板/晚板分桶
 }
 
 /** 向后撮合内核:从信号日 i 进场,逐日判止损/目标,跳空开盘成交、同日止损优先、HOLD 末日时间止损。

@@ -21,7 +21,7 @@ import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { fetchIndexKline } from '../services/ashare'
-import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, PBREAK, TRENDNEW, ACCUM, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig, type FundResConfig, type BreakoutHoldConfig, type BreakoutPullbackConfig, type TrendNewConfig, type AccumConfig } from '../config/screener'
+import { SCREENER, PULLBACK, DIVERGENCE, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, PBREAK, TRENDNEW, ACCUM, REBOUND, type ScreenerConfig, type PullbackConfig, type DivergenceConfig, type HighDivConfig, type VolBreakConfig, type FundResConfig, type BreakoutHoldConfig, type BreakoutPullbackConfig, type TrendNewConfig, type AccumConfig, type ReboundConfig } from '../config/screener'
 import { classify, marketRegime, smaAt, type Bar, type MarketRegime } from '../services/screenerRules'
 import { simForward, makeTrade, aggregate, type Trade, type Metrics } from './engine'
 import { buildCalendar, windowDatesFor } from './calendar'
@@ -39,6 +39,15 @@ import { classifyBreakoutHold } from '../services/breakoutHoldRules'
 import { classifyTrendNewHigh } from '../services/trendNewHighRules'
 import { classifyBreakoutPullback } from '../services/breakoutPullbackRules'
 import { classifyAccum } from '../services/accumRules'
+import {
+  buildReversalByDate,
+  declineWindow,
+  classifyReboundPioneer,
+  classifyReboundResilient,
+  type ReversalSignal,
+  type DeclineWindow,
+  type IndexBar,
+} from '../services/reboundRules'
 import { technicalCombo } from '../services/technicalScore'
 import { fetchOrgSurveyHistory, countOrgsInRange, type SurveyEvent } from '../services/orgSurvey'
 import { boardStrengthAsOf } from '../services/rotationRules'
@@ -87,6 +96,9 @@ const RUN_PBREAK = process.env.PBREAK === '1'
 const RUN_TRENDNEW = process.env.TRENDNEW === '1'
 // ACCUM: 放量吸筹(持续异常放量+均线走平+横盘,监控清单;特征回测裁决"检测到吸筹"是否有正向前收益;默认关;ACCUM=1 开启)
 const RUN_ACCUM = process.env.ACCUM === '1'
+// REBOUND: 大盘反攻日先锋(连跌后放量大阳反攻日:长电型=低位首板次日跟进 / 东山型=抗跌领涨尾盘进;
+// 事件闸门=上证 reversalByDate;裁决"反攻日跟进"有无正期望,过线才接战法tab;默认关;REBOUND=1 开启)
+const RUN_REBOUND = process.env.REBOUND === '1'
 // RS: 突破组收强「相对大盘自适应」(Part B)裁决——大盘暴跌日逆势红盘+站MA5 视同收强达标,对比 baseline。RS=1 开启。
 const RUN_RS = process.env.RS === '1'
 // TA: 技术分析组合(Wyckoff+道氏+AlBrooks)因子分桶检验(把现有战法成交按 TA bias/distribution 分桶;默认关;TA=1 开启)
@@ -470,6 +482,145 @@ function simulateAccumConfirm(sb: StockBars, cfg: AccumConfig, hold: number, sto
     i = entryIdx + hold + 1 // 冷却从实际入场日起
   }
   return trades
+}
+
+/** 反攻日·长电型(率先涨停先锋):反攻日封死涨停买不进 → **次日**跟进。
+ *  reversalByDate=null 时去掉事件闸门(任意日的低位首板都算,供 gateEval 对照「反攻日闸门有无增量」)。
+ *  entryMode:'open'=次日开盘进(gapCapPct 高开拦截,null 不拦);'close'=次日收盘进(对照)。
+ *  开盘/盘中入场 → simForward checkEntryBar=true(入场日剩余走势参与撮合,防系统性偏乐观)。 */
+function simulateReboundPioneer(
+  sb: StockBars,
+  cfg: ReboundConfig,
+  reversalByDate: Map<string, ReversalSignal> | null,
+  hold: number,
+  stopPct: number,
+  rMult: number,
+  gapCapPct: number | null,
+  entryMode: 'open' | 'close',
+): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const trades: Trade[] = []
+  let i = cfg.MIN_BARS
+  while (i <= len - 2) {
+    const sig = reversalByDate ? reversalByDate.get(bars[i].date) : undefined
+    if (reversalByDate && !sig) {
+      i++
+      continue
+    }
+    const hit = classifyReboundPioneer(bars.slice(0, i + 1), code, cfg)
+    if (!hit) {
+      i++
+      continue
+    }
+    const entryIdx = i + 1
+    const eb = bars[entryIdx]
+    const refClose = bars[i].close // 反攻日涨停收盘=支撑参考
+    if (refClose <= 0 || eb.open <= 0) {
+      i++
+      continue
+    }
+    if (gapCapPct !== null && (eb.open / refClose - 1) * 100 > gapCapPct) {
+      i = entryIdx + 1 // 高开过深,放弃该事件(追高拦截)
+      continue
+    }
+    const entry = entryMode === 'open' ? eb.open : eb.close
+    // 双保险止损(bhold 同款 max=取更紧):不破涨停日收盘-stopPct%,且单笔风险 ≤ stopPct%
+    const stop = Math.max(refClose * (1 - stopPct / 100), entry * (1 - stopPct / 100))
+    const risk = entry - stop
+    if (risk <= 0) {
+      i = entryIdx + 1 // 深低开破参考位=结构已坏,放弃
+      continue
+    }
+    const target = entry + rMult * risk
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold, entryMode === 'open'))
+    t.rbEventDate = bars[i].date
+    t.rbLbc = hit.lbc
+    if (sig) t.rbVol5 = sig.vol5Ratio
+    trades.push(t)
+    i = entryIdx + hold + 1 // 冷却从实际入场日起
+  }
+  return trades
+}
+
+/** 反攻日·东山型(连跌窗抗跌+反攻日放量领涨):反攻日**尾盘收盘**进(classify 只看当日及以前,无前视;
+ *  divergence 尾盘进同先例);entryMode:'nextOpen'=次日开盘对照变体(checkEntryBar 撮合)。
+ *  winByDate 来自指数 declineWindow;reversalByDate=null 时(gateEval 对照)用「个股自身近 DOWN_WINDOW 日」
+ *  作伪窗——非同一口径,仅供闸门增量方向性对照。 */
+function simulateReboundResilient(
+  sb: StockBars,
+  cfg: ReboundConfig,
+  reversalByDate: Map<string, ReversalSignal> | null,
+  winByDate: Map<string, DeclineWindow>,
+  idxBars: IndexBar[],
+  hold: number,
+  stopPct: number,
+  rMult: number,
+  entryMode: 'close' | 'nextOpen',
+): Trade[] {
+  const { bars, code } = sb
+  const len = bars.length
+  const trades: Trade[] = []
+  let i = Math.max(cfg.MIN_BARS, cfg.DOWN_WINDOW + 2)
+  while (i <= len - 2) {
+    const sig = reversalByDate ? reversalByDate.get(bars[i].date) : undefined
+    if (reversalByDate && !sig) {
+      i++
+      continue
+    }
+    const win = reversalByDate
+      ? winByDate.get(bars[i].date)
+      : { fromDate: bars[i - 1 - cfg.DOWN_WINDOW].date, toDate: bars[i - 1].date }
+    if (!win) {
+      i++
+      continue
+    }
+    const hit = classifyReboundResilient(bars.slice(0, i + 1), code, idxBars, win, cfg)
+    if (!hit) {
+      i++
+      continue
+    }
+    const entryIdx = entryMode === 'close' ? i : i + 1
+    const eb = bars[entryIdx]
+    const entry = entryMode === 'close' ? eb.close : eb.open
+    if (entry <= 0) {
+      i++
+      continue
+    }
+    // 双保险止损:不破反攻日最低(结构位),且单笔风险 ≤ stopPct%(取更紧)
+    const stop = Math.max(bars[i].low * 0.997, entry * (1 - stopPct / 100))
+    const risk = entry - stop
+    if (risk <= 0) {
+      i++
+      continue
+    }
+    const target = entry + rMult * risk
+    const t = makeTrade(code, bars, entryIdx, entry, stop, target, risk, simForward(bars, entryIdx, stop, target, hold, entryMode === 'nextOpen'))
+    t.rbEventDate = bars[i].date
+    t.rbCumRel = hit.cumRelPct
+    if (sig) t.rbVol5 = sig.vol5Ratio
+    trades.push(t)
+    i = entryIdx + hold + 1
+  }
+  return trades
+}
+
+/** 事件级聚合:同一反攻日的多笔交易横截面强相关,trade 级 n 虚增统计力——
+ *  按事件日取平均 R,再对「事件平均R」求均值/正事件占比,给出诚实的事件级样本量。 */
+function eventLevelStats(trades: Trade[]): { eventN: number; avgEventR: number; posEventPct: number } {
+  const byEvent = new Map<string, number[]>()
+  for (const t of trades) {
+    const k = t.rbEventDate ?? t.date
+    const arr = byEvent.get(k) ?? []
+    arr.push(t.R)
+    byEvent.set(k, arr)
+  }
+  const eventRs = [...byEvent.values()].map((rs) => mean(rs))
+  return {
+    eventN: eventRs.length,
+    avgEventR: r2(mean(eventRs)),
+    posEventPct: eventRs.length ? r2((eventRs.filter((r) => r > 0).length / eventRs.length) * 100) : 0,
+  }
 }
 
 /** 走查回测「突破整理·延续」**确认入场版**:信号日识别 setup,其后 confirmWin 日内突破整理高点 trigger 才介入
@@ -1559,6 +1710,159 @@ async function main() {
       metricsConfirm: mConfirm,
       baselineExpectancyR: base.metrics.expectancyR,
       sweep: acSweep,
+    }
+  }
+
+  // REBOUND: 大盘反攻日先锋(事件闸门=上证 reversalByDate;两型撮合 + gate对照 + 判据/入场 sweep + 事件级聚合)。
+  if (RUN_REBOUND) {
+    const HOLD_RB = Number(process.env.HOLD_RB) || REBOUND.HOLD
+    const STOP_RB = Number(process.env.STOP_RB) || REBOUND.STOP_PCT
+    const R_RB = Number(process.env.R_RB) || REBOUND.R_MULT
+    console.log(`\n========== 大盘反攻日·先锋(连跌后放量大阳,长电型次日跟进/东山型尾盘进→${HOLD_RB}日撮合)==========`)
+    console.log('（对照线:bhold-confirm 0.45R / trendnew 0.28R / PF≥1.3;双下限 n≥30 且 事件≥10,不足即「样本不足,不接战法」）')
+    let rbIdxBars: IndexBar[]
+    try {
+      rbIdxBars = await fetchIndexKline(REBOUND.INDEX_SECID, KLINE + 60)
+    } catch (err) {
+      console.warn('[Rebound] 判据指数取数失败,整块跳过:', err)
+      rbIdxBars = []
+    }
+    if (rbIdxBars.length > 0) {
+      const buildMaps = (cfg: ReboundConfig) => {
+        const revMap = buildReversalByDate(rbIdxBars, cfg)
+        const winMap = new Map<string, DeclineWindow>()
+        for (let k = 0; k < rbIdxBars.length; k++) {
+          if (!revMap.has(rbIdxBars[k].date)) continue
+          const w = declineWindow(rbIdxBars.slice(0, k + 1), cfg)
+          if (w) winMap.set(rbIdxBars[k].date, w)
+        }
+        return { revMap, winMap }
+      }
+      const { revMap, winMap } = buildMaps(REBOUND)
+      // 只统计落在样本K线区间内的事件(指数序列可能比样本更早)
+      const eventDates = [...revMap.keys()].filter((d) => d >= dateMin && d <= dateMax).sort()
+      console.log(`事件:回看窗内反攻日 ${eventDates.length} 个 → ${eventDates.join(' ')}`)
+
+      const runPioneer = (rev: Map<string, ReversalSignal> | null, gap: number | null, mode: 'open' | 'close', cfg: ReboundConfig = REBOUND) =>
+        data.flatMap((sb) => simulateReboundPioneer(sb, cfg, rev, HOLD_RB, STOP_RB, R_RB, gap, mode))
+      const runResil = (rev: Map<string, ReversalSignal> | null, mode: 'close' | 'nextOpen', cfg: ReboundConfig = REBOUND, wins = winMap) =>
+        data.flatMap((sb) => simulateReboundResilient(sb, cfg, rev, wins, rbIdxBars, HOLD_RB, STOP_RB, R_RB, mode))
+
+      const fmtEv = (t: Trade[]) => {
+        const ev = eventLevelStats(t)
+        return `事件级 n=${ev.eventN} 平均${ev.avgEventR}R 正事件${ev.posEventPct}%`
+      }
+      const pioOpen = runPioneer(revMap, REBOUND.MAX_GAP_PCT, 'open')
+      const pioOpenNoCap = runPioneer(revMap, null, 'open')
+      const pioClose = runPioneer(revMap, null, 'close')
+      const resClose = runResil(revMap, 'close')
+      const resOpen = runResil(revMap, 'nextOpen')
+      console.log(fmtMetrics(`长电型-次日开盘(高开≤${REBOUND.MAX_GAP_PCT}%)`, aggregate(pioOpen)) + `  ${fmtEv(pioOpen)}`)
+      console.log(fmtMetrics('长电型-次日开盘(不拦)', aggregate(pioOpenNoCap)) + `  ${fmtEv(pioOpenNoCap)}`)
+      console.log(fmtMetrics('长电型-次日收盘(对照)', aggregate(pioClose)) + `  ${fmtEv(pioClose)}`)
+      console.log(fmtMetrics('东山型-反攻日尾盘进', aggregate(resClose)) + `  ${fmtEv(resClose)}`)
+      console.log(fmtMetrics('东山型-次日开盘(对照)', aggregate(resOpen)) + `  ${fmtEv(resOpen)}`)
+
+      // 闸门对照:去掉反攻日闸门(任意日同条件),按事件日拆 kept(反攻日)/blocked(非反攻日)。
+      console.log('\n---------- 闸门增量对照(同个股条件,反攻日 vs 非反攻日)----------')
+      const gateSplit = (trades: Trade[]) => {
+        const kept = trades.filter((t) => revMap.has(t.rbEventDate ?? t.date))
+        const blocked = trades.filter((t) => !revMap.has(t.rbEventDate ?? t.date))
+        return { all: aggregate(trades), kept: aggregate(kept), blocked: aggregate(blocked) }
+      }
+      const pioGate = gateSplit(runPioneer(null, REBOUND.MAX_GAP_PCT, 'open'))
+      console.log(fmtMetrics('低位首板·全时段', pioGate.all))
+      console.log(fmtMetrics('  └ 反攻日(kept)', pioGate.kept))
+      console.log(fmtMetrics('  └ 非反攻日(blocked)', pioGate.blocked))
+      const resGate = gateSplit(runResil(null, 'close'))
+      console.log(fmtMetrics('抗跌领涨·全时段(伪窗)', resGate.all))
+      console.log(fmtMetrics('  └ 反攻日(kept)', resGate.kept))
+      console.log(fmtMetrics('  └ 非反攻日(blocked)', resGate.blocked))
+
+      // 判据/入场 sweep(期望须同号才算稳健)。
+      console.log('\n---------- REBOUND 判据/入场扫描 ----------')
+      const rbSweep: Array<Record<string, unknown>> = []
+      const sweepPush = (knob: string, value: unknown, arm: string, m: Metrics, t: Trade[]) => {
+        console.log(fmtMetrics(`${knob}=${value}(${arm})`, m) + `  ${fmtEv(t)}`)
+        rbSweep.push({ knob, value, arm, metrics: m, event: eventLevelStats(t) })
+      }
+      for (const UP of [1.2, 1.5, 2.0]) {
+        const cfg = { ...REBOUND, UP_PCT_MIN: UP }
+        const maps = buildMaps(cfg)
+        const t = data.flatMap((sb) => simulateReboundPioneer(sb, cfg, maps.revMap, HOLD_RB, STOP_RB, R_RB, REBOUND.MAX_GAP_PCT, 'open'))
+        sweepPush('UP_PCT_MIN', UP, '长电open', aggregate(t), t)
+      }
+      for (const DD of [2, 3]) {
+        const cfg = { ...REBOUND, DOWN_DAYS_MIN: DD }
+        const maps = buildMaps(cfg)
+        const t = data.flatMap((sb) => simulateReboundPioneer(sb, cfg, maps.revMap, HOLD_RB, STOP_RB, R_RB, REBOUND.MAX_GAP_PCT, 'open'))
+        sweepPush('DOWN_DAYS_MIN', DD, '长电open', aggregate(t), t)
+      }
+      for (const VR of [1.0, 1.05, 1.2]) {
+        const cfg = { ...REBOUND, VOL_RATIO_MIN: VR }
+        const maps = buildMaps(cfg)
+        const t = data.flatMap((sb) => simulateReboundPioneer(sb, cfg, maps.revMap, HOLD_RB, STOP_RB, R_RB, REBOUND.MAX_GAP_PCT, 'open'))
+        sweepPush('VOL_RATIO_MIN', VR, '长电open', aggregate(t), t)
+      }
+      // vol5(对5日均量)口径有没有增量:在默认事件集上按 rbVol5 过滤
+      for (const V5 of [1.0, 1.2]) {
+        const t = pioOpen.filter((t) => (t.rbVol5 ?? 0) >= V5)
+        sweepPush('vol5Filter', V5, '长电open', aggregate(t), t)
+      }
+      for (const GAP of [3, 5]) {
+        const t = runPioneer(revMap, GAP, 'open')
+        sweepPush('MAX_GAP_PCT', GAP, '长电open', aggregate(t), t)
+      }
+      for (const H of [3, 10]) {
+        const t = data.flatMap((sb) => simulateReboundPioneer(sb, REBOUND, revMap, H, STOP_RB, R_RB, REBOUND.MAX_GAP_PCT, 'open'))
+        sweepPush('HOLD', H, '长电open', aggregate(t), t)
+        const tr = data.flatMap((sb) => simulateReboundResilient(sb, REBOUND, revMap, winMap, rbIdxBars, H, STOP_RB, R_RB, 'close'))
+        sweepPush('HOLD', H, '东山close', aggregate(tr), tr)
+      }
+      for (const S of [5]) {
+        const t = data.flatMap((sb) => simulateReboundPioneer(sb, REBOUND, revMap, HOLD_RB, S, R_RB, REBOUND.MAX_GAP_PCT, 'open'))
+        sweepPush('STOP_PCT', S, '长电open', aggregate(t), t)
+      }
+      for (const CH of [4, 6]) {
+        const cfg = { ...REBOUND, LEAD_CHG_MIN: CH }
+        const t = runResil(revMap, 'close', cfg)
+        sweepPush('LEAD_CHG_MIN', CH, '东山close', aggregate(t), t)
+      }
+
+      // 因子分桶:长电型连板数 / 东山型累计相对强度。
+      console.log('\n---------- 因子分桶 ----------')
+      for (const lb of [1, 2]) {
+        const t = pioOpen.filter((t) => t.rbLbc === lb)
+        console.log(fmtMetrics(`长电型 ${lb}板`, aggregate(t)) + `  ${fmtEv(t)}`)
+      }
+      for (const [lo, hi] of [[0, 2], [2, 5], [5, 9999]] as const) {
+        const t = resClose.filter((t) => (t.rbCumRel ?? -1) >= lo && (t.rbCumRel ?? -1) < hi)
+        console.log(fmtMetrics(`东山型 cumRel ${lo}~${hi === 9999 ? '∞' : hi}pp`, aggregate(t)) + `  ${fmtEv(t)}`)
+      }
+
+      // 双下限裁决提示
+      for (const [name, t] of [['长电型-open', pioOpen], ['东山型-close', resClose]] as const) {
+        const m = aggregate(t)
+        const ev = eventLevelStats(t)
+        const enough = m.n >= 30 && ev.eventN >= 10
+        console.log(`→ ${name}:n=${m.n}/事件=${ev.eventN} ${enough ? '样本达标' : '⚠ 样本不足(n≥30 且 事件≥10 才可裁决),不接战法'}`)
+      }
+
+      out.reboundEval = {
+        hold: HOLD_RB,
+        stopPct: STOP_RB,
+        rMult: R_RB,
+        config: REBOUND,
+        eventDates,
+        pioneerOpen: { metrics: aggregate(pioOpen), event: eventLevelStats(pioOpen) },
+        pioneerOpenNoCap: { metrics: aggregate(pioOpenNoCap), event: eventLevelStats(pioOpenNoCap) },
+        pioneerClose: { metrics: aggregate(pioClose), event: eventLevelStats(pioClose) },
+        resilientClose: { metrics: aggregate(resClose), event: eventLevelStats(resClose) },
+        resilientNextOpen: { metrics: aggregate(resOpen), event: eventLevelStats(resOpen) },
+        gate: { pioneer: pioGate, resilient: resGate },
+        sweep: rbSweep,
+        baselineExpectancyR: base.metrics.expectancyR,
+      }
     }
   }
 
