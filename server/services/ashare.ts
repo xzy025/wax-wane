@@ -1088,12 +1088,25 @@ async function fetchEMKline(secid: string): Promise<Map<string, { volume: number
 // 指数日线历史的镜像主机(EM 限流时轮换;空 klines 视为失败再换)。
 const INDEX_KLINE_HOSTS = ['push2his.eastmoney.com', 'push2delay.eastmoney.com', '1.push2his.eastmoney.com']
 
+/** 指数日线全字段(reboundRules 的「放量大阳」判据需要 OHLCV;老调用只解构 date/close 不受影响)。
+ *  量的单位注意:EM 为手、Sina 为股——量比是**同源序列内**的比值,单位约掉;单次调用不混源,安全。
+ *  amount(成交额,元)仅 EM 提供,Sina 兜底时为 undefined。 */
+export interface IndexKlineBar {
+  date: string
+  open: number
+  close: number
+  high: number
+  low: number
+  volume: number
+  amount?: number
+}
+
 /**
- * 取一个指数的日线收盘序列(须传完整 secid 如 '1.000300'；指数前缀与个股不同，
+ * 取一个指数的日线序列(须传完整 secid 如 '1.000300'；指数前缀与个股不同，
  * 不能用 fetchStockKline 的 startsWith('6') 规则)。镜像主机轮换 + 重试一次。按日期升序返回。
  */
-export async function fetchIndexKline(secid: string, count: number): Promise<{ date: string; close: number }[]> {
-  // 1) 东财镜像轮换(EM 历史接口偶发返回空 klines)。
+export async function fetchIndexKline(secid: string, count: number): Promise<IndexKlineBar[]> {
+  // 1) 东财镜像轮换(EM 历史接口偶发返回空 klines)。URL 的 fields2 本就请求了 f51..f57 全字段。
   for (const host of INDEX_KLINE_HOSTS) {
     const url = `https://${host}/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=0&end=20500101&lmt=${count}`
     try {
@@ -1103,23 +1116,46 @@ export async function fetchIndexKline(secid: string, count: number): Promise<{ d
       const klines = json?.data?.klines as string[] | undefined
       if (!klines || klines.length === 0) throw new Error(`EM index kline ${secid}: empty`)
       return klines.map((line) => {
+        // EM 行序:f51日期,f52开,f53收,f54高,f55低,f56量(手),f57额(元)
         const parts = line.split(',')
-        return { date: parts[0] ?? '', close: parseFloat(parts[2]) || 0 }
+        return {
+          date: parts[0] ?? '',
+          open: parseFloat(parts[1]) || 0,
+          close: parseFloat(parts[2]) || 0,
+          high: parseFloat(parts[3]) || 0,
+          low: parseFloat(parts[4]) || 0,
+          volume: parseFloat(parts[5]) || 0,
+          amount: parseFloat(parts[6]) || undefined,
+        }
       })
     } catch {
       /* 试下一个镜像 */
     }
   }
-  // 2) Sina 兜底(与 fetchStockKline 同源;secid '1.xxx'→shxxx、'0.xxx'→szxxx)。
+  // 2) Sina 兜底(与 fetchStockKline 同源;secid '1.xxx'→shxxx、'0.xxx'→szxxx)。量单位=股、无成交额。
   try {
     const [m, code] = secid.split('.')
     const sym = (m === '1' ? 'sh' : 'sz') + code
     const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${sym}&scale=240&ma=no&datalen=${count}`
     const res = await fetch(url, { headers: SINA_HEADERS, signal: AbortSignal.timeout(8000) })
     if (res.ok) {
-      const data = (await res.json()) as Array<{ day: string; close: string }>
+      const data = (await res.json()) as Array<{
+        day: string
+        open: string
+        high: string
+        low: string
+        close: string
+        volume: string
+      }>
       if (Array.isArray(data) && data.length) {
-        return data.map((d) => ({ date: d.day, close: parseFloat(d.close) || 0 }))
+        return data.map((d) => ({
+          date: d.day,
+          open: parseFloat(d.open) || 0,
+          close: parseFloat(d.close) || 0,
+          high: parseFloat(d.high) || 0,
+          low: parseFloat(d.low) || 0,
+          volume: parseFloat(d.volume) || 0,
+        }))
       }
     }
   } catch {
