@@ -14,6 +14,11 @@ function fmtPct(n: number | null | undefined): string {
   if (n == null) return '—'
   return `${n >= 0 ? '+' : ''}${n.toFixed(2)}%`
 }
+/** 涨停池 fbt(HHMMSS 数字串,如 '93500') → HH:MM;空/0 → '--:--'。 */
+function fmtFbt(fbt: string): string {
+  const s = fbt.padStart(6, '0')
+  return !fbt || fbt === '0' ? '--:--' : `${s.slice(0, 2)}:${s.slice(2, 4)}`
+}
 
 function QuoteChip({ q }: { q: ReviewQuote }) {
   return (
@@ -54,6 +59,7 @@ export default function DailyReviewCard({ t }: { t: Translation }) {
   if (error && !data) return <div className="alert-item danger">{rv.loadFail}</div>
   if (!data) return null
 
+  const rb = data.reboundDay
   const globalQuotes = [...data.overnight, ...data.asia]
   const buys = data.dragonTiger.filter((x) => x.netAmt > 0)
   const sells = data.dragonTiger.filter((x) => x.netAmt <= 0)
@@ -91,6 +97,84 @@ export default function DailyReviewCard({ t }: { t: Translation }) {
         </div>
       ) : (
         <div className="rot-review-nonarrative">{rv.noNarrative}</div>
+      )}
+
+      {rb?.detected && rb.signal && (
+        <div className="rot-review-sec">
+          <div className="rot-review-sec-head">
+            <span className="rot-drill-grouptag">
+              🚀 {rv.rbTag} · {rb.signal.date}
+            </span>
+            <span className="rot-review-badge">{rv.rbNote}</span>
+          </div>
+          <div className="rot-review-chips">
+            <span className="rot-review-chip">
+              {rv.rbDownDays} <b className="mono">{rb.signal.downDays}</b>
+              {rv.rbDays} <b className={`mono ${colorClass(rb.signal.downCumPct)}`}>{fmtPct(rb.signal.downCumPct)}</b>
+            </span>
+            <span className="rot-review-chip">
+              {rv.rbRebound} <b className={`mono ${colorClass(rb.signal.chgPct)}`}>{fmtPct(rb.signal.chgPct)}</b>
+            </span>
+            <span className="rot-review-chip">
+              {rv.rbVolX} <b className="mono">{rb.signal.volRatio.toFixed(2)}×</b>
+            </span>
+            {rb.secondaryChgPct != null && (
+              <span className="rot-review-chip">
+                创业板指 <b className={`mono ${colorClass(rb.secondaryChgPct)}`}>{fmtPct(rb.secondaryChgPct)}</b>
+              </span>
+            )}
+            {rb.brokerage && (
+              <span className="rot-review-chip">
+                {rb.brokerage.name}{' '}
+                <b className={`mono ${colorClass(rb.brokerage.todayChg)}`}>{fmtPct(rb.brokerage.todayChg)}</b>
+                {rb.brokerage.topMovers.slice(0, 3).map((m) => (
+                  <span key={m.code} className="rot-review-newstag">
+                    {m.name} {fmtPct(m.changePct)}
+                  </span>
+                ))}
+              </span>
+            )}
+          </div>
+          <div className="rot-review-chips">
+            <span className="rot-review-boards-label">{rv.rbPioneers}</span>
+            {rb.pioneers.length === 0 && <span className="rot-review-newstag">{rv.rbNoPioneers}</span>}
+            {rb.pioneers.map((p) => (
+              <span key={p.code} className="rot-review-chip">
+                {rb.fbtAvailable && <span className="mono">{fmtFbt(p.firstTime)}</span>} {p.name}
+                {p.consecutiveDays > 0 && (
+                  <b className="mono positive-text">
+                    {' '}
+                    {p.consecutiveDays}
+                    {rv.rbBoardsUnit}
+                  </b>
+                )}
+                {p.openCount > 0 && (
+                  <span className="mono">
+                    {' '}
+                    {rv.rbOpensUnit}
+                    {p.openCount}
+                  </span>
+                )}
+                {p.industry && <span className="rot-review-newstag">{p.industry}</span>}
+              </span>
+            ))}
+          </div>
+          {rb.pioneers.length > 0 && !rb.fbtAvailable && <div className="rot-review-nonarrative">{rv.rbNoFbt}</div>}
+          {rb.resilient.length > 0 && (
+            <div className="rot-review-chips">
+              <span className="rot-review-boards-label">{rv.rbResilient}</span>
+              {rb.resilient.map((s) => (
+                <span key={s.code} className="rot-review-chip">
+                  {s.name} <b className={`mono ${colorClass(s.changePct)}`}>{fmtPct(s.changePct)}</b>
+                  <span className="mono"> {s.volRatio.toFixed(1)}×</span>
+                  <span className="rot-review-newstag">
+                    {rv.rbCumRel} +{s.cumRelPct}pp · {rv.rbCounterDays} {s.counterTrendDays}
+                  </span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {globalQuotes.length > 0 && (

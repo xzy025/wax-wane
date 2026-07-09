@@ -149,6 +149,79 @@ describe('DailyReviewCard', () => {
     expect(screen.getByText('缓存')).toBeInTheDocument()
   })
 
+  it('反攻日 detected=true → 渲染信号摘要/封板时间轴/抗跌榜/券商佐证', () => {
+    hookResult.data = {
+      ...structuredClone(mockData),
+      reboundDay: {
+        detected: true,
+        signal: { date: '2026-07-02', chgPct: 1.65, volRatio: 1.11, vol5Ratio: 0.97, downDays: 3, downCumPct: -3.44 },
+        secondaryChgPct: 4.49,
+        window: { fromDate: '2026-06-26', toDate: '2026-07-01' },
+        pioneers: [
+          {
+            code: '600584', name: '长电科技', changePct: 10.02, firstTime: '93500', lastTime: '93500',
+            openCount: 1, consecutiveDays: 1, industry: '半导体', turnoverRate: 5, amount: 1e9,
+          },
+        ],
+        fbtAvailable: true,
+        resilient: [
+          {
+            code: '002384', name: '东山精密', changePct: 6.2, volRatio: 2.1, cumRelPct: 4.3,
+            counterTrendDays: 2, stockChgPct: 0.8, indexChgPct: -3.5,
+          },
+        ],
+        brokerage: { code: 'BK0473', name: '证券', todayChg: 3.2, topMovers: [{ code: '600030', name: '中信证券', changePct: 5.1 }] },
+      },
+    }
+    render(<DailyReviewCard t={t} />)
+    expect(screen.getByText(/反攻日 · 2026-07-02/)).toBeInTheDocument()
+    expect(screen.getByText('09:35')).toBeInTheDocument() // fbt 时间轴
+    expect(screen.getByText(/长电科技/)).toBeInTheDocument()
+    expect(screen.getByText(/东山精密/)).toBeInTheDocument()
+    expect(screen.getByText(/窗内超额 \+4\.3pp/)).toBeInTheDocument()
+    expect(screen.getByText(/中信证券/)).toBeInTheDocument()
+    expect(screen.getByText(/非买点/)).toBeInTheDocument()
+  })
+
+  it('反攻日 fbtAvailable=false → 无时间轴,显示兜底源提示', () => {
+    const d = structuredClone(mockData)
+    d.reboundDay = {
+      detected: true,
+      signal: { date: '2026-07-02', chgPct: 1.65, volRatio: 1.11, vol5Ratio: 0.97, downDays: 3, downCumPct: -3.44 },
+      secondaryChgPct: null,
+      window: null,
+      pioneers: [
+        {
+          code: '600000', name: '某票', changePct: 10, firstTime: '', lastTime: '',
+          openCount: 0, consecutiveDays: 0, industry: '', turnoverRate: 1, amount: 1e8,
+        },
+      ],
+      fbtAvailable: false,
+      resilient: [],
+      brokerage: null,
+    }
+    hookResult.data = d
+    render(<DailyReviewCard t={t} />)
+    expect(screen.getByText(/封板时间不可用/)).toBeInTheDocument()
+    expect(screen.queryByText('--:--')).not.toBeInTheDocument() // 无时间轴列
+  })
+
+  it('反攻日 detected=false / reboundDay 缺失(旧存档) → 区块不渲染', () => {
+    const d1 = structuredClone(mockData)
+    d1.reboundDay = {
+      detected: false, signal: null, secondaryChgPct: null, window: null,
+      pioneers: [], fbtAvailable: false, resilient: [], brokerage: null,
+    }
+    hookResult.data = d1
+    const { rerender } = render(<DailyReviewCard t={t} />)
+    expect(screen.queryByText(/反攻日/)).not.toBeInTheDocument()
+    const d2 = structuredClone(mockData)
+    delete d2.reboundDay
+    hookResult.data = d2
+    rerender(<DailyReviewCard t={t} />)
+    expect(screen.queryByText(/反攻日/)).not.toBeInTheDocument()
+  })
+
   it('非 http(s) 的新闻链接不渲染为 <a>(防 javascript: 注入)', () => {
     const d = structuredClone(mockData)
     d.news[0].link = 'javascript:alert(1)' // eslint-disable-line no-script-url

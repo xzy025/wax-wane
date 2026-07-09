@@ -49,6 +49,59 @@ export interface ReviewNarrative {
   generatedAt: string
 }
 
+/** Mirror of server ReversalSignal (server/services/reboundRules.ts). */
+export interface ReversalSignal {
+  date: string
+  chgPct: number
+  volRatio: number // 当日量/昨日量
+  vol5Ratio: number
+  downDays: number
+  downCumPct: number
+}
+
+/** Mirror of server ReboundPioneer (server/services/reboundReview.ts). */
+export interface ReboundPioneer {
+  code: string
+  name: string
+  changePct: number
+  firstTime: string // HHMMSS;兜底源为空串
+  lastTime: string
+  openCount: number
+  consecutiveDays: number
+  industry: string
+  turnoverRate: number
+  amount: number
+}
+
+/** Mirror of server ReboundResilient. */
+export interface ReboundResilient {
+  code: string
+  name: string
+  changePct: number
+  volRatio: number
+  cumRelPct: number
+  counterTrendDays: number
+  stockChgPct: number
+  indexChgPct: number
+}
+
+/** Mirror of server ReboundSection. */
+export interface ReboundSection {
+  detected: boolean
+  signal: ReversalSignal | null
+  secondaryChgPct: number | null
+  window: { fromDate: string; toDate: string } | null
+  pioneers: ReboundPioneer[]
+  fbtAvailable: boolean
+  resilient: ReboundResilient[]
+  brokerage: {
+    code: string
+    name: string
+    todayChg: number
+    topMovers: { code: string; name: string; changePct: number }[]
+  } | null
+}
+
 /** Mirror of server DailyReviewData. */
 export interface DailyReviewData {
   asof: string
@@ -77,6 +130,8 @@ export interface DailyReviewData {
     topLs: ReviewBoardChip[]
   } | null
   narrative: ReviewNarrative | null
+  /** 反攻日区块;旧存档/取数失败 = undefined/null,非反攻日 detected:false(均不渲染)。 */
+  reboundDay?: ReboundSection | null
   fromCache?: boolean
 }
 

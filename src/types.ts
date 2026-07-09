@@ -128,6 +128,20 @@ export interface Translation {
       cached: string
       noNarrative: string
       loadFail: string
+      rbTag: string
+      rbNote: string
+      rbDownDays: string
+      rbDays: string
+      rbRebound: string
+      rbVolX: string
+      rbPioneers: string
+      rbNoFbt: string
+      rbNoPioneers: string
+      rbResilient: string
+      rbCumRel: string
+      rbCounterDays: string
+      rbBoardsUnit: string
+      rbOpensUnit: string
     }
   }
   themes: {
