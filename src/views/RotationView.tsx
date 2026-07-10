@@ -10,6 +10,7 @@ import {
 } from '../hooks/useRotation'
 import { useMarketStructure, type MarketStructureBoard } from '../hooks/useMarketStructure'
 import DailyReviewCard from '../components/DailyReviewCard'
+import RotationTempoGrid from '../components/RotationTempoGrid'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 import type { Translation } from '../types'
 
@@ -290,6 +291,8 @@ function RotationView({ t }: RotationViewProps) {
       <DailyReviewCard t={t} />
 
       <StructureCard t={t} />
+
+      <RotationTempoGrid t={t} />
 
       {error && !data && <div className="alert-item danger">{rt.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{rt.scanning}</div>}

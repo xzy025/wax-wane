@@ -2965,3 +2965,128 @@ body {
   line-height: 1.55;
   color: var(--text, #e8edf6);
 }
+
+/* ── 板块轮动节奏表(rtempo):板块×5日 启动/调整网格,横向滚动+sticky 首列 ── */
+.rtempo {
+  margin-top: 16px;
+}
+.rtempo-scroll {
+  overflow-x: auto;
+}
+.rtempo-grid {
+  display: grid;
+  min-width: 720px;
+  gap: 2px;
+  margin-top: 8px;
+}
+.rtempo-corner,
+.rtempo-name {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface); /* 必须不透明,否则横滚内容透出 */
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.35);
+}
+.rtempo-head {
+  padding: 4px 6px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: center;
+}
+.rtempo-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px 6px 4px;
+  font-size: 0.8rem;
+  overflow: hidden;
+}
+.rtempo-name--bench {
+  color: var(--muted);
+  padding-left: 26px; /* 对齐(无钉选按钮) */
+}
+.rtempo-name-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rtempo-src {
+  flex: none;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  color: var(--muted);
+  background: var(--surface-soft);
+}
+.rtempo-pin {
+  flex: none;
+  display: inline-flex;
+  padding: 2px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.rtempo-pin:hover {
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+.rtempo-pin--on {
+  color: var(--orange);
+}
+.rtempo-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 5px 7px;
+  border-radius: 6px;
+  border-left: 2px solid transparent;
+  background: var(--surface-soft);
+  font-size: 0.74rem;
+  min-height: 34px;
+}
+.rtempo-cell--strong {
+  background: var(--red-soft);
+  border-left-color: var(--red);
+}
+.rtempo-cell--weak {
+  background: var(--orange-soft);
+  border-left-color: var(--orange);
+}
+.rtempo-cell--adjust {
+  background: var(--green-soft);
+  border-left-color: var(--green);
+}
+.rtempo-cell--bench {
+  background: transparent;
+  align-items: center;
+}
+.rtempo-cell-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  white-space: nowrap;
+}
+.rtempo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.rtempo-chip {
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.06);
+}
+.rtempo-chip--note {
+  color: var(--cyan);
+  background: var(--cyan-soft);
+}
+.rtempo-miss {
+  color: var(--muted);
+  opacity: 0.5;
+}

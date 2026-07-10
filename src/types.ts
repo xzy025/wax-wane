@@ -143,6 +143,29 @@ export interface Translation {
       rbBoardsUnit: string
       rbOpensUnit: string
     }
+    tempo: {
+      title: string
+      cellLaunch: string
+      cellAdjust: string
+      qAboveIndex: string
+      qVolUp: string
+      qVolDown: string
+      qResilient: string
+      nSoloStrong: string
+      nSplit: string
+      nInflow: string
+      pin: string
+      unpin: string
+      srcIndustry: string
+      srcConcept: string
+      srcTheme: string
+      badgeArchive: string
+      badgeRecon: string
+      reconTip: string
+      empty: string
+      loadFail: string
+      legend: string
+    }
   }
   themes: {
     heatTitle: string
