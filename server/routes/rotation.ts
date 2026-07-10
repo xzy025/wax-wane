@@ -1,6 +1,8 @@
-// 板块轮动路由:GET /api/rotation(2×2 象限)+ /api/rotation/stock-boards(个股反查板块)。
+// 板块轮动路由:GET /api/rotation(2×2 象限)+ /api/rotation/stock-boards(个股反查板块)
+// + /api/rotation/tempo(节奏表:板块×5日 启动/调整网格)。
 import { Router } from 'express'
 import { fetchRotation, fetchStockBoards, fetchBoardStocks, type RotationCategory } from '../services/rotation'
+import { fetchRotationTempo } from '../services/rotationTempo'
 
 const router = Router()
 
@@ -11,6 +13,19 @@ router.get('/api/rotation', async (req, res) => {
     const shortWin = Number(req.query.short) || 5
     const data = await fetchRotation(category, longWin, shortWin)
     res.json(data)
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' })
+  }
+})
+
+// 节奏表:pins 只影响富注记增补(钉选行不在 heat 前30 时按需补算),不进主缓存 key。
+router.get('/api/rotation/tempo', async (req, res) => {
+  try {
+    const pins = String(req.query.pins ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    res.json(await fetchRotationTempo(pins))
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' })
   }
