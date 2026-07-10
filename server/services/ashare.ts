@@ -1132,7 +1132,33 @@ export async function fetchIndexKline(secid: string, count: number): Promise<Ind
       /* 试下一个镜像 */
     }
   }
-  // 2) Sina 兜底(与 fetchStockKline 同源;secid '1.xxx'→shxxx、'0.xxx'→szxxx)。量单位=股、无成交额。
+  // 2) 腾讯兜底(指数代码 sh/sz+code 可用;板块 90.BKxxx 腾讯无此码会落空到下一层)。
+  //    实测比 Sina 新鲜:Sina 日线盘后仍缺当日 bar(2026-07-10 20:40 复现),腾讯收盘即含当日。
+  //    量单位=手(Sina=股)——量比是同源序列内比值,单位约掉,单次调用不混源。无成交额。
+  try {
+    const [m, code] = secid.split('.')
+    const sym = (m === '1' ? 'sh' : 'sz') + code
+    const url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${sym},day,,,${count},qfq`
+    const res = await fetch(url, { headers: SINA_HEADERS, signal: AbortSignal.timeout(8000) })
+    if (res.ok) {
+      const json = (await res.json()) as any
+      const node = json?.data?.[sym]
+      const rows = (node?.qfqday ?? node?.day) as (string | number)[][] | undefined
+      if (rows && rows.length > 0) {
+        return rows.map((r) => ({
+          date: String(r[0]),
+          open: parseFloat(String(r[1])) || 0,
+          close: parseFloat(String(r[2])) || 0,
+          high: parseFloat(String(r[3])) || 0,
+          low: parseFloat(String(r[4])) || 0,
+          volume: parseFloat(String(r[5])) || 0,
+        }))
+      }
+    }
+  } catch {
+    /* 试下一层 */
+  }
+  // 3) Sina 兜底(与 fetchStockKline 同源;secid '1.xxx'→shxxx、'0.xxx'→szxxx)。量单位=股、无成交额。
   try {
     const [m, code] = secid.split('.')
     const sym = (m === '1' ? 'sh' : 'sz') + code

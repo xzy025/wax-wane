@@ -15,6 +15,7 @@ import { clearReboundCache } from '../services/reboundReview'
 import { clearFundResonanceBoardCache } from '../services/fundResonanceBoard'
 import { clearOrgSurveyBoardCache } from '../services/orgSurveyBoard'
 import { clearRotationCache } from '../services/rotation'
+import { clearRotationTempoCache } from '../services/rotationTempo'
 import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
 import { clearNewsFlashCache } from '../services/newsFlash'
 import { clearResearchCache } from '../services/research'
@@ -44,7 +45,12 @@ const cacheClearers: Record<string, () => void> = {
   },
   'fund-resonance-board': clearFundResonanceBoardCache,
   'org-survey-board': clearOrgSurveyBoardCache,
-  rotation: clearRotationCache,
+  // rotation 清缓存连带节奏表:barsCache 被清后 tempo 不连清会短暂错拍(仿 daily-review 连带先例)
+  rotation: () => {
+    clearRotationCache()
+    clearRotationTempoCache()
+  },
+  'rotation-tempo': clearRotationTempoCache,
   'intel-flash': clearNewsFlashCache,
   'intel-research': clearResearchCache,
 }

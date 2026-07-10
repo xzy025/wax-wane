@@ -185,7 +185,49 @@ export async function fetchTurnoverRankTop(topN = 200): Promise<Map<string, Turn
   return out
 }
 
+// 板块级主力净流入(节奏表「资金回流」注记用),5 分钟缓存(整表一份,key 固定)。
+const boardInflowCache = { data: new Map<string, number>(), expires: 0 }
+
+/** 板块主力净流入(f62,元):ulist secids=90.BKxxxx 分块批量。失败/门控关 → 空 Map。
+ *  同 f62 个股口径:东财无免费历史 → 仅实时注记,不可回测(数据墙,见文件头注释)。 */
+export async function fetchBoardInflow(bkCodes: string[]): Promise<Map<string, number>> {
+  if (!isFundFlowEnabled() || bkCodes.length === 0) return new Map()
+  if (boardInflowCache.expires > Date.now()) return boardInflowCache.data
+  const out = new Map<string, number>()
+  const secids = bkCodes.map((c) => `90.${c}`)
+  for (let i = 0; i < secids.length; i += ULIST_CHUNK) {
+    const chunk = secids.slice(i, i + ULIST_CHUNK)
+    let ok = false
+    for (let h = 0; h < FF_HOSTS.length && !ok; h++) {
+      const url =
+        `https://${FF_HOSTS[h]}/api/qt/ulist.np/get?secids=${chunk.join(',')}` +
+        `&fields=f12,f62&fltt=2&invt=2&ut=${FF_UT}`
+      try {
+        const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+        if (!res.ok) throw new Error(`ulist HTTP ${res.status}`)
+        const json = (await res.json()) as any
+        const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]
+        for (const d of diff) {
+          const code = String(d.f12 ?? '')
+          if (code) out.set(code, num(d.f62))
+        }
+        ok = true
+      } catch {
+        /* 试下一个镜像 */
+      }
+    }
+    if (!ok) console.warn('[FundFlow] 板块净流入分块取数失败(忽略该块)')
+  }
+  if (out.size > 0) {
+    boardInflowCache.data = out
+    boardInflowCache.expires = Date.now() + TTL
+  }
+  return out
+}
+
 export function clearFundFlowCache(): void {
   rankCache.clear()
   turnoverCache.clear()
+  boardInflowCache.data = new Map()
+  boardInflowCache.expires = 0
 }
