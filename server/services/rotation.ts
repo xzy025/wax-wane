@@ -3,7 +3,7 @@
 import { EM_HEADERS } from '../lib/emHeaders'
 import { createCache, sessionTtl, type Cache } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
-import { fetchIndexKline, fetchStockKline } from './ashare'
+import { fetchIndexKline, fetchStockKline, type IndexKlineBar } from './ashare'
 import { toSecids } from './emQuotes'
 import { resolveStock } from './stockSearch'
 import { SCREENER } from '../config/screener'
@@ -113,22 +113,28 @@ export async function fetchBoardUniverse(category: RotationCategory): Promise<Bo
   return out
 }
 
-// 板块日线 closes 长缓存(历史不可变;手动刷新时清空以纳入当日最新)。
-const closesCache = new Map<string, { closes: number[]; expires: number }>()
-const CLOSES_TTL = 24 * 3600_000
+// 板块日线 bars 长缓存(历史不可变;手动刷新时清空以纳入当日最新)。
+// 原为 closes-only,节奏表(rotationTempo)需要 volume 判放缩量 → 升级存全 bars,
+// 象限视图经 getBoardCloses 薄壳零改动;fetchIndexKline 本就返回 OHLCV,零额外上游成本。
+const barsCache = new Map<string, { bars: IndexKlineBar[]; expires: number }>()
+const BARS_TTL = 24 * 3600_000
 
-async function getBoardCloses(secid: string): Promise<number[]> {
-  const hit = closesCache.get(secid)
-  if (hit && hit.expires > Date.now()) return hit.closes
+/** 板块/指数日线全 bars(secid 如 '90.BK1036' 或 '1.000001');节奏表与象限视图共享同一取数预算。 */
+export async function getBoardBars(secid: string): Promise<IndexKlineBar[]> {
+  const hit = barsCache.get(secid)
+  if (hit && hit.expires > Date.now()) return hit.bars
   const bars = await fetchIndexKline(secid, ROTATION.KLINE_BARS)
-  const closes = bars.map((b) => b.close)
   // 空序列=上游失败(限流/镜像全挂),缓存它会把故障固化 24h——只缓存有效数据。
-  if (closes.length > 0) closesCache.set(secid, { closes, expires: Date.now() + CLOSES_TTL })
-  return closes
+  if (bars.length > 0) barsCache.set(secid, { bars, expires: Date.now() + BARS_TTL })
+  return bars
 }
 
-/** 有界并发。 */
-async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R>): Promise<R[]> {
+async function getBoardCloses(secid: string): Promise<number[]> {
+  return (await getBoardBars(secid)).map((b) => b.close)
+}
+
+/** 有界并发。导出:rotationTempo 复用。 */
+export async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R>): Promise<R[]> {
   const out = new Array<R>(items.length)
   let i = 0
   const worker = async () => {
@@ -212,7 +218,7 @@ export function fetchRotation(category: RotationCategory, longWin: number, short
 export function clearRotationCache(): void {
   for (const c of resultCaches.values()) c.clear()
   for (const c of drillCaches.values()) c.clear()
-  closesCache.clear()
+  barsCache.clear()
 }
 
 /** 搜个股 → 解析 + 取其所属板块名(供前端过滤命中的板块)。 */

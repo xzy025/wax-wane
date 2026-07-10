@@ -11,7 +11,9 @@
     "probe": "tsx scripts/screenerProbe.ts",
     "probe:pullback": "tsx scripts/pullbackProbe.ts",
     "probe:accum": "tsx scripts/accumProbe.ts",
-    "probe:rebound": "tsx scripts/reboundProbe.ts"
+    "probe:rebound": "tsx scripts/reboundProbe.ts",
+    "probe:tempo": "tsx scripts/tempoProbe.ts",
+    "probe:kpl": "tsx scripts/kplThemeProbe.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
