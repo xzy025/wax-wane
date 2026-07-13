@@ -10,7 +10,7 @@ global.fetch = mockFetch as unknown as typeof fetch
 const flashData = (tag: string) => ({
   asof: tag,
   items: [{ id: tag, time: '2026-07-07T10:00:00', title: tag, summary: '', source: 'eastmoney', important: false, stocks: [] }],
-  sources: { eastmoney: true, sina: true },
+  sources: { eastmoney: true, sina: true, cls: true },
 })
 
 describe('useNewsFlash', () => {

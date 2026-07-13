@@ -13,17 +13,18 @@ export interface NewsFlashItem {
   time: string
   title: string
   summary: string
-  source: 'eastmoney' | 'sina'
+  source: 'eastmoney' | 'sina' | 'cls'
   important: boolean
   stocks: NewsFlashStock[]
   url?: string
 }
 
-/** Mirror of server NewsFlashData (server/services/newsFlash.ts). */
+/** Mirror of server NewsFlashData (server/services/newsFlash.ts)。
+ *  cls 在服务端必发;此处可选仅为兼容存量测试 fixture,消费方按 === false 判失联。 */
 export interface NewsFlashData {
   asof: string
   items: NewsFlashItem[]
-  sources: { eastmoney: boolean; sina: boolean }
+  sources: { eastmoney: boolean; sina: boolean; cls?: boolean }
 }
 
 export interface NewsFlashHookResult {
@@ -38,7 +39,7 @@ export interface NewsFlashHookResult {
 const POLL_MS = 30_000 // 快讯 7x24 滚动,挂载期间静默轮询(与服务端盘中 TTL 同步)
 
 /**
- * 7x24 快讯(东财+新浪双源)。挂载期间每 30s 静默轮询:失败不清 data、不弹
+ * 7x24 快讯(东财+财联社+新浪三源)。挂载期间每 30s 静默轮询:失败不清 data、不弹
  * error(快讯断一轮无感),只有首拉失败才报错。seq ref 丢弃过期响应。
  */
 export function useNewsFlash(): NewsFlashHookResult {

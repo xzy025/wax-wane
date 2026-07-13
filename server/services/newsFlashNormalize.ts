@@ -1,6 +1,6 @@
-// 7x24 快讯双源归一化 + 去重合并(零 IO 纯函数,全部可测)。
+// 7x24 快讯三源归一化 + 去重合并(零 IO 纯函数,全部可测)。
 //
-// 上游真实响应结构(2026-07-07 实抓样本):
+// 上游真实响应结构(东财/新浪 2026-07-07、财联社 2026-07-14 实抓样本):
 //   东财 getFastNewsList → { data: { fastNewsList: [{ code, title, summary, showTime,
 //     titleColor, stockList: ["1.603132", "0.300620", ...] }] } }
 //     - stockList 为 "市场.代码" 字符串,与项目 secid 口径一致(0=深 1=沪);
@@ -11,7 +11,14 @@
 //     - rich_text 可能以 "【标题】" 开头也可能是纯正文;
 //     - ext 是 JSON 字符串,内含 stocks[{market:'cn',symbol:'sz300024'}] 与 docurl;
 //     - tag.name 含 "焦点" = 新浪要闻。
+//   财联社 v1/roll/get_roll_list → { errno: 0, data: { roll_data: [{ id, ctime(unix秒),
+//     level, title, brief, content, is_ad, shareurl, stock_list: [{StockID:'sh688183',
+//     name, ...}] }] } }(来源 a-stock-data SKILL §5.2,签名见 buildClsUrl)
+//     - title 常为空,brief 通常是 "【标题】正文",从 brief 拆标题优先;
+//     - level: 'A'=加红 'B'=加粗(要闻) 'C'=普通;
+//     - stock_list 带股票名(东财/新浪没有),StockID 前缀 sh/sz 同新浪口径。
 // 网络抓取在 newsFlash.ts;本文件对畸形输入一律返回 [],绝不抛错。
+import { createHash } from 'crypto'
 
 export interface NewsFlashStock {
   code: string
@@ -24,7 +31,7 @@ export interface NewsFlashItem {
   time: string
   title: string
   summary: string
-  source: 'eastmoney' | 'sina'
+  source: 'eastmoney' | 'sina' | 'cls'
   important: boolean
   /** 仅保留 A 股标的(6 位数字代码),供前端 chip 联动。 */
   stocks: NewsFlashStock[]
@@ -147,6 +154,85 @@ export function normalizeSina(raw: unknown): NewsFlashItem[] {
       important,
       stocks,
       url,
+    })
+  }
+  return items
+}
+
+/** 财联社 stock_list 条目 {StockID:'sh688183', name:'生益电子'} → {code, name};非 sh/sz 丢弃。 */
+function clsStock(entry: unknown): NewsFlashStock | null {
+  if (typeof entry !== 'object' || entry === null) return null
+  const e = entry as Record<string, unknown>
+  if (typeof e.StockID !== 'string') return null
+  const m = /^(?:sz|sh)(\d{6})$/i.exec(e.StockID)
+  if (!m) return null
+  return typeof e.name === 'string' && e.name ? { code: m[1], name: e.name } : { code: m[1] }
+}
+
+/** unix 秒 → "YYYY-MM-DDTHH:mm:ss+08:00"(上海挂钟,与 shanghaiToIso 输出同构)。 */
+function epochToShanghaiIso(sec: unknown): string | null {
+  if (typeof sec !== 'number' || !Number.isFinite(sec) || sec <= 0) return null
+  return new Date((sec + 8 * 3600) * 1000).toISOString().slice(0, 19) + '+08:00'
+}
+
+/**
+ * 财联社 v1 roll 签名 URL(纯本地计算,零 key):sign = md5(sha1(按 key 字典序拼接的
+ * query 串))。算法来源 a-stock-data SKILL §5.2(2026-07 实测 errno=0)。
+ */
+export function buildClsUrl(pageSize = 50): string {
+  const params: Record<string, string> = {
+    appName: 'CailianpressWeb',
+    os: 'web',
+    sv: '7.7.5',
+    last_time: '',
+    refresh_type: '1',
+    rn: String(pageSize),
+  }
+  const qs = Object.keys(params)
+    .sort()
+    .map((k) => `${k}=${params[k]}`)
+    .join('&')
+  const sha = createHash('sha1').update(qs).digest('hex')
+  const sign = createHash('md5').update(sha).digest('hex')
+  return `https://www.cls.cn/v1/roll/get_roll_list?${qs}&sign=${sign}`
+}
+
+export function normalizeCls(raw: unknown): NewsFlashItem[] {
+  const list = (raw as { data?: { roll_data?: unknown } } | null)?.data?.roll_data
+  if (!Array.isArray(list)) return []
+  const items: NewsFlashItem[] = []
+  for (const entry of list) {
+    if (typeof entry !== 'object' || entry === null) continue
+    const e = entry as Record<string, unknown>
+    if (e.is_ad === 1 || e.is_ad === true) continue
+    const time = epochToShanghaiIso(e.ctime)
+    const brief = typeof e.brief === 'string' ? e.brief.trim() : ''
+    const content = typeof e.content === 'string' ? e.content.trim() : ''
+    const rawTitle = typeof e.title === 'string' ? e.title.trim() : ''
+    if (!time || (!brief && !content && !rawTitle)) continue
+    // title 字段常为空,brief 通常自带 "【标题】正文"——优先从 brief 拆,退回 title 字段。
+    const { title: bracket, rest } = splitBracketTitle(brief || content)
+    const title = bracket || rawTitle || rest
+    const summary = bracket || rawTitle ? rest : ''
+    const stocks: NewsFlashStock[] = []
+    if (Array.isArray(e.stock_list)) {
+      for (const s of e.stock_list) {
+        const st = clsStock(s)
+        if (st && !stocks.some((x) => x.code === st.code)) stocks.push(st)
+      }
+    }
+    items.push({
+      id:
+        typeof e.id === 'number' || (typeof e.id === 'string' && e.id)
+          ? `cls-${e.id}`
+          : `cls-${time}-${normalizeFlashTitle(title).slice(0, 12)}`,
+      time,
+      title,
+      summary,
+      source: 'cls',
+      important: e.level === 'A' || e.level === 'B',
+      stocks,
+      url: typeof e.shareurl === 'string' && e.shareurl ? e.shareurl : undefined,
     })
   }
   return items
