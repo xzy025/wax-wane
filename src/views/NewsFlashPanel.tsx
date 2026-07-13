@@ -6,7 +6,7 @@ import type { Translation } from '../types'
 const SUMMARY_COLLAPSED = 92 // 摘要折叠长度(字),点击展开全文
 
 /** 来源短标(专名,不进 i18n;逐行 tag 与失联徽标共用)。 */
-const SOURCE_LABEL: Record<NewsFlashItem['source'], string> = { eastmoney: '东财', sina: '新浪' }
+const SOURCE_LABEL: Record<NewsFlashItem['source'], string> = { eastmoney: '东财', sina: '新浪', cls: '财联社' }
 
 function FlashRow({ it, t }: { it: NewsFlashItem; t: Translation }) {
   const [open, setOpen] = useState(false)
@@ -49,7 +49,7 @@ function FlashRow({ it, t }: { it: NewsFlashItem; t: Translation }) {
   )
 }
 
-/** 7x24 快讯面板:东财+新浪双源时间线,挂载期间 30s 静默轮询。 */
+/** 7x24 快讯面板:东财+财联社+新浪三源时间线,挂载期间 30s 静默轮询。 */
 export default function NewsFlashPanel({ t }: { t: Translation }) {
   const fl = t.intel.flash
   const { data, loading, error, lastUpdated, refresh } = useNewsFlash()
@@ -65,6 +65,8 @@ export default function NewsFlashPanel({ t }: { t: Translation }) {
           {lastUpdated && `${fl.lastUpdated} ${lastUpdated.toLocaleTimeString()} · `}
           {fl.autoNote}
           {data && !data.sources.eastmoney && <span className="sc-save-fail-badge">⚠ {SOURCE_LABEL.eastmoney}{fl.sourceDown}</span>}
+          {/* cls 可选字段:仅显式 false 判失联(undefined=旧 fixture/存量缓存,不告警) */}
+          {data && data.sources.cls === false && <span className="sc-save-fail-badge">⚠ {SOURCE_LABEL.cls}{fl.sourceDown}</span>}
           {data && !data.sources.sina && <span className="sc-save-fail-badge">⚠ {SOURCE_LABEL.sina}{fl.sourceDown}</span>}
         </span>
         <button className="sc-scan-btn" onClick={refresh} disabled={loading}>

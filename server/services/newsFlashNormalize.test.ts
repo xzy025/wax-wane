@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildClsUrl,
   mergeFlashItems,
+  normalizeCls,
   normalizeEastmoney,
   normalizeFlashTitle,
   normalizeSina,
@@ -160,6 +162,87 @@ describe('normalizeSina', () => {
     expect(ids).toHaveLength(2)
     expect(ids[0]).not.toBe(ids[1])
     expect(ids.every((id) => id.startsWith('sina-2026-07-07T16:00:00'))).toBe(true)
+  })
+})
+
+// fixture 取自 2026-07-14 实抓响应(字段与嵌套与线上一致,内容精简)
+const CLS_RAW = {
+  errno: 0,
+  msg: '',
+  data: {
+    roll_data: [
+      {
+        id: 2425034,
+        ctime: 1783952870,
+        level: 'B',
+        title: '盘后A股上市公司重点业绩公告精选',
+        brief: '【盘后A股上市公司重点业绩公告精选】财联社7月13日电,据财联社不完全统计,多家A股上市公司发布2026年半年度业绩预告。',
+        content: '',
+        is_ad: 0,
+        shareurl: 'https://api3.cls.cn/share/article/2425034?os=web',
+        stock_list: [
+          { StockID: 'sh688183', name: '生益电子', RiseRange: -9.75, last: 111.01 },
+          { StockID: 'sz002185', name: '华天科技', RiseRange: -4.66, last: 24.13 },
+          { StockID: 'sh688183', name: '生益电子(重复)' },
+          { StockID: 'hk00700', name: '腾讯控股' },
+        ],
+      },
+      {
+        id: 2425159,
+        ctime: 1783964368,
+        level: 'C',
+        title: '沙特称应对胡塞武装导弹',
+        brief: '【沙特称应对胡塞武装导弹】财联社7月14日电,由沙特主导的多国联军表示…',
+        content: '',
+        is_ad: 0,
+        shareurl: '',
+        stock_list: [],
+      },
+      { id: 999, ctime: 1783964000, level: 'C', title: '', brief: '推广内容', is_ad: 1, stock_list: [] },
+    ],
+  },
+}
+
+describe('normalizeCls', () => {
+  const items = normalizeCls(CLS_RAW)
+
+  it('maps fields: brief 拆【标题】、ctime 转上海 ISO、level B 记要闻、shareurl 为 url', () => {
+    expect(items).toHaveLength(2) // is_ad=1 的推广条被剔除
+    const [biz, war] = items
+    expect(biz.id).toBe('cls-2425034')
+    expect(biz.time).toBe('2026-07-13T22:27:50+08:00')
+    expect(biz.title).toBe('盘后A股上市公司重点业绩公告精选')
+    expect(biz.summary).toContain('财联社7月13日电')
+    expect(biz.summary).not.toContain('【')
+    expect(biz.source).toBe('cls')
+    expect(biz.important).toBe(true) // level B = 加粗要闻
+    expect(biz.url).toBe('https://api3.cls.cn/share/article/2425034?os=web')
+    expect(war.time).toBe('2026-07-14T01:39:28+08:00')
+    expect(war.important).toBe(false) // level C
+    expect(war.url).toBeUndefined() // 空 shareurl 不带
+  })
+
+  it('parses stock_list: sh/sz 前缀取 6 位码并带股票名,去重,非 A 股(hk)丢弃', () => {
+    expect(items[0].stocks).toEqual([
+      { code: '688183', name: '生益电子' },
+      { code: '002185', name: '华天科技' },
+    ])
+  })
+
+  it('returns [] on malformed payloads without throwing', () => {
+    expect(normalizeCls(null)).toEqual([])
+    expect(normalizeCls({})).toEqual([])
+    expect(normalizeCls({ data: { roll_data: 'nope' } })).toEqual([])
+    expect(normalizeCls({ data: { roll_data: [{ id: 1 }] } })).toEqual([]) // 无 ctime/正文
+  })
+})
+
+describe('buildClsUrl', () => {
+  it('生成带本地签名的 v1 roll URL(sign=md5(sha1(字典序query)),已知值锁定防回归)', () => {
+    const url = buildClsUrl(50)
+    expect(url).toBe(
+      'https://www.cls.cn/v1/roll/get_roll_list?appName=CailianpressWeb&last_time=&os=web&refresh_type=1&rn=50&sv=7.7.5&sign=b849fe86598f3ceca205eda7b33a49a1',
+    )
   })
 })
 
