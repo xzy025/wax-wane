@@ -8,7 +8,7 @@
 import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { createCache, sessionTtl, shanghaiClock } from '../lib/cache'
+import { createCache, sessionTtl, shanghaiClock, isArchiveWindow } from '../lib/cache'
 import { llmComplete, isLLMConfigured } from '../lib/llmComplete'
 import { fetchIndexQuotes, type IndexQuote, type IndexSpec } from './emQuotes'
 import { fetchUSData } from './us'
@@ -250,9 +250,11 @@ async function computeDailyReview(): Promise<DailyReviewData> {
   if (narrative === null && isLLMConfigured() && shouldGenerateNarrative(day, minutes)) {
     const done = await llmComplete(buildReviewFacts(data), {
       system: REVIEW_SYSTEM_PROMPT,
-      maxTokens: 800,
+      // Gemini 2.5 的思考 token 计入 max_tokens 预算:800 时可见输出在定调句即被截断
+      // (2026-07-13 实证:800→47字残句,2048→345字完整),超时同步放宽给思考留时间。
+      maxTokens: 2048,
       temperature: 0.3,
-      timeoutMs: 30_000,
+      timeoutMs: 60_000,
       llmId: 'gemini',
     })
     if (done) {
@@ -264,8 +266,9 @@ async function computeDailyReview(): Promise<DailyReviewData> {
   }
   data.narrative = narrative
 
-  // 周末不落盘:asof 是非交易日,数据实为上一交易日,落盘会遮住冷启动种子里真正的交易日存档。
-  if (!isWeekend) writeReviewDisk(data)
+  // 盘外不落盘:周末与工作日盘前(<09:30)数据实为上一交易日,以 today 为 asof 落盘会
+  // 错标日期/遮住真正的交易日存档(周五 01:53 刷新曾把周四数据存成 review-2026-07-10.json)。
+  if (isArchiveWindow()) writeReviewDisk(data)
   return data
 }
 

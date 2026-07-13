@@ -6,7 +6,7 @@
 import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { createCache, sessionTtl } from '../lib/cache'
+import { createCache, sessionTtl, isArchiveWindow } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import { fetchSentiment } from './kaipanla'
 import { fetchRotation, type RotationBoard } from './rotation'
@@ -79,7 +79,8 @@ async function computeMarketStructure(): Promise<MarketStructureSummary> {
     topHs: topBy(byQuad('hs')),
     topLs: topBy(byQuad('ls')),
   }
-  writeStructureDisk(result)
+  // 盘外(周末/工作日盘前)数据实为上一交易日,asof=today 落盘会错标日期,跳过(内存缓存照常)。
+  if (isArchiveWindow()) writeStructureDisk(result)
   return result
 }
 
