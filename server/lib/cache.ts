@@ -30,6 +30,19 @@ export function isAShareSession(): boolean {
 }
 
 /**
+ * 当日档案(asof=todayShanghai 的 <date>.json/DB 行)可落盘的窗口:交易日开盘(09:30)起。
+ * 周末与工作日盘前,上游返回的仍是上一交易日的定盘数据,以 today 为 asof 落盘会错标日期
+ * (实例:周五 01:53 刷新把周四数据存成 review-2026-07-10.json;周日扫描把周五名单存成
+ * 2026-07-05.json 幻影快照进磁盘+PG,污染 appearStreak/forward)。盘中/盘后照常落盘。
+ * 法定节假日落在工作日时无交易日历可判,与 shouldGenerateNarrative 同属已知局限。
+ * clock 参数仅供测试注入。
+ */
+export function isArchiveWindow(clock: { day: number; minutes: number } = shanghaiClock()): boolean {
+  if (clock.day === 0 || clock.day === 6) return false
+  return clock.minutes >= 9 * 60 + 30
+}
+
+/**
  * Build a TTL function that returns `open` ms during the A-share session and
  * `closed` ms otherwise. Pass this as the `ttl` option to createCache.
  */

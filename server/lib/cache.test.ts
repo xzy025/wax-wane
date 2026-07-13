@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createCache } from './cache'
+import { createCache, isArchiveWindow } from './cache'
 
 // Distinct object identities so toBe() proves exactly which source was served.
 const FRESH = { src: 'fresh' }
@@ -89,5 +89,26 @@ describe('createCache — durable fallback (disk snapshot)', () => {
   it('still rejects when the fetch throws on a cold cache with no fallback', async () => {
     const c = createCache({ fetcher: () => Promise.reject(new Error('boom')), ttl: 60_000 })
     await expect(c.get()).rejects.toThrow('boom')
+  })
+})
+
+describe('isArchiveWindow — 当日档案落盘窗口(交易日 09:30 起)', () => {
+  const at = (day: number, hh: number, mm: number) => ({ day, minutes: hh * 60 + mm })
+
+  it('周末全天拒绝(周日扫描曾产出 2026-07-05 幻影快照)', () => {
+    expect(isArchiveWindow(at(6, 22, 49))).toBe(false) // 周六晚
+    expect(isArchiveWindow(at(0, 10, 0))).toBe(false) // 周日盘中时段
+  })
+
+  it('工作日盘前拒绝(数据仍是上一交易日的)', () => {
+    expect(isArchiveWindow(at(5, 1, 53))).toBe(false) // 周五 01:53(review-2026-07-10 坏档时刻)
+    expect(isArchiveWindow(at(1, 9, 29))).toBe(false) // 开盘前一分钟
+  })
+
+  it('开盘起放行,含盘中/午休/盘后到午夜前', () => {
+    expect(isArchiveWindow(at(1, 9, 30))).toBe(true) // 开盘即当日数据
+    expect(isArchiveWindow(at(3, 12, 0))).toBe(true) // 午休
+    expect(isArchiveWindow(at(5, 17, 1))).toBe(true) // 盘后每日扫描
+    expect(isArchiveWindow(at(5, 23, 59))).toBe(true)
   })
 })

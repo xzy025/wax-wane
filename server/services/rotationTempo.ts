@@ -8,7 +8,7 @@
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, unlinkSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { createCache, sessionTtl } from '../lib/cache'
+import { createCache, sessionTtl, isArchiveWindow } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import { fetchStockKline } from './ashare'
 import {
@@ -290,7 +290,8 @@ async function computeTempoFresh(): Promise<RotationTempoResult> {
     sources: { em, kpl },
   }
   await enrichNotes(rows, result.asof)
-  writeTempoDisk(result)
+  // 盘外(周末/工作日盘前)数据实为上一交易日,asof=today 归档会错标日期,跳过(内存缓存照常)。
+  if (isArchiveWindow()) writeTempoDisk(result)
   return result
 }
 

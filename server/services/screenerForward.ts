@@ -13,7 +13,7 @@
 import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { createCache, sessionTtl } from '../lib/cache'
+import { createCache, sessionTtl, isArchiveWindow } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import { parseScreenerArchiveName } from './screenerArchive'
 import { isDbReady, getRecentScreenerSnapshots } from '../db/pgDatabase'
@@ -605,7 +605,9 @@ async function computeForward(): Promise<ScreenerForwardResult> {
     `[ScreenerForward] 完成:快照 ${snapshots.length} 份 / 唯一票 ${codes.length}(取K ${fetched}) / ` +
       `pick ${tasks.length}(待定 ${pendingCount} 废弃 ${skippedCount})/ 已平 ${allClosed.length}, 耗时 ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   )
-  writeForwardDisk(result)
+  // 盘外(周末/工作日盘前)评估结果与最近交易日档等价,asof=today 落盘只会产出错标日期的
+  // 冗余档(forward-2026-07-04/05 周末幻影档即此来),跳过(内存缓存照常)。
+  if (isArchiveWindow()) writeForwardDisk(result)
   return result
 }
 

@@ -3,7 +3,7 @@
 import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { createCache, sessionTtl, isAShareSession } from '../lib/cache'
+import { createCache, sessionTtl, isAShareSession, isArchiveWindow } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult, shouldReplaceArchive } from './screenerArchive'
 import { isDbReady, upsertScreenerSnapshot, getRecentScreenerSnapshots } from '../db/pgDatabase'
@@ -839,36 +839,43 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     result.fetched = stats.fetched
     result.savedAt = new Date().toISOString()
     result.closed = !isAShareSession()
-    // 同日择优:scanHealthy 只拦全挂(60% 下限),部分降级(如取K 951/1062)会通过门槛并覆盖
-    // 早前更优快照(2026-07-06 实发:隆达/海鸥/申联生物一度丢失)。覆盖前对比已存档的
-    // closed/fetched,新档不占优则跳过(本次结果仍正常返回/进内存缓存,只是不落盘)。
-    const prev = loadArchive(asof)
-    if (shouldReplaceArchive(prev, result)) {
-      try {
-        mkdirSync(SCREENER_DIR, { recursive: true })
-        writeFileSync(join(SCREENER_DIR, `${asof}.json`), JSON.stringify(result, null, 2))
-      } catch (err) {
-        console.warn('[Screener] 存档失败(非致命):', err)
-      }
-      // 同时存一份到数据库(best-effort,仅连库时;失败不影响返回)。
-      if (isDbReady()) {
-        try {
-          await upsertScreenerSnapshot({
-            asof: result.asof,
-            resultJson: JSON.stringify(result),
-            regimePhase: result.regime?.phase,
-            universe: result.universe,
-            scanned: result.scanned,
-            closed: result.closed,
-          })
-        } catch (dbErr) {
-          console.warn('[Screener] DB 快照写入失败(非致命):', dbErr)
-        }
-      }
+    if (!isArchiveWindow()) {
+      // 盘外(周末/工作日盘前)扫描的 K 线仍是上一交易日的,asof=today 落盘/入库会产出
+      // 错标日期的幻影快照(2026-07-05 周日扫描实发:周五名单进了磁盘+PG,污染
+      // appearStreak 与 forward picks)。结果照常返回/进内存缓存,仅跳过持久化。
+      console.warn(`[Screener] 盘外扫描(周末/盘前),数据属上一交易日,跳过 ${asof} 存档/入库`)
     } else {
-      console.warn(
-        `[Screener] 同日已有更优快照(已存 取K ${prev?.fetched ?? '?'}/closed=${prev?.closed ?? '?'} vs 本次 ${stats.fetched}/closed=${result.closed}),跳过覆盖`,
-      )
+      // 同日择优:scanHealthy 只拦全挂(60% 下限),部分降级(如取K 951/1062)会通过门槛并覆盖
+      // 早前更优快照(2026-07-06 实发:隆达/海鸥/申联生物一度丢失)。覆盖前对比已存档的
+      // closed/fetched,新档不占优则跳过(本次结果仍正常返回/进内存缓存,只是不落盘)。
+      const prev = loadArchive(asof)
+      if (shouldReplaceArchive(prev, result)) {
+        try {
+          mkdirSync(SCREENER_DIR, { recursive: true })
+          writeFileSync(join(SCREENER_DIR, `${asof}.json`), JSON.stringify(result, null, 2))
+        } catch (err) {
+          console.warn('[Screener] 存档失败(非致命):', err)
+        }
+        // 同时存一份到数据库(best-effort,仅连库时;失败不影响返回)。
+        if (isDbReady()) {
+          try {
+            await upsertScreenerSnapshot({
+              asof: result.asof,
+              resultJson: JSON.stringify(result),
+              regimePhase: result.regime?.phase,
+              universe: result.universe,
+              scanned: result.scanned,
+              closed: result.closed,
+            })
+          } catch (dbErr) {
+            console.warn('[Screener] DB 快照写入失败(非致命):', dbErr)
+          }
+        }
+      } else {
+        console.warn(
+          `[Screener] 同日已有更优快照(已存 取K ${prev?.fetched ?? '?'}/closed=${prev?.closed ?? '?'} vs 本次 ${stats.fetched}/closed=${result.closed}),跳过覆盖`,
+        )
+      }
     }
   } else {
     console.warn(`[Screener] 扫描不健康(取K ${stats.fetched}/${union.length},空 union=clist 软失败),跳过存档以免覆盖好快照/断 streak`)
