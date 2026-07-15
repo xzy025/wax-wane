@@ -1,6 +1,7 @@
 // A-share market data fetching from East Money APIs (Sina fallback for limit pools)
 
 import { EM_HEADERS, SINA_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { createCache, sessionTtl } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 
@@ -161,10 +162,7 @@ async function fetchIndicesAndBreadth(): Promise<{ indices: IndexQuote[]; advanc
   try {
     const fields = 'f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18,f104,f105,f106'
     const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=1.000001,0.399001,0.399006&fields=${fields}`
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
-    clearTimeout(timeout)
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
 
     if (res.ok) {
       const json = (await res.json()) as any
@@ -275,7 +273,7 @@ async function fetchLimitPool(type: 'up' | 'down'): Promise<{ count: number; sto
   // 日期参数必须是上海口径:本地 getter 在非 UTC+8 进程(如沙箱 TZ=LA)会取错日。
   const date = todayShanghai().replace(/-/g, '')
   const url = `https://push2ex.eastmoney.com/${endpoint}?ut=7eea3edcaed734bea9cb3fce871cbecd&dpt=wz.ztzt&date=${date}&_=${Date.now()}`
-  const res = await fetch(url, { headers: EM_HEADERS })
+  const res = await emFetch(url, { headers: EM_HEADERS })
   if (!res.ok) throw new Error(`East Money ${endpoint}: ${res.status}`)
   const json = (await res.json()) as any
 
@@ -420,7 +418,7 @@ async function fetchPromotionRate(): Promise<{ rate: number; promoted: number; t
 
 async function fetchLimitPoolRaw(date: string): Promise<LimitStock[]> {
   const url = `https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cb3fce871cbecd&dpt=wz.ztzt&date=${date}&_=${Date.now()}`
-  const res = await fetch(url, { headers: EM_HEADERS })
+  const res = await emFetch(url, { headers: EM_HEADERS })
   if (!res.ok) return []
   const json = (await res.json()) as any
   const pool = (json?.data?.pool ?? []) as EMLimitPoolItem[]
@@ -448,7 +446,7 @@ async function fetchLimitPoolRaw(date: string): Promise<LimitStock[]> {
 
 const HIGHS_CANDIDATES = 80 // top-N by today's change to enrich with kline
 const HIGHS_KLINE_LMT = 520 // ~2 trading years of daily bars
-const HIGHS_KLINE_TIMEOUT = 3500 // per-kline abort (ms)
+const HIGHS_KLINE_TIMEOUT = 3500 // per-kline timeout (ms)
 const HIGHS_WINDOW_52W = 250 // ~52 trading weeks
 const HIGHS_PIVOT_W = 10 // swing-high pivot half-window
 const HIGHS_NEAR_PCT = 5 // list stocks within this % below the reference
@@ -514,7 +512,7 @@ export async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) =>
 async function fetchKlineHighs(secid: string, lmt: number = HIGHS_KLINE_LMT): Promise<number[]> {
   const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=1&end=20500101&lmt=${lmt}`
   try {
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(HIGHS_KLINE_TIMEOUT) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: HIGHS_KLINE_TIMEOUT })
     if (!res.ok) return []
     const json = (await res.json()) as any
     const klines = json?.data?.klines as string[] | undefined
@@ -545,7 +543,7 @@ async function fetchHighsAnalysis(): Promise<HighsAnalysis> {
   const url = `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=6000&po=1&np=1&fltt=2&invt=2&fid=f3&fs=${encodeURIComponent(fs)}&fields=${fields}`
   let candidates: { code: string; name: string; price: number; changePct: number }[]
   try {
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
     if (!res.ok) return empty
     const json = (await res.json()) as any
     const diff = (json?.data?.diff ?? []) as EMNewHighItem[]
@@ -605,7 +603,7 @@ const INDEX_SECIDS: Record<string, string> = {
 export async function fetchIndexTrends(code: string): Promise<{ name: string; trends: TrendPoint[] }> {
   const secid = INDEX_SECIDS[code] ?? (code.startsWith('6') ? `1.${code}` : `0.${code}`)
   const url = `https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58`
-  const res = await fetch(url, { headers: EM_HEADERS })
+  const res = await emFetch(url, { headers: EM_HEADERS })
   if (!res.ok) throw new Error(`East Money trends: ${res.status}`)
   const json = (await res.json()) as any
 
@@ -701,10 +699,7 @@ export async function fetchStockQuote(stockCode: string): Promise<StockQuote | n
     const secid = `${prefix}.${stockCode}`
     const fields = 'f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18,f20,f9'
     const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=${secid}&fields=${fields}`
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
-    clearTimeout(timeout)
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
 
     if (res.ok) {
       const json = (await res.json()) as any
@@ -780,10 +775,7 @@ export async function fetchStockKline(
   if (!klineHostCooling('em')) {
     try {
       const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=${period}&fqt=1&end=20500101&lmt=${count}`
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 5000)
-      const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
-      clearTimeout(timeout)
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
 
       if (res.ok) {
         const json = (await res.json()) as any
@@ -1001,10 +993,7 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
     const fields =
       'f50,f55,f58,f84,f85,f92,f116,f117,f127,f128,f162,f164,f167,f168,f173,f184,f185,f186,f187,f188'
     const url = `https://push2.eastmoney.com/api/qt/stock/get?fltt=2&secid=${secid}&fields=${fields}`
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
-    clearTimeout(timeout)
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
 
     if (res.ok) {
       const json = (await res.json()) as any
@@ -1063,26 +1052,20 @@ const VOLUME_MARKETS_SINA = ['sh000001', 'sz399001'] as const
 /** Fetch one index's 7-day kline from East Money → date → {volume, turnover}. */
 async function fetchEMKline(secid: string): Promise<Map<string, { volume: number; turnover: number }>> {
   const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=0&end=20500101&lmt=7`
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 5000)
-  try {
-    const res = await fetch(url, { headers: EM_HEADERS, signal: controller.signal })
-    if (!res.ok) throw new Error(`EM kline ${secid}: ${res.status}`)
-    const json = (await res.json()) as any
-    const klines = json?.data?.klines as string[] | undefined
-    if (!klines || klines.length === 0) throw new Error(`EM kline ${secid}: empty`)
-    const map = new Map<string, { volume: number; turnover: number }>()
-    for (const line of klines) {
-      const parts = line.split(',')
-      map.set(parts[0] ?? '', {
-        volume: parseFloat(parts[5]) || 0,
-        turnover: parseFloat(parts[6]) || 0,
-      })
-    }
-    return map
-  } finally {
-    clearTimeout(timeout)
+  const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
+  if (!res.ok) throw new Error(`EM kline ${secid}: ${res.status}`)
+  const json = (await res.json()) as any
+  const klines = json?.data?.klines as string[] | undefined
+  if (!klines || klines.length === 0) throw new Error(`EM kline ${secid}: empty`)
+  const map = new Map<string, { volume: number; turnover: number }>()
+  for (const line of klines) {
+    const parts = line.split(',')
+    map.set(parts[0] ?? '', {
+      volume: parseFloat(parts[5]) || 0,
+      turnover: parseFloat(parts[6]) || 0,
+    })
   }
+  return map
 }
 
 // 指数日线历史的镜像主机(EM 限流时轮换;空 klines 视为失败再换)。
@@ -1110,7 +1093,7 @@ export async function fetchIndexKline(secid: string, count: number): Promise<Ind
   for (const host of INDEX_KLINE_HOSTS) {
     const url = `https://${host}/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57&klt=101&fqt=0&end=20500101&lmt=${count}`
     try {
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`EM index kline ${secid}: ${res.status}`)
       const json = (await res.json()) as any
       const klines = json?.data?.klines as string[] | undefined

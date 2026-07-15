@@ -7,6 +7,7 @@
 //   结果组织为「主力在买什么(净流入) / 主力在卖什么(净流出)」两列卡片 + 4 个汇总 + 概念计数。
 //   按 交易日×窗口 缓存：历史日期不可变长缓存，当日短缓存。概念另按 code 缓存（跨日期/窗口复用）。
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { toSecids } from './emQuotes'
 import { classifySeat } from '../config/hotMoneySeats'
 
@@ -321,7 +322,7 @@ async function fetchMainReport(date?: string): Promise<{ tradeDate: string; rows
   const url =
     `http://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=TRADE_DATE,BILLBOARD_NET_AMT&sortTypes=-1,-1&pageSize=1000&pageNumber=1` +
     `&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=${cols}&source=WEB&client=WEB${filter}`
-  const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+  const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
   if (!res.ok) throw new Error(`EastMoney LHB HTTP ${res.status}`)
   const json = (await res.json()) as any
   const data: any[] = json.result?.data ?? []
@@ -354,7 +355,7 @@ async function fetchSeatRows(
       `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=${reportName}` +
       `&columns=SECURITY_CODE,OPERATEDEPT_NAME,${amountCol}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
       `&filter=(TRADE_DATE='${date}')`
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
     if (!res.ok) return []
     const json = (await res.json()) as any
     const data: any[] = json.result?.data ?? []
@@ -378,7 +379,7 @@ async function fetchConcepts(code: string): Promise<string[]> {
     const url =
       `https://push2.eastmoney.com/api/qt/slist/get?spt=3&fltt=2&invt=2&fid=f3&po=1&pn=1&pz=100` +
       `&secid=${secid}&fields=f12,f14`
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(6000) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 6000 })
     if (!res.ok) return []
     const json = (await res.json()) as any
     const diff = json.data?.diff
@@ -425,7 +426,7 @@ export async function fetchTradingDates(upto?: string): Promise<string[]> {
     const url =
       `http://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=TRADE_DATE&sortTypes=-1&pageSize=800&pageNumber=1` +
       `&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=TRADE_DATE&source=WEB&client=WEB${filter}`
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
     if (!res.ok) return []
     const json = (await res.json()) as any
     const data: any[] = json.result?.data ?? []
@@ -471,7 +472,7 @@ export async function fetchSeatNetByDate(date: string): Promise<Map<string, Seat
         `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=${report}` +
         `&columns=SECURITY_CODE,OPERATEDEPT_NAME,${col}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
         `&filter=(TRADE_DATE='${date}')`
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) continue
       const json = (await res.json()) as any
       const data: any[] = json.result?.data ?? []

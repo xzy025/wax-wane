@@ -2,6 +2,7 @@
 // Sources: 东方财富 + 同花顺 + 龙虎榜 + 淘股吧
 
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { createCache, sessionTtl } from '../lib/cache'
 
 export interface HotStock {
@@ -46,11 +47,11 @@ async function fetchEastMoneyHot(): Promise<HotStock[]> {
   try {
     // Step 1: Get hot stock codes
     const url = 'https://emappdata.eastmoney.com/stockrank/getAllCurrentList'
-    const res = await fetch(url, {
+    const res = await emFetch(url, {
       method: 'POST',
       headers: { ...EM_HEADERS, 'Content-Type': 'application/json' },
       body: JSON.stringify({ appId: 'appId01', globalId: '786e4c21-70dc-435a-93bb-38', pageNo: 1, pageSize: 10 }),
-      signal: AbortSignal.timeout(5000),
+      timeoutMs: 5000,
     })
     if (!res.ok) {
       console.warn('[HotList] EastMoney step1 (getAllCurrentList) HTTP', res.status)
@@ -100,7 +101,7 @@ async function fetchEastMoneyDetail(secids: string): Promise<Record<string, any>
   for (const host of hosts) {
     try {
       const url = `https://${host}/api/qt/ulist.np/get?fltt=2&secids=${secids}&fields=f2,f3,f12,f14`
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
       if (!res.ok) continue
       const json = await res.json() as any
       const diff = json.data?.diff ?? []
@@ -147,9 +148,9 @@ async function fetchDragonTiger(): Promise<DragonTigerStock[]> {
   try {
     const url = 'http://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=TRADE_DATE,SECURITY_CODE&sortTypes=-1,1&pageSize=10&pageNumber=1&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=SECURITY_CODE,SECURITY_NAME_ABBR,CHANGE_RATE,EXPLANATION,BILLBOARD_BUY_AMT,BILLBOARD_SELL_AMT,BILLBOARD_NET_AMT,EXPLAIN&source=WEB&client=WEB'
 
-    const res = await fetch(url, {
+    const res = await emFetch(url, {
       headers: EM_HEADERS,
-      signal: AbortSignal.timeout(5000),
+      timeoutMs: 5000,
     })
 
     if (!res.ok) return []

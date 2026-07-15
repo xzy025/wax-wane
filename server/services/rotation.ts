@@ -1,6 +1,7 @@
 // 板块轮动服务:东财 行业/概念 板块宇宙 → 板块日线(=指数)→ 长/短窗涨幅 → 2×2 象限 + 宽度概览。
 // 板块即指数(secid 90.BKxxxx),复用 fetchIndexKline 取日线;所有窗口从同一段 closes 现算。
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { createCache, sessionTtl, type Cache } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import { fetchIndexKline, fetchStockKline, type IndexKlineBar } from './ashare'
@@ -82,7 +83,7 @@ async function fetchClistPage(category: RotationCategory, pn: number): Promise<R
       `https://${host}/api/qt/clist/get?pn=${pn}&pz=100&po=1&np=1&fltt=2&invt=2&fid=f3` +
       `&fs=${encodeURIComponent(FS[category])}&fields=f12,f13,f14,f3,f6`
     try {
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
       const json = (await res.json()) as any
       return (json?.data?.diff ?? []) as Record<string, unknown>[]
@@ -231,7 +232,7 @@ export async function fetchStockBoards(query: string): Promise<{ code: string; n
     const url =
       `https://push2.eastmoney.com/api/qt/slist/get?spt=3&fltt=2&invt=2&fid=f3&po=1&pn=1&pz=100` +
       `&secid=${secid}&fields=f12,f14`
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(6000) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 6000 })
     if (!res.ok) return { code: m.code, name: m.name, boards: [] }
     const json = (await res.json()) as { data?: { diff?: unknown } }
     const diff = json.data?.diff
@@ -255,7 +256,7 @@ async function fetchStockBoardList(code: string): Promise<{ bk: string; name: st
     const url =
       `https://push2.eastmoney.com/api/qt/slist/get?spt=3&fltt=2&invt=2&fid=f3&po=1&pn=1&pz=100` +
       `&secid=${secid}&fields=f12,f14`
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(6000) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 6000 })
     if (!res.ok) return []
     const json = (await res.json()) as { data?: { diff?: unknown } }
     const diff = json.data?.diff
@@ -329,7 +330,7 @@ export async function fetchBoardConstituents(
       `https://${host}/api/qt/clist/get?pn=1&pz=200&po=1&np=1&fltt=2&invt=2&fid=f6` +
       `&fs=${encodeURIComponent(`b:${bkCode}`)}&fields=f12,f14,f6,f3`
     try {
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`clist b: HTTP ${res.status}`)
       const json = (await res.json()) as any
       const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]

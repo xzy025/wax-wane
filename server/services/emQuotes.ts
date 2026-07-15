@@ -6,6 +6,7 @@
 //   105/106/107.  US (NASDAQ / NYSE / AMEX)
 //   100. / 124.   global & HK index feeds
 
+import { emFetch } from '../lib/emFetch'
 import { EM_HEADERS } from '../lib/emHeaders'
 
 export interface IndexQuote {
@@ -47,9 +48,9 @@ async function fetchUlistJson(query: string, timeoutMs: number): Promise<unknown
   let lastErr: unknown
   for (const host of ULIST_HOSTS) {
     try {
-      const res = await fetch(`https://${host}/api/qt/ulist.np/get?${query}`, {
+      const res = await emFetch(`https://${host}/api/qt/ulist.np/get?${query}`, {
         headers: EM_HEADERS,
-        signal: AbortSignal.timeout(timeoutMs),
+        timeoutMs,
       })
       if (!res.ok) throw new Error(`EastMoney ulist HTTP ${res.status}`)
       return await res.json()

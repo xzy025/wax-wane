@@ -14,7 +14,8 @@
     "probe:rebound": "tsx scripts/reboundProbe.ts",
     "probe:tempo": "tsx scripts/tempoProbe.ts",
     "probe:kpl": "tsx scripts/kplThemeProbe.ts",
-    "probe:feishu": "tsx scripts/probeFeishu.ts"
+    "probe:feishu": "tsx scripts/probeFeishu.ts",
+    "probe:emfetch": "tsx scripts/emFetchProbe.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
