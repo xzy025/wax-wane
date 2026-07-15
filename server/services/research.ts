@@ -21,6 +21,7 @@ import {
   scanResearchDir,
   type ReportFile,
 } from './researchFiles'
+import { getFeishuSyncStatus, kickFeishuSync, type FeishuSyncStatus } from './feishuSync'
 import {
   DIGEST_SYSTEM_PROMPT,
   REPORT_SYSTEM_PROMPT,
@@ -88,6 +89,8 @@ export interface ResearchData {
   llmConfigured: boolean
   /** 后台分析进行中(前端轮询依据)。 */
   analyzing: boolean
+  /** 飞书群同步状态(未配置时 configured=false,面板不渲染)。 */
+  feishu: FeishuSyncStatus
   reports: ResearchReportEntry[]
   digest: ResearchDigest | null
   generatedAt: string
@@ -169,6 +172,7 @@ function assembleState(date: string): ResearchData {
     date,
     llmConfigured: isLLMConfigured(LLM_ID),
     analyzing,
+    feishu: getFeishuSyncStatus(),
     reports,
     digest: loadDigestDisk(date),
     generatedAt: new Date().toISOString(),
@@ -355,6 +359,9 @@ const todayCache = createCache<ResearchData>({
 export async function fetchResearch(date?: string): Promise<ResearchData> {
   const today = todayShanghai()
   const target = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today
+  // 先踢飞书同步再拼装:kick 在首个 await 前同步置 syncing flag,本次响应即带上
+  // 同步中状态,前端据此保持收敛轮询直到新文件落盘。冷却/未配置时是空操作。
+  void kickFeishuSync(clearResearchCache)
   const data = target === today ? await todayCache.get() : assembleState(target)
   // 无条件踢,而非"本切片有 pending 才踢":待分析文件可能归属其他日期(Windows
   // 拷贝保留源 mtime),digest 也可能在上轮失败后等 30 分钟窗口补生成——只看当前

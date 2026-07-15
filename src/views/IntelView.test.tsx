@@ -187,4 +187,36 @@ describe('IntelView', () => {
     await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
     expect(screen.getByText(/当日暂无研报/)).toBeInTheDocument()
   })
+
+  it('飞书同步状态:未配置不渲染,出错显示徽标(title 带详情),成功显示时间', async () => {
+    // 默认 fixture 无 feishu 字段 → 不渲染
+    const first = render(<IntelView t={t} />)
+    await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
+    expect(screen.queryByText(/飞书同步/)).not.toBeInTheDocument()
+    first.unmount()
+
+    // 出错:徽标 + title 详情
+    researchResult.data = {
+      ...structuredClone(researchData),
+      feishu: { configured: true, syncing: false, lastSyncAt: null, lastError: 'code=99991672 无权限' },
+    }
+    const second = render(<IntelView t={t} />)
+    await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
+    expect(screen.getByText('飞书同步出错')).toHaveAttribute('title', 'code=99991672 无权限')
+    second.unmount()
+
+    // 成功:同步时间小字(相对 fixture 的 lastUpdated=16:32 → 5 分钟前)
+    researchResult.data = {
+      ...structuredClone(researchData),
+      feishu: {
+        configured: true,
+        syncing: false,
+        lastSyncAt: new Date('2026-07-07T16:27:00').toISOString(),
+        lastError: null,
+      },
+    }
+    render(<IntelView t={t} />)
+    await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
+    expect(screen.getByText(/飞书同步 · 5分钟前/)).toBeInTheDocument()
+  })
 })

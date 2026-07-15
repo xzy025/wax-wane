@@ -50,11 +50,21 @@ export interface ResearchReportEntry {
   error?: string
 }
 
+/** Mirror of server FeishuSyncStatus (server/services/feishuSync.ts). */
+export interface FeishuSyncStatus {
+  configured: boolean
+  syncing: boolean
+  lastSyncAt: string | null
+  lastError: string | null
+}
+
 /** Mirror of server ResearchData. */
 export interface ResearchData {
   date: string
   llmConfigured: boolean
   analyzing: boolean
+  /** 可选:容忍旧缓存响应;服务端未配置飞书时 configured=false。 */
+  feishu?: FeishuSyncStatus
   reports: ResearchReportEntry[]
   digest: ResearchDigest | null
   generatedAt: string
@@ -126,9 +136,11 @@ export function useResearch(date?: string): ResearchHookResult {
 
   // 收敛轮询:仅在有未完成分析时挂 timer,全部到终态自动停。「有已分析但汇总缺失」
   // 也算未完成——汇总 LLM 可能上轮失败,服务端 30 分钟窗口后会补生成,轮询要等到它落盘。
+  // 飞书同步进行中同样算未完成:新 PDF 随时落盘,轮询等它出现。
   const hasUnfinished =
     !!data &&
     (data.analyzing ||
+      (data.feishu?.syncing ?? false) ||
       data.reports.some((r) => r.status === 'pending') ||
       (data.llmConfigured && !data.digest && data.reports.some((r) => r.status === 'analyzed')))
   useEffect(() => {

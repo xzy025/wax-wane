@@ -2,8 +2,37 @@ import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ArrowClockwise, CaretDown, CaretUp, FileText } from 'phosphor-react'
-import { useResearch, useResearchDates, type ResearchReportEntry } from '../hooks/useResearch'
+import { useResearch, useResearchDates, type FeishuSyncStatus, type ResearchReportEntry } from '../hooks/useResearch'
 import type { Translation } from '../types'
+
+/** 飞书同步状态小字:出错 > 同步中 > 最近成功时间;未配置/从未同步不渲染。
+ *  相对时间以 asOfMs(数据拉取时刻)为基准,渲染保持纯函数。 */
+function FeishuBadge({
+  feishu,
+  asOfMs,
+  rs,
+}: {
+  feishu?: FeishuSyncStatus
+  asOfMs?: number
+  rs: Translation['intel']['research']
+}) {
+  if (!feishu?.configured) return null
+  if (feishu.lastError) {
+    return (
+      <span className="sc-cache-badge" title={feishu.lastError}>
+        {rs.feishuError}
+      </span>
+    )
+  }
+  if (feishu.syncing) return <span className="sc-cache-badge">{rs.feishuSyncing}</span>
+  if (!feishu.lastSyncAt || asOfMs === undefined) return null
+  const mins = Math.max(0, Math.round((asOfMs - new Date(feishu.lastSyncAt).getTime()) / 60_000))
+  return (
+    <span>
+      {rs.feishuSynced} · {mins < 1 ? rs.feishuJustNow : `${mins}${rs.feishuMinAgo}`}
+    </span>
+  )
+}
 
 function ReportCard({ entry, t }: { entry: ResearchReportEntry; t: Translation }) {
   const rs = t.intel.research
@@ -104,6 +133,7 @@ export default function ResearchPanel({ t }: { t: Translation }) {
         </h2>
         <span className="themes-updated">
           {data?.analyzing && <span className="sc-cache-badge">{rs.analyzing}</span>}
+          <FeishuBadge feishu={data?.feishu} asOfMs={lastUpdated?.getTime()} rs={rs} />
           {lastUpdated && lastUpdated.toLocaleTimeString()}
         </span>
         <button
