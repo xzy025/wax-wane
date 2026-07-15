@@ -4,6 +4,7 @@
 // fetchers degrade to null on any network/shape failure.
 
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 
 const DATACENTER_URL = 'https://datacenter.eastmoney.com/securities/api/data/v1/get'
 const TIMEOUT_MS = 6000
@@ -152,9 +153,9 @@ async function fetchF10Rows(params: Record<string, string>): Promise<Record<stri
     ...params,
   })
   try {
-    const res = await fetch(`${DATACENTER_URL}?${search}`, {
+    const res = await emFetch(`${DATACENTER_URL}?${search}`, {
       headers: EM_HEADERS,
-      signal: AbortSignal.timeout(TIMEOUT_MS),
+      timeoutMs: TIMEOUT_MS,
     })
     if (!res.ok) return null
     const json = (await res.json()) as { result?: { data?: Record<string, unknown>[] } }

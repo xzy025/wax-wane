@@ -7,6 +7,7 @@
 // 涨幅榜/个股K线挂 → resilient:[];板块宇宙挂 → brokerage:null。
 import { createCache, sessionTtl } from '../lib/cache'
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { todayShanghai } from '../lib/time'
 import { fetchIndexKline, fetchAShareData, fetchStockKline, type LimitStock } from './ashare'
 import { REBOUND, SCREENER, type ReboundConfig } from '../config/screener'
@@ -138,7 +139,7 @@ async function fetchTopGainers(): Promise<{ code: string; name: string; changePc
       `https://${host}/api/qt/clist/get?pn=1&pz=100&po=1&np=1&fltt=2&invt=2&fid=f3` +
       `&fs=${encodeURIComponent(SCREENER.CLIST_FS)}&fields=f12,f14,f3`
     try {
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
       const json = (await res.json()) as any
       const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]

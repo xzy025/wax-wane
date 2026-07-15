@@ -8,6 +8,7 @@
 // 快讯 7x24 全天滚动,盘后不能像行情那样给 12h 长 TTL——盘中 30s / 盘后 5min。
 // 国内源直连,不走代理;东财/新浪零 header(2026-07-07 实测),财联社需 UA+Referer。
 import { createCache, sessionTtl } from '../lib/cache'
+import { emFetch } from '../lib/emFetch'
 import {
   buildClsUrl,
   mergeFlashItems,
@@ -38,8 +39,9 @@ export interface NewsFlashData {
   sources: { eastmoney: boolean; sina: boolean; cls: boolean }
 }
 
+// emFetch 只对东财域(np-weblist)节流,cls/新浪非东财域直通不记账,超时语义不变。
 async function fetchJson(url: string, headers?: Record<string, string>): Promise<unknown> {
-  const res = await fetch(url, { headers, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
+  const res = await emFetch(url, { headers, timeoutMs: FETCH_TIMEOUT_MS })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }

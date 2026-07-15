@@ -4,6 +4,7 @@
 // 「机构家数」= 同窗口内 distinct 接待对象(剔除媒体/券商研报口径的明显非调研机构)。
 // 纯聚合(countOrgsInRange / isInstitution)无网络,可单测。关联 [[screener-feature]]。
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { fetchIndexKline } from './ashare'
 import { SCREENER } from '../config/screener'
 
@@ -90,7 +91,7 @@ async function fetchSurveyPage(filter: string, pageNumber: number): Promise<{ ro
     `&columns=SECURITY_CODE,RECEIVE_START_DATE,NOTICE_DATE,RECEIVE_OBJECT&source=WEB&client=WEB` +
     `&sortColumns=RECEIVE_START_DATE&sortTypes=-1&pageSize=${PAGE_SIZE}&pageNumber=${pageNumber}` +
     `&filter=${encodeURIComponent(filter)}`
-  const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(12000) })
+  const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 12000 })
   if (!res.ok) throw new Error(`OrgSurvey HTTP ${res.status}`)
   const json = (await res.json()) as any
   const data: any[] = json?.result?.data ?? []
@@ -156,7 +157,7 @@ export async function fetchRecentOrgSurvey(fromDate: string): Promise<Map<string
   while (page <= RECENT_MAX_PAGES) {
     let json: any
     try {
-      const res = await fetch(url(page), { headers: EM_HEADERS, signal: AbortSignal.timeout(12000) })
+      const res = await emFetch(url(page), { headers: EM_HEADERS, timeoutMs: 12000 })
       if (!res.ok) break
       json = await res.json()
     } catch (err) {

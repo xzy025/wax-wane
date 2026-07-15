@@ -5,6 +5,7 @@
 //   成交量(成交额)排名由选股 prefilter 全市场 f6 免费算(见 screener.ts),不在本模块。
 //   env 门控:FUNDRES_FUNDFLOW=0 关闭主力净流入取数(成交量排名不受影响,仍展示)。
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { SCREENER } from '../config/screener'
 import { toSecids } from './emQuotes'
 
@@ -47,7 +48,7 @@ async function fetchRankPage(
       `https://${host}/api/qt/clist/get?pn=${pn}&pz=${FF_PZ}&po=1&np=1&fltt=2&invt=2&ut=${FF_UT}&fid=${fid}` +
       `&fs=${encodeURIComponent(SCREENER.CLIST_FS)}&fields=${fields}`
     try {
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`fundflow HTTP ${res.status}`)
       const json = (await res.json()) as any
       return (json?.data?.diff ?? []) as Record<string, unknown>[]
@@ -117,7 +118,7 @@ export async function fetchFundFlowForCodes(codes: string[]): Promise<Map<string
         `https://${FF_HOSTS[h]}/api/qt/ulist.np/get?secids=${chunk.join(',')}` +
         `&fields=f12,f62,f184&fltt=2&invt=2&ut=${FF_UT}`
       try {
-        const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+        const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
         if (!res.ok) throw new Error(`ulist HTTP ${res.status}`)
         const json = (await res.json()) as any
         const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]
@@ -203,7 +204,7 @@ export async function fetchBoardInflow(bkCodes: string[]): Promise<Map<string, n
         `https://${FF_HOSTS[h]}/api/qt/ulist.np/get?secids=${chunk.join(',')}` +
         `&fields=f12,f62&fltt=2&invt=2&ut=${FF_UT}`
       try {
-        const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+        const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
         if (!res.ok) throw new Error(`ulist HTTP ${res.status}`)
         const json = (await res.json()) as any
         const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]

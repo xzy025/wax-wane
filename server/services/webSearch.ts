@@ -1,5 +1,7 @@
 // Web search proxy using DuckDuckGo Lite (no API key needed)
 
+import { emFetch } from '../lib/emFetch'
+
 const SEARCH_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -114,7 +116,7 @@ export async function searchStockNews(
   try {
     // EastMoney search API for stock news
     const url = `https://search-api-web.eastmoney.com/search/jsonp?cb=&type=8001&pageindex=1&pagesize=${count}&keyword=${stockCode}&name=zixun`
-    const res = await fetch(url, { headers: EM_HEADERS })
+    const res = await emFetch(url, { headers: EM_HEADERS })
     if (!res.ok) return { news: [], code: stockCode }
 
     const text = await res.text()

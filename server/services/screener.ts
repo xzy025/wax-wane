@@ -9,6 +9,7 @@ import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult, shou
 import { isDbReady, upsertScreenerSnapshot, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { computeStreaks } from './screenerStreak'
 import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
 import { SCREENER as C, PULLBACK, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, BHOLD_WATCH, TRENDNEW, TRENDWATCH, ACCUM, type ScreenerConfig } from '../config/screener'
@@ -244,7 +245,7 @@ async function fetchClistPage(pn: number, attempt = 0): Promise<{ rows: Record<s
       `https://${host}/api/qt/clist/get?pn=${pn}&pz=${CLIST_PZ}&po=1&np=1&fltt=2&invt=2&fid=f3` +
       `&fs=${encodeURIComponent(C.CLIST_FS)}&fields=${CLIST_FIELDS}`
     try {
-      const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(8000) })
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
       const json = (await res.json()) as any
       return { rows: (json?.data?.diff ?? []) as Record<string, unknown>[], total: Number(json?.data?.total) || 0 }

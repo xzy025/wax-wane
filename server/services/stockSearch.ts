@@ -2,6 +2,7 @@
 // {code, name} via East Money's suggest API. Used by the fundamental-analysis
 // endpoint so the Agent-tab chat accepts either a code or a name.
 
+import { emFetch } from '../lib/emFetch'
 import { EM_HEADERS } from '../lib/emHeaders'
 
 export interface StockMatch {
@@ -66,7 +67,7 @@ export async function resolveStock(query: string): Promise<StockMatch | null> {
     const url = `https://searchapi.eastmoney.com/api/suggest/get?input=${encodeURIComponent(
       q,
     )}&type=14&count=8&token=D43BF722C8E33BDC906FB84D85E326E8`
-    const res = await fetch(url, { headers: EM_HEADERS, signal: AbortSignal.timeout(5000) })
+    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
     if (!res.ok) return null
     const json = (await res.json()) as any
     return pickBestStockMatch(json?.QuotationCodeTable?.Data)
