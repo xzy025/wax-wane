@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
+import { getLastTradingDay } from '../utils/marketHistory'
 
 export type ScreenerGroup = 'trigger' | 'breakout' | 'watch'
 
@@ -359,6 +360,8 @@ export interface ScreenerHookResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
+  /** 快照早于最近交易日(典型:后端盘中冷启动种子了上一交易日磁盘存档)。 */
+  stale: boolean
   /** Re-run the scan: clears the server cache then re-fetches (the 每日扫描 button). Resolves true on success. */
   refresh: () => Promise<boolean>
 }
@@ -375,7 +378,9 @@ export function useScreener(): ScreenerHookResult {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const fetching = useRef(false)
 
-  const load = useCallback(async (rescan: boolean) => {
+  const autoScanned = useRef(false)
+
+  const load = useCallback(async (rescan: boolean): Promise<ScreenerResult> => {
     if (rescan) {
       await fetch('/api/refresh?market=screener', { method: 'POST' }).catch(() => {})
     }
@@ -386,6 +391,7 @@ export function useScreener(): ScreenerHookResult {
     setData(json)
     setLastUpdated(new Date())
     setError(null)
+    return json
   }, [])
 
   useEffect(() => {
@@ -395,7 +401,14 @@ export function useScreener(): ScreenerHookResult {
     setLoading(true)
     ;(async () => {
       try {
-        await load(false)
+        const json = await load(false)
+        // 服务端盘中冷启动会把上一交易日的磁盘快照当种子服务(TTL 窗口内一直是旧档)。
+        // 发现快照早于最近交易日就等效替用户点一次「扫描」;每次挂载最多一次,失败不
+        // 循环重试(旧档仍在屏上,View 层黄条引导手动扫描)。
+        if (!cancelled && !autoScanned.current && json.asof && json.asof < getLastTradingDay()) {
+          autoScanned.current = true
+          await load(true)
+        }
       } catch {
         if (!cancelled) setError('选股数据获取失败')
       } finally {
@@ -429,5 +442,7 @@ export function useScreener(): ScreenerHookResult {
     }
   }, [load])
 
-  return { data, loading, error, lastUpdated, refresh }
+  const stale = !!data?.asof && data.asof < getLastTradingDay()
+
+  return { data, loading, error, lastUpdated, stale, refresh }
 }

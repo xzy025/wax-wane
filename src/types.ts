@@ -611,6 +611,8 @@ export interface Translation {
     dataAsof: string
     cached: string
     degraded: string
+    staleScanning: string
+    staleHint: string
     generatedAt: string
     loadFail: string
     empty: string

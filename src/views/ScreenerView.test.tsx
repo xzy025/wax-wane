@@ -48,6 +48,7 @@ const hookResult = (over: Partial<ScreenerHookResult> = {}): ScreenerHookResult 
   loading: false,
   error: null,
   lastUpdated: new Date('2026-07-01T15:58:18'),
+  stale: false,
   refresh: vi.fn(),
   ...over,
 })

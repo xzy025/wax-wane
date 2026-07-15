@@ -560,6 +560,8 @@ export default {
     dataAsof: 'Data date',
     cached: 'Cached',
     degraded: 'Degraded scan · not archived',
+    staleScanning: 'Scanning today\'s data (~30-60s), updates automatically; showing the previous session\'s snapshot below',
+    staleHint: 'Stale snapshot — click "Scan" (top right) to fetch today\'s data',
     generatedAt: 'Generated',
     loadFail: 'Failed to load screener (is the local server running?)',
     empty: 'No qualifying names today',

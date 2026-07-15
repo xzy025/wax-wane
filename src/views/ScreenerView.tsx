@@ -1023,7 +1023,7 @@ function AccumCard({ c, t }: { c: AccumScreenerCandidate; t: Translation }) {
 }
 
 export default function ScreenerView({ t }: ScreenerViewProps) {
-  const { data, loading, error, lastUpdated, refresh } = useScreener()
+  const { data, loading, error, lastUpdated, stale, refresh } = useScreener()
   const fwd = useScreenerForward()
   const structure = useMarketStructure()
   const review = useDailyReview(false) // 只用 refresh 串联盘后落盘,不做挂载拉取(卡片在板块轮动视图)
@@ -1106,6 +1106,12 @@ export default function ScreenerView({ t }: ScreenerViewProps) {
       </div>
       <p className="themes-desc">{tabDesc}</p>
 
+      {/* 盘中冷启动兜底旧快照:挂载已自动触发重扫(转圈中);失败/跳过则引导手动扫描。 */}
+      {stale && data && (
+        <div className="alert-item warning">
+          {loading ? sc.staleScanning : sc.staleHint} · {sc.dataAsof} {data.asof}
+        </div>
+      )}
       {/* 有旧数据时错误也要露出——否则刷新失败被 last-good 数据完全遮住,用户读到的是旧盘面。 */}
       {error && <div className="alert-item danger">{sc.loadFail}</div>}
       {!data && loading && <div className="themes-desc">{sc.scanning}</div>}

@@ -559,6 +559,8 @@ export default {
     dataAsof: '数据时间',
     cached: '缓存',
     degraded: '扫描降级·未存档',
+    staleScanning: '正在扫描今日数据(约30-60秒),完成后自动更新;下方暂为上一交易日快照',
+    staleHint: '当前为旧快照,点右上角「每日扫描」获取今日数据',
     generatedAt: '生成于',
     loadFail: '选股数据获取失败(请确认本地服务在运行)',
     empty: '今日无符合条件的标的',
