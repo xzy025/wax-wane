@@ -71,6 +71,11 @@ export default {
       collapse: 'Collapse',
       truncatedNote: 'Long text truncated for analysis',
       analyzedAt: 'Analyzed',
+      feishuSyncing: 'Feishu syncing…',
+      feishuSynced: 'Feishu sync',
+      feishuJustNow: 'just now',
+      feishuMinAgo: ' min ago',
+      feishuError: 'Feishu sync error',
     },
   },
   rotation: {

@@ -71,6 +71,11 @@ export default {
       collapse: '收起',
       truncatedNote: '正文超长,分析基于截断文本',
       analyzedAt: '分析于',
+      feishuSyncing: '飞书同步中…',
+      feishuSynced: '飞书同步',
+      feishuJustNow: '刚刚',
+      feishuMinAgo: '分钟前',
+      feishuError: '飞书同步出错',
     },
   },
   rotation: {

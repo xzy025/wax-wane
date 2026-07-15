@@ -267,6 +267,11 @@ export interface Translation {
       collapse: string
       truncatedNote: string
       analyzedAt: string
+      feishuSyncing: string
+      feishuSynced: string
+      feishuJustNow: string
+      feishuMinAgo: string
+      feishuError: string
     }
   }
   settings: string

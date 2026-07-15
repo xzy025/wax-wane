@@ -19,6 +19,7 @@ import { clearRotationTempoCache } from '../services/rotationTempo'
 import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../services/moneyflow'
 import { clearNewsFlashCache } from '../services/newsFlash'
 import { clearResearchCache } from '../services/research'
+import { resetFeishuCooldown } from '../services/feishuSync'
 
 const router = Router()
 
@@ -52,7 +53,11 @@ const cacheClearers: Record<string, () => void> = {
   },
   'rotation-tempo': clearRotationTempoCache,
   'intel-flash': clearNewsFlashCache,
-  'intel-research': clearResearchCache,
+  // 研报刷新按钮兼作飞书强制同步入口:清冷却后紧跟的 GET 立即重拉群消息
+  'intel-research': () => {
+    clearResearchCache()
+    resetFeishuCooldown()
+  },
 }
 
 // 无参 = 行情页顶栏「刷新」按钮:只清 5 张行情横幅对应的轻量缓存。选股/实盘战绩/
