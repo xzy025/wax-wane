@@ -216,16 +216,13 @@ function RotationView({ t }: RotationViewProps) {
   const [sel, setSel] = useState<{ code: string; name: string } | null>(null)
   const drill = useBoardStocks(sel?.code ?? null)
 
-  // 搜个股 → 防抖取其所属板块名(用于过滤象限里的板块)。
+  // 搜个股 → 防抖取其所属板块名(用于过滤象限里的板块)。清空复位在 onChange 事件里做,
+  // effect 只管非空查询的防抖请求(setState 不进 effect 同步路径)。
   // cancelled 守卫:clearTimeout 只拦未发出的请求,已在飞的旧响应回来若照常 setMatchBoards,
   // 清空搜索框后象限会被已删除的搜索词幽灵过滤;res.ok 检查:500 的 {error} 体不能读成「该股无板块」。
   useEffect(() => {
     const q = query.trim()
-    if (!q) {
-      setMatchBoards(null)
-      setSearchInfo('')
-      return
-    }
+    if (!q) return
     let cancelled = false
     const h = setTimeout(async () => {
       try {
@@ -267,7 +264,13 @@ function RotationView({ t }: RotationViewProps) {
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value)
+              if (!e.target.value.trim()) {
+                setMatchBoards(null)
+                setSearchInfo('')
+              }
+            }}
             placeholder={rt.searchPlaceholder}
             aria-label={rt.searchPlaceholder}
           />

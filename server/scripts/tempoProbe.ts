@@ -60,7 +60,7 @@ async function main() {
 
   for (const b of matched) {
     console.log(`\n━━━ ${b.cat} ${b.code} ${b.name} ━━━`)
-    let days: TempoDayInput[] = []
+    let days: TempoDayInput[]
     try {
       const bars = await getBoardBars(`90.${b.code}`)
       if (bars.length < 10) throw new Error('bars 不足')

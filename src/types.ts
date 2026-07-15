@@ -531,6 +531,14 @@ export interface Translation {
     error: string
     retry: string
   }
+  agent: {
+    title: string
+    description: string
+    featureReview: string
+    featureAnalysis: string
+    featureTheory: string
+    featureSearch: string
+  }
   holdings: {
     tabChat: string
     tabHoldings: string
