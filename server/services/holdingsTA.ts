@@ -8,9 +8,13 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { shanghaiClock, isAShareSession } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
+import { llmComplete, isLLMConfigured } from '../lib/llmComplete'
 import { HOLDINGS, SCREENER } from '../config/screener'
 import { fetchStockKline, fetchIndexKline, mapLimit } from './ashare'
 import { enrichRelStrength, type Bar } from './screenerRules'
+import { shouldGenerateNarrative } from './dailyReview'
+import { extractTone } from './dailyReviewPrompt'
+import { buildHoldingsTAFacts, HOLDINGS_TA_SYSTEM_PROMPT } from './holdingsTAPrompt'
 import {
   buildHoldingTAFromBars,
   codesKey,
@@ -27,6 +31,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
 const LIVE_TTL = 120_000
 const CLOSED_TTL = 12 * 3_600_000
+// 叙事 LLM:默认 preset(MiMo)已失效不可裸用;gemini 走 SOCKS 代理有落地实证,env 可切。
+const LLM_ID = process.env.HOLDINGS_LLM_ID || 'gemini'
+// LLM 持续失败(如 key 失效/地区拒)时最多每 30 分钟重试一次,防盘后每个请求都撞一次失败调用。
+const NARRATIVE_RETRY_MS = 30 * 60_000
+let lastNarrativeAttempt = 0
 
 export interface HoldingsTAPosition {
   code: string
@@ -200,9 +209,32 @@ async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResul
     narrative: null,
   }
 
+  // LLM 叙事:每个信号日一次,当日存档就是持久层——已有则复用(零 LLM 调用);
+  // 周末请求的信号日=周五,天然命中周五档的叙事,无需另借。失败 null 优雅降级。
+  const hasOk = items.some((i) => !i.error)
+  result.narrative = loadHoldingsTaArchiveByDate(date)?.narrative ?? null
+  const { day, minutes } = shanghaiClock()
+  if (result.narrative === null && settled && hasOk && isLLMConfigured(LLM_ID) && shouldGenerateNarrative(day, minutes)) {
+    lastNarrativeAttempt = Date.now()
+    const done = await llmComplete(buildHoldingsTAFacts(result, positions), {
+      system: HOLDINGS_TA_SYSTEM_PROMPT,
+      // Gemini 2.5 思考 token 计入 max_tokens 预算,800 会截断定调句(dailyReview 2026-07-13 实证)。
+      maxTokens: 2048,
+      temperature: 0.3,
+      timeoutMs: 60_000,
+      llmId: LLM_ID,
+    })
+    if (done) {
+      result.narrative = { tone: extractTone(done.text), markdown: done.text.trim(), generatedAt: new Date().toISOString() }
+      console.log(`[HoldingsTA] 叙事生成完成(${done.totalTokens ?? '?'} tokens)`)
+    } else {
+      console.warn('[HoldingsTA] 叙事生成失败(非致命),本次仅数据区')
+    }
+  }
+
   // 盘后定盘才落盘(盘中半根 K 的量比/Wyckoff 是伪信号);信号日命名天然规避
   // "周五凌晨把周四数据存成周五档"的错标坑。全失败包(0 成功票)不值得写。
-  if (settled && items.some((i) => !i.error)) writeArchive(result)
+  if (settled && hasOk) writeArchive(result)
   return result
 }
 
@@ -222,9 +254,19 @@ export async function fetchHoldingsTA(positions: HoldingsTAPosition[]): Promise<
   const key = codesKey(positions.map((p) => p.code))
   const ttl = isAShareSession() ? LIVE_TTL : CLOSED_TTL
   if (cached && cached.key === key && Date.now() - cached.at < ttl) {
+    const clock = shanghaiClock()
     // 新鲜度修正:盘中算出的 live 值(settled=false)跨过 15:10 会被 12h 长 TTL"追认新鲜",
     // 盘后所有请求都命中它、永远等不到定盘档——时钟已定盘而缓存仍 live 时强制过期重算。
-    if (!(cached.result.settled === false && isSettledClock(shanghaiClock()))) return cached.result
+    const staleLive = cached.result.settled === false && isSettledClock(clock)
+    // 叙事惰性补生成:定盘缓存值无叙事且 LLM 可用、盘后门控开、离上次失败 ≥30 分钟 → 重算一次。
+    const retryNarrative =
+      cached.result.narrative === null &&
+      cached.result.settled &&
+      cached.result.items.some((i) => !i.error) &&
+      isLLMConfigured(LLM_ID) &&
+      shouldGenerateNarrative(clock.day, clock.minutes) &&
+      Date.now() - lastNarrativeAttempt >= NARRATIVE_RETRY_MS
+    if (!staleLive && !retryNarrative) return cached.result
   }
   if (inflight && inflight.key === key) return inflight.p
   const p = compute(positions)
