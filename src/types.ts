@@ -815,6 +815,8 @@ export interface Translation {
       score: string
       appearStreak: string
       appearStreakTip: string
+      liftBan: string
+      liftBanTip: string
       vol: string
       trend: string
       volDry: string

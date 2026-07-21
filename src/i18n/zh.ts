@@ -763,6 +763,8 @@ export default {
       score: '综合评分',
       appearStreak: '连{n}',
       appearStreakTip: '连续 {n} 个交易日入选选股',
+      liftBan: '解禁',
+      liftBanTip: '{date} 解禁 · 占流通股本 {ratio}% · {type}',
       vol: '量比',
       trend: '趋势模板',
       volDry: '缩量',

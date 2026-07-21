@@ -764,6 +764,8 @@ export default {
       score: 'Score',
       appearStreak: '{n}d',
       appearStreakTip: 'On the screener {n} sessions in a row',
+      liftBan: 'Unlock',
+      liftBanTip: 'Lock-up expiry {date} · {ratio}% of float · {type}',
       vol: 'VolRatio',
       trend: 'Trend',
       volDry: 'Dry-up',

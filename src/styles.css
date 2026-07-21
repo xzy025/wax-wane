@@ -2157,6 +2157,10 @@ body {
   color: var(--orange);
   background: var(--orange-soft);
 }
+.sc-streak.liftban {
+  color: var(--red);
+  background: var(--red-soft);
+}
 
 .sc-card-metrics {
   display: flex;

@@ -15,7 +15,8 @@
     "probe:tempo": "tsx scripts/tempoProbe.ts",
     "probe:kpl": "tsx scripts/kplThemeProbe.ts",
     "probe:feishu": "tsx scripts/probeFeishu.ts",
-    "probe:emfetch": "tsx scripts/emFetchProbe.ts"
+    "probe:emfetch": "tsx scripts/emFetchProbe.ts",
+    "probe:liftban": "tsx scripts/liftBanProbe.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
