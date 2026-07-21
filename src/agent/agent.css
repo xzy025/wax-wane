@@ -1254,6 +1254,218 @@
   font-weight: 700;
 }
 
+/* 服务端深度 TA 区块(三法合成/均线矩阵/量价档位/较昨 delta) */
+.hr-ta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.hr-ta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.hr-ta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 1px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.hr-ta-phase {
+  color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+.hr-ta-bias--demand {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.hr-ta-bias--supply {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.hr-ta-bias--neutral {
+  color: var(--muted);
+  background: var(--line);
+}
+
+.hr-ta-dist {
+  color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.hr-ta-counter {
+  color: var(--orange);
+  background: var(--orange-soft);
+  margin-left: 4px;
+}
+
+.hr-ta-score {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hr-ta-score strong {
+  color: var(--ink);
+  font-size: 0.84rem;
+}
+
+.hr-ta-score small {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  font-weight: 800;
+}
+
+.hr-ta-ma {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.hr-ta-ma--on {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.hr-ta-ma--off {
+  color: var(--muted);
+  background: var(--line);
+}
+
+.hr-ta-ma--na {
+  color: var(--muted);
+  opacity: 0.45;
+}
+
+.hr-ta-ma--lost {
+  border-color: var(--green);
+}
+
+.hr-ta-ma--regain {
+  border-color: var(--red);
+}
+
+.hr-ta-tt {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.hr-ta-levels {
+  gap: 12px;
+}
+
+.hr-ta-alert {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--orange);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--orange-soft);
+}
+
+.hr-ta-delta {
+  font-size: 0.74rem;
+  color: var(--muted);
+  border-top: 1px dashed var(--line);
+  padding-top: 5px;
+}
+
+/* 盘后持仓叙事卡 */
+.hr-narrative {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+}
+
+.hr-narrative-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.hr-narrative-icon {
+  color: var(--cyan);
+}
+
+.hr-narrative-title {
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.hr-narrative-date {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.hr-narrative-tag--settled {
+  color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+.hr-narrative-tag--live {
+  color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.hr-narrative-bench {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.hr-narrative-tone {
+  font-size: 0.8rem;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.hr-narrative-body {
+  font-size: 0.82rem;
+}
+
+@media (max-width: 680px) {
+  .hr-narrative-bench {
+    display: none;
+  }
+}
+
 /* Card footer */
 .hr-card-foot {
   display: flex;

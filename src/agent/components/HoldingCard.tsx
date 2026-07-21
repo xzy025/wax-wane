@@ -3,13 +3,17 @@ import { CaretDown, CaretUp, CircleNotch, PencilSimple, Trash, MagnifyingGlassPl
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import type { HoldingSignal } from '../holdingsReview'
+import type { HoldingTAItem } from '../holdingsTA'
 import type { AppState } from '../../store'
 import type { Translation } from '../../types'
 import { StockAnalysisOrchestrator } from '../multi-agent/orchestrators/stock-analysis.orchestrator'
 import { fmtNum, fmtSigned, fmtPrice, fmtPct, pnlClass } from '../holdingsFormat'
+import { HoldingTaSection } from './HoldingTaSection'
 
 interface Props {
   signal: HoldingSignal
+  /** 服务端深度 TA(best-effort:缺省/error 整块不渲染,零回归)。 */
+  ta?: HoldingTAItem
   appState: AppState
   language: 'zh' | 'en'
   t: Translation
@@ -17,7 +21,7 @@ interface Props {
   onRemove: (signal: HoldingSignal) => void
 }
 
-export function HoldingCard({ signal, appState, language, t, onEdit, onRemove }: Props) {
+export function HoldingCard({ signal, ta, appState, language, t, onEdit, onRemove }: Props) {
   const h = t.holdings
   const { holding, technical, action } = signal
   const [expanded, setExpanded] = useState(false)
@@ -112,6 +116,8 @@ export function HoldingCard({ signal, appState, language, t, onEdit, onRemove }:
               </>
             )}
           </div>
+
+          <HoldingTaSection ta={ta} t={t} />
 
           <div className="hr-card-reason">{action.reason}</div>
         </>
