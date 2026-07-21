@@ -16,6 +16,7 @@ import dbRoutes from './routes/db'
 import memoryRoutes from './routes/memory'
 import analysisRoutes from './routes/analysis'
 import intelRoutes from './routes/intel'
+import holdingsRoutes from './routes/holdings'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -59,6 +60,7 @@ app.use(dbRoutes)
 app.use(memoryRoutes)
 app.use(analysisRoutes)
 app.use(intelRoutes)
+app.use(holdingsRoutes)
 
 // Initialize database and start server
 async function startServer() {
