@@ -948,3 +948,29 @@ export const LIFTBAN = {
   FORWARD_DAYS: 30, // 前瞻窗(日历日;30 天窗全市场实测仅 ~136 行,单页拉完)
   MAX_PAGES: 6, // 翻页上限(500/页,3000 行只防上游异常膨胀)
 } as const
+
+// ════════════════════════════════════════════════════════════════════════
+// 盘后持仓深度技术分析(持仓复盘看板,见 services/holdingsTARules/holdingsTA)。
+// 【管理视图·非战法·不进回测】——对客户端上报的持仓代码逐只出结构化 TA
+// (三法合成 technicalCombo + 多头排列 trendTemplate + MA/量比/52周高距离/相对强度/ATR·pivot 档位),
+// 盘后按信号日落盘 docs/screener/holdings-ta-<date>.json 供历史回看与昨日 delta。
+export interface HoldingsConfig {
+  /** 日 K 根数:trendTemplate 需 271、rsRaw 完整需 253、52周高 250 → 280 全覆盖留缓冲。 */
+  KLINE_COUNT: number
+  /** ATR 窗口(持仓管理用通用 14,选股引擎的 10/50 口径不动)。 */
+  ATR_PERIOD: number
+  /** 波动止损参考 = close − 此倍 × ATR。 */
+  ATR_STOP_MULT: number
+  /** K 线取数并发(持仓通常 ≤10 只,远小于选股全扫)。 */
+  CONCURRENCY: number
+  /** 单次请求持仓代码数上限(防滥用)。 */
+  MAX_CODES: number
+}
+
+export const HOLDINGS = {
+  KLINE_COUNT: 280,
+  ATR_PERIOD: 14,
+  ATR_STOP_MULT: 2,
+  CONCURRENCY: 4,
+  MAX_CODES: 30,
+} as const satisfies HoldingsConfig
