@@ -602,6 +602,28 @@ export interface Translation {
       cancel: string
       invalid: string
     }
+    ta: {
+      score: string
+      bias: { demand: string; supply: string; neutral: string }
+      distribution: string
+      distributionNew: string
+      trendTemplate: string
+      todayVol: string
+      dist52: string
+      relStrength: string
+      counterTrend: string
+      atrStop: string
+      deltaVs: string
+      maLost: string
+      maRegain: string
+      live: string
+      settled: string
+      narrativeTitle: string
+      history: string
+      latest: string
+      bench: { hs300: string; chinext: string; star50: string }
+      noArchive: string
+    }
   }
   screener: {
     title: string

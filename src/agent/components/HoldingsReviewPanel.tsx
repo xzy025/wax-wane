@@ -4,10 +4,12 @@ import { useAppState } from '../../store'
 import { useManualHoldings } from '../holdingsStore'
 import { deriveAutoHoldings, mergeHoldings, type ManualHolding } from '../../engine/holdings'
 import { analyzeHolding, buildPortfolioSummary, type HoldingSignal, type PortfolioSummary } from '../holdingsReview'
+import { fetchHoldingsTA, refreshHoldingsTACache, type HoldingsTAResult } from '../holdingsTA'
 import { getMarketStatus, type MarketPhase } from '../../utils/marketStatus'
 import type { Translation } from '../../types'
 import { HoldingCard } from './HoldingCard'
 import { HoldingEditor } from './HoldingEditor'
+import { HoldingsNarrativeCard } from './HoldingsNarrativeCard'
 import { PortfolioSummaryBar } from './PortfolioSummaryBar'
 
 interface Props {
@@ -35,9 +37,11 @@ export function HoldingsReviewPanel({ t, language }: Props) {
   const [signals, setSignals] = useState<HoldingSignal[]>([])
   const [summary, setSummary] = useState<PortfolioSummary | null>(null)
   const [loading, setLoading] = useState(false)
+  const [ta, setTa] = useState<HoldingsTAResult | null>(null)
   const [editing, setEditing] = useState<ManualHolding | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
   const reqId = useRef(0)
+  const taReqId = useRef(0)
 
   const market = useMemo(() => getMarketStatus(), [])
 
@@ -63,12 +67,24 @@ export function HoldingsReviewPanel({ t, language }: Props) {
     }
   }, [holdings, market.todayStr])
 
+  // 服务端深度 TA:与 runReview 独立取数(quote 失败不拖 TA,反之亦然),best-effort。
+  const runTa = useCallback(
+    async (force = false) => {
+      const id = ++taReqId.current
+      if (force) await refreshHoldingsTACache()
+      const result = await fetchHoldingsTA(holdings.map((h) => ({ code: h.code, avgCost: h.avgCost })))
+      if (id === taReqId.current) setTa(result)
+    },
+    [holdings],
+  )
+
   // Auto-run on mount and whenever the holdings set changes. The reqId guard in
   // runReview makes the immediate setLoading(true) safe against cascading runs.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void runReview()
-  }, [runReview])
+    void runTa()
+  }, [runReview, runTa])
 
   const openAdd = useCallback(() => {
     setEditing(null)
@@ -98,6 +114,8 @@ export function HoldingsReviewPanel({ t, language }: Props) {
     [addOrUpdate],
   )
 
+  const taByCode = useMemo(() => new Map((ta?.items ?? []).map((i) => [i.code, i])), [ta])
+
   const marketKey = PHASE_LABEL[market.phase]
   const MarketIcon = market.phase === 'open' ? ChartLineUp : Moon
 
@@ -110,7 +128,15 @@ export function HoldingsReviewPanel({ t, language }: Props) {
           <span className="hr-market-date">{market.todayStr}</span>
         </div>
         <div className="hr-topbar-actions">
-          <button type="button" className="hr-btn-ghost" onClick={() => void runReview()} disabled={loading}>
+          <button
+            type="button"
+            className="hr-btn-ghost"
+            onClick={() => {
+              void runReview()
+              void runTa(true)
+            }}
+            disabled={loading}
+          >
             {loading ? <CircleNotch size={14} className="ai-spin" /> : <ArrowsClockwise size={14} />}
             {t.holdings.refresh}
           </button>
@@ -130,6 +156,7 @@ export function HoldingsReviewPanel({ t, language }: Props) {
       ) : (
         <>
           {summary && <PortfolioSummaryBar summary={summary} t={t} />}
+          <HoldingsNarrativeCard ta={ta} t={t} />
 
           {loading && signals.length === 0 ? (
             <div className="hr-loading">
@@ -141,6 +168,7 @@ export function HoldingsReviewPanel({ t, language }: Props) {
                 <HoldingCard
                   key={signal.holding.code}
                   signal={signal}
+                  ta={taByCode.get(signal.holding.code)}
                   appState={appState}
                   language={language}
                   t={t}
