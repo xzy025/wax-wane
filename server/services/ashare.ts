@@ -5,6 +5,19 @@ import { emFetch } from '../lib/emFetch'
 import { createCache, sessionTtl } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 
+// hq.sinajs.cn responds in GBK; decoding it as UTF-8 turns stock names into mojibake.
+let gbkDecoder: InstanceType<typeof TextDecoder> | null | undefined
+function decodeGbk(buf: ArrayBuffer): string {
+  if (gbkDecoder === undefined) {
+    try {
+      gbkDecoder = new TextDecoder('gbk')
+    } catch {
+      gbkDecoder = null // no ICU support — numeric fields still parse, names degrade
+    }
+  }
+  return (gbkDecoder ?? new TextDecoder()).decode(buf)
+}
+
 // ── Types ──────────────────────────────────────────────────
 
 export interface IndexQuote {
@@ -661,7 +674,7 @@ export async function fetchStockQuote(stockCode: string): Promise<StockQuote | n
     clearTimeout(timeout)
 
     if (res.ok) {
-      const text = await res.text()
+      const text = decodeGbk(await res.arrayBuffer())
       // Parse Sina format: var hq_str_sz300750="宁德时代,437.000,..."
       const match = text.match(/="([^"]+)"/)
       if (match) {
@@ -961,7 +974,7 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
     clearTimeout(timeout)
 
     if (res.ok) {
-      const text = await res.text()
+      const text = decodeGbk(await res.arrayBuffer())
       const match = text.match(/="([^"]+)"/)
       if (match) {
         const parts = match[1].split(',')
@@ -999,7 +1012,7 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
       const json = (await res.json()) as any
       if (json?.data && typeof json.data === 'object') {
         em = json.data as Record<string, unknown>
-        // Prefer EM's UTF-8 name: the Sina quote is GBK and decodes to mojibake.
+        // Prefer EM's name as double insurance (Sina's is GBK-decoded above).
         if (toStr(em.f58)) name = toStr(em.f58)
       }
     }
