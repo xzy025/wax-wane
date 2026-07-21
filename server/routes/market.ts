@@ -20,6 +20,7 @@ import { fetchDragonTiger, fetchTradingDates, clearMoneyFlowCache } from '../ser
 import { clearNewsFlashCache } from '../services/newsFlash'
 import { clearResearchCache } from '../services/research'
 import { resetFeishuCooldown } from '../services/feishuSync'
+import { clearHoldingsTACache } from '../services/holdingsTA'
 
 const router = Router()
 
@@ -58,6 +59,7 @@ const cacheClearers: Record<string, () => void> = {
     clearResearchCache()
     resetFeishuCooldown()
   },
+  'holdings-ta': clearHoldingsTACache,
 }
 
 // 无参 = 行情页顶栏「刷新」按钮:只清 5 张行情横幅对应的轻量缓存。选股/实盘战绩/
