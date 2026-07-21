@@ -942,3 +942,9 @@ export const ORG_SURVEY_BOARD = {
   LOOKBACK_TRADING_DAYS: 20, // 机构调研聚合回看窗(交易日)
   MAX: 40, // 展示上限(20日窗口下全市场调研覆盖面广,按机构家数砍到40是真实的关注度分水岭)
 } as const
+
+// 解禁角标(移植计划③,纯展示·不进规则层·不影响回测):候选未来 N 日内有限售解禁批次则挂风险角标。
+export const LIFTBAN = {
+  FORWARD_DAYS: 30, // 前瞻窗(日历日;30 天窗全市场实测仅 ~136 行,单页拉完)
+  MAX_PAGES: 6, // 翻页上限(500/页,3000 行只防上游异常膨胀)
+} as const

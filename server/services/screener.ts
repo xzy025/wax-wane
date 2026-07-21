@@ -8,11 +8,12 @@ import { todayShanghai } from '../lib/time'
 import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult, shouldReplaceArchive } from './screenerArchive'
 import { isDbReady, upsertScreenerSnapshot, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { computeStreaks } from './screenerStreak'
+import { fetchUpcomingLiftBans, toLiftBanBadge, type LiftBanBadge } from './liftBan'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { fetchStockKline, fetchIndexKline } from './ashare'
 import { fetchSentiment } from './kaipanla'
-import { SCREENER as C, PULLBACK, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, BHOLD_WATCH, TRENDNEW, TRENDWATCH, ACCUM, type ScreenerConfig } from '../config/screener'
+import { SCREENER as C, PULLBACK, HIGHDIV, VOLBREAK, FUNDRES, BHOLD, BHOLD_WATCH, TRENDNEW, TRENDWATCH, ACCUM, LIFTBAN, type ScreenerConfig } from '../config/screener'
 import { classify, finalScore, marketRegime, targetRMultFor, enrichRelStrength, scanHealthy, type Bar, type Candidate, type MarketRegime } from './screenerRules'
 import { classifyPullback, type PullbackCandidate } from './pullbackRules'
 import { classifyHighDivergence, type HighDivCandidate } from './divergenceRules'
@@ -64,6 +65,8 @@ export interface ScreenerCandidate extends Candidate {
   board?: BoardConfluence
   /** 连续出现天数:含今天、回溯历史快照算出的连续入选交易日数(任意榜单口径,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -76,6 +79,8 @@ export interface PullbackScreenerCandidate extends PullbackCandidate {
   lhbInst?: LhbConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -92,6 +97,8 @@ export interface HighDivScreenerCandidate extends HighDivCandidate {
   board?: BoardConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -104,6 +111,8 @@ export interface VolBreakScreenerCandidate extends VolBreakCandidate {
   lhbInst?: LhbConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -119,6 +128,8 @@ export interface FundResScreenerCandidate extends FundResCandidate {
   lhbInst?: LhbConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -132,6 +143,8 @@ export interface BHoldScreenerCandidate extends BreakoutHoldCandidate {
   lhbInst?: LhbConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -145,6 +158,8 @@ export interface TrendNewScreenerCandidate extends TrendNewCandidate {
   lhbInst?: LhbConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -159,6 +174,8 @@ export interface TrendWatchScreenerCandidate extends TrendLeaderCandidate {
   lhbInst?: LhbConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
   /** 技术分析组合(Wyckoff+道氏+AlBrooks 量价);全战法整体评分因子。 */
   ta?: TechnicalCombo
 }
@@ -172,6 +189,8 @@ export interface AccumScreenerCandidate extends AccumCandidate {
   lhbInst?: LhbConfluence
   /** 连续出现天数(任意榜单口径,含今天,最小 1)。 */
   appearStreak?: number
+  /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
+  liftBan?: LiftBanBadge
 }
 
 export interface ScreenerRegime {
@@ -815,14 +834,31 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
 
   // 连续出现天数:回溯历史快照(DB 优先,否则磁盘)给每只候选打 appearStreak。
   // 放在落盘/入库之前 → 持久化的快照里也带 streak(重载即正确,幂等)。
+  const all = [...breakout, ...trigger, ...watch, ...pullback, ...highdiv, ...volbreak, ...fundres, ...bhold, ...bholdWatch, ...trendnew, ...trendwatch, ...accum]
   try {
-    const all = [...breakout, ...trigger, ...watch, ...pullback, ...highdiv, ...volbreak, ...fundres, ...bhold, ...bholdWatch, ...trendnew, ...trendwatch, ...accum]
     const todayCodes = new Set(all.map((c) => c.code))
     const priorSets = await loadRecentCodeSets(asof, 30)
     const streaks = computeStreaks(todayCodes, priorSets)
     for (const c of all) c.appearStreak = streaks.get(c.code) ?? 1
   } catch (err) {
     console.warn('[Screener] 连续出现天数计算失败(非致命):', err)
+  }
+
+  // 解禁角标:未来窗内有限售解禁批次的候选挂风险角标(全市场一次拉+会话缓存;纯展示不进规则层)。
+  // 同样放在落盘/入库前 → 快照自带角标,重载幂等;失败只损失角标,不影响选股结果。
+  try {
+    const lifts = await fetchUpcomingLiftBans(asof, LIFTBAN.FORWARD_DAYS)
+    let hit = 0
+    for (const c of all) {
+      const badge = toLiftBanBadge(lifts.get(c.code))
+      if (badge) {
+        c.liftBan = badge
+        hit++
+      }
+    }
+    if (hit > 0) console.log(`[Screener] 解禁角标:${hit}/${all.length} 只候选未来 ${LIFTBAN.FORWARD_DAYS} 日内有解禁`)
+  } catch (err) {
+    console.warn('[Screener] 解禁角标获取失败(非致命):', err)
   }
 
   // 完成日志:取K线成功率(fetched/union 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。

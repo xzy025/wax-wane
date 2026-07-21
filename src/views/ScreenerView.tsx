@@ -13,6 +13,7 @@ import {
   type AccumScreenerCandidate,
   type TechnicalCombo,
   type ScreenerRegime,
+  type LiftBanInfo,
 } from '../hooks/useScreener'
 import { useScreenerForward } from '../hooks/useScreenerForward'
 import { useMarketStructure } from '../hooks/useMarketStructure'
@@ -119,11 +120,23 @@ function TaChip({ ta, t }: { ta?: TechnicalCombo; t: Translation }) {
   )
 }
 
-/** 卡片右上角:分数 + 左侧「连续出现天数」小药丸(N≥2 才显示)。三类卡片复用。 */
-function StreakScore({ c, k }: { c: { appearStreak?: number; score: number }; k: Translation['screener']['card'] }) {
+/** 卡片右上角:分数 + 左侧「连续出现天数」小药丸(N≥2 才显示)+「解禁」风险角标(未来窗内有解禁批次)。三类卡片复用。 */
+function StreakScore({ c, k }: { c: { appearStreak?: number; liftBan?: LiftBanInfo; score: number }; k: Translation['screener']['card'] }) {
   const streak = c.appearStreak
+  const lift = c.liftBan
   return (
     <div className="sc-card-right">
+      {lift && (
+        <span
+          className="sc-streak liftban"
+          title={k.liftBanTip
+            .replace('{date}', lift.date)
+            .replace('{ratio}', lift.ratioPct >= 0.1 ? lift.ratioPct.toFixed(1) : '<0.1')
+            .replace('{type}', lift.type)}
+        >
+          {k.liftBan}
+        </span>
+      )}
       {streak != null && streak >= 2 && (
         <span className={`sc-streak${streak >= 5 ? ' hot' : ''}`} title={k.appearStreakTip.replace('{n}', String(streak))}>
           {k.appearStreak.replace('{n}', String(streak))}

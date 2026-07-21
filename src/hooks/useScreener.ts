@@ -32,6 +32,13 @@ export interface Pivots {
   s2: number
 }
 
+/** 解禁角标:未来窗口内最近一批限售解禁(server LiftBanBadge 镜像;纯展示风险提示)。 */
+export interface LiftBanInfo {
+  date: string // 解禁日 YYYY-MM-DD
+  ratioPct: number // 占流通股本比(%)
+  type: string // 限售股类型(首发/定增/股权激励…)
+}
+
 /** 板块强弱加分(个股所属行业板块当前 2×2 象限)。 */
 export interface BoardConfluence {
   code: string
@@ -72,6 +79,7 @@ export interface ScreenerCandidate {
   lhbInst?: LhbConfluence
   board?: BoardConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
   relStrength?: number // 相对大盘强度(个股−指数 当日涨跌幅 pp,缺失=旧快照)
   counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
@@ -97,6 +105,7 @@ export interface PullbackScreenerCandidate {
   signals: { leader: boolean; arcUp: boolean; maCrossNear: boolean; volSpike: boolean; pattern: string }
   lhbInst?: LhbConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
@@ -132,6 +141,7 @@ export interface HighDivScreenerCandidate {
   lhbInst?: LhbConfluence
   board?: BoardConfluence // 板块强弱(无则板块数据不可用);quadrant==='hs' = 今日抱团强势板块内的分歧候选
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
@@ -160,6 +170,7 @@ export interface VolBreakScreenerCandidate {
   riskNote?: string
   lhbInst?: LhbConfluence
   appearStreak?: number // 连续出现天数(含今天,缺失=旧缓存快照)
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
@@ -199,6 +210,7 @@ export interface FundResScreenerCandidate {
   fundFlow?: FundFlowInfo // 资金共振(实盘加成,无则不在双榜交集/门控关闭)
   lhbInst?: LhbConfluence
   appearStreak?: number
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
@@ -229,6 +241,7 @@ export interface BHoldScreenerCandidate {
   riskNote?: string
   lhbInst?: LhbConfluence
   appearStreak?: number
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
@@ -255,6 +268,7 @@ export interface TrendNewScreenerCandidate {
   riskNote?: string
   lhbInst?: LhbConfluence
   appearStreak?: number
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo // 技术分析组合(Wyckoff+道氏+AlBrooks);全战法整体评分因子
 }
 
@@ -278,6 +292,7 @@ export interface TrendWatchScreenerCandidate {
   riskNote?: string
   lhbInst?: LhbConfluence
   appearStreak?: number
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   ta?: TechnicalCombo
   relStrength?: number // 相对大盘强度(个股−指数 当日涨跌幅 pp)
   counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
@@ -314,6 +329,7 @@ export interface AccumScreenerCandidate {
   riskNote?: string
   lhbInst?: LhbConfluence
   appearStreak?: number
+  liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
   relStrength?: number // 相对大盘强度(个股−指数 当日涨跌幅 pp)
   counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
 }
