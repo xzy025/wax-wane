@@ -42,9 +42,9 @@ if (shDow === 0 || shDow === 6) {
 
 /** 真实上海时钟推算「上游数据当前对应的最近完结交易日」;盘中/竞价时段无完结数据。 */
 function lastSettledTradingDay(): string | null {
-  const now = new Date()
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
-  const sh = new Date(utcMs + 8 * 3_600_000)
+  // epoch 本身就是 UTC,+8h 后用 getUTC* 读即上海墙钟;勿再加 getTimezoneOffset(在中国
+  // 时区机器上会双重补偿,闸门等效"北京23:00后才认今天",下午盘后回填被误拒)。
+  const sh = new Date(Date.now() + 8 * 3_600_000)
   const day = sh.getUTCDay()
   const minutes = sh.getUTCHours() * 60 + sh.getUTCMinutes()
   const iso = (d: Date) => d.toISOString().slice(0, 10)
@@ -176,9 +176,10 @@ async function main() {
   // 叙事是否生成(复盘档可 narrative=null 落盘,LLM 失败不算步骤失败,单独提示)
   try {
     const rv = JSON.parse(readFileSync(join(SCREENER_DIR, `review-${target}.json`), 'utf8')) as {
-      narrative?: string | null
+      narrative?: { markdown?: string } | string | null
     }
-    console.log(`  ℹ 复盘叙事: ${rv.narrative ? `已生成(${rv.narrative.length}字)` : '未生成(可重跑或事后惰性补)'}`)
+    const nlen = typeof rv.narrative === 'string' ? rv.narrative.length : (rv.narrative?.markdown?.length ?? 0)
+    console.log(`  ℹ 复盘叙事: ${rv.narrative ? `已生成(${nlen}字)` : '未生成(可重跑或事后惰性补)'}`)
   } catch {
     /* review 档缺失时上面已标 ❌ */
   }
