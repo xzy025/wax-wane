@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, fireEvent, screen } from '@testing-library/react'
 import ScreenerView from './ScreenerView'
 import type { Translation } from '../types'
 import en from '../i18n/en'
-import type { ScreenerResult, ScreenerHookResult, ScreenerRegime, ScreenerCandidate } from '../hooks/useScreener'
+import type { ScreenerResult, ScreenerHookResult, ScreenerRegime, ScreenerCandidate, AccumScreenerCandidate } from '../hooks/useScreener'
 import type { ScreenerForwardHookResult } from '../hooks/useScreenerForward'
 
 const t = en as Translation
@@ -166,5 +166,81 @@ describe('ScreenerView 工具栏时间标签', () => {
 
     expect(label).toContain(t.screener.lastUpdated)
     expect(label).toContain(t.screener.cached)
+  })
+})
+
+const accumCand = (over: Partial<AccumScreenerCandidate> = {}): AccumScreenerCandidate => ({
+  group: 'accum',
+  code: '300566',
+  name: '激智科技',
+  price: 17.3,
+  changePct: 1.2,
+  maRef: 17.1,
+  baseVol: 100000,
+  avgVolRatio: 2.4,
+  burstDays: 5,
+  surgeRunDays: 6,
+  maSlopePct: 0.8,
+  consolDays: 12,
+  boxLow: 16.2,
+  boxHigh: 18.1,
+  breakLevel: 18.1,
+  entryTrigger: 18.1,
+  stopRef: 16.2,
+  targetRef: 21.9,
+  posPct: 42,
+  winNetChgPct: 3.1,
+  vol01: 0.8,
+  flat01: 0.7,
+  consol01: 0.6,
+  tier: 2,
+  score: 66,
+  reason: 'test',
+  ...over,
+}) as AccumScreenerCandidate
+
+const renderAccumTab = (cand: AccumScreenerCandidate) => {
+  mockUseScreener.mockReturnValue(hookResult({ data: baseResult({ accum: [cand] }) }))
+  mockUseScreenerForward.mockReturnValue(fwdResult())
+  const utils = render(<ScreenerView t={t} language="en" />)
+  fireEvent.click(screen.getByText((text) => text.startsWith(t.screener.tabs.accum)))
+  return utils
+}
+
+describe('吸筹卡股东户数确认因子(holderNum)', () => {
+  it('户数下降 → 筹码集中 chip(ok 高亮),tooltip 含户数/报告期/披露日/户均持股', () => {
+    const { container } = renderAccumTab(
+      accumCand({
+        holderNum: { endDate: '2026-03-31', noticeDate: '2026-04-29', holderNum: 23141, changePct: -7.32, avgHoldShares: 11326 },
+      }),
+    )
+    const chip = container.querySelector('.sc-chip.sc-holder')
+    expect(chip).not.toBeNull()
+    expect(chip?.classList.contains('ok')).toBe(true)
+    expect(chip?.textContent).toContain(t.screener.acCard.holderDown)
+    expect(chip?.textContent).toContain('-7.3%')
+    const tip = chip?.getAttribute('title') ?? ''
+    expect(tip).toContain('23,141')
+    expect(tip).toContain('2026-03-31')
+    expect(tip).toContain('2026-04-29')
+    expect(tip).toContain('11,326')
+  })
+
+  it('户数增加 → 中性 chip(无 ok)、带 + 号', () => {
+    const { container } = renderAccumTab(
+      accumCand({
+        holderNum: { endDate: '2026-03-31', noticeDate: '2026-04-30', holderNum: 971956, changePct: 2.03, avgHoldShares: 38457 },
+      }),
+    )
+    const chip = container.querySelector('.sc-chip.sc-holder')
+    expect(chip).not.toBeNull()
+    expect(chip?.classList.contains('ok')).toBe(false)
+    expect(chip?.textContent).toContain(t.screener.acCard.holderUp)
+    expect(chip?.textContent).toContain('+2.0%')
+  })
+
+  it('无 holderNum(取数失败/旧快照)→ 不渲染 chip', () => {
+    const { container } = renderAccumTab(accumCand())
+    expect(container.querySelector('.sc-chip.sc-holder')).toBeNull()
   })
 })

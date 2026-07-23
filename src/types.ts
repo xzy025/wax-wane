@@ -801,6 +801,9 @@ export interface Translation {
       pos: string
       days: string
       monitorNote: string
+      holderDown: string
+      holderUp: string
+      holderTip: string
     }
     osDesc: string
     osBoard: {

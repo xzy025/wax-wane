@@ -9,6 +9,7 @@ import { pickLatestArchiveName, parseScreenerArchiveName, isScreenerResult, shou
 import { isDbReady, upsertScreenerSnapshot, getRecentScreenerSnapshots } from '../db/pgDatabase'
 import { computeStreaks } from './screenerStreak'
 import { fetchUpcomingLiftBans, toLiftBanBadge, type LiftBanBadge } from './liftBan'
+import { fetchHolderNums, type HolderNumBadge } from './holderNum'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { fetchStockKline, fetchIndexKline } from './ashare'
@@ -191,6 +192,8 @@ export interface AccumScreenerCandidate extends AccumCandidate {
   appearStreak?: number
   /** 解禁角标:未来窗口内最近一批限售解禁(纯展示风险提示;缺失=窗口内无解禁或旧快照)。 */
   liftBan?: LiftBanBadge
+  /** 股东户数确认因子(移植计划⑤,纯展示不计分):最新一期户数环比,负=筹码集中佐证吸筹;缺失=取数失败或旧快照。 */
+  holderNum?: HolderNumBadge
 }
 
 export interface ScreenerRegime {
@@ -859,6 +862,25 @@ async function fetchScreenerFresh(): Promise<ScreenerResult> {
     if (hit > 0) console.log(`[Screener] 解禁角标:${hit}/${all.length} 只候选未来 ${LIFTBAN.FORWARD_DAYS} 日内有解禁`)
   } catch (err) {
     console.warn('[Screener] 解禁角标获取失败(非致命):', err)
+  }
+
+  // 股东户数确认因子(移植计划⑤数据侧):仅吸筹监控组挂载——户数下降=筹码集中,与「持续放量横盘」
+  // 互为佐证。纯展示不进规则层;回测裁决(披露日对齐)通过前不进任何战法评分。失败只损失徽标。
+  if (accum.length > 0) {
+    try {
+      const holders = await fetchHolderNums(accum.map((c) => c.code))
+      let hit = 0
+      for (const c of accum) {
+        const badge = holders.get(c.code)
+        if (badge) {
+          c.holderNum = badge
+          hit++
+        }
+      }
+      if (hit > 0) console.log(`[Screener] 股东户数:${hit}/${accum.length} 只吸筹候选挂上最新一期环比`)
+    } catch (err) {
+      console.warn('[Screener] 股东户数获取失败(非致命):', err)
+    }
   }
 
   // 完成日志:取K线成功率(fetched/union 偏低=数据源不健康,真·卡顿信号)+ 命中数 + 耗时。

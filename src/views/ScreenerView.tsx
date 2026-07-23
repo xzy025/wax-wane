@@ -1030,6 +1030,19 @@ function AccumCard({ c, t }: { c: AccumScreenerCandidate; t: Translation }) {
         <span className="sc-chip ok">
           {ac.consol} {c.consolDays}{ac.days}
         </span>
+        {c.holderNum && (
+          <span
+            className={`sc-chip sc-holder${c.holderNum.changePct < 0 ? ' ok' : ''}`}
+            title={ac.holderTip
+              .replace('{num}', c.holderNum.holderNum.toLocaleString())
+              .replace('{end}', c.holderNum.endDate)
+              .replace('{notice}', c.holderNum.noticeDate)
+              .replace('{avg}', c.holderNum.avgHoldShares.toLocaleString())}
+          >
+            {c.holderNum.changePct < 0 ? ac.holderDown : ac.holderUp} {c.holderNum.changePct > 0 ? '+' : ''}
+            {c.holderNum.changePct.toFixed(1)}%
+          </span>
+        )}
       </div>
     </div>
   )

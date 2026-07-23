@@ -39,6 +39,15 @@ export interface LiftBanInfo {
   type: string // 限售股类型(首发/定增/股权激励…)
 }
 
+/** 股东户数确认因子(server HolderNumBadge 镜像;吸筹监控专属,纯展示不计分)。 */
+export interface HolderNumInfo {
+  endDate: string // 报告期末 YYYY-MM-DD
+  noticeDate: string // 披露公告日 YYYY-MM-DD(数据自该日起才为市场所知)
+  holderNum: number // 最新一期股东户数
+  changePct: number // 户数环比%(负=筹码集中)
+  avgHoldShares: number // 户均持股(股)
+}
+
 /** 板块强弱加分(个股所属行业板块当前 2×2 象限)。 */
 export interface BoardConfluence {
   code: string
@@ -330,6 +339,7 @@ export interface AccumScreenerCandidate {
   lhbInst?: LhbConfluence
   appearStreak?: number
   liftBan?: LiftBanInfo // 解禁角标(未来窗内最近一批;缺失=无解禁或旧快照)
+  holderNum?: HolderNumInfo // 股东户数确认因子(纯展示;缺失=取数失败或旧快照)
   relStrength?: number // 相对大盘强度(个股−指数 当日涨跌幅 pp)
   counterTrend?: boolean // 逆势强:大盘明显下跌日逆势收红
 }

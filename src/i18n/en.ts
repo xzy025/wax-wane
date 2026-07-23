@@ -750,6 +750,9 @@ export default {
       pos: '52w pos',
       days: 'd',
       monitorNote: "Vol accumulation · don't pre-buy the base (backtest −0.24R) · confirm entry failed re-adjudication (0.01R), trigger level is watch-only",
+      holderDown: 'Holders shrinking',
+      holderUp: 'Holders rising',
+      holderTip: 'Shareholder count {num} (period {end}, disclosed {notice}) · avg {avg} shares/holder. Fewer holders = chips concentrating, corroborates sideways accumulation; quarterly disclosure lags — judge freshness by the disclosure date. Display only, not scored.',
     },
     osDesc: 'Institutional Survey Board (pure ranking · not a strategy · not a buy signal · not backtested): market-wide institutional survey attention over the last 20 trading days, sorted by number of institutions. Sourced from public survey minutes — reflects recent research interest, not a trade signal; use your own judgment.',
     osBoard: {
