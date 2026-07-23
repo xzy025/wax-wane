@@ -974,3 +974,60 @@ export const HOLDINGS = {
   CONCURRENCY: 4,
   MAX_CODES: 30,
 } as const satisfies HoldingsConfig
+
+// ── N字运动(波段角度/时间/异动)·持仓结构化TA增强块(见 services/nPattern.ts)──
+// 【管理视图·非战法·不进回测】。源自《N字运动1-4》(挥手看天空):波段=之字结构,
+// 强弱=调整段与前段的速度(°/角度)比,时间=6-8小波段窗与23-25中期窗,异动=当跌不跌/当涨不涨。
+// 书中原值:TIME_LO/HI=6-8、MID_LO/HI=23-25、STALL_BARS≈3个周期、持股黄金法则6-8天;
+// 其余阈值为工程默认(书中定性未定量),讲解文档 docs/n 有逐条来源说明。
+export interface NPatternConfig {
+  /** 波段翻转最小折返%(与 ATR_MULT×ATR% 取大者,防低波动票碎段)。 */
+  SWING_PCT: number
+  /** ATR 自适应折返倍数。 */
+  ATR_MULT: number
+  /** 保留最近波段数(含进行中活动段)。 */
+  MAX_LEGS: number
+  /** 小波段变盘时间窗(书:6-8个周期;横盘平台/短调整)。 */
+  TIME_LO: number
+  TIME_HI: number
+  /** 斜向调整段延伸窗(书 vol4 图注:强势回挡/弱势反弹历时 11-13 周期,走完 80% 顺原趋势)。 */
+  EXT_LO: number
+  EXT_HI: number
+  /** 中期调整时间窗(书:23-25,变体35-37取主档)。 */
+  MID_LO: number
+  MID_HI: number
+  /** 强弱分界:活动段速度/前段速度 ≥STRONG_RATIO=角度更陡,≤WEAK_RATIO=角度更缓。 */
+  STRONG_RATIO: number
+  WEAK_RATIO: number
+  /** 结构分级:反弹速度比 ≥GRADE_A 为 A级(近垂直),≥GRADE_B 为 B级,余 C级。 */
+  GRADE_A: number
+  GRADE_B: number
+  /** 异动判定的横盘观察根数(书:抗跌/抗涨一般维持约3个周期)。 */
+  STALL_BARS: number
+  /** 横盘净变动带宽 = 此倍 × ATR%(±带内算滞涨/抗跌)。 */
+  STALL_ATR_MULT: number
+  /** 加速异动:活动段速度 ≥ 此倍 × 前两个同向段均速。 */
+  ACCEL_MULT: number
+  /** 持股黄金法则:连续上升 ≥ 此天数(书:6-8天短线不再持有)。 */
+  HOLD_RISK_DAYS: number
+}
+
+export const NZI = {
+  SWING_PCT: 5,
+  ATR_MULT: 2,
+  MAX_LEGS: 6,
+  TIME_LO: 6,
+  TIME_HI: 8,
+  EXT_LO: 11,
+  EXT_HI: 13,
+  MID_LO: 23,
+  MID_HI: 25,
+  STRONG_RATIO: 1.25,
+  WEAK_RATIO: 0.8,
+  GRADE_A: 1.5,
+  GRADE_B: 1,
+  STALL_BARS: 3,
+  STALL_ATR_MULT: 0.4,
+  ACCEL_MULT: 2,
+  HOLD_RISK_DAYS: 6,
+} as const satisfies NPatternConfig

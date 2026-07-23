@@ -36,6 +36,10 @@ function itemLine(it: HoldingTAItem, avgCost?: number): string {
   segs.push(`${tt}${above.length ? `站上${above.join('/')}` : '未站上任何均线'}`)
 
   segs.push(`量比${it.volRatio} 今量${it.breakoutVolRatio}× 距52周高${it.dist52Pct}%`)
+  if (it.nPattern) {
+    const np = it.nPattern
+    segs.push(`N字:${np.note}${np.nTarget !== null ? ` 对称目标${np.nTarget}` : ''}`)
+  }
   if (typeof it.relStrength === 'number') {
     segs.push(`RS${it.relStrength >= 0 ? '+' : ''}${it.relStrength}pp${it.counterTrend ? '(逆势强)' : ''}`)
   }
@@ -53,6 +57,7 @@ function itemLine(it: HoldingTAItem, avgCost?: number): string {
     if (lost.length) warn.push(`失守${lost.join('/')}`)
     if (regain.length) warn.push(`收复${regain.join('/')}`)
     if (it.delta.wyckoffChanged) warn.push(`阶段${it.delta.wyckoffChanged.from}→${it.delta.wyckoffChanged.to}`)
+    if (it.delta.nChanges?.length) warn.push(it.delta.nChanges.join(' '))
   }
   if (warn.length) segs.push(warn.join(' '))
 

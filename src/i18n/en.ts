@@ -572,6 +572,19 @@ export default {
       latest: 'Latest',
       bench: { hs300: 'CSI 300', chinext: 'ChiNext', star50: 'STAR 50' },
       noArchive: 'No archives yet',
+      nzi: {
+        title: 'N-wave',
+        dayN: 'day {n}',
+        windowTag: '{w} win',
+        grade: 'grade {g}',
+        cont: 'N-continue',
+        target: 'N target',
+        holdRisk: '6+ up days',
+        roleStrength: {
+          F: { strong: 'Strong rebound', sym: 'Symmetric rebound', weak: 'Weak rebound', plain: 'Rebound' },
+          H: { strong: 'Strong pullback', sym: 'Symmetric pullback', weak: 'Steep pullback', plain: 'Pullback' },
+        },
+      },
     },
   },
   screener: {

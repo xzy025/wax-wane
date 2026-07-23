@@ -571,6 +571,19 @@ export default {
       latest: '最新',
       bench: { hs300: '沪深300', chinext: '创业板指', star50: '科创50' },
       noArchive: '暂无历史存档',
+      nzi: {
+        title: 'N字',
+        dayN: '第{n}天',
+        windowTag: '{w}窗',
+        grade: '{g}级',
+        cont: 'N字延续',
+        target: 'N目标',
+        holdRisk: '连涨6+天',
+        roleStrength: {
+          F: { strong: '强势反弹', sym: '对称反弹', weak: '弱势反弹', plain: '反弹' },
+          H: { strong: '强势回挡', sym: '对称回挡', weak: '弱势回挡', plain: '回挡' },
+        },
+      },
     },
   },
   screener: {

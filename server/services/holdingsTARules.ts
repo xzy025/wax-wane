@@ -6,6 +6,7 @@ import { HOLDINGS, type HoldingsConfig } from '../config/screener'
 import { technicalCombo, type TechnicalCombo } from './technicalScore'
 import { type Bar, type Pivots, atr, computeVCP, pivotLevels, r2, rsRaw, smaAt, trendTemplate } from './screenerRules'
 import { max52w } from './ashare'
+import { analyzeNPattern, nStrengthLabel, type NPatternResult } from './nPattern'
 
 export type MAKey = 'ma5' | 'ma10' | 'ma20' | 'ma60' | 'ma250'
 export const MA_KEYS: readonly MAKey[] = ['ma5', 'ma10', 'ma20', 'ma60', 'ma250'] as const
@@ -26,6 +27,8 @@ export interface HoldingTADelta {
   relStrengthDelta: number | null
   dist52PctDelta: number
   volRatioDelta: number
+  /** N字运动变化:'N强弱:弱势反弹→强势反弹' / '⚡抗跌转强' / 'N字延续确认'…(两日都有 nPattern 才比;旧磁盘存档缺此字段故可选)。 */
+  nChanges?: string[]
 }
 
 export interface HoldingTAItem {
@@ -61,6 +64,8 @@ export interface HoldingTAItem {
   pivotHigh250: number
   /** 经典枢轴位 R1/R2/S1/S2(投射下一交易日)。 */
   pivots: Pivots
+  /** N字运动(波段角度/时间/异动;数据不足 → null,前端整块不渲染)。 */
+  nPattern?: NPatternResult | null
   delta?: HoldingTADelta | null
   /** 单票取数失败:只带 error 占位,不拖垮整包。 */
   error?: string
@@ -136,6 +141,7 @@ export function buildHoldingTAFromBars(
     atrStop: r2(today.close - cfg.ATR_STOP_MULT * atrV),
     pivotHigh250: r2(vcp.resistPrior),
     pivots: pivotLevels(today),
+    nPattern: analyzeNPattern(bars),
     delta: null,
   }
 }
@@ -148,6 +154,18 @@ export function diffHoldingTA(prev: HoldingTAItem, cur: HoldingTAItem, prevDate:
     if (prev.aboveMa[k] && !cur.aboveMa[k]) maCrossings.push(`lost:${k}`)
     else if (!prev.aboveMa[k] && cur.aboveMa[k]) maCrossings.push(`regain:${k}`)
   }
+  // N字运动变化(任一侧缺 nPattern —— 如旧存档 —— 不比,回 [])。
+  const nChanges: string[] = []
+  const pn = prev.nPattern
+  const cn = cur.nPattern
+  if (pn && cn) {
+    const pLabel = nStrengthLabel(pn.role, pn.strength)
+    const cLabel = nStrengthLabel(cn.role, cn.strength)
+    if (pLabel !== cLabel) nChanges.push(`N强弱:${pLabel}→${cLabel}`)
+    if (cn.anomaly && cn.anomaly.type !== pn.anomaly?.type) nChanges.push(`⚡${cn.anomaly.type}`)
+    if (!pn.nBreak && cn.nBreak) nChanges.push('N字延续确认')
+  }
+
   return {
     prevDate,
     score01: r2(cur.combo.score01 - prev.combo.score01),
@@ -166,6 +184,7 @@ export function diffHoldingTA(prev: HoldingTAItem, cur: HoldingTAItem, prevDate:
         : null,
     dist52PctDelta: r2(cur.dist52Pct - prev.dist52Pct),
     volRatioDelta: r2(cur.volRatio - prev.volRatio),
+    nChanges,
   }
 }
 
