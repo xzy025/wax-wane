@@ -1316,6 +1316,52 @@
   margin-left: 4px;
 }
 
+/* N字运动行(红涨绿跌配色:strong=多方强→红,weak=弱→绿) */
+.hr-ta-nzi-title {
+  color: var(--purple, #a78bfa);
+  background: var(--line);
+}
+
+.hr-ta-nzi--strong {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.hr-ta-nzi--weak {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.hr-ta-nzi--sym {
+  color: var(--muted);
+  background: var(--line);
+}
+
+.hr-ta-nzi-win {
+  color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+.hr-ta-nzi-grade {
+  color: var(--ink);
+  background: var(--line);
+}
+
+.hr-ta-nzi-cont {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.hr-ta-nzi-anomaly {
+  color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.hr-ta-nzi-risk {
+  color: var(--orange);
+  background: var(--orange-soft);
+}
+
 .hr-ta-score {
   margin-left: auto;
   display: inline-flex;

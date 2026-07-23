@@ -623,6 +623,19 @@ export interface Translation {
       latest: string
       bench: { hs300: string; chinext: string; star50: string }
       noArchive: string
+      nzi: {
+        title: string
+        dayN: string
+        windowTag: string
+        grade: string
+        cont: string
+        target: string
+        holdRisk: string
+        roleStrength: {
+          F: { strong: string; sym: string; weak: string; plain: string }
+          H: { strong: string; sym: string; weak: string; plain: string }
+        }
+      }
     }
   }
   screener: {

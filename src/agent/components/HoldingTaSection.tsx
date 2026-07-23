@@ -1,5 +1,5 @@
-import { Warning, TrendUp, TrendDown } from 'phosphor-react'
-import type { HoldingTAItem, MAKey } from '../holdingsTA'
+import { Warning, TrendUp, TrendDown, Lightning } from 'phosphor-react'
+import type { HoldingTAItem, MAKey, NPatternResult } from '../holdingsTA'
 import { MA_KEYS } from '../holdingsTA'
 import type { Translation } from '../../types'
 import { fmtPrice } from '../holdingsFormat'
@@ -34,6 +34,7 @@ export function HoldingTaSection({ ta, t }: Props) {
     if (d.relStrengthDelta !== null && d.relStrengthDelta !== 0) {
       deltaParts.push(`RS${d.relStrengthDelta > 0 ? '+' : ''}${d.relStrengthDelta}pp`)
     }
+    if (d.nChanges?.length) deltaParts.push(...d.nChanges)
   }
 
   return (
@@ -77,6 +78,8 @@ export function HoldingTaSection({ ta, t }: Props) {
         </span>
       </div>
 
+      <NziRow np={ta.nPattern ?? null} t={t} />
+
       <div className="hr-ta-row hr-ta-levels">
         <span className="hr-level">
           {t.holdings.volumeRatio} <strong>{ta.volRatio.toFixed(2)}</strong>
@@ -114,6 +117,41 @@ export function HoldingTaSection({ ta, t }: Props) {
         <div className="hr-ta-delta">
           {h.deltaVs} {d.prevDate.slice(5)}: {deltaParts.join(' · ')}
         </div>
+      )}
+    </div>
+  )
+}
+
+/** N字运动行(角度强弱/时间窗/结构分级/异动/对称目标);无 nPattern(次新或波动过小)整行不渲染。 */
+function NziRow({ np, t }: { np: NPatternResult | null; t: Translation }) {
+  if (!np) return null
+  const nz = t.holdings.ta.nzi
+  const label =
+    np.strength === null ? nz.roleStrength[np.role].plain : nz.roleStrength[np.role][np.strength]
+  const strengthCls = np.strength === 'strong' ? 'strong' : np.strength === 'weak' ? 'weak' : 'sym'
+  return (
+    <div className="hr-ta-row hr-ta-nzi" title={np.note}>
+      <span className="hr-ta-chip hr-ta-nzi-title">{nz.title}</span>
+      <span className={`hr-ta-chip hr-ta-nzi--${strengthCls}`}>
+        {label} {nz.dayN.replace('{n}', String(np.active.days))}
+      </span>
+      {np.inWindow && <span className="hr-ta-chip hr-ta-nzi-win">{nz.windowTag.replace('{w}', np.inWindow)}</span>}
+      {np.grade && <span className="hr-ta-chip hr-ta-nzi-grade">{nz.grade.replace('{g}', np.grade)}</span>}
+      {np.nBreak && <span className="hr-ta-chip hr-ta-nzi-cont">{nz.cont}</span>}
+      {np.anomaly && (
+        <span className="hr-ta-chip hr-ta-nzi-anomaly" title={np.anomaly.note}>
+          <Lightning size={11} weight="fill" /> {np.anomaly.type}
+        </span>
+      )}
+      {np.holdRisk && (
+        <span className="hr-ta-chip hr-ta-nzi-risk">
+          <Warning size={11} weight="fill" /> {nz.holdRisk}
+        </span>
+      )}
+      {np.nTarget !== null && (
+        <span className="hr-level hr-mono">
+          {nz.target} <strong>{fmtPrice(np.nTarget)}</strong>
+        </span>
       )}
     </div>
   )

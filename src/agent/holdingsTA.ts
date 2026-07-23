@@ -25,6 +25,44 @@ export interface HoldingTADelta {
   relStrengthDelta: number | null
   dist52PctDelta: number
   volRatioDelta: number
+  /** N字运动变化(旧存档缺 nPattern 时为空数组;更旧的 delta 可能整个缺失)。 */
+  nChanges?: string[]
+}
+
+// ── N字运动(服务端 services/nPattern.ts 类型镜像)──
+export type NRole = 'F' | 'H'
+export type NStrength = 'strong' | 'sym' | 'weak'
+export type NGrade = 'A' | 'B' | 'C'
+
+export interface NLeg {
+  dir: 'up' | 'down'
+  days: number
+  fromDate: string
+  toDate: string
+  fromPrice: number
+  toPrice: number
+  pct: number
+  speed: number
+}
+
+export interface NAnomaly {
+  type: '抗跌转强' | '滞涨转弱' | 'V形反转' | '加速异动' | '反弹力竭'
+  note: string
+}
+
+export interface NPatternResult {
+  legs: NLeg[]
+  active: NLeg
+  role: NRole
+  strength: NStrength | null
+  speedRatio: number | null
+  grade: NGrade | null
+  inWindow: '6-8' | '11-13' | '23-25' | null
+  holdRisk: boolean
+  nBreak: boolean
+  nTarget: number | null
+  anomaly: NAnomaly | null
+  note: string
 }
 
 export interface HoldingTAItem {
@@ -48,6 +86,7 @@ export interface HoldingTAItem {
   atrStop: number
   pivotHigh250: number
   pivots: { r1: number; r2: number; s1: number; s2: number }
+  nPattern?: NPatternResult | null
   delta?: HoldingTADelta | null
   error?: string
 }

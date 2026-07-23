@@ -80,4 +80,49 @@ describe('HoldingTaSection', () => {
     const err = render(<HoldingTaSection ta={mkItem({ error: '取数失败' })} t={t} />)
     expect(err.container.firstChild).toBeNull()
   })
+
+  it('N字行:强弱标签/时间窗/分级/异动/目标全渲染;nPattern 缺省整行不渲染', () => {
+    const np = {
+      legs: [],
+      active: { dir: 'down' as const, days: 3, fromDate: '2026-07-18', toDate: '2026-07-21', fromPrice: 46, toPrice: 43, pct: -6.5, speed: 2.17 },
+      role: 'H' as const,
+      strength: 'strong' as const,
+      speedRatio: 0.54,
+      grade: 'A' as const,
+      inWindow: null,
+      holdRisk: false,
+      nBreak: false,
+      nTarget: 51.52,
+      anomaly: { type: '抗跌转强' as const, note: '当跌不跌' },
+      note: '强势回挡第3天·A级·⚡抗跌转强',
+    }
+    render(<HoldingTaSection ta={mkItem({ nPattern: np })} t={t} />)
+    expect(screen.getByText(/强势回挡/)).toBeInTheDocument()
+    expect(screen.getByText('A级')).toBeInTheDocument()
+    expect(screen.getByText(/抗跌转强/)).toBeInTheDocument()
+    expect(screen.getByText('51.52')).toBeInTheDocument()
+
+    const none = render(<HoldingTaSection ta={mkItem({ nPattern: null })} t={t} />)
+    expect(none.container.querySelector('.hr-ta-nzi')).toBeNull()
+  })
+
+  it('delta.nChanges 进汇总行', () => {
+    const item = mkItem({
+      delta: {
+        prevDate: '2026-07-18',
+        score01: 0,
+        biasChanged: null,
+        wyckoffChanged: null,
+        distributionNew: false,
+        maCrossings: [],
+        trendTemplateChanged: false,
+        relStrengthDelta: null,
+        dist52PctDelta: 0,
+        volRatioDelta: 0,
+        nChanges: ['N强弱:弱势反弹→强势反弹', '⚡抗跌转强'],
+      },
+    })
+    render(<HoldingTaSection ta={item} t={t} />)
+    expect(screen.getByText(/N强弱:弱势反弹→强势反弹/)).toBeInTheDocument()
+  })
 })
