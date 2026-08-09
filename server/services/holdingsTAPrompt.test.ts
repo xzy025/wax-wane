@@ -78,10 +78,20 @@ describe('buildHoldingsTAFacts', () => {
   })
 
   it('system prompt 含硬性规则(不编造/不荐股/字数/格式)', () => {
+    expect(HOLDINGS_TA_SYSTEM_PROMPT).toContain('A/H股')
     expect(HOLDINGS_TA_SYSTEM_PROMPT).toContain('禁止编造')
     expect(HOLDINGS_TA_SYSTEM_PROMPT).toContain('不荐股')
     expect(HOLDINGS_TA_SYSTEM_PROMPT).toContain('400 字')
     expect(HOLDINGS_TA_SYSTEM_PROMPT).toContain('一句话定调')
     expect(HOLDINGS_TA_SYSTEM_PROMPT).toContain('明日观察')
+  })
+
+  it('港股基准进入组合事实', () => {
+    const facts = buildHoldingsTAFacts({
+      ...mkResult([{ ...base, code: 'HK2476', market: 'HK' }]),
+      benchmarks: { hs300: 0, chinext: 0, star50: 0, hsi: 0.54, hstech: 0.78 },
+    })
+    expect(facts).toContain('恒指 +0.54%')
+    expect(facts).toContain('恒生科技 +0.78%')
   })
 })

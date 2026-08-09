@@ -3,7 +3,12 @@ import { ArrowsClockwise, Plus, CircleNotch, Moon, ChartLineUp, Wallet } from 'p
 import { useAppState } from '../../store'
 import { useManualHoldings } from '../holdingsStore'
 import { deriveAutoHoldings, mergeHoldings, type ManualHolding } from '../../engine/holdings'
-import { analyzeHolding, buildPortfolioSummary, type HoldingSignal, type PortfolioSummary } from '../holdingsReview'
+import {
+  analyzeHolding,
+  buildPortfolioSummary,
+  type HoldingSignal,
+  type PortfolioSummary,
+} from '../holdingsReview'
 import { fetchHoldingsTA, refreshHoldingsTACache, type HoldingsTAResult } from '../holdingsTA'
 import { getMarketStatus, type MarketPhase } from '../../utils/marketStatus'
 import type { Translation } from '../../types'
@@ -11,6 +16,7 @@ import { HoldingCard } from './HoldingCard'
 import { HoldingEditor } from './HoldingEditor'
 import { HoldingsNarrativeCard } from './HoldingsNarrativeCard'
 import { PortfolioSummaryBar } from './PortfolioSummaryBar'
+import { securityKey } from '../../utils/securityCode'
 
 interface Props {
   t: Translation
@@ -72,7 +78,9 @@ export function HoldingsReviewPanel({ t, language }: Props) {
     async (force = false) => {
       const id = ++taReqId.current
       if (force) await refreshHoldingsTACache()
-      const result = await fetchHoldingsTA(holdings.map((h) => ({ code: h.code, avgCost: h.avgCost })))
+      const result = await fetchHoldingsTA(
+        holdings.map((h) => ({ code: h.code, avgCost: h.avgCost })),
+      )
       if (id === taReqId.current) setTa(result)
     },
     [holdings],
@@ -93,7 +101,12 @@ export function HoldingsReviewPanel({ t, language }: Props) {
 
   const handleEdit = useCallback((signal: HoldingSignal) => {
     const { holding } = signal
-    setEditing({ code: holding.code, name: holding.name, quantity: holding.quantity, avgCost: holding.avgCost })
+    setEditing({
+      code: holding.code,
+      name: holding.name,
+      quantity: holding.quantity,
+      avgCost: holding.avgCost,
+    })
     setEditorOpen(true)
   }, [])
 
@@ -114,7 +127,10 @@ export function HoldingsReviewPanel({ t, language }: Props) {
     [addOrUpdate],
   )
 
-  const taByCode = useMemo(() => new Map((ta?.items ?? []).map((i) => [i.code, i])), [ta])
+  const taByCode = useMemo(
+    () => new Map((ta?.items ?? []).map((i) => [securityKey(i.code), i])),
+    [ta],
+  )
 
   const marketKey = PHASE_LABEL[market.phase]
   const MarketIcon = market.phase === 'open' ? ChartLineUp : Moon
@@ -137,7 +153,11 @@ export function HoldingsReviewPanel({ t, language }: Props) {
             }}
             disabled={loading}
           >
-            {loading ? <CircleNotch size={14} className="ai-spin" /> : <ArrowsClockwise size={14} />}
+            {loading ? (
+              <CircleNotch size={14} className="ai-spin" />
+            ) : (
+              <ArrowsClockwise size={14} />
+            )}
             {t.holdings.refresh}
           </button>
           <button type="button" className="hr-btn-primary" onClick={openAdd}>
@@ -168,7 +188,7 @@ export function HoldingsReviewPanel({ t, language }: Props) {
                 <HoldingCard
                   key={signal.holding.code}
                   signal={signal}
-                  ta={taByCode.get(signal.holding.code)}
+                  ta={taByCode.get(securityKey(signal.holding.code))}
                   appState={appState}
                   language={language}
                   t={t}

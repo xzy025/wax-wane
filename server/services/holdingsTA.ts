@@ -6,12 +6,14 @@
 import { mkdirSync, writeFileSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { shanghaiClock, isAShareSession } from '../lib/cache'
+import { shanghaiClock } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import { llmComplete, isLLMConfigured } from '../lib/llmComplete'
 import { HOLDINGS, SCREENER } from '../config/screener'
 import { fetchStockKline, fetchIndexKline, mapLimit } from './ashare'
+import { fetchHKData, fetchHKStockKline } from './hk'
 import { enrichRelStrength, type Bar } from './screenerRules'
+import { normalizeSecurityCode, type SecurityMarket } from './securityCode'
 import { shouldGenerateNarrative } from './dailyReview'
 import { extractTone } from './dailyReviewPrompt'
 import { buildHoldingsTAFacts, HOLDINGS_TA_SYSTEM_PROMPT } from './holdingsTAPrompt'
@@ -39,6 +41,9 @@ let lastNarrativeAttempt = 0
 
 export interface HoldingsTAPosition {
   code: string
+  market?: SecurityMarket
+  /** Provider-facing normalized symbol; populated by the API/service normalizer. */
+  symbol?: string
   /** 仅供 LLM 叙事的浮盈上下文;TA 计算不依赖,也绝不落盘。 */
   avgCost?: number
 }
@@ -52,8 +57,9 @@ export function clearHoldingsTACache(): void {
   cached = null
 }
 
-const errorItem = (code: string, error: string): HoldingTAItem => ({
+const errorItem = (code: string, market: SecurityMarket, error: string): HoldingTAItem => ({
   code,
+  market,
   name: code,
   date: '',
   close: 0,
@@ -75,8 +81,23 @@ const errorItem = (code: string, error: string): HoldingTAItem => ({
   error,
 })
 
-/** 三基准当日涨跌幅(沪深300/创业板指/科创50);单基准失败兜 0(退化为绝对涨跌幅口径)。 */
-async function fetchBenchmarks(): Promise<HoldingsTAResult['benchmarks']> {
+function normalizePositions(positions: HoldingsTAPosition[]): HoldingsTAPosition[] {
+  const out = new Map<string, HoldingsTAPosition>()
+  for (const position of positions) {
+    const normalized = normalizeSecurityCode(position.symbol ?? position.code, position.market)
+    if (!normalized || out.has(normalized.key)) continue
+    out.set(normalized.key, {
+      code: normalized.canonicalCode,
+      market: normalized.market,
+      symbol: normalized.symbol,
+      avgCost: position.avgCost,
+    })
+  }
+  return [...out.values()]
+}
+
+/** A/H benchmarks; a failed benchmark degrades to absolute daily change rather than failing the pack. */
+async function fetchBenchmarks(markets: ReadonlySet<SecurityMarket>): Promise<HoldingsTAResult['benchmarks']> {
   const chgOf = async (secid: string): Promise<number> => {
     try {
       const k = await fetchIndexKline(secid, 2)
@@ -86,12 +107,23 @@ async function fetchBenchmarks(): Promise<HoldingsTAResult['benchmarks']> {
       return 0
     }
   }
-  const [hs300, chinext, star50] = await Promise.all([
-    chgOf(SCREENER.MARKET_INDEX_SECID),
-    chgOf(SCREENER.CHINEXT_INDEX_SECID),
-    chgOf(SCREENER.STAR50_INDEX_SECID),
-  ])
-  return { hs300, chinext, star50 }
+  const aBench = markets.has('A')
+    ? Promise.all([
+        chgOf(SCREENER.MARKET_INDEX_SECID),
+        chgOf(SCREENER.CHINEXT_INDEX_SECID),
+        chgOf(SCREENER.STAR50_INDEX_SECID),
+      ])
+    : Promise.resolve([0, 0, 0])
+  const hkBench = markets.has('HK')
+    ? fetchHKData()
+        .then((data) => ({
+          hsi: data.indices.find((i) => i.code === 'HSI')?.changePct ?? 0,
+          hstech: data.indices.find((i) => i.code === 'HSTECH')?.changePct ?? 0,
+        }))
+        .catch(() => ({ hsi: 0, hstech: 0 }))
+    : Promise.resolve({ hsi: 0, hstech: 0 })
+  const [[hs300, chinext, star50], { hsi, hstech }] = await Promise.all([aBench, hkBench])
+  return { hs300, chinext, star50, hsi, hstech }
 }
 
 /** 信号日 = 各成功票最后 K 线日期的众数(平票取较新;全失败 → 今日上海日)。 */
@@ -161,28 +193,39 @@ function writeArchive(result: HoldingsTAResult): void {
 }
 
 async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResult> {
-  const codes = [...new Set(positions.map((p) => p.code))]
+  const markets = new Set(positions.map((p) => p.market ?? 'A'))
   const [items, benchmarks] = await Promise.all([
-    mapLimit(codes, HOLDINGS.CONCURRENCY, async (code): Promise<HoldingTAItem> => {
+    mapLimit(positions, HOLDINGS.CONCURRENCY, async (position): Promise<HoldingTAItem> => {
+      const market = position.market ?? 'A'
+      const symbol = position.symbol ?? position.code
       try {
-        const { name, klines } = await fetchStockKline(code, 101, HOLDINGS.KLINE_COUNT)
-        return buildHoldingTAFromBars(code, name || code, klines as Bar[]) ?? errorItem(code, 'K线不足')
+        const { name, klines } = market === 'HK'
+          ? await fetchHKStockKline(symbol, 101, HOLDINGS.KLINE_COUNT)
+          : await fetchStockKline(symbol, 101, HOLDINGS.KLINE_COUNT)
+        return buildHoldingTAFromBars(position.code, name || position.code, klines as Bar[], HOLDINGS, market) ??
+          errorItem(position.code, market, 'K线不足')
       } catch (err) {
-        return errorItem(code, err instanceof Error ? err.message : 'K线获取失败')
+        return errorItem(position.code, market, err instanceof Error ? err.message : 'K线获取失败')
       }
     }),
-    fetchBenchmarks(),
+    fetchBenchmarks(markets),
   ])
 
-  // 相对大盘强度:按板块动态换基准(300/301→创业板指、688→科创50,同 screener.relBenchmarkFor 口径)。
+  // 相对大盘强度:A股按板块动态基准;港股电子科技持仓统一用恒生科技指数。
   const benchFor = (code: string): number =>
     code.startsWith('300') || code.startsWith('301') ? benchmarks.chinext
       : code.startsWith('688') ? benchmarks.star50
       : benchmarks.hs300
-  enrichRelStrength(items.filter((i) => !i.error), benchFor, SCREENER.RELSTR.CRASH_DAY_PCT)
+  const okItems = items.filter((i) => !i.error)
+  enrichRelStrength(okItems.filter((i) => (i.market ?? 'A') === 'A'), benchFor, SCREENER.RELSTR.CRASH_DAY_PCT)
+  enrichRelStrength(
+    okItems.filter((i) => i.market === 'HK'),
+    () => benchmarks.hstech ?? benchmarks.hsi ?? 0,
+    SCREENER.RELSTR.CRASH_DAY_PCT,
+  )
 
   const date = signalDate(items)
-  const settled = isSettledClock(shanghaiClock())
+  const settled = isSettledClock(shanghaiClock(), [...markets])
 
   // 与上一份存档(最近早于信号日)做 delta;漏档日自动回退到再往前最近一档。
   const prevRef = pickPrevArchiveName(listArchiveFiles(), date)
@@ -191,9 +234,10 @@ async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResul
     const prevArchive = loadArchiveFile(prevRef.filename)
     if (prevArchive) {
       prevDate = prevRef.date
-      const prevByCode = new Map(prevArchive.items.filter((i) => !i.error).map((i) => [i.code, i]))
+      const itemKey = (i: HoldingTAItem) => `${i.market ?? 'A'}:${i.code}`
+      const prevByCode = new Map(prevArchive.items.filter((i) => !i.error).map((i) => [itemKey(i), i]))
       for (const it of items) {
-        const prev = it.error ? undefined : prevByCode.get(it.code)
+        const prev = it.error ? undefined : prevByCode.get(itemKey(it))
         if (prev) it.delta = diffHoldingTA(prev, it, prevRef.date)
       }
     }
@@ -240,7 +284,8 @@ async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResul
 
 /** 取持仓深度 TA(单槽缓存 + in-flight 去重;持仓集合变化即重算)。 */
 export async function fetchHoldingsTA(positions: HoldingsTAPosition[]): Promise<HoldingsTAResult> {
-  if (positions.length === 0) {
+  const normalized = normalizePositions(positions)
+  if (normalized.length === 0) {
     return {
       date: todayShanghai(),
       generatedAt: new Date().toISOString(),
@@ -251,13 +296,14 @@ export async function fetchHoldingsTA(positions: HoldingsTAPosition[]): Promise<
       narrative: null,
     }
   }
-  const key = codesKey(positions.map((p) => p.code))
-  const ttl = isAShareSession() ? LIVE_TTL : CLOSED_TTL
+  const key = codesKey(normalized.map((p) => `${p.market}:${p.symbol}`))
+  const markets = [...new Set(normalized.map((p) => p.market ?? 'A'))]
+  const ttl = isSettledClock(shanghaiClock(), markets) ? CLOSED_TTL : LIVE_TTL
   if (cached && cached.key === key && Date.now() - cached.at < ttl) {
     const clock = shanghaiClock()
     // 新鲜度修正:盘中算出的 live 值(settled=false)跨过 15:10 会被 12h 长 TTL"追认新鲜",
     // 盘后所有请求都命中它、永远等不到定盘档——时钟已定盘而缓存仍 live 时强制过期重算。
-    const staleLive = cached.result.settled === false && isSettledClock(clock)
+    const staleLive = cached.result.settled === false && isSettledClock(clock, markets)
     // 叙事惰性补生成:定盘缓存值无叙事且 LLM 可用、盘后门控开、离上次失败 ≥30 分钟 → 重算一次。
     const retryNarrative =
       cached.result.narrative === null &&
@@ -269,7 +315,7 @@ export async function fetchHoldingsTA(positions: HoldingsTAPosition[]): Promise<
     if (!staleLive && !retryNarrative) return cached.result
   }
   if (inflight && inflight.key === key) return inflight.p
-  const p = compute(positions)
+  const p = compute(normalized)
     .then((r) => {
       cached = { key, at: Date.now(), result: r }
       return r

@@ -11,6 +11,8 @@ import {
 import { searchWeb, searchStockNews } from '../services/webSearch'
 import { fetchNewsFeed } from '../services/news'
 import { fetchMacroData } from '../services/macro'
+import { fetchHKStockKline } from '../services/hk'
+import { normalizeSecurityCode } from '../services/securityCode'
 import { searchSimilar, getDocumentCount } from '../rag/vectorStore'
 import { hybridSearch } from '../rag/hybridSearch'
 import { syncTradeGroups, resetAndSyncAll } from '../rag/ragSync'
@@ -59,12 +61,15 @@ router.get('/api/stock/kline', async (req, res) => {
   const code = req.query.code as string | undefined
   const period = parseInt(req.query.period as string) || 101
   const count = parseInt(req.query.count as string) || 30
-  if (!code || !/^\d{6}$/.test(code)) {
-    res.status(400).json({ error: 'Missing or invalid ?code= (6-digit stock code)' })
+  const security = normalizeSecurityCode(code, req.query.market)
+  if (!security) {
+    res.status(400).json({ error: 'Missing or invalid ?code= (A: 300476; HK: HK2476 / 02476)' })
     return
   }
   try {
-    const data = await fetchStockKline(code, period, count)
+    const data = security.market === 'HK'
+      ? await fetchHKStockKline(security.symbol, period, count)
+      : await fetchStockKline(security.symbol, period, count)
     res.json(data)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'

@@ -4,7 +4,7 @@
 // avgCost 只在这里换算成浮盈%喂给叙事,原值不落盘。
 import type { HoldingTAItem, HoldingsTAResult } from './holdingsTARules'
 
-export const HOLDINGS_TA_SYSTEM_PROMPT = `你是一位克制、专业的A股持仓技术面复盘助手。根据用户提供的持仓结构化技术数据,写一段简短的中文盘后持仓综述。硬性规则:
+export const HOLDINGS_TA_SYSTEM_PROMPT = `你是一位克制、专业的A/H股持仓技术面复盘助手。根据用户提供的持仓结构化技术数据,写一段简短的中文盘后持仓综述。硬性规则:
 1. 只使用提供的数据,禁止编造任何数字、个股、事件;数据缺失的部分直接跳过不提。
 2. 不做投资建议、不荐股、不预测点位;用"关注/留意/观察"而非"买入/卖出/加仓/清仓"。
 3. 全文不超过 400 字。
@@ -86,6 +86,9 @@ export function buildHoldingsTAFacts(
     const b = r.benchmarks
     if (b.hs300 !== 0 || b.chinext !== 0 || b.star50 !== 0) {
       parts.push(`基准:沪深300 ${pct(b.hs300)} / 创业板指 ${pct(b.chinext)} / 科创50 ${pct(b.star50)}`)
+    }
+    if ((b.hsi ?? 0) !== 0 || (b.hstech ?? 0) !== 0) {
+      parts.push(`港股基准:恒指 ${pct(b.hsi ?? 0)} / 恒生科技 ${pct(b.hstech ?? 0)}`)
     }
     secs.push(`【组合】${parts.join(';')}`)
   }

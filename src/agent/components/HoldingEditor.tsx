@@ -3,6 +3,7 @@ import { X, CircleNotch } from 'phosphor-react'
 import type { ManualHolding } from '../../engine/holdings'
 import type { Translation } from '../../types'
 import { getStockQuote } from '../tools/getStockQuote'
+import { normalizeSecurityCode } from '../../utils/securityCode'
 
 interface Props {
   initial?: ManualHolding | null
@@ -20,12 +21,15 @@ export function HoldingEditor({ initial, onSave, onCancel, t }: Props) {
   const [resolving, setResolving] = useState(false)
   const [error, setError] = useState('')
 
-  // Auto-resolve the name from the live quote once a 6-digit code is entered.
+  // Auto-resolve A-share and HK names from the matching quote source.
   const resolveName = useCallback(async (c: string) => {
-    if (!/^\d{6}$/.test(c)) return
+    const security = normalizeSecurityCode(c)
+    if (!security) return
     setResolving(true)
     try {
-      const q = (await getStockQuote.execute({ stockCode: c })) as { name?: string } | null
+      const q = (await getStockQuote.execute({ stockCode: security.canonicalCode })) as {
+        name?: string
+      } | null
       if (q?.name) setName(q.name)
     } catch {
       /* ignore — name stays manual */
@@ -37,11 +41,13 @@ export function HoldingEditor({ initial, onSave, onCancel, t }: Props) {
   function handleSave() {
     const qty = Number(quantity)
     const cost = Number(avgCost)
-    if (!/^\d{6}$/.test(code) || !(qty > 0) || !(cost > 0)) {
+    const security = normalizeSecurityCode(code)
+    if (!security || !(qty > 0) || !(cost > 0)) {
       setError(e.invalid)
       return
     }
-    onSave({ code, name: name || code, quantity: qty, avgCost: cost })
+    const storedCode = initial?.code ?? security.canonicalCode
+    onSave({ code: storedCode, name: name || storedCode, quantity: qty, avgCost: cost })
   }
 
   return (

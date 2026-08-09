@@ -67,6 +67,7 @@ export interface NPatternResult {
 
 export interface HoldingTAItem {
   code: string
+  market?: 'A' | 'HK'
   name: string
   date: string
   close: number
@@ -102,18 +103,21 @@ export interface HoldingsTAResult {
   generatedAt: string
   settled: boolean
   prevDate: string | null
-  benchmarks: { hs300: number; chinext: number; star50: number }
+  benchmarks: { hs300: number; chinext: number; star50: number; hsi?: number; hstech?: number }
   items: HoldingTAItem[]
   narrative: HoldingsTANarrative | null
 }
 
 export interface HoldingsTAPosition {
   code: string
+  market?: 'A' | 'HK'
   avgCost?: number
 }
 
 /** 深度 TA 整包(POST:avgCost 属个人数据不进 URL)。失败 → null。 */
-export async function fetchHoldingsTA(positions: HoldingsTAPosition[]): Promise<HoldingsTAResult | null> {
+export async function fetchHoldingsTA(
+  positions: HoldingsTAPosition[],
+): Promise<HoldingsTAResult | null> {
   if (positions.length === 0) return null
   try {
     const res = await fetch('/api/holdings/ta', {

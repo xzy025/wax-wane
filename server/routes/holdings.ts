@@ -8,8 +8,22 @@ import {
   type HoldingsTAPosition,
 } from '../services/holdingsTA'
 import { HOLDINGS } from '../config/screener'
+import { normalizeSecurityCode } from '../services/securityCode'
 
 const router = Router()
+
+export function parseHoldingPosition(value: unknown): HoldingsTAPosition | null {
+  if (typeof value !== 'object' || value === null) return null
+  const { code, market, avgCost } = value as { code?: unknown; market?: unknown; avgCost?: unknown }
+  const normalized = normalizeSecurityCode(code, market)
+  if (!normalized) return null
+  return {
+    code: normalized.canonicalCode,
+    market: normalized.market,
+    symbol: normalized.symbol,
+    avgCost: typeof avgCost === 'number' && avgCost > 0 ? avgCost : undefined,
+  }
+}
 
 // POST /api/holdings/ta {positions:[{code,avgCost?}]} → 深度TA整包(空持仓直接空包,不打上游)。
 router.post('/api/holdings/ta', async (req, res) => {
@@ -21,11 +35,12 @@ router.post('/api/holdings/ta', async (req, res) => {
   const seen = new Set<string>()
   const positions: HoldingsTAPosition[] = []
   for (const p of raw) {
-    if (typeof p !== 'object' || p === null) continue
-    const { code, avgCost } = p as { code?: unknown; avgCost?: unknown }
-    if (typeof code !== 'string' || !/^\d{6}$/.test(code) || seen.has(code)) continue
-    seen.add(code)
-    positions.push({ code, avgCost: typeof avgCost === 'number' && avgCost > 0 ? avgCost : undefined })
+    const position = parseHoldingPosition(p)
+    if (!position) continue
+    const key = `${position.market}:${position.symbol}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    positions.push(position)
   }
   if (positions.length > HOLDINGS.MAX_CODES) {
     res.status(400).json({ error: `持仓代码过多(上限 ${HOLDINGS.MAX_CODES})` })

@@ -8,7 +8,15 @@ afterEach(() => {
 })
 
 describe('fetchHoldingsTA', () => {
-  const result = { date: '2026-07-21', generatedAt: 'x', settled: true, prevDate: null, benchmarks: { hs300: 0, chinext: 0, star50: 0 }, items: [], narrative: null }
+  const result = {
+    date: '2026-07-21',
+    generatedAt: 'x',
+    settled: true,
+    prevDate: null,
+    benchmarks: { hs300: 0, chinext: 0, star50: 0 },
+    items: [],
+    narrative: null,
+  }
 
   it('POST 上报持仓,正常 shape 透传', async () => {
     const mock = vi.fn().mockImplementation(() => okJson(result))
@@ -17,7 +25,22 @@ describe('fetchHoldingsTA', () => {
     expect(r?.date).toBe('2026-07-21')
     expect(mock).toHaveBeenCalledWith(
       '/api/holdings/ta',
-      expect.objectContaining({ method: 'POST', body: JSON.stringify({ positions: [{ code: '600176', avgCost: 30 }] }) }),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ positions: [{ code: '600176', avgCost: 30 }] }),
+      }),
+    )
+  })
+
+  it('港股 market/code 原样上报,交由服务端统一规范化', async () => {
+    const mock = vi.fn().mockImplementation(() => okJson(result))
+    vi.stubGlobal('fetch', mock)
+    await fetchHoldingsTA([{ code: 'HK2476', market: 'HK', avgCost: 380 }])
+    expect(mock).toHaveBeenCalledWith(
+      '/api/holdings/ta',
+      expect.objectContaining({
+        body: JSON.stringify({ positions: [{ code: 'HK2476', market: 'HK', avgCost: 380 }] }),
+      }),
     )
   })
 
@@ -33,14 +56,20 @@ describe('fetchHoldingsTA', () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
     expect(await fetchHoldingsTA([{ code: '600176' }])).toBeNull()
 
-    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => okJson({ nope: 1 })))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(() => okJson({ nope: 1 })),
+    )
     expect(await fetchHoldingsTA([{ code: '600176' }])).toBeNull()
   })
 })
 
 describe('archive fetches', () => {
   it('日期清单透传,失败 → []', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => okJson({ dates: ['2026-07-21', '2026-07-18'] })))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(() => okJson({ dates: ['2026-07-21', '2026-07-18'] })),
+    )
     expect(await fetchTaArchiveDates()).toEqual(['2026-07-21', '2026-07-18'])
 
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))

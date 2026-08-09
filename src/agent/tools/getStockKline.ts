@@ -1,9 +1,10 @@
 import type { ToolModule } from '../types'
+import { normalizeSecurityCode } from '../../utils/securityCode'
 
 export const schema = {
   name: 'getStockKline',
   description:
-    '获取A股个股K线历史数据（日线/周线/月线）。' +
+    '获取A股或港股个股K线历史数据（日线/周线/月线）。' +
     '返回每根K线的日期、开盘、收盘、最高、最低、成交量、涨跌幅等。' +
     '用于技术面分析：Wyckoff阶段判断、道氏理论趋势、Al Brooks形态识别、支撑阻力位。',
   parameters: {
@@ -11,7 +12,7 @@ export const schema = {
     properties: {
       stockCode: {
         type: 'string',
-        description: '6位股票代码，如 "300750"（宁德时代）',
+        description: 'A股代码如 300750，港股代码如 HK2476 或 02476',
       },
       period: {
         type: 'number',
@@ -31,11 +32,16 @@ export async function execute(args: Record<string, unknown>): Promise<unknown> {
   const period = typeof args.period === 'number' ? args.period : 101
   const count = typeof args.count === 'number' ? args.count : 30
 
-  if (!code || !/^\d{6}$/.test(code)) {
-    return { error: 'Invalid stock code. Provide a 6-digit code like "300750".' }
+  const security = normalizeSecurityCode(code)
+  if (!security) {
+    return {
+      error: 'Invalid stock code. Use an A-share code like 300750 or an HK code like HK2476.',
+    }
   }
 
-  const res = await fetch(`/api/stock/kline?code=${code}&period=${period}&count=${count}`)
+  const res = await fetch(
+    `/api/stock/kline?code=${encodeURIComponent(security.canonicalCode)}&period=${period}&count=${count}`,
+  )
   if (!res.ok) {
     const text = await res.text()
     return { error: `Failed to fetch K-line: ${res.status} ${text}` }
