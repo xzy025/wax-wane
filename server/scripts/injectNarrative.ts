@@ -122,7 +122,7 @@ const digest: string[] = []
   if (snap) {
     const GROUPS: Array<[string, string]> = [
       ['breakout', '突破'], ['trigger', '扳机'], ['watch', '临界'], ['pullback', '回调'],
-      ['highdiv', '新高分歧'], ['volbreak', '放量新高'], ['fundres', '资金共振'], ['bhold', '突破整理'],
+      ['highdiv', '新高分歧'], ['volbreak', '放量新高'], ['bigbreak', '大形态突破'], ['fundres', '资金共振'], ['bhold', '突破整理'],
       ['trendnew', '趋势新高'], ['trendwatch', '趋势中军'], ['accum', '放量吸筹'],
     ]
     const counts = GROUPS.map(([k, label]) => `${label}${Array.isArray(snap[k]) ? snap[k].length : 0}`).join('·')

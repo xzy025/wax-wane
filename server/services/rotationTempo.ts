@@ -14,6 +14,7 @@ import { fetchStockKline } from './ashare'
 import {
   ROTATION,
   fetchBoardUniverse,
+  selectRotationUniverse,
   fetchBoardConstituents,
   getBoardBars,
   mapLimit,
@@ -205,10 +206,9 @@ async function computeTempoFresh(): Promise<RotationTempoResult> {
     fetchBoardUniverse('industry').catch(() => [] as BoardMeta[]),
     fetchBoardUniverse('concept').catch(() => [] as BoardMeta[]),
   ])
-  const cap = (a: BoardMeta[]) => [...a].sort((x, y) => y.amount - x.amount).slice(0, TEMPO_SVC.CAT_CAP)
   const universe: { meta: BoardMeta; source: TempoSource }[] = [
-    ...cap(industry).map((meta) => ({ meta, source: 'em-industry' as const })),
-    ...cap(concept).map((meta) => ({ meta, source: 'em-concept' as const })),
+    ...selectRotationUniverse('industry', industry, TEMPO_SVC.CAT_CAP).map((meta) => ({ meta, source: 'em-industry' as const })),
+    ...selectRotationUniverse('concept', concept, TEMPO_SVC.CAT_CAP).map((meta) => ({ meta, source: 'em-concept' as const })),
   ]
 
   // 波1:东财板块日K(便宜,EM 活着时全走这条)。

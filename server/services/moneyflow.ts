@@ -10,6 +10,10 @@ import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { toSecids } from './emQuotes'
 import { classifySeat } from '../config/hotMoneySeats'
+import { fetchIndexKline } from './ashare'
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'fs'
+import { dirname, join } from 'path'
+import { fileURLToPath } from 'url'
 
 const TOP_SEATS = 3 // 每只票主要买/卖营业部保留前 N
 const MAX_CONCEPTS = 3 // 每只票概念标签保留前 N
@@ -54,11 +58,15 @@ export interface ConceptTally {
 
 export interface DragonTigerResult {
   tradeDate: string // YYYY-MM-DD
+  window: 1 | 3 | 5
+  windowDates: string[] // 实际参与聚合的交易日，便于核验窗口没有被静默缩短
   buy: LhbStock[] // 净流入（netAmt>0），按净额降序
   sell: LhbStock[] // 净流出（netAmt<0），按净额升序（最负在前）
   summary: DragonTigerSummary
   concepts: ConceptTally[] // 概念 → 出现次数，供筛选 chips（按次数降序）
   lastUpdated: string
+  status: 'provisional' | 'complete'
+  fromSnapshot?: boolean
 }
 
 /** 主报表聚合前的单行（个股可多次上榜，对应多条原因）。 */
@@ -80,7 +88,11 @@ type LhbCore = Omit<LhbStock, 'days' | 'concepts' | 'buySeats' | 'sellSeats'>
 /** 带 days 的聚合个股（窗口聚合产物）。 */
 type LhbWithDays = Omit<LhbStock, 'concepts' | 'buySeats' | 'sellSeats'>
 
-/** 把同股多条上榜记录按个股聚合：金额累加、原因去重连接、dealAmt=buy+sell。按净额降序。 */
+/**
+ * 把同股多条上榜记录归一为一行。
+ * 同一股票可能因涨幅、换手、连续三日偏离等多个原因重复披露同一组席位，
+ * 这些金额不是可相加的独立成交。保留成交额最大的一条作为资金口径，原因合并展示。
+ */
 export function dedupeLhbByCode(rows: RawLhbRow[]): LhbCore[] {
   const byCode = new Map<string, LhbCore>()
   for (const r of rows) {
@@ -98,14 +110,40 @@ export function dedupeLhbByCode(rows: RawLhbRow[]): LhbCore[] {
         reason: r.reason || '',
       })
     } else {
-      cur.buyAmt += r.buyAmt
-      cur.sellAmt += r.sellAmt
-      cur.netAmt += r.netAmt
-      cur.dealAmt = cur.buyAmt + cur.sellAmt
-      if (r.reason && !cur.reason.includes(r.reason)) cur.reason = [cur.reason, r.reason].filter(Boolean).join('; ')
+      if (r.buyAmt + r.sellAmt > cur.dealAmt) {
+        cur.name = r.name
+        cur.close = r.close
+        cur.changePct = r.changePct
+        cur.buyAmt = r.buyAmt
+        cur.sellAmt = r.sellAmt
+        cur.netAmt = r.netAmt
+        cur.dealAmt = r.buyAmt + r.sellAmt
+      }
+      const reasons = new Set(cur.reason.split('; ').filter(Boolean))
+      if (r.reason) reasons.add(r.reason)
+      cur.reason = [...reasons].join('; ')
     }
   }
   return [...byCode.values()].sort((a, b) => b.netAmt - a.netAmt)
+}
+
+/** 从上榜原因识别官方统计周期；长窗因子只累计单日披露，避免把三日累计额再次叠加。 */
+export function disclosureCycleDays(reason: string): number {
+  if (/连续\s*(?:三个|3个).*交易日|连续\s*3\s*个.*交易日/i.test(reason)) return 3
+  if (/连续\s*(?:三十个|30个).*交易日|连续\s*30\s*个.*交易日/i.test(reason)) return 30
+  return 1
+}
+
+/** 同一交易日同股同席位可能因多个上榜原因重复出现；只保留金额最大的一条。 */
+export function dedupeSeatRows<T extends { code: string; name: string; amount: number }>(rows: T[]): T[] {
+  const unique = new Map<string, T>()
+  for (const r of rows) {
+    if (!r.code || !r.name) continue
+    const key = `${r.code}\u0000${r.name}`
+    const prev = unique.get(key)
+    if (!prev || r.amount > prev.amount) unique.set(key, r)
+  }
+  return [...unique.values()]
 }
 
 /**
@@ -347,19 +385,26 @@ async function fetchMainReport(date?: string): Promise<{ tradeDate: string; rows
 async function fetchSeatRows(
   date: string,
   side: 'BUY' | 'SELL',
-): Promise<Array<{ code: string; name: string; amount: number }>> {
+): Promise<Array<{ code: string; name: string; amount: number; cycleDays: number }>> {
   try {
     const reportName = side === 'BUY' ? 'RPT_BILLBOARD_DAILYDETAILSBUY' : 'RPT_BILLBOARD_DAILYDETAILSSELL'
     const amountCol = side === 'BUY' ? 'BUY' : 'SELL'
     const url =
       `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=${reportName}` +
-      `&columns=SECURITY_CODE,OPERATEDEPT_NAME,${amountCol}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
+      `&columns=SECURITY_CODE,OPERATEDEPT_NAME,EXPLANATION,${amountCol}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
       `&filter=(TRADE_DATE='${date}')`
     const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
     if (!res.ok) return []
     const json = (await res.json()) as any
     const data: any[] = json.result?.data ?? []
-    return data.map((d) => ({ code: d.SECURITY_CODE, name: d.OPERATEDEPT_NAME, amount: Number(d[amountCol]) || 0 }))
+    return dedupeSeatRows(
+      data.map((d) => ({
+        code: d.SECURITY_CODE,
+        name: d.OPERATEDEPT_NAME,
+        amount: Number(d[amountCol]) || 0,
+        cycleDays: disclosureCycleDays(String(d.EXPLANATION ?? '')),
+      })),
+    )
   } catch (err) {
     console.warn(`[DragonTiger] ${side} seat fetch failed:`, err instanceof Error ? err.message : err)
     return []
@@ -416,21 +461,21 @@ interface DatesEntry {
 const datesCache = new Map<string, DatesEntry>()
 const DATES_TTL = 30 * 60_000
 
-/** 最近交易日（降序）。`upto` 给定则只取 ≤ upto 的；distinct TRADE_DATE 即真实交易日（周末/节假日自动缺席）。 */
+/**
+ * 最近交易日（降序）。用沪深300日线作为交易日历。
+ * 旧实现从前 800 条龙虎榜明细 distinct 日期，每日几十至数百行，只能得到约 4~8 个交易日，
+ * 使长窗口被静默截短。
+ */
 export async function fetchTradingDates(upto?: string): Promise<string[]> {
   const key = upto ?? 'latest'
   const hit = datesCache.get(key)
   if (hit && hit.expires > Date.now()) return hit.dates
   try {
-    const filter = upto ? `&filter=(TRADE_DATE<='${upto}')` : ''
-    const url =
-      `http://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=TRADE_DATE&sortTypes=-1&pageSize=800&pageNumber=1` +
-      `&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=TRADE_DATE&source=WEB&client=WEB${filter}`
-    const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
-    if (!res.ok) return []
-    const json = (await res.json()) as any
-    const data: any[] = json.result?.data ?? []
-    const dates = [...new Set(data.map((d) => String(d.TRADE_DATE).slice(0, 10)))].sort((a, b) => (a < b ? 1 : -1))
+    const bars = await fetchIndexKline('1.000300', 320)
+    const dates = bars
+      .map((b) => b.date)
+      .filter((d) => d && (!upto || d <= upto))
+      .sort((a, b) => (a < b ? 1 : -1))
     // 空日历=上游异常(龙虎榜交易日不可能为空),不缓存,下次调用重试。
     if (dates.length > 0) datesCache.set(key, { dates, expires: Date.now() + DATES_TTL })
     return dates
@@ -445,7 +490,8 @@ export async function fetchTradingDates(upto?: string): Promise<string[]> {
 /** 某交易日龙虎榜「按个股聚合的净买入」精简行(无营业部/概念)。回测/因子用。 */
 export async function fetchBillboardRows(date: string): Promise<Array<{ code: string; name: string; netAmt: number }>> {
   const main = await fetchMainReport(date)
-  return dedupeLhbByCode(main.rows).map((s) => ({ code: s.code, name: s.name, netAmt: s.netAmt }))
+  return dedupeLhbByCode(main.rows.filter((r) => disclosureCycleDays(r.reason) === 1))
+    .map((s) => ({ code: s.code, name: s.name, netAmt: s.netAmt }))
 }
 
 /** 某交易日各类席位(机构专用 / 游资)的按个股净买入(买-卖)。
@@ -470,13 +516,14 @@ export async function fetchSeatNetByDate(date: string): Promise<Map<string, Seat
     try {
       const url =
         `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=${report}` +
-        `&columns=SECURITY_CODE,OPERATEDEPT_NAME,${col}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
+        `&columns=SECURITY_CODE,OPERATEDEPT_NAME,EXPLANATION,${col}&source=WEB&client=WEB&pageNumber=1&pageSize=2000` +
         `&filter=(TRADE_DATE='${date}')`
       const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) continue
       const json = (await res.json()) as any
       const data: any[] = json.result?.data ?? []
       for (const d of data) {
+        if (disclosureCycleDays(String(d.EXPLANATION ?? '')) !== 1) continue
         const cls = classifySeat(String(d.OPERATEDEPT_NAME ?? ''))
         if (cls !== 'inst' && cls !== 'hot') continue // 普通营业部/北向 不计
         const code = String(d.SECURITY_CODE ?? '')
@@ -514,6 +561,64 @@ export async function fetchInstitutionalNetByDate(
 // ── 主流程 ───────────────────────────────────────────────
 
 const WINDOW_TOP_N = 50 // 3日/5日榜每侧展示/抓概念上限（汇总仍用全量）
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const SNAPSHOT_DIR = join(__dirname, '..', '..', 'docs', 'moneyflow')
+const SNAPSHOT_RE = /^lhb-(\d{4}-\d{2}-\d{2})\.json$/
+
+function isDragonTigerResult(v: unknown): v is DragonTigerResult {
+  if (typeof v !== 'object' || v === null) return false
+  const r = v as Record<string, unknown>
+  return typeof r.tradeDate === 'string' && Array.isArray(r.buy) && Array.isArray(r.sell)
+}
+
+function loadDailySnapshot(date: string): DragonTigerResult | null {
+  try {
+    const raw = JSON.parse(readFileSync(join(SNAPSHOT_DIR, `lhb-${date}.json`), 'utf8'))
+    if (!isDragonTigerResult(raw)) return null
+    return {
+      ...raw,
+      window: 1,
+      windowDates: [date],
+      status: date < shanghaiDateStr() ? 'complete' : raw.status,
+      fromSnapshot: true,
+    }
+  } catch {
+    return null
+  }
+}
+
+function loadLatestDailySnapshot(): DragonTigerResult | null {
+  try {
+    let latest = ''
+    for (const filename of readdirSync(SNAPSHOT_DIR)) {
+      const m = SNAPSHOT_RE.exec(filename)
+      if (m && m[1] > latest) latest = m[1]
+    }
+    return latest ? loadDailySnapshot(latest) : null
+  } catch {
+    return null
+  }
+}
+
+function writeDailySnapshot(result: DragonTigerResult): void {
+  if (result.window !== 1 || result.buy.length + result.sell.length === 0) return
+  try {
+    mkdirSync(SNAPSHOT_DIR, { recursive: true })
+    const previous = loadDailySnapshot(result.tradeDate)
+    const fingerprint = (r: DragonTigerResult) =>
+      [...r.buy, ...r.sell]
+        .map((x) => `${x.code}:${Math.round(x.buyAmt)}:${Math.round(x.sellAmt)}`)
+        .sort()
+        .join('|')
+    if (result.tradeDate < shanghaiDateStr() || (previous && fingerprint(previous) === fingerprint(result))) {
+      result.status = 'complete'
+    }
+    const clean = { ...result, fromSnapshot: undefined }
+    writeFileSync(join(SNAPSHOT_DIR, `lhb-${result.tradeDate}.json`), JSON.stringify(clean, null, 2))
+  } catch (err) {
+    console.warn('[DragonTiger] snapshot write failed:', err instanceof Error ? err.message : err)
+  }
+}
 
 /** 给一批个股补上概念标签（按 code 缓存，受限并发）。 */
 async function attachConcepts<T extends { code: string }>(stocks: T[]): Promise<(T & { concepts: string[] })[]> {
@@ -523,6 +628,10 @@ async function attachConcepts<T extends { code: string }>(stocks: T[]): Promise<
 
 /** 当日榜（window=1）：含主要买/卖营业部 + 概念。 */
 async function buildSingleDay(date?: string): Promise<DragonTigerResult> {
+  if (date && date < shanghaiDateStr()) {
+    const saved = loadDailySnapshot(date)
+    if (saved) return saved
+  }
   const main = await fetchMainReport(date)
   const tradeDate = main.tradeDate
   const aggregated = dedupeLhbByCode(main.rows)
@@ -540,12 +649,15 @@ async function buildSingleDay(date?: string): Promise<DragonTigerResult> {
     sellSeats: sellSeats.get(s.code) ?? [],
   }))
 
-  return assemble(tradeDate, stocks, stocks)
+  const result = assemble(tradeDate, [tradeDate], 1, stocks, stocks)
+  writeDailySnapshot(result)
+  return result
 }
 
 /** N 日窗口榜（window=3/5）：累计净额 + 上榜天数 + 概念 + 营业部（窗口累计）。 */
 async function buildWindow(date: string | undefined, window: number): Promise<DragonTigerResult> {
-  const dates = (await fetchTradingDates(date)).slice(0, window)
+  const anchor = date ?? (await fetchMainReport()).tradeDate
+  const dates = (await fetchTradingDates(anchor)).slice(0, window)
   if (dates.length === 0) return emptyResult(date ?? shanghaiDateStr())
 
   const perDay = await Promise.all(dates.map((d) => fetchMainReport(d)))
@@ -571,12 +683,14 @@ async function buildWindow(date: string | undefined, window: number): Promise<Dr
     buySeats: buySeatMap.get(s.code) ?? [],
     sellSeats: sellSeatMap.get(s.code) ?? [],
   }))
-  return assemble(dates[0], stocks, aggregated)
+  return assemble(dates[0], dates, window as 3 | 5, stocks, aggregated)
 }
 
 /** 把个股拆 买/卖 两列、算汇总与概念 chips。`summaryFrom` 用全量聚合（不受展示截断影响）。 */
 function assemble(
   tradeDate: string,
+  windowDates: string[],
+  window: 1 | 3 | 5,
   display: LhbStock[],
   summaryFrom: Pick<LhbStock, 'netAmt'>[],
 ): DragonTigerResult {
@@ -584,22 +698,28 @@ function assemble(
   const sell = display.filter((s) => s.netAmt < 0).sort((a, b) => a.netAmt - b.netAmt)
   return {
     tradeDate,
+    window,
+    windowDates,
     buy,
     sell,
     summary: computeSummary(summaryFrom),
     concepts: tallyConcepts(display),
     lastUpdated: new Date().toISOString(),
+    status: tradeDate < shanghaiDateStr() ? 'complete' : 'provisional',
   }
 }
 
 function emptyResult(tradeDate: string): DragonTigerResult {
   return {
     tradeDate,
+    window: 1,
+    windowDates: [],
     buy: [],
     sell: [],
     summary: { inflowCount: 0, outflowCount: 0, totalInflow: 0, totalOutflow: 0 },
     concepts: [],
     lastUpdated: new Date().toISOString(),
+    status: 'provisional',
   }
 }
 
@@ -630,7 +750,14 @@ export async function fetchDragonTiger(date?: string, window = 1): Promise<Drago
   const key = `${date ?? 'latest'}:${win}`
   const hit = cache.get(key)
   if (hit && hit.expires > Date.now()) return hit.data
-  const data = await buildDragonTiger(date, win)
+  let data: DragonTigerResult
+  try {
+    data = await buildDragonTiger(date, win)
+  } catch (err) {
+    const fallback = win === 1 ? (date ? loadDailySnapshot(date) : loadLatestDailySnapshot()) : null
+    if (!fallback) throw err
+    data = fallback
+  }
   // 当日（缺省或解析出的交易日==今日）短缓存，历史长缓存。
   // 空榜不缓存:buildWindow 在交易日历取数失败时返回 emptyResult,若按历史
   // 长缓存(24h)存下,这个日期×窗口的榜单会整天空白;交易日真实榜单不会为空。

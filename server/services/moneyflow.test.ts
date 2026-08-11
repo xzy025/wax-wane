@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   dedupeLhbByCode,
+  dedupeSeatRows,
+  disclosureCycleDays,
   aggregateWindow,
   groupSeatsByCode,
   pickConcepts,
@@ -14,19 +16,43 @@ function core(over: Partial<{ code: string; name: string; close: number; changeP
 }
 
 describe('dedupeLhbByCode', () => {
-  it('sums buy/sell/net for repeated codes, computes dealAmt, joins reasons, sorts by net desc', () => {
+  it('keeps the largest disclosure for repeated codes, joins reasons, and does not double-count overlapping lists', () => {
     const out = dedupeLhbByCode([
       { code: 'A', name: 'aa', close: 10, changePct: 5, buyAmt: 150, sellAmt: 50, netAmt: 100, reason: '涨幅偏离' },
       { code: 'A', name: 'aa', close: 10, changePct: 5, buyAmt: 80, sellAmt: 20, netAmt: 60, reason: '换手率' },
       { code: 'B', name: 'bb', close: 20, changePct: 2, buyAmt: 500, sellAmt: 0, netAmt: 500, reason: '' },
     ])
-    expect(out.map((r) => r.code)).toEqual(['B', 'A']) // 500 before 160
+    expect(out.map((r) => r.code)).toEqual(['B', 'A']) // 500 before 100
     const a = out.find((r) => r.code === 'A')!
-    expect(a.netAmt).toBe(160)
-    expect(a.buyAmt).toBe(230)
-    expect(a.sellAmt).toBe(70)
-    expect(a.dealAmt).toBe(300) // 230 + 70
+    expect(a.netAmt).toBe(100)
+    expect(a.buyAmt).toBe(150)
+    expect(a.sellAmt).toBe(50)
+    expect(a.dealAmt).toBe(200)
     expect(a.reason).toBe('涨幅偏离; 换手率')
+  })
+})
+
+describe('dedupeSeatRows', () => {
+  it('keeps only the largest same-day amount for the same stock and seat', () => {
+    expect(
+      dedupeSeatRows([
+        { code: 'A', name: '机构专用', amount: 100 },
+        { code: 'A', name: '机构专用', amount: 100 },
+        { code: 'A', name: '机构专用', amount: 120 },
+        { code: 'A', name: '游资甲', amount: 80 },
+      ]),
+    ).toEqual([
+      { code: 'A', name: '机构专用', amount: 120 },
+      { code: 'A', name: '游资甲', amount: 80 },
+    ])
+  })
+})
+
+describe('disclosureCycleDays', () => {
+  it('distinguishes official three-day cumulative disclosures from daily reasons', () => {
+    expect(disclosureCycleDays('连续三个交易日内，涨幅偏离值累计达到20%的证券')).toBe(3)
+    expect(disclosureCycleDays('连续3个交易日内日收盘价格涨幅偏离值累计达到20%')).toBe(3)
+    expect(disclosureCycleDays('日换手率达到20%的前5只证券')).toBe(1)
   })
 })
 

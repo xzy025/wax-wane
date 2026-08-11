@@ -28,6 +28,7 @@ import { getFundamentalReport } from './getFundamentalReport'
 import { searchWeb } from './searchWeb'
 import { getStockNews } from './getStockNews'
 import { runStockAnalysis } from './runStockAnalysis'
+import { analyzeLimitLadder } from './analyzeLimitLadder'
 
 const toolRegistry: Record<string, ToolModule> = {
   queryTradeHistory: queryTrades,
@@ -58,6 +59,7 @@ const toolRegistry: Record<string, ToolModule> = {
   searchWeb: searchWeb,
   getStockNews: getStockNews,
   runStockAnalysis: runStockAnalysis,
+  analyzeLimitLadder,
 }
 
 export const toolDefinitions: ToolDefinition[] = Object.values(toolRegistry).map((t) => t.schema)

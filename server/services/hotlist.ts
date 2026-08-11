@@ -4,6 +4,7 @@
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { createCache, sessionTtl } from '../lib/cache'
+import { fetchDragonTiger as fetchCanonicalDragonTiger } from './moneyflow'
 
 export interface HotStock {
   rank: number
@@ -146,26 +147,16 @@ async function fetchTHSHot(): Promise<HotStock[]> {
 
 async function fetchDragonTiger(): Promise<DragonTigerStock[]> {
   try {
-    const url = 'http://datacenter-web.eastmoney.com/api/data/v1/get?sortColumns=TRADE_DATE,SECURITY_CODE&sortTypes=-1,1&pageSize=10&pageNumber=1&reportName=RPT_DAILYBILLBOARD_DETAILSNEW&columns=SECURITY_CODE,SECURITY_NAME_ABBR,CHANGE_RATE,EXPLANATION,BILLBOARD_BUY_AMT,BILLBOARD_SELL_AMT,BILLBOARD_NET_AMT,EXPLAIN&source=WEB&client=WEB'
-
-    const res = await emFetch(url, {
-      headers: EM_HEADERS,
-      timeoutMs: 5000,
-    })
-
-    if (!res.ok) return []
-    const json = await res.json() as any
-    if (!json.result?.data) return []
-
-    return json.result.data.slice(0, 10).map((d: any) => ({
-      code: d.SECURITY_CODE,
-      name: d.SECURITY_NAME_ABBR,
-      changePct: d.CHANGE_RATE ?? 0,
-      reason: d.EXPLANATION ?? '',
-      buyAmt: d.BILLBOARD_BUY_AMT ?? 0,
-      sellAmt: d.BILLBOARD_SELL_AMT ?? 0,
-      netAmt: d.BILLBOARD_NET_AMT ?? 0,
-      explain: d.EXPLAIN ?? '',
+    const result = await fetchCanonicalDragonTiger(undefined, 1)
+    return [...result.buy.slice(0, 5), ...result.sell.slice(0, 5)].map((d) => ({
+      code: d.code,
+      name: d.name,
+      changePct: d.changePct,
+      reason: d.reason,
+      buyAmt: d.buyAmt,
+      sellAmt: d.sellAmt,
+      netAmt: d.netAmt,
+      explain: '',
     }))
   } catch {
     return []

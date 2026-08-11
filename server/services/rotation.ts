@@ -7,10 +7,15 @@ import { todayShanghai } from '../lib/time'
 import { fetchIndexKline, fetchStockKline, type IndexKlineBar } from './ashare'
 import { toSecids } from './emQuotes'
 import { resolveStock } from './stockSearch'
-import { SCREENER } from '../config/screener'
+import { BHOLD, HIGHDIV, PULLBACK, SCREENER, TRENDNEW, VOLBREAK } from '../config/screener'
 import { CONCEPT_BLOCKLIST } from './moneyflow'
-import { changeOverWindow, classifyQuadrant, type Quadrant } from './rotationRules'
+import { classifyQuadrant, type Quadrant } from './rotationRules'
 import { classify, finalScore, type Bar, type Candidate } from './screenerRules'
+import { classifyPullback } from './pullbackRules'
+import { classifyHighDivergence } from './divergenceRules'
+import { classifyVolBreakout } from './volBreakoutRules'
+import { classifyBreakoutHold } from './breakoutHoldRules'
+import { classifyTrendNewHigh } from './trendNewHighRules'
 
 export type RotationCategory = 'industry' | 'concept'
 
@@ -18,9 +23,12 @@ export interface RotationBoard {
   code: string // BKxxxx
   name: string
   todayChg: number
-  longChg: number
-  shortChg: number
+  longChg: number // 原始长窗收益
+  shortChg: number // 原始短窗收益
+  longExcess: number // 相对沪深300的长窗超额收益
+  shortExcess: number // 相对沪深300的短窗超额收益
   quadrant: Quadrant
+  reconstructed?: boolean // 板块指数日线不可用时，按成分股等权日收益重构
 }
 export interface RotationSummary {
   total: number
@@ -30,6 +38,17 @@ export interface RotationSummary {
   lw: number
   shortUpPct: number // 短窗上涨板块占比
 }
+export interface RotationDataQuality {
+  rawTotal: number // 上游板块列表原始行数
+  taxonomyTotal: number // 可确定重复清理后的行业数
+  selectedTotal: number // 本轮实际取数的行业数
+  directCount: number // 官方板块指数日线有效数
+  reconstructedCount: number // 成分股等权重构有效数
+  representedPct: number // 有效行 / 选中行
+  directCoveragePct: number // 官方日线 / 选中行；低时不能代表市场宽度
+  degraded: boolean
+  taxonomy: 'em-mixed-dedup-v1'
+}
 export interface RotationResult {
   asof: string
   category: RotationCategory
@@ -37,6 +56,7 @@ export interface RotationResult {
   shortWin: number
   boards: RotationBoard[]
   summary: RotationSummary
+  quality: RotationDataQuality
 }
 
 export const ROTATION = {
@@ -45,6 +65,11 @@ export const ROTATION = {
   // 东财 行业/概念 板块各 ~500 个(偏细分);按成交额截 top-N,聚焦真有资金轮动的活跃板块,
   // 同时把板块日线取数量控在可控范围(EM kline 偶发限流,少打更稳)。
   BOARD_CAP: 120,
+  // 板块指数日线被上游限流时，主轮动页复用节奏表的成分股重构降级。
+  RECON_CAP: 15,
+  RECON_STOCKS: 12,
+  RECON_COVERAGE: 6,
+  DIRECT_COVERAGE_MIN_PCT: 60,
   DRILL_CAP: 60, // 下钻逐股扫描的成分股上限(按成交额取前 N)
   LONG_WINS: [5, 10, 20, 60, 120],
   SHORT_WINS: [3, 5, 10],
@@ -54,6 +79,8 @@ export const ROTATION = {
 
 const FS: Record<RotationCategory, string> = { industry: 'm:90+t:2', concept: 'm:90+t:3' }
 const CLIST_HOSTS = ['push2delay.eastmoney.com', 'push2.eastmoney.com', '82.push2.eastmoney.com']
+// 行业宇宙按成交额截断时，仍保留消费大类及其酒类/饮料细分，避免“有轮动但列表没看见”。
+const CORE_INDUSTRY_CODES = new Set(['BK0438', 'BK1575', 'BK1279', 'BK1577', 'BK1282', 'BK1585', 'BK1281'])
 
 const r2 = (n: number) => Math.round(n * 100) / 100
 const num = (v: unknown): number => {
@@ -73,6 +100,36 @@ export interface BoardMeta {
   name: string
   todayChg: number
   amount: number
+}
+
+const romanRank = (name: string) => {
+  const suffix = name.match(/[ⅠⅡⅢ]$/)?.[0]
+  return suffix === 'Ⅲ' ? 3 : suffix === 'Ⅱ' ? 2 : suffix === 'Ⅰ' ? 1 : 0
+}
+
+/** 东财 t:2 同时含部分Ⅱ/Ⅲ层级。只清除可以确定的同名层级重复，保留其余层级关系供后续正式 taxonomy 接入。 */
+export function normalizeRotationUniverse(category: RotationCategory, universe: BoardMeta[]): BoardMeta[] {
+  if (category !== 'industry') return universe
+  const byName = new Map<string, BoardMeta>()
+  for (const board of universe) {
+    const key = board.name.replace(/[ⅠⅡⅢ]$/, '')
+    const current = byName.get(key)
+    if (!current || romanRank(board.name) > romanRank(current.name) || (romanRank(board.name) === romanRank(current.name) && board.amount > current.amount)) {
+      byName.set(key, board)
+    }
+  }
+  return [...byName.values()]
+}
+
+/** 成交额聚焦不应吞掉消费大类及酒类/饮料细分。 */
+export function selectRotationUniverse(category: RotationCategory, rawUniverse: BoardMeta[], cap: number = ROTATION.BOARD_CAP): BoardMeta[] {
+  const sorted = [...normalizeRotationUniverse(category, rawUniverse)].sort((a, b) => b.amount - a.amount)
+  if (category !== 'industry' || sorted.length <= cap) return sorted.slice(0, cap)
+  const selected = new Map(sorted.slice(0, cap).map((b) => [b.code, b]))
+  for (const b of sorted) {
+    if (CORE_INDUSTRY_CODES.has(b.code)) selected.set(b.code, b)
+  }
+  return [...selected.values()]
 }
 
 /** clist 翻页取一个分类的板块宇宙(镜像主机轮换容错)。 */
@@ -130,10 +187,6 @@ export async function getBoardBars(secid: string): Promise<IndexKlineBar[]> {
   return bars
 }
 
-async function getBoardCloses(secid: string): Promise<number[]> {
-  return (await getBoardBars(secid)).map((b) => b.close)
-}
-
 /** 有界并发。导出:rotationTempo 复用。 */
 export async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R>): Promise<R[]> {
   const out = new Array<R>(items.length)
@@ -148,41 +201,130 @@ export async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T) => Pr
   return out
 }
 
+/** 板块日线断供时，用成交额靠前成分股的等权日收益合成一个价格序列。
+ *  只用于轮动展示，明确标为 reconstructed；不进入任何战法评分或回测因子。 */
+async function reconstructBoardBars(bkCode: string): Promise<IndexKlineBar[]> {
+  const members = (await fetchBoardConstituents(bkCode)).slice(0, ROTATION.RECON_STOCKS)
+  if (members.length < ROTATION.RECON_COVERAGE) return []
+  const changesByDate = new Map<string, number[]>()
+  await mapLimit(members, 6, async (member) => {
+    try {
+      const { klines } = await fetchStockKline(member.code, 101, ROTATION.KLINE_BARS + 5)
+      for (let i = 1; i < klines.length; i++) {
+        const prev = klines[i - 1]
+        const curr = klines[i]
+        if (!(prev.close > 0 && curr.close > 0)) continue
+        const changes = changesByDate.get(curr.date) ?? []
+        changes.push((curr.close / prev.close - 1) * 100)
+        changesByDate.set(curr.date, changes)
+      }
+    } catch {
+      /* 单个成分股失败不放大为整个板块失败 */
+    }
+  })
+  let level = 100
+  const bars: IndexKlineBar[] = []
+  for (const [date, changes] of [...changesByDate.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    if (changes.length < Math.min(ROTATION.RECON_COVERAGE, members.length)) continue
+    level *= 1 + changes.reduce((sum, value) => sum + value, 0) / changes.length / 100
+    bars.push({ date, open: level, close: level, high: level, low: level, volume: 0 })
+  }
+  return bars
+}
+
+/** 指定板块与沪深300按同一交易日的起止点计算原始/超额收益。缺任一端则不比较。 */
+export function returnsAgainstBenchmark(
+  boardBars: Pick<IndexKlineBar, 'date' | 'close'>[],
+  benchmarkBars: Pick<IndexKlineBar, 'date' | 'close'>[],
+  window: number,
+): { raw: number; excess: number } | null {
+  if (window <= 0 || benchmarkBars.length < window + 1) return null
+  const boardByDate = new Map(boardBars.map((b) => [b.date, b.close]))
+  const benchmarkByDate = new Map(benchmarkBars.map((b) => [b.date, b.close]))
+  let endIdx = -1
+  for (let i = benchmarkBars.length - 1; i >= window; i--) {
+    const end = benchmarkBars[i]
+    const start = benchmarkBars[i - window]
+    if (boardByDate.get(end.date) && boardByDate.get(start.date) && end.close > 0 && start.close > 0) {
+      endIdx = i
+      break
+    }
+  }
+  if (endIdx < 0) return null
+  const end = benchmarkBars[endIdx]
+  const start = benchmarkBars[endIdx - window]
+  const boardEnd = boardByDate.get(end.date) as number
+  const boardStart = boardByDate.get(start.date) as number
+  const benchmarkRaw = end.close / start.close - 1
+  const raw = boardEnd / boardStart - 1
+  return { raw: raw * 100, excess: (raw - benchmarkRaw) * 100 }
+}
+
+function boardFromSeries(
+  meta: BoardMeta,
+  bars: IndexKlineBar[],
+  benchmarkBars: IndexKlineBar[],
+  longWin: number,
+  shortWin: number,
+  reconstructed = false,
+): RotationBoard | null {
+  const long = returnsAgainstBenchmark(bars, benchmarkBars, longWin)
+  const short = returnsAgainstBenchmark(bars, benchmarkBars, shortWin)
+  if (!long || !short) return null
+  return {
+    code: meta.code,
+    name: meta.name,
+    todayChg: r2(meta.todayChg),
+    longChg: r2(long.raw),
+    shortChg: r2(short.raw),
+    longExcess: r2(long.excess),
+    shortExcess: r2(short.excess),
+    quadrant: classifyQuadrant(long.excess, short.excess),
+    reconstructed,
+  }
+}
+
 async function fetchRotationFresh(
   category: RotationCategory,
   longWin: number,
   shortWin: number,
 ): Promise<RotationResult> {
-  let universe = await fetchBoardUniverse(category)
-  if (universe.length > ROTATION.BOARD_CAP) {
-    universe = [...universe].sort((a, b) => b.amount - a.amount).slice(0, ROTATION.BOARD_CAP)
-  }
+  const rawUniverse = await fetchBoardUniverse(category)
+  const taxonomyUniverse = normalizeRotationUniverse(category, rawUniverse)
+  const universe = selectRotationUniverse(category, rawUniverse)
+  const benchmarkBars = await getBoardBars('1.000300')
+  if (benchmarkBars.length < longWin + 1) throw new Error('[Rotation] 沪深300日线不足，无法计算超额收益')
 
-  const rows = (
+  const directRows = (
     await mapLimit(universe, ROTATION.CONCURRENCY, async (b): Promise<RotationBoard | null> => {
       try {
-        const closes = await getBoardCloses(`90.${b.code}`)
-        const longChg = changeOverWindow(closes, longWin)
-        const shortChg = changeOverWindow(closes, shortWin)
-        if (Number.isNaN(longChg) || Number.isNaN(shortChg)) return null
-        return {
-          code: b.code,
-          name: b.name,
-          todayChg: r2(b.todayChg),
-          longChg: r2(longChg),
-          shortChg: r2(shortChg),
-          quadrant: classifyQuadrant(longChg, shortChg),
-        }
+        return boardFromSeries(b, await getBoardBars(`90.${b.code}`), benchmarkBars, longWin, shortWin)
       } catch {
         return null
       }
     })
   ).filter((x): x is RotationBoard => x != null)
+  const directCodes = new Set(directRows.map((b) => b.code))
+  const failed = universe.filter((b) => !directCodes.has(b.code))
+  const reconTargets = [...failed]
+    .sort((a, b) => Number(CORE_INDUSTRY_CODES.has(b.code)) - Number(CORE_INDUSTRY_CODES.has(a.code)) || b.amount - a.amount)
+    .slice(0, ROTATION.RECON_CAP)
+  const reconRows = (
+    await mapLimit(reconTargets, 3, async (b): Promise<RotationBoard | null> => {
+      try {
+        return boardFromSeries(b, await reconstructBoardBars(b.code), benchmarkBars, longWin, shortWin, true)
+      } catch {
+        return null
+      }
+    })
+  ).filter((x): x is RotationBoard => x != null)
+  const rows = [...directRows, ...reconRows]
+  if (rows.length === 0) throw new Error('[Rotation] 无有效板块序列，保留缓存或提示数据源失败')
 
-  rows.sort((a, b) => b.shortChg - a.shortChg) // 短窗强→弱;前端按象限分组保序
+  rows.sort((a, b) => b.shortExcess - a.shortExcess) // 短窗超额强→弱;前端按象限分组保序
 
   const cnt = (q: Quadrant) => rows.filter((b) => b.quadrant === q).length
-  const shortUp = rows.filter((b) => b.shortChg >= 0).length
+  const shortUp = rows.filter((b) => b.shortExcess >= 0).length
   const summary: RotationSummary = {
     total: rows.length,
     hs: cnt('hs'),
@@ -191,9 +333,22 @@ async function fetchRotationFresh(
     lw: cnt('lw'),
     shortUpPct: rows.length ? r2((shortUp / rows.length) * 100) : 0,
   }
+  const representedPct = universe.length ? r2((rows.length / universe.length) * 100) : 0
+  const directCoveragePct = universe.length ? r2((directRows.length / universe.length) * 100) : 0
+  const quality: RotationDataQuality = {
+    rawTotal: rawUniverse.length,
+    taxonomyTotal: taxonomyUniverse.length,
+    selectedTotal: universe.length,
+    directCount: directRows.length,
+    reconstructedCount: reconRows.length,
+    representedPct,
+    directCoveragePct,
+    degraded: directCoveragePct < ROTATION.DIRECT_COVERAGE_MIN_PCT,
+    taxonomy: 'em-mixed-dedup-v1',
+  }
 
-  console.log(`[Rotation] ${category} 板块 ${universe.length}→有效 ${rows.length};长${longWin}/短${shortWin}日`)
-  return { asof: todayShanghai(), category, longWin, shortWin, boards: rows, summary }
+  console.log(`[Rotation] ${category} 原始${rawUniverse.length}/去重${taxonomyUniverse.length}/选中${universe.length}→有效${rows.length}(官方${directRows.length},重构${reconRows.length});长${longWin}/短${shortWin}日`)
+  return { asof: todayShanghai(), category, longWin, shortWin, boards: rows, summary, quality }
 }
 
 // 结果按 分类|长窗|短窗 分别缓存(共享 closesCache,切窗口免重取日线)。
@@ -308,6 +463,17 @@ export interface BoardStocksResult {
   /** 成分股当日涨跌幅榜(按 changePct 降序,前 TOP_MOVERS_N);不跑 K线/classify,
    *  蓝筹反转板块(如保险)不符合新高战法趋势模板,靠这个才能看清"具体是谁在涨"。 */
   topMovers: { code: string; name: string; changePct: number }[]
+  /** 与主选股器一致的并列形态命中；资金流共振需要披露日对齐的调研数据，不在板块下钻中伪造。 */
+  strategyHits: BoardStrategyHit[]
+}
+export type BoardStrategyGroup = 'pullback' | 'highdiv' | 'volbreak' | 'bhold' | 'trendnew'
+export interface BoardStrategyHit {
+  group: BoardStrategyGroup
+  code: string
+  name: string
+  price: number
+  score: number
+  tier?: number
 }
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
@@ -350,19 +516,33 @@ async function fetchBoardStocksFresh(bkCode: string): Promise<BoardStocksResult>
   const allMembers = await fetchBoardConstituents(bkCode)
   const topMovers = rankTopMovers(allMembers, TOP_MOVERS_N).map(({ code, name, changePct }) => ({ code, name, changePct }))
   const members = allMembers.slice(0, ROTATION.DRILL_CAP)
-  const enriched = (
-    await mapLimit(members, ROTATION.CONCURRENCY, async (m): Promise<(BoardStock & { liqAmount: number }) | null> => {
+  const scanned = await mapLimit(members, ROTATION.CONCURRENCY, async (m): Promise<{
+    primary: (BoardStock & { liqAmount: number }) | null
+    hits: BoardStrategyHit[]
+  }> => {
       try {
         const { klines } = await fetchStockKline(m.code, 101, SCREENER.KLINE_COUNT)
-        if (!klines || klines.length < SCREENER.MA_LONG + SCREENER.MA_LONG_RISE_LOOKBACK + 1) return null
-        const cand = classify(klines as Bar[])
-        if (!cand) return null
-        return { ...cand, code: m.code, name: m.name, score: 0, liqAmount: m.amount }
+        const bars = klines as Bar[]
+        if (!klines || bars.length < SCREENER.MA_LONG + SCREENER.MA_LONG_RISE_LOOKBACK + 1) return { primary: null, hits: [] }
+        const cand = classify(bars)
+        const hits: BoardStrategyHit[] = []
+        const add = (group: BoardStrategyGroup, hit: { price: number; score: number; tier?: number } | null) => {
+          if (hit) hits.push({ group, code: m.code, name: m.name, price: hit.price, score: hit.score, tier: hit.tier })
+        }
+        add('pullback', classifyPullback(bars, PULLBACK))
+        add('highdiv', classifyHighDivergence(bars, m.code, HIGHDIV))
+        add('volbreak', classifyVolBreakout(bars, m.code, VOLBREAK))
+        add('bhold', classifyBreakoutHold(bars, m.code, BHOLD))
+        add('trendnew', classifyTrendNewHigh(bars, m.code, TRENDNEW))
+        return { primary: cand ? { ...cand, code: m.code, name: m.name, score: 0, liqAmount: m.amount } : null, hits }
       } catch {
-        return null
+        return { primary: null, hits: [] }
       }
     })
-  ).filter((x): x is BoardStock & { liqAmount: number } => x != null)
+  const enriched = scanned.map((x) => x.primary).filter((x): x is BoardStock & { liqAmount: number } => x != null)
+  const strategyHits = scanned
+    .flatMap((x) => x.hits)
+    .sort((a, b) => (b.tier ?? 0) - (a.tier ?? 0) || b.score - a.score)
 
   // RS 百分位(板块内)+ 流动性归一 → 评分(与选股器一致)
   const rs = enriched.map((c) => c.rsRaw).sort((a, b) => a - b)
@@ -374,8 +554,8 @@ async function fetchBoardStocksFresh(bkCode: string): Promise<BoardStocksResult>
   const strip = ({ liqAmount: _liq, ...rest }: BoardStock & { liqAmount: number }) => rest
   const breakout = enriched.filter((c) => c.group === 'breakout').sort((a, b) => b.score - a.score).map(strip)
   const trigger = enriched.filter((c) => c.group === 'trigger').sort((a, b) => b.score - a.score).map(strip)
-  console.log(`[Rotation] 下钻 ${bkCode}:成分 ${members.length} → 突破 ${breakout.length}/扳机 ${trigger.length}`)
-  return { code: bkCode, name: bkCode, scanned: members.length, breakout, trigger, topMovers }
+  console.log(`[Rotation] 下钻 ${bkCode}:成分 ${members.length} → 突破 ${breakout.length}/扳机 ${trigger.length}/并列形态 ${strategyHits.length}`)
+  return { code: bkCode, name: bkCode, scanned: members.length, breakout, trigger, topMovers, strategyHits }
 }
 
 const drillCaches = new Map<string, Cache<BoardStocksResult>>()

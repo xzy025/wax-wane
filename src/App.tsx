@@ -15,6 +15,7 @@ import {
   ArrowsClockwise,
   Robot,
   Newspaper,
+  Stack,
 } from 'phosphor-react'
 import { zh, en } from './i18n'
 import { StoreProvider, useAppState } from './store'
@@ -41,6 +42,7 @@ import MoneyFlowView from './views/MoneyFlowView'
 import ScreenerView from './views/ScreenerView'
 import RotationView from './views/RotationView'
 import IntelView from './views/IntelView'
+import LadderView from './views/LadderView'
 import type { Translation } from './types'
 
 const navItems = [
@@ -49,6 +51,7 @@ const navItems = [
   { id: 'themes', icon: SquaresFour, path: '/themes' },
   { id: 'moneyflow', icon: Trophy, path: '/moneyflow' },
   { id: 'rotation', icon: ArrowsClockwise, path: '/rotation' },
+  { id: 'ladder', icon: Stack, path: '/ladder' },
   { id: 'screener', icon: Crosshair, path: '/screener' },
   { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
   { id: 'import', icon: UploadSimple, path: '/import' },
@@ -186,6 +189,7 @@ function AppLayout() {
           <Route path="/themes" element={<ThemesView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/moneyflow" element={<MoneyFlowView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/rotation" element={<RotationView t={t} language={language as 'zh' | 'en'} />} />
+          <Route path="/ladder" element={<LadderView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/screener" element={<ScreenerView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />
           <Route path="/import" element={<ImportView t={t} />} />

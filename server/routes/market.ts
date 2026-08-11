@@ -21,6 +21,8 @@ import { clearNewsFlashCache } from '../services/newsFlash'
 import { clearResearchCache } from '../services/research'
 import { resetFeishuCooldown } from '../services/feishuSync'
 import { clearHoldingsTACache } from '../services/holdingsTA'
+import { clearInstitutionAccumCache } from '../services/institutionAccum'
+import { clearLimitLadderCache } from '../services/limitLadder'
 
 const router = Router()
 
@@ -47,6 +49,7 @@ const cacheClearers: Record<string, () => void> = {
   },
   'fund-resonance-board': clearFundResonanceBoardCache,
   'org-survey-board': clearOrgSurveyBoardCache,
+  'institution-accum': clearInstitutionAccumCache,
   // rotation 清缓存连带节奏表:barsCache 被清后 tempo 不连清会短暂错拍(仿 daily-review 连带先例)
   rotation: () => {
     clearRotationCache()
@@ -60,6 +63,7 @@ const cacheClearers: Record<string, () => void> = {
     resetFeishuCooldown()
   },
   'holdings-ta': clearHoldingsTACache,
+  ladder: clearLimitLadderCache,
 }
 
 // 无参 = 行情页顶栏「刷新」按钮:只清 5 张行情横幅对应的轻量缓存。选股/实盘战绩/
@@ -161,6 +165,10 @@ router.get('/api/hotlist', async (_req, res) => {
 //   ?date=YYYY-MM-DD 可选（缺省=最近交易日）；?window=1|3|5（当日/3日/5日，缺省 1）。
 router.get('/api/moneyflow', async (req, res) => {
   const date = (req.query.date as string | undefined)?.trim() || undefined
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    res.status(400).json({ error: 'date must be YYYY-MM-DD' })
+    return
+  }
   const window = Number(req.query.window) || 1
   try {
     const data = await fetchDragonTiger(date, window)

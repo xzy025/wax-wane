@@ -167,7 +167,7 @@ async function fetchThemesFresh(): Promise<ThemeBlock[]> {
         chgYtd: q?.chgYtd ?? null,
         found: !!q,
         limitUp: !!lu,
-        boards: lu ? lu.consecutiveDays + 1 : 0,
+        boards: lu ? Math.max(1, lu.consecutiveDays) : 0,
       }
     })
 

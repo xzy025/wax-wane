@@ -39,11 +39,15 @@ export interface DragonTigerSummary {
 
 export interface DragonTigerData {
   tradeDate: string
+  window?: 1 | 3 | 5
+  windowDates?: string[]
   buy: LhbStock[] // 主力在买（净流入）
   sell: LhbStock[] // 主力在卖（净流出）
   summary: DragonTigerSummary
   concepts: ConceptTally[]
   lastUpdated: string
+  status?: 'provisional' | 'complete'
+  fromSnapshot?: boolean
 }
 
 export interface MoneyFlowResult {

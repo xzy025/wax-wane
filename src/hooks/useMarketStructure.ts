@@ -8,6 +8,8 @@ export interface MarketStructureBoard {
   longChg: number
   shortChg: number
   todayChg: number
+  longExcess?: number
+  shortExcess?: number
 }
 
 /** Mirror of server MarketStructureSummary. */

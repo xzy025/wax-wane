@@ -536,6 +536,102 @@ export interface Translation {
     error: string
     retry: string
   }
+  ladder: {
+    single: string
+    list: string
+    refresh: string
+    import: string
+    date: string
+    allThemes: string
+    firstBoard: string
+    firstSealShort: string
+    boards: string
+    empty: string
+    loading: string
+    loadFail: string
+    importOk: string
+    importFail: string
+    limitUp: string
+    limitDown: string
+    breakRate: string
+    promotionRate: string
+    maxBoards: string
+    source: string
+    quality: string
+    degraded: string
+    archived: string
+    badges: {
+      margin: string
+      chiNext: string
+      onePrice: string
+      tBoard: string
+    }
+    filters: {
+      state: string
+      board: string
+      height: string
+      all: string
+      main: string
+      twenty: string
+    }
+    states: Record<'candidate' | 'waiting' | 'observe' | 'exclude', string>
+    phases: Record<'ice' | 'repair' | 'climax' | 'ebb', string>
+    roles: Record<
+      'space-leader' | 'theme-leader' | 'first-pioneer' | 'mid-ladder' | 'follower',
+      string
+    >
+    shapes: Record<
+      | 'low-platform-breakout'
+      | 'platform-breakout'
+      | 'trend-platform'
+      | 'low-oversold-reversal'
+      | 'event-reversal'
+      | 'high-new-high'
+      | 'non-platform-breakout'
+      | 'insufficient',
+      string
+    >
+    table: {
+      rank: string
+      stock: string
+      state: string
+      role: string
+      theme: string
+      shape: string
+      volume: string
+      position: string
+      firstSeal: string
+      opens: string
+      trigger: string
+      risk: string
+    }
+    detail: {
+      title: string
+      close: string
+      score: string
+      market: string
+      theme: string
+      ladder: string
+      technical: string
+      seal: string
+      trigger: string
+      invalidation: string
+      evidence: string
+      warnings: string
+      penalty: string
+      amountRatio: string
+      range20: string
+      position120: string
+      episodeReturn: string
+      onset: string
+      limitReason: string
+      kaipanlaSource: string
+      reasonLoading: string
+      reasonUnavailable: string
+      marketRole: string
+      hotReason: string
+    }
+  }
   agent: {
     title: string
     description: string
@@ -660,8 +756,41 @@ export interface Translation {
     scanned: string
     truncatedNote: string
     disclaimer: string
-    tabs: { newHigh: string; pullback: string; highDiv: string; volBreak: string; fundRes: string; bhold: string; trendNew: string; trendWatch: string; accum: string; orgSurvey: string; track: string }
-    groups: { breakout: string; breakoutCont: string; trigger: string; watch: string; persistentHigh: string; pullback: string; highdiv: string; volbreak: string; fundres: string; bhold: string; bholdWatch: string; trendnew: string; trendwatch: string; accum: string; orgSurvey: string }
+    tabs: {
+      newHigh: string
+      pullback: string
+      highDiv: string
+      volBreak: string
+      bigBreak: string
+      fundRes: string
+      bhold: string
+      trendNew: string
+      trendWatch: string
+      accum: string
+      instAccum: string
+      orgSurvey: string
+      track: string
+    }
+    groups: {
+      breakout: string
+      breakoutCont: string
+      trigger: string
+      watch: string
+      persistentHigh: string
+      pullback: string
+      highdiv: string
+      volbreak: string
+      bigbreak: string
+      bigbreakWatch: string
+      fundres: string
+      bhold: string
+      bholdWatch: string
+      trendnew: string
+      trendwatch: string
+      accum: string
+      instAccum: string
+      orgSurvey: string
+    }
     phNote: string
     hdDesc: string
     hdCard: {
@@ -709,6 +838,36 @@ export interface Translation {
       pos: string
       days: string
       ma5ok: string
+    }
+    bbDesc: string
+    bbCard: {
+      resistance: string
+      breakPct: string
+      attempts: string
+      span: string
+      volume: string
+      historyVolume: string
+      floorRise: string
+      closeStrength: string
+      entry: string
+      stop: string
+      target: string
+      rr: string
+      plan: string
+      times: string
+      days: string
+      recordVolume: string
+      limitUp: string
+      locked: string
+      noMa: string
+      watchState: string
+      nearBand: string
+      insideBand: string
+      watchVolume: string
+      bullish: string
+      rising: string
+      startDate: string
+      watchNote: string
     }
     frDesc: string
     frCard: {
@@ -790,6 +949,12 @@ export interface Translation {
       rs: string
       days: string
       monitorNote: string
+      stairNote: string
+      box: string
+      stair: string
+      bullish: string
+      rising: string
+      locked: string
     }
     acDesc: string
     acCard: {
@@ -804,6 +969,26 @@ export interface Translation {
       holderDown: string
       holderUp: string
       holderTip: string
+    }
+    iaDesc: string
+    iaCard: {
+      flow5: string
+      flow10: string
+      flow30: string
+      persistence: string
+      position: string
+      rs20: string
+      survey: string
+      confirmed: string
+      watch: string
+      confirm: string
+      stop: string
+      target: string
+      days: string
+      orgs: string
+      disclaimer: string
+      empty: string
+      refresh: string
     }
     osDesc: string
     osBoard: {

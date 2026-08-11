@@ -17,6 +17,8 @@ import memoryRoutes from './routes/memory'
 import analysisRoutes from './routes/analysis'
 import intelRoutes from './routes/intel'
 import holdingsRoutes from './routes/holdings'
+import ladderRoutes from './routes/ladder'
+import { startMoneyFlowScheduler } from './services/moneyflowScheduler'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -61,6 +63,7 @@ app.use(memoryRoutes)
 app.use(analysisRoutes)
 app.use(intelRoutes)
 app.use(holdingsRoutes)
+app.use(ladderRoutes)
 
 // Initialize database and start server
 async function startServer() {
@@ -93,6 +96,7 @@ async function startServer() {
     console.log(
       `Database: ${dbConnected ? 'PostgreSQL (connected)' : 'PostgreSQL (not connected - limited mode)'}`,
     )
+    startMoneyFlowScheduler()
   })
 }
 

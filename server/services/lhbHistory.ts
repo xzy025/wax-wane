@@ -4,6 +4,12 @@
 // 取数:复用 moneyflow 的 fetchBillboardRows(全口径净买) + fetchInstitutionalNetByDate(机构专用净买)。
 // 关联 [[screener-feature]] [[board-sectors-feature]]。纯聚合(lhbFactorFor)无网络,可单测。
 import { fetchBillboardRows, fetchSeatNetByDate } from './moneyflow'
+import { mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { dirname, join } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const SNAPSHOT_DIR = join(__dirname, '..', '..', 'docs', 'moneyflow')
 
 const r2 = (n: number) => Math.round(n * 100) / 100
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
@@ -11,8 +17,12 @@ const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
 /** 某交易日某股的龙虎榜信号(已按个股聚合)。金额单位:元。 */
 export interface LhbDay {
   net: number // 全口径龙虎榜净买入(买-卖)
+  instBuyAmt?: number
+  instSellAmt?: number
   instNet: number // 机构专用席位净买入(无机构=0)
   instBuy: boolean // 当日机构净买入 > 0
+  hotBuyAmt?: number
+  hotSellAmt?: number
   hotNet: number // 知名游资席位净买入(无游资=0)
   hotBuy: boolean // 当日游资净买入 > 0
 }
@@ -53,7 +63,7 @@ async function mapLimit<T, R>(items: T[], limit: number, fn: (x: T, i: number) =
  */
 export async function buildLhbIndex(
   dates: string[],
-  opts: { institutional?: boolean; concurrency?: number; onProgress?: (done: number, total: number) => void } = {},
+  opts: { institutional?: boolean; concurrency?: number; force?: boolean; onProgress?: (done: number, total: number) => void } = {},
 ): Promise<LhbIndex> {
   const institutional = opts.institutional !== false
   const concurrency = opts.concurrency ?? 4
@@ -61,6 +71,11 @@ export async function buildLhbIndex(
   let done = 0
   await mapLimit(dates, concurrency, async (date) => {
     try {
+      const saved = institutional && !opts.force ? loadLhbDaySnapshot(date) : null
+      if (saved) {
+        index.set(date, saved)
+        return
+      }
       const [rows, seats] = await Promise.all([
         fetchBillboardRows(date),
         institutional ? fetchSeatNetByDate(date) : Promise.resolve(new Map()),
@@ -70,9 +85,20 @@ export async function buildLhbIndex(
         const s = seats.get(r.code)
         const instNet = s ? s.instNet : 0
         const hotNet = s ? s.hotNet : 0
-        m.set(r.code, { net: r.netAmt, instNet, instBuy: instNet > 0, hotNet, hotBuy: hotNet > 0 })
+        m.set(r.code, {
+          net: r.netAmt,
+          instBuyAmt: s?.instBuy ?? 0,
+          instSellAmt: s?.instSell ?? 0,
+          instNet,
+          instBuy: instNet > 0,
+          hotBuyAmt: s?.hotBuy ?? 0,
+          hotSellAmt: s?.hotSell ?? 0,
+          hotNet,
+          hotBuy: hotNet > 0,
+        })
       }
       index.set(date, m)
+      if (institutional && m.size > 0) writeLhbDaySnapshot(date, m)
     } catch {
       index.set(date, new Map()) // 取数失败给空,不阻塞其余日期
     } finally {
@@ -81,6 +107,32 @@ export async function buildLhbIndex(
     }
   })
   return index
+}
+
+function daySnapshotPath(date: string): string {
+  // v2 = 仅单日统计周期，排除官方连续三日累计榜，防长窗口重复计数。
+  return join(SNAPSHOT_DIR, `factor-v2-${date}.json`)
+}
+
+function loadLhbDaySnapshot(date: string): Map<string, LhbDay> | null {
+  try {
+    const raw = JSON.parse(readFileSync(daySnapshotPath(date), 'utf8')) as Record<string, LhbDay>
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+    return new Map(Object.entries(raw))
+  } catch {
+    return null
+  }
+}
+
+function writeLhbDaySnapshot(date: string, rows: Map<string, LhbDay>): void {
+  try {
+    mkdirSync(SNAPSHOT_DIR, { recursive: true })
+    const json: Record<string, LhbDay> = {}
+    for (const [code, day] of rows) json[code] = day
+    writeFileSync(daySnapshotPath(date), JSON.stringify(json, null, 2))
+  } catch (err) {
+    console.warn('[LhbHistory] factor snapshot write failed:', err instanceof Error ? err.message : err)
+  }
 }
 
 /**

@@ -1,5 +1,5 @@
 // 板块轮动 · 纯函数判定层(无网络,可单测)。
-// 2×2 象限:长期窗口(高/低)× 短期窗口(强/弱)。
+// 2×2 象限:长期超额收益(高/低)×短期超额收益(强/弱)。
 
 export type Quadrant = 'hs' | 'ls' | 'hw' | 'lw'
 // hs=高强(60日涨+近5日涨,强势延续) ls=低强(60日跌+近5日涨,底部反转)
@@ -15,7 +15,7 @@ export function changeOverWindow(closes: number[], n: number): number {
   return (last / base - 1) * 100
 }
 
-/** 长期涨幅(高低轴)× 短期涨幅(强弱轴)→ 象限。≥0 记为 涨/高/强。 */
+/** 长短期超额收益→象限。≥0 记为跑赢/高/强。 */
 export function classifyQuadrant(longChg: number, shortChg: number): Quadrant {
   const high = longChg >= 0
   const strong = shortChg >= 0

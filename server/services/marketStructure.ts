@@ -23,6 +23,8 @@ export interface MarketStructureBoard {
   longChg: number
   shortChg: number
   todayChg: number
+  longExcess?: number
+  shortExcess?: number
 }
 
 export interface MarketStructureSummary {
@@ -52,15 +54,18 @@ async function computeMarketStructure(): Promise<MarketStructureSummary> {
   // 板块象限是本卡主源:东财限流时 120 板块可能全部取不到日线(rows=0),此时的
   // "全 0 象限"是故障不是事实,绝不能落盘覆盖当日好档——throw 交给 createCache
   // 走 serve-stale/磁盘兜底(对齐 dailyReview hasReviewContent 的空壳保护语义)。
-  if (rotation.summary.total === 0) {
-    throw new Error('[MarketStructure] rotation 板块全量失败,保留既有缓存/存档')
+  if (rotation.summary.total === 0 || rotation.quality.degraded) {
+    throw new Error('[MarketStructure] rotation 官方日线覆盖不足,不以重构小样本代表市场宽度')
   }
   const byQuad = (q: RotationBoard['quadrant']) => rotation.boards.filter((b) => b.quadrant === q)
   const topBy = (boards: RotationBoard[]): MarketStructureBoard[] =>
     [...boards]
-      .sort((a, b) => b.shortChg - a.shortChg)
+      .sort((a, b) => b.shortExcess - a.shortExcess)
       .slice(0, TOP_N)
-      .map((b) => ({ code: b.code, name: b.name, longChg: b.longChg, shortChg: b.shortChg, todayChg: b.todayChg }))
+      .map((b) => ({
+        code: b.code, name: b.name, longChg: b.longChg, shortChg: b.shortChg, todayChg: b.todayChg,
+        longExcess: b.longExcess, shortExcess: b.shortExcess,
+      }))
 
   const result: MarketStructureSummary = {
     asof: todayShanghai(),

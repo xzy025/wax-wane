@@ -14,7 +14,7 @@ import { fetchIndexQuotes, type IndexQuote, type IndexSpec } from './emQuotes'
 import { fetchUSData } from './us'
 import { fetchHKData } from './hk'
 import { fetchNewsFeed } from './news'
-import { fetchHotList } from './hotlist'
+import { fetchDragonTiger } from './moneyflow'
 import { fetchAShareData } from './ashare'
 import { fetchMarketStructure } from './marketStructure'
 import {
@@ -145,12 +145,12 @@ const toQuote = (q: IndexQuote): ReviewQuote => ({
 
 async function computeDailyReview(): Promise<DailyReviewData> {
   const asof = todayShanghai()
-  const [us, asiaQ, hk, news, hot, cal, ashare, structure, rebound] = await Promise.allSettled([
+  const [us, asiaQ, hk, news, lhb, cal, ashare, structure, rebound] = await Promise.allSettled([
     fetchUSData(),
     fetchIndexQuotes(ASIA_INDICES),
     fetchHKData(),
     fetchNewsFeed(),
-    fetchHotList(),
+    fetchDragonTiger(undefined, 1),
     fetchMacroCalendar(),
     fetchAShareData(),
     fetchMarketStructure(),
@@ -167,7 +167,10 @@ async function computeDailyReview(): Promise<DailyReviewData> {
     .slice(0, NEWS_MAX)
     .map((n) => ({ title: n.title, summary: n.summary.slice(0, 200), source: n.source, link: n.link }))
 
-  const dt = val(hot)?.dragonTiger ?? []
+  // 龙虎榜通常在 16:30 后才逐步发布。只接受 tradeDate 与复盘日期一致的规范化单日榜，
+  // 绝不把上一交易日榜单错标进今天的复盘。
+  const lhbData = val(lhb)
+  const dt = lhbData?.tradeDate === asof ? [...lhbData.buy, ...lhbData.sell] : []
   const buys = dt
     .filter((x) => x.netAmt > 0)
     .sort((a, b) => b.netAmt - a.netAmt)
