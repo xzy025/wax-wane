@@ -504,6 +504,9 @@ export interface SeatNet {
   hotBuy: number
   hotSell: number
   hotNet: number
+  lhasaBuy: number
+  lhasaSell: number
+  lhasaNet: number
 }
 
 export async function fetchSeatNetByDate(date: string): Promise<Map<string, SeatNet>> {
@@ -525,19 +528,23 @@ export async function fetchSeatNetByDate(date: string): Promise<Map<string, Seat
       for (const d of data) {
         if (disclosureCycleDays(String(d.EXPLANATION ?? '')) !== 1) continue
         const cls = classifySeat(String(d.OPERATEDEPT_NAME ?? ''))
-        if (cls !== 'inst' && cls !== 'hot') continue // 普通营业部/北向 不计
+        if (cls !== 'inst' && cls !== 'hot' && cls !== 'lhasa') continue // 普通营业部/北向 不计
         const code = String(d.SECURITY_CODE ?? '')
         if (!code) continue
         const amt = Number(d[col]) || 0
-        const cur = out.get(code) ?? { instBuy: 0, instSell: 0, instNet: 0, hotBuy: 0, hotSell: 0, hotNet: 0 }
+        const cur = out.get(code) ?? { instBuy: 0, instSell: 0, instNet: 0, hotBuy: 0, hotSell: 0, hotNet: 0, lhasaBuy: 0, lhasaSell: 0, lhasaNet: 0 }
         if (cls === 'inst') {
           if (side === 'BUY') cur.instBuy += amt
           else cur.instSell += amt
           cur.instNet = cur.instBuy - cur.instSell
-        } else {
+        } else if (cls === 'hot') {
           if (side === 'BUY') cur.hotBuy += amt
           else cur.hotSell += amt
           cur.hotNet = cur.hotBuy - cur.hotSell
+        } else {
+          if (side === 'BUY') cur.lhasaBuy += amt
+          else cur.lhasaSell += amt
+          cur.lhasaNet = cur.lhasaBuy - cur.lhasaSell
         }
         out.set(code, cur)
       }

@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import Papa from 'papaparse'
-import { ArrowClockwise, FileArrowUp, FlagBanner, X } from 'phosphor-react'
+import { FileArrowUp, FlagBanner, X } from 'phosphor-react'
 import {
   useLadderAnalysis,
   useLadderReason,
@@ -9,7 +9,8 @@ import {
   type LadderState,
   type LadderStockAnalysis,
 } from '../hooks/useLadderAnalysis'
-import { getLastTradingDay } from '../components/MarketDatePicker'
+import MarketDatePicker, { getLastTradingDay } from '../components/MarketDatePicker'
+import { useTradingDates } from '../hooks/useMoneyFlow'
 import type { Translation } from '../types'
 
 interface LadderViewProps {
@@ -191,6 +192,7 @@ function EvidenceDrawer({
     ['theme', t.detail.theme],
     ['ladder', t.detail.ladder],
     ['technical', t.detail.technical],
+    ['fundFlow', t.detail.fundFlow],
     ['seal', t.detail.seal],
   ] as const
   return (
@@ -345,6 +347,15 @@ export default function LadderView({ t, language }: LadderViewProps) {
   const [importMessage, setImportMessage] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const { data, loading, error, refresh, importData } = useLadderAnalysis(date)
+  const { dates: allTradingDates, latest } = useTradingDates()
+  const recentTradingDates = useMemo(
+    () => new Set(Array.from(allTradingDates).slice(0, 5)),
+    [allTradingDates],
+  )
+
+  useEffect(() => {
+    if (latest && recentTradingDates.size && !recentTradingDates.has(date)) setDate(latest)
+  }, [date, latest, recentTradingDates])
 
   const filteredStocks = useMemo(() => {
     if (!data) return []
@@ -437,10 +448,16 @@ export default function LadderView({ t, language }: LadderViewProps) {
           )}
         </div>
         <div className="ladder-toolbar-actions">
-          <label className="ladder-date">
+          <div className="ladder-date">
             <span>{copy.date}</span>
-            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-          </label>
+            <MarketDatePicker
+              selectedDate={date}
+              onSelect={setDate}
+              onRefresh={() => void refresh()}
+              t={t}
+              availableDates={recentTradingDates.size ? recentTradingDates : new Set([date])}
+            />
+          </div>
           <input
             ref={fileRef}
             className="sr-only"
@@ -455,15 +472,6 @@ export default function LadderView({ t, language }: LadderViewProps) {
             title={copy.import}
           >
             <FileArrowUp size={18} />
-          </button>
-          <button
-            type="button"
-            className="icon-button"
-            onClick={() => void refresh()}
-            title={copy.refresh}
-            disabled={loading}
-          >
-            <ArrowClockwise size={18} className={loading ? 'spin' : ''} />
           </button>
         </div>
       </section>

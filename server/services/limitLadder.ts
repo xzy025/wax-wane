@@ -8,7 +8,7 @@ import {
 } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { isArchiveWindow } from '../lib/cache'
+import { shanghaiClock } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import {
   fetchAShareData,
@@ -26,6 +26,7 @@ import {
   type KplRealtimeStock,
 } from './kaipanlaLadder'
 import { isLimitUpDay } from './divergenceRules'
+import { buildLhbIndex, type LhbDay } from './lhbHistory'
 
 export const LIMIT_LADDER_RULE_VERSION = 'limit-ladder-v1'
 const CACHE_MS = 120_000
@@ -33,6 +34,19 @@ const KLINE_COUNT = 180
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const LADDER_ROOT = join(__dirname, '..', '..', 'docs', 'ladder')
+
+/** 连板天梯只有收盘后才定盘；15:00 前只允许内存预览，不写快照。 */
+export function isLadderSettledWindow(
+  clock: { day: number; minutes: number } = shanghaiClock(),
+): boolean {
+  return clock.day >= 1 && clock.day <= 5 && clock.minutes >= 15 * 60
+}
+
+export function isLhbPublicationWindow(
+  clock: { day: number; minutes: number } = shanghaiClock(),
+): boolean {
+  return clock.day >= 1 && clock.day <= 5 && clock.minutes >= 16 * 60 + 30
+}
 
 export type LadderState = 'candidate' | 'waiting' | 'observe' | 'exclude'
 export type MarketCyclePhase = 'ice' | 'repair' | 'climax' | 'ebb'
@@ -141,6 +155,17 @@ export interface LadderDimension {
   note: string
 }
 
+export interface LadderFundFlow {
+  available: boolean
+  score: number
+  net: number
+  instNet: number
+  hotNet: number
+  lhasaNet: number
+  note: string
+  source: 'eastmoney-lhb' | 'missing-neutral'
+}
+
 export interface LadderStockAnalysis {
   rank: number
   code: string
@@ -175,8 +200,10 @@ export interface LadderStockAnalysis {
     theme: LadderDimension
     ladder: LadderDimension
     technical: LadderDimension
+    fundFlow: LadderDimension
     seal: LadderDimension
   }
+  fundFlow: LadderFundFlow
   penalties: string[]
   warnings: string[]
   trigger: string
@@ -197,6 +224,7 @@ export interface LadderDataQuality {
   klineComplete: number
   klineTotal: number
   degraded: boolean
+  fundFlowComplete: boolean
   warnings: string[]
 }
 
@@ -714,6 +742,31 @@ function ladderRoleScore(role: LadderRole): number {
   }[role]
 }
 
+export function scoreLadderFundFlow(day?: LhbDay): LadderFundFlow {
+  const moneyMagnitude = (value: number, cap: number) =>
+    clamp(Math.log10(1 + Math.abs(value) / 1e6) / Math.log10(301) * cap, 0, cap)
+  let score = 50
+  if (day) {
+    score += Math.sign(day.instNet) * moneyMagnitude(day.instNet, 25)
+    score += Math.sign(day.hotNet) * moneyMagnitude(day.hotNet, 15)
+    score -= Math.max(0, moneyMagnitude(day.lhasaNet ?? 0, 20))
+    score += Math.sign(day.net) * moneyMagnitude(day.net, 10)
+  }
+  score = clamp(r2(score))
+  return {
+    available: !!day,
+    score,
+    net: day?.net ?? 0,
+    instNet: day?.instNet ?? 0,
+    hotNet: day?.hotNet ?? 0,
+    lhasaNet: day?.lhasaNet ?? 0,
+    note: day
+      ? `机构${r2(day.instNet / 1e4)}万·游资${r2(day.hotNet / 1e4)}万·拉萨${r2((day.lhasaNet ?? 0) / 1e4)}万`
+      : '未上龙虎榜或数据尚未发布，中性分',
+    source: day ? 'eastmoney-lhb' : 'missing-neutral',
+  }
+}
+
 function timeMinutes(value: string): number | null {
   if (!value) return null
   const digits = value.padStart(6, '0')
@@ -854,8 +907,9 @@ export function rankAndClassifyStocks(args: {
   technical: Map<string, TechnicalEvidence>
   market: MarketCycle
   degraded: boolean
+  lhb?: Map<string, LhbDay>
 }): LadderStockAnalysis[] {
-  const { stocks, themes, technical, market, degraded } = args
+  const { stocks, themes, technical, market, degraded, lhb = new Map() } = args
   const themeMap = new Map(themes.map((theme) => [theme.name, theme]))
   const maxBoards = Math.max(1, ...stocks.map((stock) => stock.consecutiveDays))
   const rows = stocks.map((stock) => {
@@ -875,19 +929,22 @@ export function rankAndClassifyStocks(args: {
       stock.importedOnePrice ??
       (stock.patternHintAvailable ? stock.onePriceHint : evidence.onePrice)
     const tBoard = !onePrice && stock.patternHintAvailable && stock.tBoardHint
+    const fundFlow = scoreLadderFundFlow(lhb.get(stock.code))
     const dimensions = {
       market: { score: market.score, note: market.reasons.join('；') },
       theme: { score: primaryTheme.score, note: `${primaryTheme.grade}级 ${primaryTheme.name}` },
       ladder: { score: ladderRoleScore(role), note: `${stock.consecutiveDays}板 · ${role}` },
       technical: { score: technicalScore(evidence.shape), note: evidence.shape },
+      fundFlow: { score: fundFlow.score, note: fundFlow.note },
       seal: { score: sealScore(stock, onePrice), note: stock.firstTime ? `首封${stock.firstTime}` : '封板时间缺失' },
     }
     let score = r2(
       dimensions.market.score * 0.15 +
         dimensions.theme.score * 0.25 +
         dimensions.ladder.score * 0.2 +
-        dimensions.technical.score * 0.25 +
-        dimensions.seal.score * 0.15,
+        dimensions.technical.score * 0.2 +
+        dimensions.fundFlow.score * 0.1 +
+        dimensions.seal.score * 0.1,
     )
     const penalties: string[] = []
     if (evidence.recognitionLate) {
@@ -966,6 +1023,7 @@ export function rankAndClassifyStocks(args: {
       score,
       technical: evidence,
       dimensions,
+      fundFlow,
       penalties,
       warnings,
       trigger: buildTrigger(stock, evidence),
@@ -995,7 +1053,7 @@ function maybeArchive(
   analysis: LimitLadderAnalysis,
   evidence: EvidenceArchive,
 ): boolean {
-  if (!isArchiveWindow() || analysis.asof !== todayShanghai()) return false
+  if (!isLadderSettledWindow() || analysis.asof !== todayShanghai()) return false
   if (analysis.stocks.length === 0 || analysis.quality.sentimentSource === 'mock') return false
   const path = evidencePath(analysis.asof)
   const existing = readJson<EvidenceArchive>(path)
@@ -1006,7 +1064,7 @@ function maybeArchive(
 }
 
 async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis> {
-  const sessionSettled = isArchiveWindow()
+  const sessionSettled = isLadderSettledWindow()
   const imported = importsByDate.get(asof) ?? null
   const [ashare, sentiment, kplResult] = await Promise.all([
     fetchAShareData(),
@@ -1068,6 +1126,9 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     }
   })
   const technicalMap = new Map(technicalResults.map(([code, result]) => [code, result.evidence]))
+  const lhbIndex = await buildLhbIndex([asof], { institutional: true, concurrency: 1 })
+  const lhbForDay = lhbIndex.get(asof) ?? new Map<string, LhbDay>()
+  const fundFlowComplete = lhbForDay.size > 0
   const klineComplete = technicalResults.filter(([, result]) => result.evidence.available && result.evidence.settled).length
   const qualityWarnings: string[] = []
   if (kplResult.error) qualityWarnings.push(`开盘啦实时梯队不可用：${kplResult.error}`)
@@ -1081,6 +1142,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
   if (sentiment.source === 'mock') qualityWarnings.push('情绪数据为mock，拒绝高置信结论和归档')
   if (klineComplete < merged.length) qualityWarnings.push(`${merged.length - klineComplete}只股票K线不完整`)
   if (!sessionSettled) qualityWarnings.push('交易时段内仅供预览，未完成K线不得生成次日候选')
+  if (!fundFlowComplete) qualityWarnings.push('当日龙虎榜席位尚未发布，资金流维度暂取中性分')
   const quality: LadderDataQuality = {
     source,
     sourceDate: kplLadder?.date || asof,
@@ -1094,6 +1156,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       !sessionSettled ||
       (!!kplLadder && !kplLadder.complete) ||
       (!!kplLadder?.date && kplLadder.date !== asof),
+    fundFlowComplete,
     warnings: qualityWarnings,
   }
   const stocks = rankAndClassifyStocks({
@@ -1102,6 +1165,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     technical: technicalMap,
     market: cycle,
     degraded: quality.degraded,
+    lhb: lhbForDay,
   })
   const levels = Array.from(new Set(stocks.filter((stock) => stock.consecutiveDays >= 2).map((stock) => stock.consecutiveDays)))
     .sort((a, b) => b - a)
@@ -1163,6 +1227,15 @@ export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<
     const archived = readJson<LimitLadderAnalysis>(analysisPath(asof))
     if (!archived) throw new Error(`未找到${asof}的连板天梯归档`)
     return { ...archived, archived: true }
+  }
+  // 收盘后的同日快照是定盘数据。服务重启或页面再次打开时直接读盘，零上游 API 请求。
+  // 当日有手工导入时允许重算并覆盖快照。
+  if (isLadderSettledWindow() && !importsByDate.has(asof)) {
+    const archived = readJson<LimitLadderAnalysis>(analysisPath(asof))
+    // 15:00先保存行情定盘；16:30后若龙虎榜此前未发布，允许自动补算一次资金流并覆盖快照。
+    if (archived && (archived.quality.fundFlowComplete !== false || !isLhbPublicationWindow())) {
+      return { ...archived, archived: true }
+    }
   }
   const cached = analysisCache.get(asof)
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.value

@@ -108,6 +108,17 @@ describe('MarketDatePicker', () => {
     expect(disabledButtons.length).toBeGreaterThan(0)
   })
 
+  it('when availableDates is provided, only those trading dates are selectable', async () => {
+    const user = userEvent.setup()
+    const availableDates = new Set(['2026-05-26', '2026-05-25', '2026-05-22', '2026-05-21', '2026-05-20'])
+    render(<MarketDatePicker {...makeProps({ availableDates })} />)
+    await user.click(screen.getByRole('button', { name: '2026-05-26' }))
+    const day24 = screen.getAllByRole('button').find((button) => button.textContent === '24')
+    const day25 = screen.getAllByRole('button').find((button) => button.textContent === '25')
+    expect(day24).toBeDisabled()
+    expect(day25).not.toBeDisabled()
+  })
+
   it('highlights the selected date', async () => {
     const user = userEvent.setup()
     render(<MarketDatePicker {...makeProps({ selectedDate: '2026-05-26' })} />)

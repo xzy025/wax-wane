@@ -60,13 +60,15 @@ export const HOT_MONEY_SEATS: string[] = [
   '上海福山路',
 ]
 
-export type SeatClass = 'inst' | 'hot' | 'north' | 'other'
+export type SeatClass = 'inst' | 'hot' | 'lhasa' | 'north' | 'other'
 
 /** 按营业部名称分类龙虎榜席位。 */
 export function classifySeat(name: string): SeatClass {
   if (!name) return 'other'
   if (name === '机构专用') return 'inst'
   if (/股通|香港中央结算|陆股通/.test(name)) return 'north'
+  // 拉萨系更接近散户集中席位，必须与知名游资分开，不能作为游资净买加分。
+  if (name.includes('拉萨')) return 'lhasa'
   for (const tok of HOT_MONEY_SEATS) if (name.includes(tok)) return 'hot'
   return 'other'
 }

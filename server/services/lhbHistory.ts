@@ -25,6 +25,9 @@ export interface LhbDay {
   hotSellAmt?: number
   hotNet: number // 知名游资席位净买入(无游资=0)
   hotBuy: boolean // 当日游资净买入 > 0
+  lhasaBuyAmt?: number
+  lhasaSellAmt?: number
+  lhasaNet?: number // 拉萨系净买入，正值作为散户集中买入风险
 }
 
 /** date(YYYY-MM-DD) → code → LhbDay。 */
@@ -95,6 +98,9 @@ export async function buildLhbIndex(
           hotSellAmt: s?.hotSell ?? 0,
           hotNet,
           hotBuy: hotNet > 0,
+          lhasaBuyAmt: s?.lhasaBuy ?? 0,
+          lhasaSellAmt: s?.lhasaSell ?? 0,
+          lhasaNet: s?.lhasaNet ?? 0,
         })
       }
       index.set(date, m)

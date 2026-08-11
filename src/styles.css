@@ -2185,6 +2185,17 @@ body {
   color: var(--orange);
   background: var(--orange-soft);
 }
+
+.sc-streak.new-volume {
+  color: #fff;
+  background: #ef4444;
+  border-color: #fb7185;
+}
+
+.sc-card.sc-card--new-volume {
+  border-color: #ef4444;
+  box-shadow: inset 3px 0 0 #ef4444, 0 0 0 1px rgb(239 68 68 / 20%);
+}
 .sc-streak.liftban {
   color: var(--red);
   background: var(--red-soft);
@@ -3147,6 +3158,10 @@ body {
   color: var(--ink);
   color-scheme: dark;
   background: var(--surface-soft);
+}
+
+.ladder-date .date-picker {
+  margin-bottom: 0;
 }
 
 .ladder-notice,

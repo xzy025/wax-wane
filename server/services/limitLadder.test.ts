@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 import {
   analyzeTechnical,
   classifyMarketCycle,
+  isLadderSettledWindow,
   normalizeLadderImport,
   rankAndClassifyStocks,
+  scoreLadderFundFlow,
   scoreThemes,
   type MarketCycle,
   type NormalizedStock,
@@ -11,6 +13,31 @@ import {
   type ThemeAnalysis,
 } from './limitLadder'
 import type { KlineBar } from './ashare'
+
+describe('isLadderSettledWindow', () => {
+  it('只在工作日15:00以后允许生成定盘快照', () => {
+    expect(isLadderSettledWindow({ day: 2, minutes: 14 * 60 + 59 })).toBe(false)
+    expect(isLadderSettledWindow({ day: 2, minutes: 15 * 60 })).toBe(true)
+    expect(isLadderSettledWindow({ day: 6, minutes: 16 * 60 })).toBe(false)
+  })
+})
+
+describe('scoreLadderFundFlow', () => {
+  it('机构和知名游资净买加分，缺失保持中性', () => {
+    expect(scoreLadderFundFlow().score).toBe(50)
+    const score = scoreLadderFundFlow({
+      net: 80_000_000, instNet: 50_000_000, instBuy: true,
+      hotNet: 30_000_000, hotBuy: true, lhasaNet: 0,
+    }).score
+    expect(score).toBeGreaterThan(50)
+  })
+
+  it('拉萨系净买作为散户集中风险扣分', () => {
+    const clean = scoreLadderFundFlow({ net: 20_000_000, instNet: 0, instBuy: false, hotNet: 0, hotBuy: false, lhasaNet: 0 })
+    const lhasa = scoreLadderFundFlow({ net: 20_000_000, instNet: 0, instBuy: false, hotNet: 0, hotBuy: false, lhasaNet: 50_000_000 })
+    expect(lhasa.score).toBeLessThan(clean.score)
+  })
+})
 
 function stock(overrides: Partial<NormalizedStock> = {}): NormalizedStock {
   return {

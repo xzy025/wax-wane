@@ -1,6 +1,32 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
+const LADDER_SNAPSHOT_PREFIX = 'limit-ladder-snapshot:'
+
+function readLadderSnapshot(date: string): LimitLadderAnalysis | null {
+  try {
+    const raw = localStorage.getItem(`${LADDER_SNAPSHOT_PREFIX}${date}`)
+    if (!raw) return null
+    const value = JSON.parse(raw) as LimitLadderAnalysis
+    if (!value.archived || value.asof !== date) return null
+    const now = new Date()
+    const shanghai = new Date(now.getTime() + now.getTimezoneOffset() * 60_000 + 8 * 3_600_000)
+    const afterLhb = shanghai.getHours() * 60 + shanghai.getMinutes() >= 16 * 60 + 30
+    return afterLhb && value.quality.fundFlowComplete === false ? null : value
+  } catch {
+    return null
+  }
+}
+
+function writeLadderSnapshot(value: LimitLadderAnalysis): void {
+  if (!value.archived) return
+  try {
+    localStorage.setItem(`${LADDER_SNAPSHOT_PREFIX}${value.asof}`, JSON.stringify(value))
+  } catch {
+    // 浏览器禁用存储或配额不足时退化为服务端快照，不影响展示。
+  }
+}
+
 export type LadderState = 'candidate' | 'waiting' | 'observe' | 'exclude'
 export type MarketCyclePhase = 'ice' | 'repair' | 'climax' | 'ebb'
 export type ThemeGrade = 'A' | 'B' | 'C' | 'D'
@@ -116,9 +142,19 @@ export interface LadderStockAnalysis {
   score: number
   technical: TechnicalEvidence
   dimensions: Record<
-    'market' | 'theme' | 'ladder' | 'technical' | 'seal',
+    'market' | 'theme' | 'ladder' | 'technical' | 'fundFlow' | 'seal',
     { score: number; note: string }
   >
+  fundFlow: {
+    available: boolean
+    score: number
+    net: number
+    instNet: number
+    hotNet: number
+    lhasaNet: number
+    note: string
+    source: 'eastmoney-lhb' | 'missing-neutral'
+  }
   penalties: string[]
   warnings: string[]
   trigger: string
@@ -171,6 +207,7 @@ export interface LimitLadderAnalysis {
     klineComplete: number
     klineTotal: number
     degraded: boolean
+    fundFlowComplete?: boolean
     warnings: string[]
   }
   warnings: string[]
@@ -249,6 +286,7 @@ export function useLadderAnalysis(date: string) {
       const json = (await res.json()) as LimitLadderAnalysis & { error?: string }
       if (!res.ok || json.error) throw new Error(json.error ?? `HTTP ${res.status}`)
       setData(json)
+      writeLadderSnapshot(json)
       setError(null)
       return json
     },
@@ -258,6 +296,12 @@ export function useLadderAnalysis(date: string) {
   useEffect(() => {
     let cancelled = false
     if (fetching.current) return
+    const snapshot = readLadderSnapshot(date)
+    if (snapshot) {
+      setData(snapshot)
+      setError(null)
+      return
+    }
     fetching.current = true
     setLoading(true)
     load()
@@ -305,6 +349,7 @@ export function useLadderAnalysis(date: string) {
       const json = (await res.json()) as LimitLadderAnalysis & { error?: string }
       if (!res.ok || json.error) throw new Error(json.error ?? `HTTP ${res.status}`)
       setData(json)
+      writeLadderSnapshot(json)
       return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed')

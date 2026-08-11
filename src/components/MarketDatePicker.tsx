@@ -33,6 +33,8 @@ function isTradingDay(dateStr: string): boolean {
 }
 
 function isSelectable(date: string, availableDates?: Set<string>): boolean {
+  // 服务端交易日历是权威口径；调用方可传最近 N 个交易日，集合外（含周末、节假日、过期日）全禁用。
+  if (availableDates) return availableDates.has(date)
   const now = new Date()
   const hours = now.getHours()
   const minutes = now.getMinutes()
@@ -42,8 +44,7 @@ function isSelectable(date: string, availableDates?: Set<string>): boolean {
   const maxDate = isBeforePreMarket ? daysAgo(1) : todayStr()
   const minDate = daysAgo(30)
   if (date < minDate || date > maxDate || !isTradingDay(date)) return false
-  // 给定交易日集合时进一步屏蔽节假日（集合外不可选）。
-  return !availableDates || availableDates.has(date)
+  return true
 }
 
 function getMonthDays(
