@@ -9,7 +9,10 @@ import {
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { shanghaiClock } from '../lib/cache'
+import { EM_HEADERS } from '../lib/emHeaders'
+import { emFetch } from '../lib/emFetch'
 import { todayShanghai } from '../lib/time'
+import { SCREENER } from '../config/screener'
 import {
   fetchAShareData,
   fetchStockKline,
@@ -27,10 +30,61 @@ import {
 } from './kaipanlaLadder'
 import { isLimitUpDay } from './divergenceRules'
 import { buildLhbIndex, type LhbDay } from './lhbHistory'
+import { fetchHotList, type HotListData } from './hotlist'
+import {
+  fetchSinaBatchQuotes,
+  fetchTencentBatchQuotes,
+} from './screenerLiveQuotes'
+import type { ScreenerLiveQuote } from './screenerScan'
+import { fetchTradingDates } from './moneyflow'
+import {
+  auctionBriefPhaseForMinutes,
+  generateAndDispatchAuctionBrief,
+} from './auctionBrief'
+import {
+  applyEventReactionToRiskContext,
+  buildEventReaction,
+  buildHighBoardRiskContext,
+  buildLadderRoleMap,
+  buildPromotionStatistics,
+  fetchLadderEventGate,
+  type HighBoardRiskContext,
+  type LadderEventGate,
+  type LadderEventReaction,
+  type LadderRiskEvent,
+  type LadderRoleMap,
+  type LadderRoleProfile,
+  type PromotionObservation,
+  type PromotionStatistics,
+  type ThemeRiskAppetite,
+} from './ladderV4'
+import {
+  buildMarketRiskGate,
+  fetchDomesticMarketSnapshot,
+  fetchPremarketRiskSnapshot,
+  type DomesticMarketSnapshot,
+  type MarketGateArchive,
+  type MarketRepairContext,
+  type MarketRepairState,
+  type MarketRiskGate,
+  type ThemePermission,
+} from './ladderMarketGate'
 
-export const LIMIT_LADDER_RULE_VERSION = 'limit-ladder-v1'
+export const LIMIT_LADDER_RULE_VERSION = 'limit-ladder-v6'
+const COMPATIBLE_LADDER_RULE_VERSIONS = [
+  LIMIT_LADDER_RULE_VERSION,
+  'limit-ladder-v5',
+  'limit-ladder-v4',
+  'limit-ladder-v3',
+  'limit-ladder-v2',
+  'limit-ladder-v1',
+] as const
 const CACHE_MS = 120_000
 const KLINE_COUNT = 180
+const MIN_LADDER_AMOUNT = 100_000_000
+const MAX_NEXT_DAY_CANDIDATES = 10
+const MAX_CANDIDATES_PER_LANE = 3
+const MAX_CANDIDATES_PER_THEME = 2
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const LADDER_ROOT = join(__dirname, '..', '..', 'docs', 'ladder')
@@ -42,13 +96,55 @@ export function isLadderSettledWindow(
   return clock.day >= 1 && clock.day <= 5 && clock.minutes >= 15 * 60
 }
 
+export function isLadderOutcomeWindow(
+  clock: { day: number; minutes: number } = shanghaiClock(),
+): boolean {
+  return clock.day >= 1 && clock.day <= 5 && clock.minutes >= 15 * 60 + 10
+}
+
 export function isLhbPublicationWindow(
   clock: { day: number; minutes: number } = shanghaiClock(),
 ): boolean {
   return clock.day >= 1 && clock.day <= 5 && clock.minutes >= 16 * 60 + 30
 }
 
+export function isPremarketGateCaptureWindow(
+  clock: { day: number; minutes: number } = shanghaiClock(),
+): boolean {
+  return (
+    clock.day >= 1 &&
+    clock.day <= 5 &&
+    clock.minutes >= 8 * 60 + 50 &&
+    clock.minutes < 9 * 60 + 15
+  )
+}
+
+export const MISSING_PREMARKET_GATE_WARNING =
+  '08:50盘前外盘快照缺失，外部风险不参与排序且禁止事后回填'
+
+export function shouldWarnMissingPremarketGate(args: {
+  tradeDate: string | null
+  nowDate: string
+  clockMinutes: number
+  hasPremarketSnapshot: boolean
+}): boolean {
+  if (!args.tradeDate || args.hasPremarketSnapshot) return false
+  if (args.nowDate > args.tradeDate) return true
+  return (
+    args.nowDate === args.tradeDate &&
+    args.clockMinutes >= 9 * 60 + 15
+  )
+}
+
 export type LadderState = 'candidate' | 'waiting' | 'observe' | 'exclude'
+export type NextDayState =
+  | 'pending'
+  | 'auction-qualified'
+  | 'confirmed'
+  | 'waiting'
+  | 'blocked'
+  | 'rejected'
+export type LadderSizeBucket = 'small' | 'mid' | 'large' | 'unknown'
 export type MarketCyclePhase = 'ice' | 'repair' | 'climax' | 'ebb'
 export type ThemeGrade = 'A' | 'B' | 'C' | 'D'
 export type LadderRole = 'space-leader' | 'theme-leader' | 'first-pioneer' | 'mid-ladder' | 'follower'
@@ -117,9 +213,82 @@ export interface ThemeAnalysis {
   multiBoardCount: number
   maxBoards: number
   continuity: number
-  promotionRate: number
+  promotionRate: number | null
   sealStability: number
   stockCodes: string[]
+  anchorCount?: number
+  complete?: boolean
+  components?: Record<
+    'continuity' | 'anchor' | 'depth' | 'replenishment' | 'promotion' | 'breadth' | 'seal',
+    number | null
+  >
+}
+
+export interface ThemeAnchor {
+  code: string
+  name: string
+  themes: string[]
+  source: 'current-high-board' | 'recent-high-anchor'
+  priorMaxBoards: number
+  recentLimitUps: number
+  distanceFromFiveDayHighPct: number | null
+  active: boolean
+}
+
+export interface PromotionLane {
+  fromBoards: number
+  toBoards: number
+  label: string
+  score: number
+  supply: number
+  promotionRate: number | null
+  promoted: number
+  promotionTotal: number
+  themeCoverage: number
+  upperAnchor: number
+  sealStability: number
+  dominant: boolean
+  rawPromotionRate?: number | null
+  adjustedPromotionRate?: number | null
+  promotionConfidence?: 'low' | 'medium' | 'high'
+  rollingValid?: number
+  rollingPromoted?: number
+}
+
+export interface TurnoverCapacity {
+  circulatingMarketCap: number | null
+  amountToFloatCapPct: number | null
+  effectiveTurnoverPct: number | null
+  score: number
+  amountPercentile: number
+  dataConsistent: boolean
+  note: string
+}
+
+export interface LadderPopularity {
+  score: number
+  roleScore: number
+  followScore: number
+  hotRankScore: number | null
+  fundFlowScore: number | null
+  eastmoneyRank: number | null
+  thsRank: number | null
+  followerCount: number
+  note: string
+}
+
+export interface LadderV2Scores {
+  promotion: number
+  tradability: number
+  base: number
+  promotionDimensions: Record<
+    'market' | 'lane' | 'theme' | 'popularity' | 'seal' | 'technical',
+    LadderDimension
+  >
+  tradabilityDimensions: Record<
+    'accessibility' | 'turnoverCapacity' | 'liquidity' | 'structure' | 'reopen',
+    LadderDimension
+  >
 }
 
 export interface TechnicalEvidence {
@@ -145,6 +314,7 @@ export interface TechnicalEvidence {
   sessionsFromOnset: number | null
   recognitionLate: boolean
   onePrice: boolean
+  onePriceStreak?: number
   shape: ShapeArchetype
   platformEdge: number | null
   onsetLow: number | null
@@ -181,12 +351,14 @@ export interface LadderStockAnalysis {
   themeGrade: ThemeGrade
   themeScore: number
   role: LadderRole
+  roleProfile?: LadderRoleProfile
   reason: string
   firstTime: string
   lastTime: string
   openCount: number
   turnoverRate: number
   amount: number
+  circulatingMarketCap?: number | null
   sealAmount: number | null
   onePrice: boolean
   tBoard: boolean
@@ -194,6 +366,14 @@ export interface LadderStockAnalysis {
   reasonSource: 'kaipanla' | 'import' | 'none'
   state: LadderState
   score: number
+  promotionLane?: string
+  promotionScore?: number
+  tradabilityScore?: number
+  baseScore?: number
+  candidateRank?: number | null
+  turnoverCapacity?: TurnoverCapacity
+  popularity?: LadderPopularity
+  v2?: LadderV2Scores
   technical: TechnicalEvidence
   dimensions: {
     market: LadderDimension
@@ -206,6 +386,8 @@ export interface LadderStockAnalysis {
   fundFlow: LadderFundFlow
   penalties: string[]
   warnings: string[]
+  eventGate?: LadderRiskEvent['action'] | 'none'
+  gateReasons?: string[]
   trigger: string
   invalidation: string
   mainRisk: string
@@ -244,10 +426,215 @@ export interface LimitLadderAnalysis {
     maxBoards: number
   }
   themes: ThemeAnalysis[]
+  promotionLanes?: PromotionLane[]
+  promotionStatistics?: PromotionStatistics
+  dominantLane?: string | null
+  themeAnchors?: ThemeAnchor[]
+  roleMap?: LadderRoleMap
+  riskEvents?: LadderRiskEvent[]
+  eventGate?: LadderEventGate
+  nextDayCandidates?: LadderStockAnalysis[]
   levels: LadderLevel[]
   firstBoards: LadderStockAnalysis[]
   stocks: LadderStockAnalysis[]
   quality: LadderDataQuality
+  warnings: string[]
+}
+
+export interface NextDayCandidateConfirmation {
+  code: string
+  name: string
+  baseState: LadderState
+  promotionLane: string
+  baseScore: number
+  promotionScore: number
+  tradabilityScore: number
+  auctionScore: number | null
+  finalAuctionScore?: number | null
+  processScore?: number | null
+  themeDirectionScore?: number | null
+  marketStyleScore?: number | null
+  sizeBucket?: LadderSizeBucket
+  liquidityStyleAdjustment?: number
+  styleGateReasons?: string[]
+  openScore: number | null
+  liveScore: number | null
+  environmentAdjustment?: number
+  decisionScore?: number | null
+  marketGateState?: MarketRiskGate['state'] | null
+  themePermission?: ThemePermission | null
+  state: NextDayState
+  tradeDate: string
+  quoteTime: string
+  openGapPct: number | null
+  auctionAmount: number | null
+  currentAmount: number | null
+  currentPrice: number | null
+  vwap: number | null
+  inaccessible: boolean
+  warnings: string[]
+  gateReasons?: string[]
+}
+
+export interface AuctionMarketStock {
+  code: string
+  name: string
+  industry: string
+  style: AuctionStyle
+  price: number
+  changePct: number
+  amount: number
+  marketCap: number | null
+  tradeDate: string
+  quoteTime: string
+  source: 'eastmoney'
+}
+
+export type AuctionStyle =
+  | 'technology'
+  | 'consumer'
+  | 'medicine'
+  | 'finance'
+  | 'cyclical'
+  | 'small-cap'
+  | 'mixed'
+
+export interface AuctionMarketStyle {
+  style: AuctionStyle
+  label: string
+  score: number | null
+  confidence: number
+  topFiveConcentrationPct: number | null
+  weightedSharePct: number | null
+  largeCapAmountSharePct?: number | null
+  evidence: string[]
+}
+
+export interface AuctionThemeDirection {
+  theme: string
+  score: number | null
+  state: 'leading' | 'resonant' | 'isolated-one-price' | 'weak' | 'unavailable'
+  positiveRate: number | null
+  weightedGapPct: number | null
+  amountSharePct: number | null
+  coreCode: string | null
+  coreName: string
+  coreOnePrice: boolean
+  assistantCodes: string[]
+  assistantCount: number
+  coverage: number
+}
+
+export interface AuctionCandidateProcess {
+  code: string
+  sampleCount: number
+  strengtheningScore: number | null
+  cancellationStabilityScore: number | null
+  processScore: number | null
+  startGapPct: number | null
+  finalGapPct: number | null
+  finalUnmatchedSide: ScreenerLiveQuote['unmatchedSide']
+}
+
+export interface LadderAuctionContext {
+  capturedAt: string
+  snapshotCount: number
+  coverage: number
+  lowConfidence: boolean
+  sources: string[]
+  marketStyle: AuctionMarketStyle | null
+  topAmount: AuctionMarketStock[]
+  themes: AuctionThemeDirection[]
+  candidateProcesses: AuctionCandidateProcess[]
+  warnings: string[]
+}
+
+export type LadderOutcomePopulation = 'formal' | 'wait-open'
+export type LadderOutcomeStatus = 'promoted' | 'failed' | 'unresolved'
+
+export interface LadderOutcomeRow {
+  code: string
+  name: string
+  candidateRank: number | null
+  population: LadderOutcomePopulation
+  promotionLane: string
+  fromBoards: number
+  targetBoards: number
+  resultStatus: LadderOutcomeStatus
+  promoted: boolean | null
+  tradable: boolean | null
+  unresolvedReason: string
+  openToClosePct: number | null
+  mfePct: number | null
+  maePct: number | null
+  marketCycle?: MarketCyclePhase
+  marketRole?: LadderRoleProfile['marketRole']
+  themeState?: string
+  riskAppetiteState?: HighBoardRiskContext['state'] | null
+  eventStatus?: LadderStockAnalysis['eventGate']
+  marketGateState?: MarketRiskGate['state'] | null
+  themePermissionState?: ThemePermission['state'] | null
+  externalRiskScore?: number | null
+  domesticRiskScore?: number | null
+  repairState?: MarketRepairState | null
+  sizeBucket?: LadderSizeBucket
+  heightTier?: LadderRoleProfile['heightTier']
+  liquidityStyleAdjustment?: number
+  gateReasons?: string[]
+}
+
+export interface LadderPromotionRateSummary {
+  total: number
+  valid: number
+  promoted: number
+  failed: number
+  unresolved: number
+  promotionRate: number | null
+  coverage: number
+}
+
+export interface LadderOutcomeSummary {
+  formal: LadderPromotionRateSummary
+  byLane: Array<LadderPromotionRateSummary & { promotionLane: string; fromBoards: number }>
+  waitOpen: LadderPromotionRateSummary
+  byRepairState?: Array<
+    LadderPromotionRateSummary & { repairState: MarketRepairState }
+  >
+  bySizeBucket?: Array<
+    LadderPromotionRateSummary & { sizeBucket: LadderSizeBucket }
+  >
+  byHeightTier?: Array<
+    LadderPromotionRateSummary & {
+      heightTier: LadderRoleProfile['heightTier']
+    }
+  >
+}
+
+export interface LadderOutcomeArchive {
+  signalDate: string
+  tradeDate: string
+  generatedAt: string
+  ruleVersion: string
+  summary: LadderOutcomeSummary
+  rows: LadderOutcomeRow[]
+}
+
+export interface LimitLadderNextDay {
+  signalDate: string
+  tradeDate: string
+  generatedAt: string
+  ruleVersion: string
+  stage: 'pending' | 'auction' | 'open' | 'settled'
+  auctionSnapshotAvailable: boolean
+  confirmationSnapshotAvailable?: boolean
+  auctionContext?: LadderAuctionContext | null
+  highBoardContext?: HighBoardRiskContext | null
+  themeRiskAppetite?: ThemeRiskAppetite[]
+  eventReaction?: LadderEventReaction | null
+  marketGate?: MarketRiskGate | null
+  themePermissions?: ThemePermission[]
+  outcome?: LadderOutcomeArchive | null
+  candidates: NextDayCandidateConfirmation[]
   warnings: string[]
 }
 
@@ -258,6 +645,7 @@ export interface NormalizedStock {
   changePct: number
   turnoverRate: number
   amount: number
+  circulatingMarketCap: number | null
   firstTime: string
   lastTime: string
   openCount: number
@@ -283,6 +671,15 @@ interface TechnicalResult {
   bars: KlineBar[]
 }
 
+interface LadderMarketProfile {
+  circulatingMarketCap: number | null
+}
+
+interface HotRankEvidence {
+  eastmoneyRank: number | null
+  thsRank: number | null
+}
+
 interface EvidenceArchive {
   asof: string
   generatedAt: string
@@ -304,15 +701,57 @@ interface EvidenceArchive {
   limitUpStocks: LimitStock[]
   imported: LadderImportPayload | null
   klines: Record<string, KlineBar[]>
+  marketProfiles?: Record<string, { circulatingMarketCap: number | null }>
+  hotList?: Pick<HotListData, 'eastmoney' | 'ths'>
+  promotionLanes?: PromotionLane[]
+  themeAnchors?: ThemeAnchor[]
+  roleMap?: LadderRoleMap
+  eventGate?: LadderEventGate
+  promotionStatistics?: PromotionStatistics
 }
 
 const importsByDate = new Map<string, LadderImportPayload>()
 const analysisCache = new Map<string, { at: number; value: LimitLadderAnalysis }>()
+const forcedRecomputeDates = new Set<string>()
 
 const clamp = (n: number, min = 0, max = 100) => Math.max(min, Math.min(max, n))
 const r2 = (n: number) => Math.round(n * 100) / 100
 const mean = (values: number[]) =>
   values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0
+
+function weightedAvailable(
+  values: Array<{ value: number | null | undefined; weight: number }>,
+  fallback = 50,
+): number {
+  const available = values.filter(
+    (item): item is { value: number; weight: number } =>
+      typeof item.value === 'number' && Number.isFinite(item.value),
+  )
+  const totalWeight = available.reduce((sum, item) => sum + item.weight, 0)
+  if (totalWeight <= 0) return fallback
+  return r2(available.reduce((sum, item) => sum + item.value * item.weight, 0) / totalWeight)
+}
+
+export function crossSectionPercentile(value: number, values: number[]): number {
+  const valid = values.filter((item) => Number.isFinite(item)).sort((a, b) => a - b)
+  if (!valid.length) return 50
+  if (valid.length < 5) return 50
+  const below = valid.filter((item) => item < value).length
+  const equal = valid.filter((item) => item === value).length
+  return r2(((below + Math.max(0, equal - 1) / 2) / (valid.length - 1)) * 100)
+}
+
+function normalizePercent(value: number, fullAt: number): number {
+  return clamp((value / Math.max(fullAt, 1)) * 100)
+}
+
+function mainBoardCode(code: string): boolean {
+  return /^(000|001|002|003|600|601|603|605)/.test(code)
+}
+
+function themeNames(stock: Pick<NormalizedStock, 'themes' | 'industry'>): string[] {
+  return stock.themes.length ? stock.themes : [stock.industry || '其他']
+}
 
 function safeDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`))
@@ -340,12 +779,24 @@ function archiveDir(asof: string): string {
   return join(LADDER_ROOT, year, month, day)
 }
 
-function evidencePath(asof: string): string {
-  return join(archiveDir(asof), 'evidence.json')
+function evidencePath(asof: string, version = LIMIT_LADDER_RULE_VERSION): string {
+  return join(archiveDir(asof), `evidence-${version}.json`)
 }
 
-function analysisPath(asof: string): string {
-  return join(archiveDir(asof), `analysis-${LIMIT_LADDER_RULE_VERSION}.json`)
+function analysisPath(asof: string, version = LIMIT_LADDER_RULE_VERSION): string {
+  return join(archiveDir(asof), `analysis-${version}.json`)
+}
+
+function eventGatePath(asof: string, version = LIMIT_LADDER_RULE_VERSION): string {
+  return join(archiveDir(asof), `events-${version}.json`)
+}
+
+function archivedAnalysisPath(asof: string): string | null {
+  for (const version of COMPATIBLE_LADDER_RULE_VERSIONS) {
+    const path = analysisPath(asof, version)
+    if (existsSync(path)) return path
+  }
+  return null
 }
 
 function writeJsonAtomic(path: string, value: unknown): void {
@@ -363,8 +814,8 @@ function readJson<T>(path: string): T | null {
   }
 }
 
-function previousArchivedAnalysis(asof: string): LimitLadderAnalysis | null {
-  if (!existsSync(LADDER_ROOT)) return null
+function archivedAnalysisDates(asof: string): string[] {
+  if (!existsSync(LADDER_ROOT)) return []
   const dates: string[] = []
   for (const year of readdirSync(LADDER_ROOT)) {
     const yearPath = join(LADDER_ROOT, year)
@@ -374,12 +825,59 @@ function previousArchivedAnalysis(asof: string): LimitLadderAnalysis | null {
       if (!/^\d{2}$/.test(month)) continue
       for (const day of readdirSync(monthPath)) {
         const date = `${year}-${month}-${day}`
-        if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date < asof && existsSync(analysisPath(date))) dates.push(date)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date < asof && archivedAnalysisPath(date)) dates.push(date)
       }
     }
   }
-  const previous = dates.sort().at(-1)
-  return previous ? readJson<LimitLadderAnalysis>(analysisPath(previous)) : null
+  return dates.sort()
+}
+
+function allArchivedAnalysisDates(): string[] {
+  return archivedAnalysisDates('9999-12-31')
+}
+
+function recentArchivedAnalyses(asof: string, limit = 5): LimitLadderAnalysis[] {
+  return archivedAnalysisDates(asof)
+    .slice(-limit)
+    .map((date) => {
+      const path = archivedAnalysisPath(date)
+      return path ? readJson<LimitLadderAnalysis>(path) : null
+    })
+    .filter((value): value is LimitLadderAnalysis => !!value)
+}
+
+function previousArchivedAnalysis(asof: string): LimitLadderAnalysis | null {
+  return recentArchivedAnalyses(asof, 1).at(-1) ?? null
+}
+
+function archivedPromotionObservations(asof: string): PromotionObservation[] {
+  return archivedAnalysisDates(asof)
+    .slice(-60)
+    .flatMap((signalDate) => {
+      const path = existingOutcomePath(signalDate)
+      const archive = path
+        ? readJson<{ rows?: Array<Partial<LadderOutcomeRow>> }>(path)
+        : null
+      return (archive?.rows ?? [])
+        .filter(
+          (row) =>
+            row.population === 'formal' &&
+            typeof row.promoted === 'boolean' &&
+            typeof row.fromBoards === 'number',
+        )
+        .map(
+          (row): PromotionObservation => ({
+            signalDate,
+            lane:
+              row.promotionLane ??
+              `${row.fromBoards as number}进${(row.fromBoards as number) + 1}`,
+            promoted: row.promoted as boolean,
+            marketCycle: row.marketCycle,
+            marketRole: row.marketRole,
+            themeState: row.themeState,
+          }),
+        )
+    })
 }
 
 export function normalizeLadderImport(input: unknown): LadderImportPayload {
@@ -493,10 +991,13 @@ function levelContinuity(stocks: Array<{ consecutiveDays: number }>): number {
 export function scoreThemes(
   stocks: NormalizedStock[],
   globalPromotionRate: number,
+  previousStocks: Array<Pick<LadderStockAnalysis, 'code' | 'consecutiveDays' | 'themes' | 'primaryTheme'>> = [],
+  anchors: ThemeAnchor[] = [],
 ): ThemeAnalysis[] {
+  void globalPromotionRate
   const grouped = new Map<string, NormalizedStock[]>()
-  for (const stock of stocks) {
-    const names = stock.themes.length ? stock.themes : [stock.industry || '其他']
+  for (const stock of stocks.filter((item) => mainBoardCode(item.code))) {
+    const names = themeNames(stock)
     for (const name of names) {
       const group = grouped.get(name) ?? []
       group.push(stock)
@@ -507,34 +1008,222 @@ export function scoreThemes(
   return Array.from(grouped.entries())
     .map(([name, group]) => {
       const count = group.length
+      const firstBoardCount = group.filter((stock) => stock.consecutiveDays === 1).length
+      const multiBoardCount = group.filter((stock) => stock.consecutiveDays >= 2).length
       const maxBoards = Math.max(...group.map((stock) => stock.consecutiveDays))
       const continuity = levelContinuity(group)
       const sealStability = mean(group.map((stock) => clamp(100 - stock.openCount * 25)))
-      const breadthScore = clamp(((count - 1) / 4) * 100)
-      const heightScore = clamp(((maxBoards - 1) / 3) * 100)
-      const score = r2(
-        breadthScore * 0.3 +
-          heightScore * 0.25 +
-          continuity * 100 * 0.2 +
-          clamp(globalPromotionRate) * 0.15 +
-          sealStability * 0.1,
+      const themeAnchors = anchors.filter((anchor) => anchor.active && anchor.themes.includes(name))
+      const anchorCount = new Set([
+        ...themeAnchors.map((anchor) => anchor.code),
+        ...group.filter((stock) => stock.consecutiveDays >= 4).map((stock) => stock.code),
+      ]).size
+      const previousGroup = previousStocks.filter(
+        (stock) => stock.primaryTheme === name || stock.themes.includes(name),
       )
+      const currentMap = new Map(group.map((stock) => [stock.code, stock]))
+      const promoted = previousGroup.filter((stock) => {
+        const current = currentMap.get(stock.code)
+        return !!current && current.consecutiveDays > stock.consecutiveDays
+      }).length
+      const promotionRate =
+        previousGroup.length > 0 ? r2((promoted / previousGroup.length) * 100) : null
+      const components: ThemeAnalysis['components'] = {
+        continuity: r2(continuity * Math.min(1, maxBoards / 3) * 100),
+        anchor: anchorCount > 0 ? 100 : maxBoards >= 3 ? 75 : maxBoards === 2 ? 35 : 0,
+        depth: normalizePercent(multiBoardCount, 3),
+        replenishment: normalizePercent(firstBoardCount, 3),
+        promotion: promotionRate,
+        breadth: normalizePercent(count, 5),
+        seal: r2(sealStability),
+      }
+      const score = weightedAvailable([
+        { value: components.continuity, weight: 0.2 },
+        { value: components.anchor, weight: 0.15 },
+        { value: components.depth, weight: 0.15 },
+        { value: components.replenishment, weight: 0.15 },
+        { value: components.promotion, weight: 0.15 },
+        { value: components.breadth, weight: 0.1 },
+        { value: components.seal, weight: 0.1 },
+      ])
       const grade: ThemeGrade = score >= 75 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : 'D'
+      const complete =
+        anchorCount > 0 &&
+        multiBoardCount >= 1 &&
+        firstBoardCount >= 2 &&
+        continuity >= 0.999
       return {
         name,
         grade,
         score,
         count,
-        firstBoardCount: group.filter((stock) => stock.consecutiveDays === 1).length,
-        multiBoardCount: group.filter((stock) => stock.consecutiveDays >= 2).length,
+        firstBoardCount,
+        multiBoardCount,
         maxBoards,
         continuity: r2(continuity * 100),
-        promotionRate: globalPromotionRate,
+        promotionRate,
         sealStability: r2(sealStability),
         stockCodes: group.map((stock) => stock.code),
+        anchorCount,
+        complete,
+        components,
       }
     })
     .sort((a, b) => b.score - a.score || b.maxBoards - a.maxBoards || b.count - a.count)
+}
+
+function applyThemeEventGate(
+  themes: ThemeAnalysis[],
+  gate: LadderEventGate,
+): ThemeAnalysis[] {
+  return themes
+    .map((theme) => {
+      const adjustment = Object.entries(gate.themeAdjustments)
+        .filter(
+          ([eventTheme]) =>
+            eventTheme === theme.name ||
+            eventTheme.includes(theme.name) ||
+            theme.name.includes(eventTheme),
+        )
+        .reduce((sum, [, value]) => sum + value, 0)
+      if (adjustment === 0) return theme
+      const score = r2(clamp(theme.score + clamp(adjustment, -15, 15)))
+      const grade: ThemeGrade =
+        score >= 75 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : 'D'
+      return { ...theme, score, grade }
+    })
+    .sort((a, b) => b.score - a.score || b.maxBoards - a.maxBoards || b.count - a.count)
+}
+
+export function computePromotionLanes(
+  stocks: NormalizedStock[],
+  themes: ThemeAnalysis[],
+  previousStocks: Array<Pick<LadderStockAnalysis, 'code' | 'consecutiveDays'>> = [],
+  anchors: ThemeAnchor[] = [],
+  statistics?: PromotionStatistics,
+): PromotionLane[] {
+  const themeMap = new Map(themes.map((theme) => [theme.name, theme]))
+  const currentMap = new Map(stocks.map((stock) => [stock.code, stock]))
+  const lanes = [1, 2, 3].map((fromBoards): PromotionLane => {
+    const supply = stocks.filter(
+      (stock) => mainBoardCode(stock.code) && stock.consecutiveDays === fromBoards,
+    )
+    const previous = previousStocks.filter(
+      (stock) => mainBoardCode(stock.code) && stock.consecutiveDays === fromBoards,
+    )
+    const promoted = previous.filter((stock) => {
+      const current = currentMap.get(stock.code)
+      return !!current && current.consecutiveDays > fromBoards
+    }).length
+    const dailyPromotionRate =
+      previous.length > 0 ? r2((promoted / previous.length) * 100) : null
+    const estimate = statistics?.byLane[`${fromBoards}进${fromBoards + 1}`]?.day20
+    const promotionRate = estimate?.adjustedRate ?? dailyPromotionRate
+    const themeBacked = supply.filter((stock) =>
+      themeNames(stock).some((name) => {
+        const theme = themeMap.get(name)
+        return theme?.grade === 'A' || theme?.grade === 'B'
+      }),
+    ).length
+    const themeCoverage = supply.length > 0 ? r2((themeBacked / supply.length) * 100) : 0
+    const upperAnchor =
+      stocks.some((stock) => stock.consecutiveDays > fromBoards) ||
+      anchors.some((anchor) => anchor.active)
+        ? 100
+        : 0
+    const sealStability =
+      supply.length > 0
+        ? r2(mean(supply.map((stock) => clamp(100 - stock.openCount * 25))))
+        : 0
+    const score = weightedAvailable([
+      { value: promotionRate, weight: 0.35 },
+      { value: normalizePercent(supply.length, 3), weight: 0.25 },
+      { value: themeCoverage, weight: 0.2 },
+      { value: upperAnchor, weight: 0.1 },
+      { value: sealStability, weight: 0.1 },
+    ])
+    return {
+      fromBoards,
+      toBoards: fromBoards + 1,
+      label: `${fromBoards}进${fromBoards + 1}`,
+      score,
+      supply: supply.length,
+      promotionRate,
+      promoted,
+      promotionTotal: previous.length,
+      themeCoverage,
+      upperAnchor,
+      sealStability,
+      dominant: false,
+      rawPromotionRate: estimate?.rawRate ?? dailyPromotionRate,
+      adjustedPromotionRate: estimate?.adjustedRate ?? dailyPromotionRate,
+      promotionConfidence: estimate?.confidence ?? 'low',
+      rollingValid: estimate?.valid ?? previous.length,
+      rollingPromoted: estimate?.promoted ?? promoted,
+    }
+  })
+  const dominant = [...lanes]
+    .filter((lane) => lane.supply > 0)
+    .sort((a, b) => b.score - a.score || b.fromBoards - a.fromBoards)[0]
+  return lanes.map((lane) => ({ ...lane, dominant: lane.fromBoards === dominant?.fromBoards }))
+}
+
+function turnoverSweetSpot(boards: number): [number, number] {
+  if (boards <= 1) return [5, 20]
+  if (boards === 2) return [8, 25]
+  return [10, 30]
+}
+
+function bandScore(value: number, lower: number, upper: number): number {
+  if (value >= lower && value <= upper) return 100
+  if (value < lower) return clamp((value / Math.max(lower, 1)) * 100)
+  return clamp(100 - ((value - upper) / Math.max(45 - upper, 1)) * 100)
+}
+
+export function scoreTurnoverCapacity(args: {
+  turnoverRate: number
+  amount: number
+  circulatingMarketCap?: number | null
+  boards: number
+  laneAmounts?: number[]
+}): TurnoverCapacity {
+  const circulatingMarketCap =
+    typeof args.circulatingMarketCap === 'number' && args.circulatingMarketCap > 0
+      ? args.circulatingMarketCap
+      : null
+  const amountToFloatCapPct =
+    circulatingMarketCap && args.amount > 0
+      ? r2((args.amount / circulatingMarketCap) * 100)
+      : null
+  const validTurnover = args.turnoverRate > 0 ? args.turnoverRate : null
+  const effectiveTurnoverPct =
+    validTurnover != null && amountToFloatCapPct != null
+      ? r2((validTurnover + amountToFloatCapPct) / 2)
+      : validTurnover ?? amountToFloatCapPct
+  const [lower, upper] = turnoverSweetSpot(args.boards)
+  const turnoverScore =
+    effectiveTurnoverPct == null ? null : bandScore(effectiveTurnoverPct, lower, upper)
+  const amountPercentile = crossSectionPercentile(args.amount, args.laneAmounts ?? [args.amount])
+  const dataConsistent =
+    validTurnover == null ||
+    amountToFloatCapPct == null ||
+    Math.abs(validTurnover - amountToFloatCapPct) /
+      Math.max(validTurnover, amountToFloatCapPct, 0.01) <=
+      0.3
+  // 成交额分位只归属绝对流动性支柱，避免和有效换手重复计分。
+  const score = weightedAvailable([{ value: turnoverScore, weight: 1 }])
+  return {
+    circulatingMarketCap,
+    amountToFloatCapPct,
+    effectiveTurnoverPct,
+    score,
+    amountPercentile,
+    dataConsistent,
+    note:
+      effectiveTurnoverPct == null
+        ? '换手容量缺失'
+        : `有效换手${effectiveTurnoverPct}%·同层成交额P${Math.round(amountPercentile)}`,
+  }
 }
 
 function rollingMean(values: number[], endExclusive: number, window: number): number | null {
@@ -629,6 +1318,7 @@ function emptyTechnical(lastDate = '', barCount = 0): TechnicalEvidence {
     sessionsFromOnset: null,
     recognitionLate: false,
     onePrice: false,
+    onePriceStreak: 0,
     shape: 'insufficient',
     platformEdge: null,
     onsetLow: null,
@@ -688,6 +1378,15 @@ export function analyzeTechnical(
   const onsetBase = bars[Math.max(0, onsetIndex - 1)].close
   const episodeReturnPct = onsetBase > 0 ? (today.close / onsetBase - 1) * 100 : null
   const recognitionLate = (episodeReturnPct ?? 0) > 50 && !platform
+  let onePriceStreak = 0
+  for (let cursor = index; cursor > 0; cursor--) {
+    const bar = bars[cursor]
+    const previousClose = bars[cursor - 1].close
+    const onePrice =
+      Math.abs(bar.high - bar.low) < 0.005 && isLimitUpDay(bar, previousClose, code)
+    if (!onePrice) break
+    onePriceStreak++
+  }
 
   return {
     available: true,
@@ -712,6 +1411,7 @@ export function analyzeTechnical(
     sessionsFromOnset: index - onsetIndex,
     recognitionLate,
     onePrice: Math.abs(today.high - today.low) < 0.005 && isLimitUpDay(today, prevClose, code),
+    onePriceStreak,
     shape,
     platformEdge: prior20High == null ? null : r2(prior20High),
     onsetLow: bars[onsetIndex]?.low == null ? null : r2(bars[onsetIndex].low),
@@ -827,16 +1527,157 @@ function buildInvalidation(technical: TechnicalEvidence): string {
   return `收盘跌破${Math.max(...levels).toFixed(2)}附近结构位，或题材梯队明显退潮`
 }
 
+async function fetchLadderMarketProfiles(
+  codes: string[],
+): Promise<Map<string, LadderMarketProfile>> {
+  const out = new Map<string, LadderMarketProfile>()
+  const hosts = ['push2.eastmoney.com', 'push2delay.eastmoney.com']
+  const unique = Array.from(new Set(codes.filter((code) => /^\d{6}$/.test(code))))
+  for (let index = 0; index < unique.length; index += 50) {
+    const chunk = unique.slice(index, index + 50)
+    const secids = chunk
+      .map((code) => `${code.startsWith('6') ? '1' : '0'}.${code}`)
+      .join(',')
+    for (const host of hosts) {
+      try {
+        const url =
+          `https://${host}/api/qt/ulist.np/get?fltt=2&invt=2&secids=${secids}` +
+          '&fields=f12,f21'
+        const response = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 6_000 })
+        if (!response.ok) continue
+        const json = (await response.json()) as {
+          data?: { diff?: Array<{ f12?: string; f21?: number }> }
+        }
+        const rows = json.data?.diff ?? []
+        for (const row of rows) {
+          const code = normalizeCode(row.f12)
+          if (!code) continue
+          const value = Number(row.f21)
+          out.set(code, {
+            circulatingMarketCap: Number.isFinite(value) && value > 0 ? value : null,
+          })
+        }
+        if (rows.length > 0) break
+      } catch {
+        // Try the delayed quote mirror before degrading this factor.
+      }
+    }
+  }
+  return out
+}
+
+function buildHotRankMap(hotList?: HotListData): Map<string, HotRankEvidence> {
+  const out = new Map<string, HotRankEvidence>()
+  for (const row of hotList?.eastmoney ?? []) {
+    out.set(row.code, {
+      eastmoneyRank: row.rank,
+      thsRank: out.get(row.code)?.thsRank ?? null,
+    })
+  }
+  for (const row of hotList?.ths ?? []) {
+    out.set(row.code, {
+      eastmoneyRank: out.get(row.code)?.eastmoneyRank ?? null,
+      thsRank: row.rank,
+    })
+  }
+  return out
+}
+
+async function buildThemeAnchors(
+  current: NormalizedStock[],
+  histories: LimitLadderAnalysis[],
+  asof: string,
+): Promise<ThemeAnchor[]> {
+  const anchors = new Map<string, ThemeAnchor>()
+  for (const stock of current.filter(
+    (item) => mainBoardCode(item.code) && item.consecutiveDays >= 4,
+  )) {
+    anchors.set(stock.code, {
+      code: stock.code,
+      name: stock.name,
+      themes: themeNames(stock),
+      source: 'current-high-board',
+      priorMaxBoards: stock.consecutiveDays,
+      recentLimitUps: 1,
+      distanceFromFiveDayHighPct: 0,
+      active: true,
+    })
+  }
+
+  const currentCodes = new Set(
+    current.filter((stock) => mainBoardCode(stock.code)).map((stock) => stock.code),
+  )
+  const recent = new Map<
+    string,
+    {
+      code: string
+      name: string
+      themes: string[]
+      priorMaxBoards: number
+      recentLimitUps: number
+    }
+  >()
+  for (const analysis of histories) {
+    for (const stock of analysis.stocks) {
+      if (stock.boardType !== 'main') continue
+      if (currentCodes.has(stock.code)) continue
+      const prior = recent.get(stock.code)
+      recent.set(stock.code, {
+        code: stock.code,
+        name: stock.name,
+        themes: Array.from(new Set([...(prior?.themes ?? []), ...stock.themes])),
+        priorMaxBoards: Math.max(prior?.priorMaxBoards ?? 0, stock.consecutiveDays),
+        recentLimitUps: (prior?.recentLimitUps ?? 0) + 1,
+      })
+    }
+  }
+  const candidates = Array.from(recent.values()).filter(
+    (stock) => stock.priorMaxBoards >= 3 || stock.recentLimitUps >= 3,
+  )
+  const enriched = await mapLimit(candidates, 6, async (stock): Promise<ThemeAnchor> => {
+    try {
+      const { klines } = await fetchStockKline(stock.code, 101, 12)
+      const bars = klines.filter((bar) => bar.date <= asof).slice(-5)
+      const latest = bars.at(-1)
+      const high = Math.max(0, ...bars.map((bar) => bar.high))
+      const distance =
+        latest && high > 0 ? r2(((high - latest.close) / high) * 100) : null
+      return {
+        ...stock,
+        source: 'recent-high-anchor',
+        distanceFromFiveDayHighPct: distance,
+        active:
+          !!latest &&
+          latest.date === asof &&
+          latest.changePct > -9.5 &&
+          distance != null &&
+          distance <= 10,
+      }
+    } catch {
+      return {
+        ...stock,
+        source: 'recent-high-anchor',
+        distanceFromFiveDayHighPct: null,
+        active: false,
+      }
+    }
+  })
+  for (const anchor of enriched) if (anchor.active) anchors.set(anchor.code, anchor)
+  return Array.from(anchors.values())
+}
+
 function mergeStocks(
   auto: LimitStock[],
   kplStocks: KplRealtimeStock[],
   imported: LadderImportPayload | null,
+  profiles: Map<string, LadderMarketProfile> = new Map(),
 ): NormalizedStock[] {
   const importedMap = new Map((imported?.stocks ?? []).map((stock) => [normalizeCode(stock.code), stock]))
   const autoMap = new Map(auto.map((stock) => [normalizeCode(stock.code), stock]))
   const kplMap = new Map(kplStocks.map((stock) => [normalizeCode(stock.code), stock]))
   const codes = new Set([
-    ...(kplStocks.length > 0 ? kplMap.keys() : autoMap.keys()),
+    ...autoMap.keys(),
+    ...kplMap.keys(),
     ...importedMap.keys(),
   ])
   const merged: NormalizedStock[] = []
@@ -878,6 +1719,7 @@ function mergeStocks(
       changePct: market?.changePct || kpl?.changePct || 0,
       turnoverRate: market?.turnoverRate || kpl?.turnoverRate || extra?.turnoverRate || 0,
       amount: market?.amount || kpl?.amount || extra?.amount || 0,
+      circulatingMarketCap: profiles.get(code)?.circulatingMarketCap ?? null,
       firstTime: kpl?.firstTime || market?.firstTime || normalizeTime(extra?.firstTime),
       lastTime: market?.lastTime || normalizeTime(extra?.lastTime),
       openCount: market?.openCount ?? extra?.openCount ?? 0,
@@ -908,10 +1750,38 @@ export function rankAndClassifyStocks(args: {
   market: MarketCycle
   degraded: boolean
   lhb?: Map<string, LhbDay>
+  lanes?: PromotionLane[]
+  hotRanks?: Map<string, HotRankEvidence>
+  hotListAvailable?: boolean
+  roleMap?: LadderRoleMap
+  eventGate?: LadderEventGate
 }): LadderStockAnalysis[] {
-  const { stocks, themes, technical, market, degraded, lhb = new Map() } = args
+  const {
+    stocks,
+    themes,
+    technical,
+    market,
+    degraded,
+    lhb = new Map(),
+    lanes = [],
+    hotRanks = new Map(),
+    hotListAvailable = false,
+    roleMap,
+    eventGate,
+  } = args
   const themeMap = new Map(themes.map((theme) => [theme.name, theme]))
   const maxBoards = Math.max(1, ...stocks.map((stock) => stock.consecutiveDays))
+  const laneMap = new Map(lanes.map((lane) => [lane.fromBoards, lane]))
+  const roleProfileMap = new Map(
+    (roleMap?.profiles ?? []).map((profile) => [profile.code, profile]),
+  )
+  const amountByLane = new Map<number, number[]>()
+  for (const stock of stocks) {
+    amountByLane.set(stock.consecutiveDays, [
+      ...(amountByLane.get(stock.consecutiveDays) ?? []),
+      stock.amount,
+    ])
+  }
   const rows = stocks.map((stock) => {
     const primaryTheme =
       stock.themes
@@ -924,61 +1794,219 @@ export function rankAndClassifyStocks(args: {
         maxBoards: 1,
       }
     const evidence = technical.get(stock.code) ?? emptyTechnical()
-    const role = determineRole(stock, maxBoards, primaryTheme as ThemeAnalysis)
+    const roleProfile = roleProfileMap.get(stock.code)
+    const role = roleProfile?.marketRole === 'space-leader' ||
+      roleProfile?.marketRole === 'co-space-leader'
+      ? 'space-leader'
+      : roleProfile?.themeRole === 'theme-position-leader' ||
+          roleProfile?.themeRole === 'co-theme-position-leader'
+        ? 'theme-leader'
+        : determineRole(stock, maxBoards, primaryTheme as ThemeAnalysis)
+    const stockEvents =
+      eventGate?.events.filter((event) => event.codes.includes(stock.code)) ?? []
+    const stockEventAction: LadderStockAnalysis['eventGate'] =
+      stockEvents.some((event) => event.action === 'hard-block')
+        ? 'hard-block'
+        : stockEvents.some((event) => event.action === 'risk-cap')
+          ? 'risk-cap'
+          : 'none'
+    const gateReasons = stockEvents
+      .filter((event) => event.action !== 'informational')
+      .map((event) => `${event.source}：${event.title}`)
     const onePrice =
       stock.importedOnePrice ??
       (stock.patternHintAvailable ? stock.onePriceHint : evidence.onePrice)
     const tBoard = !onePrice && stock.patternHintAvailable && stock.tBoardHint
     const fundFlow = scoreLadderFundFlow(lhb.get(stock.code))
+    const lane = laneMap.get(stock.consecutiveDays)
+    const laneScore = lane?.score ?? 70
+    const turnoverCapacity = scoreTurnoverCapacity({
+      turnoverRate: stock.turnoverRate,
+      amount: stock.amount,
+      circulatingMarketCap: stock.circulatingMarketCap,
+      boards: stock.consecutiveDays,
+      laneAmounts: amountByLane.get(stock.consecutiveDays),
+    })
+    const followerCount = stocks.filter((other) => {
+      if (other.code === stock.code) return false
+      if (!other.firstTime || !stock.firstTime || other.firstTime <= stock.firstTime) return false
+      return themeNames(other).some((name) => themeNames(stock).includes(name))
+    }).length
+    const hot = hotRanks.get(stock.code)
+    const eastmoneyScore =
+      hot?.eastmoneyRank != null ? clamp(110 - hot.eastmoneyRank * 10) : null
+    const thsScore = hot?.thsRank != null ? clamp(110 - hot.thsRank * 10) : null
+    const hotRankScore =
+      hotListAvailable && (eastmoneyScore != null || thsScore != null)
+        ? weightedAvailable([
+            { value: eastmoneyScore, weight: 0.5 },
+            { value: thsScore, weight: 0.5 },
+          ])
+        : null
+    const popularity: LadderPopularity = {
+      score: weightedAvailable([
+        { value: ladderRoleScore(role), weight: 0.4 },
+        { value: normalizePercent(followerCount, 3), weight: 0.25 },
+        { value: hotRankScore, weight: 0.2 },
+        { value: fundFlow.available ? fundFlow.score : null, weight: 0.15 },
+      ]),
+      roleScore: ladderRoleScore(role),
+      followScore: normalizePercent(followerCount, 3),
+      hotRankScore,
+      fundFlowScore: fundFlow.available ? fundFlow.score : null,
+      eastmoneyRank: hot?.eastmoneyRank ?? null,
+      thsRank: hot?.thsRank ?? null,
+      followerCount,
+      note: `${role}·带动${followerCount}只${hotRankScore == null ? '' : `·热榜${Math.round(hotRankScore)}`}`,
+    }
+    const sealBase = sealScore(stock, onePrice)
+    const sealRatio =
+      stock.sealAmount != null && stock.amount > 0
+        ? clamp((stock.sealAmount / stock.amount / 0.2) * 100)
+        : null
+    const promotionSeal = weightedAvailable([
+      { value: sealBase, weight: 0.7 },
+      { value: sealRatio, weight: 0.3 },
+    ])
+    const accessibility = onePrice
+      ? (evidence.onePriceStreak ?? 0) >= 2
+        ? 20
+        : 45
+      : tBoard
+        ? 90
+        : 100
+    const liquidity =
+      stock.amount < MIN_LADDER_AMOUNT
+        ? clamp((stock.amount / MIN_LADDER_AMOUNT) * 40)
+        : Math.max(60, turnoverCapacity.amountPercentile)
+    const reopen = clamp(sealBase + (tBoard ? 10 : 0) - (onePrice ? 15 : 0))
+    const promotionDimensions: LadderV2Scores['promotionDimensions'] = {
+      market: { score: market.score, note: market.reasons.join('；') },
+      lane: {
+        score: laneScore,
+        note: lane ? `${lane.label}${lane.dominant ? '·主攻' : ''}` : `${stock.consecutiveDays}进${stock.consecutiveDays + 1}·历史不足`,
+      },
+      theme: {
+        score: primaryTheme.score,
+        note: `${primaryTheme.grade}级 ${primaryTheme.name}${primaryTheme.complete ? '·完整梯队' : ''}`,
+      },
+      popularity: { score: popularity.score, note: popularity.note },
+      seal: {
+        score: promotionSeal,
+        note: stock.firstTime ? `首封${stock.firstTime}·开板${stock.openCount}` : '封板时间缺失',
+      },
+      technical: { score: technicalScore(evidence.shape), note: evidence.shape },
+    }
+    const tradabilityDimensions: LadderV2Scores['tradabilityDimensions'] = {
+      accessibility: {
+        score: accessibility,
+        note: onePrice ? `一字${evidence.onePriceStreak ?? 1}日` : tBoard ? 'T字换手' : '可达换手板',
+      },
+      turnoverCapacity: {
+        score: turnoverCapacity.score,
+        note: turnoverCapacity.note,
+      },
+      liquidity: {
+        score: liquidity,
+        note: `成交额${r2(stock.amount / 1e8)}亿·同层P${Math.round(turnoverCapacity.amountPercentile)}`,
+      },
+      structure: {
+        score: technicalScore(evidence.shape),
+        note: evidence.shape,
+      },
+      reopen: {
+        score: reopen,
+        note: `首封${stock.firstTime || '缺失'}·开板${stock.openCount}`,
+      },
+    }
+    let promotionScore = weightedAvailable([
+      { value: promotionDimensions.market.score, weight: 0.15 },
+      // 梯队与题材共享部分封板/连续性信息，合计贡献由45%压到40%。
+      { value: promotionDimensions.lane.score, weight: 0.175 },
+      { value: promotionDimensions.theme.score, weight: 0.225 },
+      { value: promotionDimensions.popularity.score, weight: 0.15 },
+      { value: promotionDimensions.seal.score, weight: 0.15 },
+      { value: promotionDimensions.technical.score, weight: 0.15 },
+    ])
+    let tradabilityScore = weightedAvailable([
+      { value: tradabilityDimensions.accessibility.score, weight: 0.3 },
+      { value: tradabilityDimensions.turnoverCapacity.score, weight: 0.3 },
+      { value: tradabilityDimensions.liquidity.score, weight: 0.15 },
+      { value: tradabilityDimensions.structure.score, weight: 0.15 },
+      { value: tradabilityDimensions.reopen.score, weight: 0.1 },
+    ])
     const dimensions = {
       market: { score: market.score, note: market.reasons.join('；') },
       theme: { score: primaryTheme.score, note: `${primaryTheme.grade}级 ${primaryTheme.name}` },
-      ladder: { score: ladderRoleScore(role), note: `${stock.consecutiveDays}板 · ${role}` },
+      ladder: { score: laneScore, note: `${stock.consecutiveDays}板 · ${role}` },
       technical: { score: technicalScore(evidence.shape), note: evidence.shape },
       fundFlow: { score: fundFlow.score, note: fundFlow.note },
-      seal: { score: sealScore(stock, onePrice), note: stock.firstTime ? `首封${stock.firstTime}` : '封板时间缺失' },
+      seal: { score: promotionSeal, note: stock.firstTime ? `首封${stock.firstTime}` : '封板时间缺失' },
     }
-    let score = r2(
-      dimensions.market.score * 0.15 +
-        dimensions.theme.score * 0.25 +
-        dimensions.ladder.score * 0.2 +
-        dimensions.technical.score * 0.2 +
-        dimensions.fundFlow.score * 0.1 +
-        dimensions.seal.score * 0.1,
-    )
     const penalties: string[] = []
     if (evidence.recognitionLate) {
-      score -= 15
+      promotionScore -= 15
+      tradabilityScore -= 10
       penalties.push('识别过晚 -15')
     }
     if (evidence.shape === 'high-new-high') {
-      score -= 10
+      promotionScore -= 10
+      tradabilityScore -= 10
       penalties.push('高位加速 -10')
     }
     if (stock.consecutiveDays >= 4 && (evidence.pre20RangePct ?? Infinity) > 25) {
-      score -= 10
+      promotionScore -= 10
+      tradabilityScore -= 10
       penalties.push('四板以上且无新平台 -10')
     }
     if (stock.openCount >= 3) {
-      score -= 10
+      promotionScore -= 10
       penalties.push('炸板三次以上 -10')
     }
     if (primaryTheme.grade === 'D') {
-      score -= 15
+      promotionScore -= 15
       penalties.push('孤立题材 -15')
     }
-    score = clamp(r2(score))
+    if (onePrice) {
+      promotionScore += 5
+      tradabilityScore -= 20
+      penalties.push('一字强度 +5 / 可交易 -20')
+      if ((evidence.onePriceStreak ?? 0) >= 2) {
+        tradabilityScore -= 10
+        penalties.push('连续一字可交易 -10')
+      }
+    }
+    promotionScore = clamp(r2(promotionScore))
+    tradabilityScore = clamp(r2(tradabilityScore))
+    const score = r2(promotionScore * 0.6 + tradabilityScore * 0.4)
 
     const hardFailure =
       /ST|\*ST/i.test(stock.name) ||
       /^(N|C)/i.test(stock.name) ||
-      (evidence.available && !evidence.settled)
+      (evidence.available && !evidence.settled) ||
+      stockEventAction === 'hard-block'
     let state: LadderState
     if (hardFailure || score < 40) state = 'exclude'
-    else if (degraded || !evidence.available || primaryTheme.grade === 'C' || primaryTheme.grade === 'D') state = 'observe'
-    else if (score >= 70 && !onePrice && stock.consecutiveDays < 4 && (primaryTheme.grade === 'A' || primaryTheme.grade === 'B')) {
+    else if (stockEventAction === 'risk-cap') state = 'observe'
+    else if (
+      degraded ||
+      !evidence.available ||
+      !mainBoardCode(stock.code) ||
+      primaryTheme.grade === 'C' ||
+      primaryTheme.grade === 'D' ||
+      stock.amount < MIN_LADDER_AMOUNT
+    ) state = 'observe'
+    else if (
+      score >= 68 &&
+      promotionScore >= 65 &&
+      tradabilityScore >= 55 &&
+      !onePrice &&
+      stock.consecutiveDays >= 1 &&
+      stock.consecutiveDays <= 3 &&
+      (primaryTheme.grade === 'A' || primaryTheme.grade === 'B')
+    ) {
       state = 'candidate'
-    } else if (score >= 55) state = 'waiting'
+    } else if (score >= 55 || (onePrice && promotionScore >= 65) || stock.consecutiveDays >= 4) state = 'waiting'
     else state = 'observe'
 
     const warnings = [...stock.warnings]
@@ -986,7 +2014,14 @@ export function rankAndClassifyStocks(args: {
     if (!evidence.available) warnings.push('K线不足')
     if (evidence.available && !evidence.settled) warnings.push(`K线截止${evidence.lastDate}，与分析日不一致`)
     if (onePrice) warnings.push('一字涨停，当日不可执行')
+    if (!turnoverCapacity.dataConsistent) warnings.push('换手率与成交流通比偏差超过30%')
+    if (stock.circulatingMarketCap == null) warnings.push('流通市值缺失，容量分按换手率降级')
+    if (!mainBoardCode(stock.code)) warnings.push('非主板10cm，仅列观察')
+    if (stock.consecutiveDays >= 4) warnings.push('四板以上仅作情绪锚，不列新开仓候选')
+    if (stock.amount < MIN_LADDER_AMOUNT) warnings.push('成交额不足1亿元，降级观察')
     if (degraded) warnings.push('数据源降级，状态最高为观察')
+    if (stockEventAction === 'hard-block') warnings.push('消息闸门硬否决，排除候选')
+    if (stockEventAction === 'risk-cap') warnings.push('监管或事件风险上限，状态最高为观察')
 
     const mainRisk =
       warnings[0] ??
@@ -1008,12 +2043,14 @@ export function rankAndClassifyStocks(args: {
       themeGrade: primaryTheme.grade,
       themeScore: primaryTheme.score,
       role,
+      roleProfile,
       reason: stock.reason,
       firstTime: stock.firstTime,
       lastTime: stock.lastTime,
       openCount: stock.openCount,
       turnoverRate: stock.turnoverRate,
       amount: stock.amount,
+      circulatingMarketCap: stock.circulatingMarketCap,
       sealAmount: stock.sealAmount,
       onePrice,
       tBoard,
@@ -1021,18 +2058,34 @@ export function rankAndClassifyStocks(args: {
       reasonSource: stock.reasonSource,
       state,
       score,
+      promotionLane: lane?.label ?? `${stock.consecutiveDays}进${stock.consecutiveDays + 1}`,
+      promotionScore,
+      tradabilityScore,
+      baseScore: score,
+      candidateRank: null,
+      turnoverCapacity,
+      popularity,
+      v2: {
+        promotion: promotionScore,
+        tradability: tradabilityScore,
+        base: score,
+        promotionDimensions,
+        tradabilityDimensions,
+      },
       technical: evidence,
       dimensions,
       fundFlow,
       penalties,
       warnings,
+      eventGate: stockEventAction,
+      gateReasons,
       trigger: buildTrigger(stock, evidence),
       invalidation: buildInvalidation(evidence),
       mainRisk,
     } satisfies LadderStockAnalysis
   })
 
-  return rows
+  const prelim = rows
     .sort(
       (a, b) =>
         statePriority(a.state) - statePriority(b.state) ||
@@ -1040,13 +2093,56 @@ export function rankAndClassifyStocks(args: {
         b.consecutiveDays - a.consecutiveDays ||
         (a.firstTime || '999999').localeCompare(b.firstTime || '999999'),
     )
-    .map((row, index) => ({ ...row, rank: index + 1 }))
+  const selectedCodes = new Set<string>()
+  const laneCounts = new Map<string, number>()
+  const themeCounts = new Map<string, number>()
+  for (const row of prelim.filter((item) => item.state === 'candidate')) {
+    const lane = row.promotionLane ?? ''
+    const laneCount = laneCounts.get(lane) ?? 0
+    const themeCount = themeCounts.get(row.primaryTheme) ?? 0
+    if (
+      selectedCodes.size >= MAX_NEXT_DAY_CANDIDATES ||
+      laneCount >= MAX_CANDIDATES_PER_LANE ||
+      themeCount >= MAX_CANDIDATES_PER_THEME
+    ) {
+      row.state = 'waiting'
+      row.warnings.push('候选限额外，转入等待确认')
+      continue
+    }
+    selectedCodes.add(row.code)
+    laneCounts.set(lane, laneCount + 1)
+    themeCounts.set(row.primaryTheme, themeCount + 1)
+  }
+
+  let candidateRank = 0
+  return prelim
+    .sort(
+      (a, b) =>
+        statePriority(a.state) - statePriority(b.state) ||
+        b.score - a.score ||
+        b.consecutiveDays - a.consecutiveDays ||
+        (a.firstTime || '999999').localeCompare(b.firstTime || '999999'),
+    )
+    .map((row, index) => ({
+      ...row,
+      rank: index + 1,
+      candidateRank: row.state === 'candidate' ? ++candidateRank : null,
+    }))
 }
 
 function qualityRank(quality: LadderDataQuality): number {
   if (quality.sentimentSource === 'mock' || quality.klineTotal === 0) return 0
-  if (!quality.degraded && (quality.source === 'kaipanla' || quality.source === 'eastmoney' || quality.source === 'mixed')) return 2
-  return 1
+  const sourceRank =
+    !quality.degraded &&
+    (quality.source === 'kaipanla' ||
+      quality.source === 'eastmoney' ||
+      quality.source === 'mixed')
+      ? 2
+      : 1
+  const klineCoverage = Math.round(
+    (quality.klineComplete / Math.max(quality.klineTotal, 1)) * 100,
+  )
+  return sourceRank * 1_000 + klineCoverage
 }
 
 function maybeArchive(
@@ -1060,6 +2156,9 @@ function maybeArchive(
   if (existing && existing.qualityRank > evidence.qualityRank) return false
   writeJsonAtomic(path, evidence)
   writeJsonAtomic(analysisPath(analysis.asof), { ...analysis, archived: true })
+  if (analysis.eventGate) {
+    writeJsonAtomic(eventGatePath(analysis.asof), analysis.eventGate)
+  }
   return true
 }
 
@@ -1077,28 +2176,68 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       })),
   ])
   const kplLadder = kplResult.value
-  const merged = mergeStocks(ashare.limitUpStocks, kplLadder?.stocks ?? [], imported)
+  const profileCodes = Array.from(
+    new Set([
+      ...ashare.limitUpStocks.map((stock) => stock.code),
+      ...(kplLadder?.stocks ?? []).map((stock) => stock.code),
+      ...(imported?.stocks ?? []).map((stock) => stock.code),
+    ]),
+  )
+  const profiles = await fetchLadderMarketProfiles(profileCodes)
+  const merged = mergeStocks(
+    ashare.limitUpStocks,
+    kplLadder?.stocks ?? [],
+    imported,
+    profiles,
+  )
   if (merged.length === 0) throw new Error('涨停池为空，拒绝生成连板天梯')
 
-  const limitFieldsComplete = merged.every((stock) => stock.firstTime && stock.consecutiveDays > 0)
+  const formalDataUniverse = merged.filter(
+    (stock) =>
+      mainBoardCode(stock.code) &&
+      !/ST|\*ST/i.test(stock.name) &&
+      !/^(N|C)/i.test(stock.name),
+  )
+  const limitFieldsComplete = formalDataUniverse.every(
+    (stock) => stock.firstTime && stock.consecutiveDays > 0,
+  )
+  const observationLimitFieldsMissing = merged.filter(
+    (stock) => !stock.firstTime || stock.consecutiveDays <= 0,
+  ).length
+  const unresolvedKplTiers =
+    kplLadder?.missingTiers.filter(
+      (tier) => !merged.some((stock) => stock.consecutiveDays === tier),
+    ) ?? []
   const source: LadderDataQuality['source'] = imported
     ? ashare.limitUpStocks.length || kplLadder?.stocks.length
       ? 'mixed'
       : 'import'
-    : kplLadder?.stocks.length
-      ? 'kaipanla'
+    : kplLadder?.stocks.length && ashare.limitUpStocks.length
+      ? 'mixed'
+      : kplLadder?.stocks.length
+        ? 'kaipanla'
     : limitFieldsComplete
       ? 'eastmoney'
       : 'sina'
   const maxBoards = Math.max(1, ...merged.map((stock) => stock.consecutiveDays))
   const continuity = levelContinuity(merged)
   const previous = previousArchivedAnalysis(asof)
+  const histories = recentArchivedAnalyses(asof, 5)
+  const previousMap = new Map(previous?.stocks.map((stock) => [stock.code, stock]) ?? [])
+  const derivedPromoted = merged.filter((stock) => {
+    const prior = previousMap.get(stock.code)
+    return !!prior && stock.consecutiveDays > prior.consecutiveDays
+  }).length
+  const derivedPromotionRate =
+    previous && previous.stocks.length > 0
+      ? r2((derivedPromoted / previous.stocks.length) * 100)
+      : null
   const marketInput: MarketCycleInput = {
     temperature: sentiment.temperature,
     limitUp: ashare.limitUpCount,
     limitDown: ashare.limitDownCount,
     breakRate: sentiment.breakRate,
-    promotionRate: ashare.promotionRate,
+    promotionRate: derivedPromotionRate ?? ashare.promotionRate,
     yestLimitPerf: sentiment.yestLimitPerf,
     advance: ashare.advance,
     decline: ashare.decline,
@@ -1109,40 +2248,149 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     marketInput,
     previous ? { phase: previous.market.cycle.phase, current: previous.market.cycle.current } : undefined,
   )
-  const themes = scoreThemes(merged, ashare.promotionRate)
-
-  const technicalResults = await mapLimit(merged, 10, async (stock): Promise<[string, TechnicalResult]> => {
-    try {
-      const { klines } = await fetchStockKline(stock.code, 101, KLINE_COUNT)
-      return [
-        stock.code,
-        {
-          evidence: analyzeTechnical(klines, stock.code, asof, sessionSettled),
-          bars: klines.filter((bar) => bar.date <= asof),
-        },
-      ]
-    } catch {
-      return [stock.code, { evidence: emptyTechnical(), bars: [] }]
-    }
-  })
+  const eventInputs = merged.map((stock) => ({
+    code: stock.code,
+    name: stock.name,
+    consecutiveDays: stock.consecutiveDays,
+    primaryTheme: themeNames(stock)[0] ?? '其他',
+    themes: themeNames(stock),
+    firstTime: stock.firstTime,
+    openCount: stock.openCount,
+    onePrice: stock.importedOnePrice ?? stock.onePriceHint,
+  }))
+  const frozenEventGate = readJson<LadderEventGate>(eventGatePath(asof))
+  const [themeAnchors, technicalResults, lhbIndex, hotList, eventGate] = await Promise.all([
+    buildThemeAnchors(merged, histories, asof),
+    mapLimit(merged, 10, async (stock): Promise<[string, TechnicalResult]> => {
+      try {
+        const { klines } = await fetchStockKline(stock.code, 101, KLINE_COUNT)
+        return [
+          stock.code,
+          {
+            evidence: analyzeTechnical(klines, stock.code, asof, sessionSettled),
+            bars: klines.filter((bar) => bar.date <= asof),
+          },
+        ]
+      } catch {
+        return [stock.code, { evidence: emptyTechnical(), bars: [] }]
+      }
+    }),
+    buildLhbIndex([asof], { institutional: true, concurrency: 1 }),
+    fetchHotList().catch(() => null),
+    frozenEventGate
+      ? Promise.resolve(frozenEventGate)
+      : fetchLadderEventGate({
+          asof,
+          stocks: eventInputs,
+          knownAt: new Date().toISOString(),
+        }).catch(
+          (error: unknown): LadderEventGate => ({
+            generatedAt: new Date().toISOString(),
+            coverage: 0,
+            sourceStatus: {},
+            events: [],
+            hardBlockedCodes: [],
+            riskCappedCodes: [],
+            themeAdjustments: {},
+            marketRisk: 'normal',
+            warnings: [
+              `消息闸门数据不可用：${error instanceof Error ? error.message : String(error)}`,
+            ],
+          }),
+        ),
+  ])
+  const themes = applyThemeEventGate(
+    scoreThemes(
+      merged,
+      marketInput.promotionRate,
+      previous?.stocks ?? [],
+      themeAnchors,
+    ),
+    eventGate,
+  )
   const technicalMap = new Map(technicalResults.map(([code, result]) => [code, result.evidence]))
-  const lhbIndex = await buildLhbIndex([asof], { institutional: true, concurrency: 1 })
+  const primaryThemeFor = (stock: NormalizedStock) =>
+    (stock.themes
+      .map((name) => themes.find((theme) => theme.name === name))
+      .filter((theme): theme is ThemeAnalysis => !!theme)
+      .sort((a, b) => b.score - a.score)[0]?.name ??
+      stock.industry) ||
+    '其他'
+  const roleMap = buildLadderRoleMap({
+    stocks: merged.filter((stock) => mainBoardCode(stock.code)).map((stock) => {
+      const technical = technicalMap.get(stock.code)
+      return {
+        code: stock.code,
+        name: stock.name,
+        consecutiveDays: stock.consecutiveDays,
+        primaryTheme: primaryThemeFor(stock),
+        themes: stock.themes,
+        firstTime: stock.firstTime,
+        openCount: stock.openCount,
+        onePrice:
+          stock.importedOnePrice ??
+          (stock.patternHintAvailable ? stock.onePriceHint : technical?.onePrice),
+      }
+    }),
+    histories: histories.map((history) => ({
+      asof: history.asof,
+      stocks: history.stocks.map((stock) => ({
+        code: stock.code,
+        consecutiveDays: stock.consecutiveDays,
+        primaryTheme: stock.primaryTheme,
+        role: stock.role,
+        roleProfile: stock.roleProfile,
+      })),
+    })),
+    anchors: themeAnchors.map((anchor) => ({
+      code: anchor.code,
+      name: anchor.name,
+      themes: anchor.themes,
+      priorMaxBoards: anchor.priorMaxBoards,
+      active: anchor.active,
+    })),
+  })
+  const promotionStatistics = buildPromotionStatistics(
+    archivedPromotionObservations(asof),
+  )
+  const promotionLanes = computePromotionLanes(
+    merged,
+    themes,
+    previous?.stocks ?? [],
+    themeAnchors,
+    promotionStatistics,
+  )
   const lhbForDay = lhbIndex.get(asof) ?? new Map<string, LhbDay>()
   const fundFlowComplete = lhbForDay.size > 0
   const klineComplete = technicalResults.filter(([, result]) => result.evidence.available && result.evidence.settled).length
   const qualityWarnings: string[] = []
   if (kplResult.error) qualityWarnings.push(`开盘啦实时梯队不可用：${kplResult.error}`)
-  if (kplLadder && !kplLadder.complete) {
-    qualityWarnings.push(`开盘啦缺少${kplLadder.missingTiers.join('、')}板梯队`)
+  if (unresolvedKplTiers.length > 0) {
+    qualityWarnings.push(`合并东财后仍缺少${unresolvedKplTiers.join('、')}板梯队`)
   }
   if (kplLadder?.date && kplLadder.date !== asof) {
     qualityWarnings.push(`开盘啦梯队日期为${kplLadder.date}，与分析日${asof}不一致`)
   }
   if (!limitFieldsComplete) qualityWarnings.push('涨停池缺少完整板数或封板时间，已降级')
+  if (observationLimitFieldsMissing > 0) {
+    qualityWarnings.push(
+      `${observationLimitFieldsMissing}只非正式候选观察标的缺少封板时间`,
+    )
+  }
   if (sentiment.source === 'mock') qualityWarnings.push('情绪数据为mock，拒绝高置信结论和归档')
   if (klineComplete < merged.length) qualityWarnings.push(`${merged.length - klineComplete}只股票K线不完整`)
   if (!sessionSettled) qualityWarnings.push('交易时段内仅供预览，未完成K线不得生成次日候选')
   if (!fundFlowComplete) qualityWarnings.push('当日龙虎榜席位尚未发布，资金流维度暂取中性分')
+  const floatCapComplete = merged.filter((stock) => stock.circulatingMarketCap != null).length
+  if (floatCapComplete < merged.length) {
+    qualityWarnings.push(`${merged.length - floatCapComplete}只股票流通市值缺失，容量分按换手率降级`)
+  }
+  if (!hotList) qualityWarnings.push('热榜数据不可用，人气分按角色、带动与龙虎榜重归一化')
+  if (derivedPromotionRate == null) qualityWarnings.push('缺少前日可比归档，晋级层历史晋级率暂缺')
+  if (eventGate.coverage < 75) {
+    qualityWarnings.push(`消息闸门来源覆盖率${eventGate.coverage.toFixed(1)}%`)
+  }
+  qualityWarnings.push(...eventGate.warnings)
   const quality: LadderDataQuality = {
     source,
     sourceDate: kplLadder?.date || asof,
@@ -1154,7 +2402,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       !limitFieldsComplete ||
       sentiment.source === 'mock' ||
       !sessionSettled ||
-      (!!kplLadder && !kplLadder.complete) ||
+      unresolvedKplTiers.length > 0 ||
       (!!kplLadder?.date && kplLadder.date !== asof),
     fundFlowComplete,
     warnings: qualityWarnings,
@@ -1166,6 +2414,11 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     market: cycle,
     degraded: quality.degraded,
     lhb: lhbForDay,
+    lanes: promotionLanes,
+    hotRanks: buildHotRankMap(hotList ?? undefined),
+    hotListAvailable: !!hotList && (hotList.eastmoney.length > 0 || hotList.ths.length > 0),
+    roleMap,
+    eventGate,
   })
   const levels = Array.from(new Set(stocks.filter((stock) => stock.consecutiveDays >= 2).map((stock) => stock.consecutiveDays)))
     .sort((a, b) => b - a)
@@ -1183,15 +2436,23 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       limitUp: ashare.limitUpCount,
       limitDown: ashare.limitDownCount,
       breakRate: sentiment.breakRate,
-      promotionRate: ashare.promotionRate,
+      promotionRate: marketInput.promotionRate,
       advance: ashare.advance,
       decline: ashare.decline,
       maxBoards,
     },
     themes,
+    promotionLanes,
+    promotionStatistics,
+    dominantLane: promotionLanes.find((lane) => lane.dominant)?.label ?? null,
+    themeAnchors,
+    roleMap,
+    riskEvents: eventGate.events,
+    eventGate,
     levels,
     firstBoards: stocks.filter((stock) => stock.consecutiveDays === 1),
     stocks,
+    nextDayCandidates: stocks.filter((stock) => stock.state === 'candidate'),
     quality,
     warnings,
   }
@@ -1215,39 +2476,2347 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     limitUpStocks: ashare.limitUpStocks,
     imported,
     klines: Object.fromEntries(technicalResults.map(([code, result]) => [code, result.bars])),
+    marketProfiles: Object.fromEntries(
+      merged.map((stock) => [
+        stock.code,
+        { circulatingMarketCap: stock.circulatingMarketCap },
+      ]),
+    ),
+    hotList: hotList
+      ? { eastmoney: hotList.eastmoney, ths: hotList.ths }
+      : undefined,
+    promotionLanes,
+    themeAnchors,
+    roleMap,
+    eventGate,
+    promotionStatistics,
   }
+  await maybeArchivePreviousOutcome(asof, analysis, previous)
   const archived = maybeArchive(analysis, evidence)
   return { ...analysis, archived }
+}
+
+export interface AuctionMarketSnapshot {
+  topAmount: AuctionMarketStock[]
+  topGainers: AuctionMarketStock[]
+}
+
+export interface AuctionProcessSnapshot {
+  capturedAt: string
+  clockTime: string
+  quotes: Record<string, ScreenerLiveQuote>
+  market: AuctionMarketSnapshot
+  sources: string[]
+  coverage: number
+  warnings: string[]
+}
+
+export interface AuctionProcessArchive {
+  signalDate: string
+  tradeDate: string
+  generatedAt: string
+  ruleVersion: string
+  snapshots: AuctionProcessSnapshot[]
+  finalSnapshot: AuctionProcessSnapshot | null
+}
+
+interface ConfirmationSnapshot {
+  signalDate: string
+  tradeDate: string
+  capturedAt: string
+  ruleVersion: string
+  quotes: Record<string, ScreenerLiveQuote>
+}
+
+interface HighBoardAuctionArchive {
+  signalDate: string
+  tradeDate: string
+  generatedAt: string
+  ruleVersion: string
+  auction: HighBoardRiskContext | null
+  open: HighBoardRiskContext | null
+  eventReaction: LadderEventReaction | null
+}
+
+interface LegacyAuctionSnapshot {
+  signalDate: string
+  tradeDate: string
+  capturedAt: string
+  quotes: Record<string, ScreenerLiveQuote>
+}
+
+interface LegacyLadderOutcomeArchive {
+  signalDate: string
+  tradeDate: string
+  generatedAt: string
+  ruleVersion?: string
+  rows: Array<{
+    code: string
+    name: string
+    candidateRank: number | null
+    fromBoards: number
+    promoted: boolean
+    tradable: boolean
+    openToClosePct: number | null
+    mfePct: number | null
+    maePct: number | null
+  }>
+}
+
+function auctionProcessPath(
+  signalDate: string,
+  version = LIMIT_LADDER_RULE_VERSION,
+): string {
+  return join(archiveDir(signalDate), `auction-process-${version}.json`)
+}
+
+function confirmationSnapshotPath(
+  signalDate: string,
+  version = LIMIT_LADDER_RULE_VERSION,
+): string {
+  return join(archiveDir(signalDate), `confirmation-${version}.json`)
+}
+
+function legacyAuctionSnapshotPath(signalDate: string, version = 'limit-ladder-v2'): string {
+  return join(archiveDir(signalDate), `auction-${version}.json`)
+}
+
+function outcomePath(signalDate: string, version = LIMIT_LADDER_RULE_VERSION): string {
+  return join(archiveDir(signalDate), `outcome-${version}.json`)
+}
+
+function settledNextDayPath(
+  signalDate: string,
+  version = LIMIT_LADDER_RULE_VERSION,
+): string {
+  return join(archiveDir(signalDate), `settled-next-day-${version}.json`)
+}
+
+function existingSettledNextDayPath(signalDate: string): string | null {
+  for (const version of COMPATIBLE_LADDER_RULE_VERSIONS) {
+    const path = settledNextDayPath(signalDate, version)
+    if (existsSync(path)) return path
+  }
+  return null
+}
+
+function highBoardArchivePath(
+  signalDate: string,
+  version = LIMIT_LADDER_RULE_VERSION,
+): string {
+  return join(
+    archiveDir(signalDate),
+    `high-board-auction-${version}.json`,
+  )
+}
+
+function existingHighBoardArchivePath(signalDate: string): string | null {
+  for (const version of COMPATIBLE_LADDER_RULE_VERSIONS) {
+    const path = highBoardArchivePath(signalDate, version)
+    if (existsSync(path)) return path
+  }
+  return null
+}
+
+function marketGateArchivePath(
+  signalDate: string,
+  version = LIMIT_LADDER_RULE_VERSION,
+): string {
+  return join(archiveDir(signalDate), `market-gate-${version}.json`)
+}
+
+function existingOutcomePath(signalDate: string): string | null {
+  for (const version of COMPATIBLE_LADDER_RULE_VERSIONS) {
+    const path = outcomePath(signalDate, version)
+    if (existsSync(path)) return path
+  }
+  return null
+}
+
+function formalCandidateRows(analysis: LimitLadderAnalysis): LadderStockAnalysis[] {
+  return analysis.nextDayCandidates ?? analysis.stocks.filter((stock) => stock.state === 'candidate')
+}
+
+function waitOpenMonitorRows(analysis: LimitLadderAnalysis): LadderStockAnalysis[] {
+  return analysis.stocks
+    .filter(
+      (stock) =>
+        stock.state === 'waiting' &&
+        stock.boardType === 'main' &&
+        stock.consecutiveDays <= 3 &&
+        stock.onePrice &&
+        (stock.promotionScore ?? stock.score) >= 65,
+    )
+    .sort((a, b) => (b.promotionScore ?? b.score) - (a.promotionScore ?? a.score))
+    .slice(0, 3)
+}
+
+function summarizeOutcomeRows(rows: LadderOutcomeRow[]): LadderPromotionRateSummary {
+  const validRows = rows.filter((row) => row.resultStatus !== 'unresolved')
+  const promoted = validRows.filter((row) => row.resultStatus === 'promoted').length
+  const failed = validRows.length - promoted
+  return {
+    total: rows.length,
+    valid: validRows.length,
+    promoted,
+    failed,
+    unresolved: rows.length - validRows.length,
+    promotionRate: validRows.length > 0 ? r2((promoted / validRows.length) * 100) : null,
+    coverage: rows.length > 0 ? r2((validRows.length / rows.length) * 100) : 0,
+  }
+}
+
+export function buildOutcomeSummary(rows: LadderOutcomeRow[]): LadderOutcomeSummary {
+  const formal = rows.filter((row) => row.population === 'formal')
+  const waitOpen = rows.filter((row) => row.population === 'wait-open')
+  const byLane = Array.from(new Set(formal.map((row) => row.fromBoards)))
+    .sort((a, b) => a - b)
+    .map((fromBoards) => ({
+      promotionLane: `${fromBoards}进${fromBoards + 1}`,
+      fromBoards,
+      ...summarizeOutcomeRows(formal.filter((row) => row.fromBoards === fromBoards)),
+    }))
+  const byRepairState = Array.from(
+    new Set(
+      formal
+        .map((row) => row.repairState)
+        .filter((value): value is MarketRepairState => !!value),
+    ),
+  ).map((repairState) => ({
+    repairState,
+    ...summarizeOutcomeRows(
+      formal.filter((row) => row.repairState === repairState),
+    ),
+  }))
+  const bySizeBucket = Array.from(
+    new Set(
+      formal
+        .map((row) => row.sizeBucket)
+        .filter((value): value is LadderSizeBucket => !!value),
+    ),
+  ).map((sizeBucket) => ({
+    sizeBucket,
+    ...summarizeOutcomeRows(
+      formal.filter((row) => row.sizeBucket === sizeBucket),
+    ),
+  }))
+  const byHeightTier = Array.from(
+    new Set(
+      formal
+        .map((row) => row.heightTier)
+        .filter(
+          (
+            value,
+          ): value is LadderRoleProfile['heightTier'] => !!value,
+        ),
+    ),
+  ).map((heightTier) => ({
+    heightTier,
+    ...summarizeOutcomeRows(
+      formal.filter((row) => row.heightTier === heightTier),
+    ),
+  }))
+  return {
+    formal: summarizeOutcomeRows(formal),
+    byLane,
+    waitOpen: summarizeOutcomeRows(waitOpen),
+    byRepairState,
+    bySizeBucket,
+    byHeightTier,
+  }
+}
+
+function normalizeOutcomeArchive(
+  value: LadderOutcomeArchive | LegacyLadderOutcomeArchive,
+  analysis: LimitLadderAnalysis,
+): LadderOutcomeArchive {
+  if ('summary' in value && value.summary && value.rows.every((row) => 'population' in row)) {
+    return value as LadderOutcomeArchive
+  }
+  const formalCodes = new Set(formalCandidateRows(analysis).map((stock) => stock.code))
+  const legacy = value as LegacyLadderOutcomeArchive
+  const rows: LadderOutcomeRow[] = legacy.rows.map((row) => {
+    const unresolved =
+      !row.promoted &&
+      !row.tradable &&
+      row.openToClosePct == null &&
+      row.mfePct == null &&
+      row.maePct == null
+    const population: LadderOutcomePopulation = formalCodes.has(row.code)
+      ? 'formal'
+      : 'wait-open'
+    return {
+      ...row,
+      population,
+      promotionLane: `${row.fromBoards}进${row.fromBoards + 1}`,
+      targetBoards: row.fromBoards + 1,
+      resultStatus: unresolved ? 'unresolved' : row.promoted ? 'promoted' : 'failed',
+      promoted: unresolved ? null : row.promoted,
+      tradable: unresolved ? null : row.tradable,
+      unresolvedReason: unresolved ? '旧版结果缺少有效行情，无法区分失败与缺失' : '',
+    }
+  })
+  return {
+    signalDate: legacy.signalDate,
+    tradeDate: legacy.tradeDate,
+    generatedAt: legacy.generatedAt,
+    ruleVersion: legacy.ruleVersion ?? 'limit-ladder-v2',
+    summary: buildOutcomeSummary(rows),
+    rows,
+  }
+}
+
+function readOutcomeArchive(
+  signalDate: string,
+  analysis: LimitLadderAnalysis,
+): LadderOutcomeArchive | null {
+  const path = existingOutcomePath(signalDate)
+  const value = path
+    ? readJson<LadderOutcomeArchive | LegacyLadderOutcomeArchive>(path)
+    : null
+  return value ? normalizeOutcomeArchive(value, analysis) : null
+}
+
+async function maybeArchivePreviousOutcome(
+  tradeDate: string,
+  current: LimitLadderAnalysis,
+  previous: LimitLadderAnalysis | null,
+): Promise<void> {
+  if (
+    !isLadderOutcomeWindow() ||
+    !previous ||
+    !!existingOutcomePath(previous.asof)
+  ) {
+    return
+  }
+  const formalCodes = new Set(formalCandidateRows(previous).map((stock) => stock.code))
+  const candidates = candidateMonitorRows(previous)
+  if (!candidates.length) return
+  const currentMap = new Map(current.stocks.map((stock) => [stock.code, stock]))
+  const priorHighBoardPath = existingHighBoardArchivePath(previous.asof)
+  const highBoardArchive = priorHighBoardPath
+    ? readJson<HighBoardAuctionArchive>(priorHighBoardPath)
+    : null
+  const riskContext = highBoardArchive?.open ?? highBoardArchive?.auction ?? null
+  const marketArchive = readMarketGateArchive(previous.asof)
+  const marketGate = marketArchive?.open ?? marketArchive?.auction ?? null
+  const rows = await mapLimit(candidates, 6, async (stock): Promise<LadderOutcomeRow> => {
+    let bar: KlineBar | undefined
+    let previousClose: number | null = null
+    try {
+      const result = await fetchStockKline(stock.code, 101, 12)
+      const index = result.klines.findIndex((item) => item.date === tradeDate)
+      bar = index >= 0 ? result.klines[index] : undefined
+      previousClose = index > 0 ? result.klines[index - 1].close : null
+    } catch {
+      bar = undefined
+    }
+    const targetBoards = stock.consecutiveDays + 1
+    const ladderPromoted =
+      (currentMap.get(stock.code)?.consecutiveDays ?? 0) >= targetBoards
+    const klinePromoted =
+      !!bar &&
+      previousClose != null &&
+      isLimitUpDay(bar, previousClose, stock.code)
+    const resolved = !!bar || ladderPromoted
+    const promoted = resolved ? ladderPromoted || klinePromoted : null
+    const onePrice =
+      !!bar && promoted === true && Math.abs(bar.high - bar.low) < 0.005
+    const tradable = bar ? bar.open > 0 && !onePrice : null
+    const resultStatus: LadderOutcomeStatus =
+      promoted == null ? 'unresolved' : promoted ? 'promoted' : 'failed'
+    const themeRisk = riskContext?.themes.find(
+      (theme) => theme.theme === stock.primaryTheme,
+    )
+    const themePermission =
+      marketGate?.themePermissions.find(
+        (permission) => permission.theme === stock.primaryTheme,
+      ) ?? null
+    const liquidityStyle = scoreLiquidityStyleGate({
+      circulatingMarketCap: stock.circulatingMarketCap,
+      heightTier: stock.roleProfile?.heightTier,
+      boards: stock.consecutiveDays,
+      themePermission,
+      highBoardState: riskContext?.state ?? null,
+      repairContext: marketGate?.repairContext ?? null,
+    })
+    return {
+      code: stock.code,
+      name: stock.name,
+      candidateRank: stock.candidateRank ?? null,
+      population: formalCodes.has(stock.code) ? 'formal' : 'wait-open',
+      promotionLane:
+        stock.promotionLane ?? `${stock.consecutiveDays}进${stock.consecutiveDays + 1}`,
+      fromBoards: stock.consecutiveDays,
+      targetBoards,
+      resultStatus,
+      promoted,
+      tradable,
+      unresolvedReason: resolved ? '' : '次日K线与连板结果均缺失',
+      openToClosePct: tradable === true && bar ? r2(((bar.close - bar.open) / bar.open) * 100) : null,
+      mfePct: tradable === true && bar ? r2(((bar.high - bar.open) / bar.open) * 100) : null,
+      maePct: tradable === true && bar ? r2(((bar.low - bar.open) / bar.open) * 100) : null,
+      marketCycle: previous.market.cycle.phase,
+      marketRole: stock.roleProfile?.marketRole,
+      themeState: themeRisk?.state ?? stock.themeGrade,
+      riskAppetiteState: riskContext?.state ?? null,
+      eventStatus: stock.eventGate ?? 'none',
+      marketGateState: marketGate?.state ?? null,
+      themePermissionState:
+        themePermission?.state ?? null,
+      externalRiskScore: marketGate?.externalRiskScore ?? null,
+      domesticRiskScore: marketGate?.domesticRiskScore ?? null,
+      repairState: marketGate?.repairContext?.state ?? null,
+      sizeBucket: liquidityStyle.sizeBucket,
+      heightTier:
+        stock.roleProfile?.heightTier ??
+        (stock.consecutiveDays >= 3
+          ? 'high'
+          : stock.consecutiveDays === 2
+            ? 'middle'
+            : 'low'),
+      liquidityStyleAdjustment: liquidityStyle.adjustment,
+      gateReasons: [
+        ...(stock.gateReasons ?? []),
+        ...(themePermission?.reasons ?? []),
+        ...liquidityStyle.reasons,
+      ],
+    }
+  })
+  const summary = buildOutcomeSummary(rows)
+  writeJsonAtomic(outcomePath(previous.asof), {
+    signalDate: previous.asof,
+    tradeDate,
+    generatedAt: new Date().toISOString(),
+    ruleVersion: LIMIT_LADDER_RULE_VERSION,
+    summary,
+    rows,
+  } satisfies LadderOutcomeArchive)
+}
+
+async function fetchCandidateQuotes(codes: string[]): Promise<Map<string, ScreenerLiveQuote>> {
+  const [tencent, sina] = await Promise.all([
+    fetchTencentBatchQuotes(codes).catch(() => []),
+    fetchSinaBatchQuotes(codes).catch(() => []),
+  ])
+  const out = new Map<string, ScreenerLiveQuote>()
+  for (const quote of sina) out.set(quote.code, quote)
+  for (const quote of tencent) {
+    const book = out.get(quote.code)
+    out.set(quote.code, {
+      ...quote,
+      indicativePrice: quote.indicativePrice ?? book?.indicativePrice ?? null,
+      matchedAmount: quote.matchedAmount ?? book?.matchedAmount ?? null,
+      bid1Price: quote.bid1Price ?? book?.bid1Price ?? null,
+      bid1Volume: quote.bid1Volume ?? book?.bid1Volume ?? null,
+      ask1Price: quote.ask1Price ?? book?.ask1Price ?? null,
+      ask1Volume: quote.ask1Volume ?? book?.ask1Volume ?? null,
+      unmatchedSide: quote.unmatchedSide ?? book?.unmatchedSide ?? null,
+      unmatchedAmount: quote.unmatchedAmount ?? book?.unmatchedAmount ?? null,
+    })
+  }
+  return out
+}
+
+function openingBandScore(gap: number, boards: number): number {
+  const lower = boards >= 3 ? 0 : 1
+  const upper = boards === 1 ? 5 : boards === 2 ? 6 : 5
+  if (gap >= lower && gap <= upper) return 100
+  if (gap < lower) return clamp(100 - (lower - gap) * 20)
+  return clamp(100 - (gap - upper) * 30)
+}
+
+function quoteVwap(quote: ScreenerLiveQuote): number | null {
+  if (quote.amount <= 0 || quote.volume <= 0) return null
+  return quote.amount / (quote.volume * 100)
+}
+
+function isContinuedOnePrice(quote: ScreenerLiveQuote): boolean {
+  return (
+    quote.prevClose > 0 &&
+    quote.changePct >= 9.5 &&
+    Math.abs(quote.high - quote.low) < 0.005
+  )
+}
+
+function candidateMonitorRows(analysis: LimitLadderAnalysis): LadderStockAnalysis[] {
+  const formal = formalCandidateRows(analysis)
+  const waitOpen = waitOpenMonitorRows(analysis)
+  return Array.from(new Map([...formal, ...waitOpen].map((stock) => [stock.code, stock])).values())
+}
+
+function quoteSecond(value: string): number | null {
+  const match = value.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/)
+  if (!match) return null
+  const hours = Number(match[1])
+  const minutes = Number(match[2])
+  const seconds = Number(match[3] ?? 0)
+  return hours <= 23 && minutes <= 59 && seconds <= 59
+    ? hours * 3_600 + minutes * 60 + seconds
+    : null
+}
+
+function currentNextDayQuote(
+  quote: ScreenerLiveQuote,
+  tradeDate: string,
+  stage: 'auction' | 'open',
+): boolean {
+  const seconds = quoteSecond(quote.quoteTime)
+  const [minimum, maximum] =
+    stage === 'open'
+      ? [9 * 3_600 + 34 * 60, 9 * 3_600 + 36 * 60 + 59]
+      : [9 * 3_600 + 15 * 60, 9 * 3_600 + 26 * 60 + 59]
+  return (
+    quote.tradeDate === tradeDate &&
+    seconds != null &&
+    seconds >= minimum &&
+    seconds <= maximum
+  )
+}
+
+function nullableWeighted(
+  values: Array<{ value: number | null | undefined; weight: number }>,
+): number | null {
+  return values.some((item) => typeof item.value === 'number' && Number.isFinite(item.value))
+    ? weightedAvailable(values)
+    : null
+}
+
+function auctionGapPct(quote?: ScreenerLiveQuote): number | null {
+  if (!quote || quote.prevClose <= 0) return null
+  const price = quote.indicativePrice ?? quote.price ?? quote.open
+  return price > 0 ? r2(((price - quote.prevClose) / quote.prevClose) * 100) : null
+}
+
+function classifyAuctionStyle(text: string, marketCap: number | null): AuctionStyle {
+  const value = text.toLowerCase()
+  if (/科技|人工智能|ai|算力|芯片|半导体|机器人|软件|通信|电子|光模块|cpo|计算机/.test(value)) {
+    return 'technology'
+  }
+  if (/消费|食品|饮料|零售|旅游|白酒|乳业|商业|家电|服装/.test(value)) {
+    return 'consumer'
+  }
+  if (/医药|医疗|生物|创新药|中药|制药/.test(value)) return 'medicine'
+  if (/银行|证券|保险|金融|多元金融/.test(value)) return 'finance'
+  if (/有色|煤炭|钢铁|化工|资源|石油|稀土/.test(value)) return 'cyclical'
+  if (marketCap != null && marketCap < 10_000_000_000) return 'small-cap'
+  return 'mixed'
+}
+
+export function classifyLadderSizeBucket(
+  circulatingMarketCap: number | null | undefined,
+): LadderSizeBucket {
+  if (
+    circulatingMarketCap == null ||
+    !Number.isFinite(circulatingMarketCap) ||
+    circulatingMarketCap <= 0
+  ) {
+    return 'unknown'
+  }
+  if (circulatingMarketCap < 10_000_000_000) return 'small'
+  if (circulatingMarketCap < 50_000_000_000) return 'mid'
+  return 'large'
+}
+
+function styleLabel(style: AuctionStyle): string {
+  return {
+    technology: '科技',
+    consumer: '消费',
+    medicine: '医药',
+    finance: '金融',
+    cyclical: '周期',
+    'small-cap': '小票',
+    mixed: '分散',
+  }[style]
+}
+
+function auctionDateTimeFromEpoch(value: unknown): {
+  tradeDate: string
+  quoteTime: string
+} {
+  const seconds = Number(value)
+  if (!Number.isFinite(seconds) || seconds <= 0) return { tradeDate: '', quoteTime: '' }
+  const shifted = new Date(seconds * 1000 + 8 * 3_600_000).toISOString()
+  return { tradeDate: shifted.slice(0, 10), quoteTime: shifted.slice(11, 19) }
+}
+
+function parseAuctionMarketStock(row: Record<string, unknown>): AuctionMarketStock | null {
+  const code = normalizeCode(row.f12)
+  const name = String(row.f14 ?? '').trim()
+  const price = Number(row.f2)
+  if (!/^\d{6}$/.test(code) || !name || !Number.isFinite(price) || price <= 0) return null
+  const marketCapValue = Number(row.f20)
+  const marketCap =
+    Number.isFinite(marketCapValue) && marketCapValue > 0 ? marketCapValue : null
+  const industry = String(row.f100 ?? '').trim()
+  const { tradeDate, quoteTime } = auctionDateTimeFromEpoch(row.f124)
+  return {
+    code,
+    name,
+    industry,
+    style: classifyAuctionStyle(`${industry} ${name}`, marketCap),
+    price,
+    changePct: Number(row.f3) || 0,
+    amount: Number(row.f6) || 0,
+    marketCap,
+    tradeDate,
+    quoteTime,
+    source: 'eastmoney',
+  }
+}
+
+async function fetchAuctionMarketList(
+  fid: 'f6' | 'f3',
+  tradeDate: string,
+): Promise<AuctionMarketStock[]> {
+  const hosts = ['push2.eastmoney.com', '82.push2.eastmoney.com', 'push2delay.eastmoney.com']
+  for (const host of hosts) {
+    try {
+      const url =
+        `https://${host}/api/qt/clist/get?pn=1&pz=100&po=1&np=1&fltt=2&invt=2` +
+        `&fid=${fid}&fs=${encodeURIComponent(SCREENER.CLIST_FS)}` +
+        '&fields=f2,f3,f6,f12,f14,f20,f100,f124'
+      const response = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 6_000 })
+      if (!response.ok) continue
+      const json = (await response.json()) as {
+        data?: { diff?: Record<string, unknown>[] }
+      }
+      const rows = (json.data?.diff ?? [])
+        .map(parseAuctionMarketStock)
+        .filter((row): row is AuctionMarketStock => !!row)
+        .filter((row) => {
+          const seconds = quoteSecond(row.quoteTime)
+          return (
+            row.tradeDate === tradeDate &&
+            seconds != null &&
+            seconds >= 9 * 3_600 + 15 * 60 &&
+            seconds <= 9 * 3_600 + 26 * 60 + 59
+          )
+        })
+      if (rows.length > 0) return rows
+    } catch {
+      // Continue through the real-time and delayed mirrors.
+    }
+  }
+  return []
+}
+
+async function fetchAuctionMarketSnapshot(tradeDate: string): Promise<AuctionMarketSnapshot> {
+  const [topAmount, topGainers] = await Promise.all([
+    fetchAuctionMarketList('f6', tradeDate),
+    fetchAuctionMarketList('f3', tradeDate),
+  ])
+  return { topAmount, topGainers }
+}
+
+export function classifyAuctionMarket(
+  topAmount: AuctionMarketStock[],
+): AuctionMarketStyle | null {
+  const topFive = topAmount.filter((row) => row.amount > 0).slice(0, 5)
+  if (!topFive.length) return null
+  const counts = new Map<AuctionStyle, number>()
+  for (const row of topFive) counts.set(row.style, (counts.get(row.style) ?? 0) + 1)
+  const [style, count] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? [
+    'mixed' as AuctionStyle,
+    0,
+  ]
+  const concentration = r2((count / topFive.length) * 100)
+  const weightedCount = topFive.filter(
+    (row) => row.marketCap != null && row.marketCap >= 50_000_000_000,
+  ).length
+  const weightedSharePct = r2((weightedCount / topFive.length) * 100)
+  const topTwenty = topAmount
+    .filter((row) => row.amount > 0)
+    .slice(0, 20)
+  const topTwentyAmount = topTwenty.reduce(
+    (sum, row) => sum + row.amount,
+    0,
+  )
+  const largeCapAmount = topTwenty
+    .filter(
+      (row) =>
+        row.marketCap != null &&
+        row.marketCap >= 50_000_000_000,
+    )
+    .reduce((sum, row) => sum + row.amount, 0)
+  const largeCapAmountSharePct =
+    topTwentyAmount > 0
+      ? r2((largeCapAmount / topTwentyAmount) * 100)
+      : null
+  const score = clamp(50 + (concentration - 40) * 0.5)
+  const dominant = style !== 'mixed' && concentration >= 60
+  const label = dominant
+    ? weightedSharePct >= 60
+      ? `权重${styleLabel(style)}回流`
+      : `${styleLabel(style)}竞价占优`
+    : '竞价方向分散'
+  return {
+    style: dominant ? style : 'mixed',
+    label,
+    score: r2(score),
+    confidence: r2(Math.min(100, topFive.length * 20)),
+    topFiveConcentrationPct: concentration,
+    weightedSharePct,
+    largeCapAmountSharePct,
+    evidence: [
+      `成交额前五${styleLabel(style)}占${count}只`,
+      `权重股占${weightedCount}只`,
+      ...(largeCapAmountSharePct == null
+        ? []
+        : [`成交额前20大市值占${largeCapAmountSharePct.toFixed(1)}%`]),
+      '该信号只作市场风格证据，不单独确认题材主线',
+    ],
+  }
+}
+
+function processForCandidate(
+  code: string,
+  snapshots: AuctionProcessSnapshot[],
+): AuctionCandidateProcess {
+  const rows = snapshots
+    .map((snapshot) => ({ snapshot, quote: snapshot.quotes[code] }))
+    .filter(
+      (row): row is { snapshot: AuctionProcessSnapshot; quote: ScreenerLiveQuote } =>
+        !!row.quote,
+    )
+    .sort((a, b) => a.snapshot.clockTime.localeCompare(b.snapshot.clockTime))
+  const postCancel = rows.filter((row) => row.snapshot.clockTime >= '09:20:00')
+  const first = postCancel[0] ?? rows[0]
+  const final = rows.at(-1)
+  const startGapPct = auctionGapPct(first?.quote)
+  const finalGapPct = auctionGapPct(final?.quote)
+  const strengtheningScore =
+    startGapPct == null || finalGapPct == null
+      ? null
+      : clamp(
+          50 +
+            (finalGapPct - startGapPct) * 15 +
+            (final?.quote.unmatchedSide === 'buy'
+              ? 10
+              : final?.quote.unmatchedSide === 'sell'
+                ? -10
+                : 0),
+        )
+  const preCancelQueue = rows
+    .filter((row) => row.snapshot.clockTime < '09:20:00')
+    .map((row) =>
+      row.quote.unmatchedSide === 'buy' ? (row.quote.unmatchedAmount ?? null) : null,
+    )
+    .filter((value): value is number => value != null && value > 0)
+  const postCancelQueue =
+    first?.quote.unmatchedSide === 'buy' ? (first.quote.unmatchedAmount ?? null) : null
+  const preCancelMax = preCancelQueue.length > 0 ? Math.max(...preCancelQueue) : null
+  const cancellationStabilityScore =
+    preCancelMax != null && postCancelQueue != null
+      ? clamp((postCancelQueue / preCancelMax) * 100)
+      : null
+  return {
+    code,
+    sampleCount: rows.length,
+    strengtheningScore: strengtheningScore == null ? null : r2(strengtheningScore),
+    cancellationStabilityScore:
+      cancellationStabilityScore == null ? null : r2(cancellationStabilityScore),
+    processScore: nullableWeighted([
+      { value: strengtheningScore, weight: 0.6 },
+      { value: cancellationStabilityScore, weight: 0.4 },
+    ]),
+    startGapPct,
+    finalGapPct,
+    finalUnmatchedSide: final?.quote.unmatchedSide ?? null,
+  }
+}
+
+function themeDirections(
+  analysisRows: LadderStockAnalysis[],
+  formalRows: LadderStockAnalysis[],
+  finalQuotes: Record<string, ScreenerLiveQuote>,
+): AuctionThemeDirection[] {
+  const themes = Array.from(new Set(formalRows.map((stock) => stock.primaryTheme)))
+  const totalAmount = Object.values(finalQuotes).reduce(
+    (sum, quote) => sum + Math.max(0, quote.matchedAmount ?? quote.amount),
+    0,
+  )
+  return themes
+    .map((theme): AuctionThemeDirection => {
+      const members = analysisRows.filter(
+        (stock) => stock.primaryTheme === theme || stock.themes.includes(theme),
+      )
+      const quoted = members
+        .map((stock) => ({ stock, quote: finalQuotes[stock.code] }))
+        .filter(
+          (row): row is { stock: LadderStockAnalysis; quote: ScreenerLiveQuote } =>
+            !!row.quote,
+        )
+      if (!quoted.length) {
+        return {
+          theme,
+          score: null,
+          state: 'unavailable',
+          positiveRate: null,
+          weightedGapPct: null,
+          amountSharePct: null,
+          coreCode: null,
+          coreName: '',
+          coreOnePrice: false,
+          assistantCodes: [],
+          assistantCount: 0,
+          coverage: 0,
+        }
+      }
+      const values = quoted.map((row) => ({
+        ...row,
+        gap: auctionGapPct(row.quote) ?? row.quote.changePct,
+        amount: Math.max(0, row.quote.matchedAmount ?? row.quote.amount),
+      }))
+      const positive = values.filter((row) => row.gap > 0)
+      const positiveRate = r2((positive.length / values.length) * 100)
+      const themeAmount = values.reduce((sum, row) => sum + row.amount, 0)
+      const weightedGapPct =
+        themeAmount > 0
+          ? r2(values.reduce((sum, row) => sum + row.gap * row.amount, 0) / themeAmount)
+          : r2(mean(values.map((row) => row.gap)))
+      const amountSharePct = totalAmount > 0 ? r2((themeAmount / totalAmount) * 100) : null
+      const core = [...values].sort(
+        (a, b) =>
+          Number(b.gap >= 9.5) - Number(a.gap >= 9.5) ||
+          b.stock.consecutiveDays - a.stock.consecutiveDays ||
+          (b.stock.promotionScore ?? b.stock.score) -
+            (a.stock.promotionScore ?? a.stock.score),
+      )[0]
+      const coreOnePrice = core.gap >= 9.5
+      const assistants = values.filter(
+        (row) => row.stock.code !== core.stock.code && row.gap >= 1,
+      )
+      let score = weightedAvailable([
+        { value: positiveRate, weight: 0.3 },
+        { value: clamp(50 + weightedGapPct * 10), weight: 0.2 },
+        {
+          value: amountSharePct == null ? null : normalizePercent(amountSharePct, 25),
+          weight: 0.2,
+        },
+        { value: coreOnePrice ? 100 : clamp(50 + core.gap * 8), weight: 0.2 },
+        { value: normalizePercent(assistants.length, 3), weight: 0.1 },
+      ])
+      let state: AuctionThemeDirection['state']
+      if (coreOnePrice && assistants.length >= 2) state = 'leading'
+      else if (coreOnePrice) {
+        state = 'isolated-one-price'
+        score = Math.min(score, 60)
+      } else if (score >= 65 && positive.length >= 2) state = 'resonant'
+      else state = 'weak'
+      return {
+        theme,
+        score: r2(score),
+        state,
+        positiveRate,
+        weightedGapPct,
+        amountSharePct,
+        coreCode: core.stock.code,
+        coreName: core.stock.name,
+        coreOnePrice,
+        assistantCodes: assistants.map((row) => row.stock.code),
+        assistantCount: assistants.length,
+        coverage: r2((quoted.length / Math.max(members.length, 1)) * 100),
+      }
+    })
+    .sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
+}
+
+export function buildAuctionContext(args: {
+  process: AuctionProcessArchive | null
+  analysisRows: LadderStockAnalysis[]
+  formalRows: LadderStockAnalysis[]
+}): LadderAuctionContext | null {
+  const snapshots = args.process?.snapshots ?? []
+  const final = args.process?.finalSnapshot ?? snapshots.at(-1)
+  if (!final) return null
+  const candidateProcesses = candidateMonitorRows({
+    stocks: args.analysisRows,
+    nextDayCandidates: args.formalRows,
+  } as LimitLadderAnalysis).map((stock) => processForCandidate(stock.code, snapshots))
+  const themes = themeDirections(args.analysisRows, args.formalRows, final.quotes)
+  const warnings = [...final.warnings]
+  if (snapshots.length < 3) warnings.push('竞价过程样本少于3个，仅保留终值证据')
+  if (final.coverage < 80) warnings.push(`竞价报价覆盖率${final.coverage.toFixed(1)}%`)
+  return {
+    capturedAt: final.capturedAt,
+    snapshotCount: snapshots.length,
+    coverage: final.coverage,
+    lowConfidence: snapshots.length < 3 || final.coverage < 80,
+    sources: Array.from(new Set(snapshots.flatMap((snapshot) => snapshot.sources))),
+    marketStyle: classifyAuctionMarket(final.market.topAmount),
+    // Keep a wider ranked universe for independent overnight-news mapping;
+    // the rendered brief still shows only its concise top five.
+    topAmount: final.market.topAmount.slice(0, 30),
+    themes,
+    candidateProcesses,
+    warnings,
+  }
+}
+
+function auctionComparisonRows(analysis: LimitLadderAnalysis): LadderStockAnalysis[] {
+  const monitored = candidateMonitorRows(analysis)
+  const candidateThemes = new Set(formalCandidateRows(analysis).map((stock) => stock.primaryTheme))
+  const highBoardCodes = new Set(
+    (analysis.roleMap?.profiles ?? [])
+      .filter(
+        (profile) =>
+          profile.marketRole !== 'normal' ||
+          profile.heightTier === 'high' ||
+          profile.boards >= 3,
+      )
+      .map((profile) => profile.code),
+  )
+  const related = analysis.stocks.filter(
+    (stock) =>
+      stock.boardType === 'main' &&
+      (highBoardCodes.has(stock.code) ||
+        (stock.consecutiveDays <= 3 &&
+          (candidateThemes.has(stock.primaryTheme) ||
+            stock.themes.some((theme) => candidateThemes.has(theme))))),
+  )
+  return Array.from(new Map([...monitored, ...related].map((stock) => [stock.code, stock])).values())
+}
+
+function auctionCaptureCodes(analysis: LimitLadderAnalysis): string[] {
+  return Array.from(
+    new Set([
+      ...auctionComparisonRows(analysis).map((stock) => stock.code),
+      ...(analysis.roleMap?.brokenAnchors ?? []).map((profile) => profile.code),
+    ]),
+  )
+}
+
+function shanghaiTime(): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Shanghai',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date())
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return `${values.hour}:${values.minute}:${values.second}`
+}
+
+async function captureAuctionProcess(
+  analysis: LimitLadderAnalysis,
+  tradeDate: string,
+): Promise<AuctionProcessArchive | null> {
+  const path = auctionProcessPath(analysis.asof, analysis.ruleVersion)
+  const existing = readJson<AuctionProcessArchive>(path)
+  const now = shanghaiTime()
+  const finalWindow = now >= '09:25:00' && now <= '09:26:59'
+  if (existing?.finalSnapshot && finalWindow) return existing
+  const captureCodes = auctionCaptureCodes(analysis)
+  const [rawQuotes, market] = await Promise.all([
+    fetchCandidateQuotes(captureCodes),
+    fetchAuctionMarketSnapshot(tradeDate).catch(() => ({ topAmount: [], topGainers: [] })),
+  ])
+  const quotes = new Map(
+    [...rawQuotes].filter(
+      ([, quote]) => quote.tradeDate === tradeDate && currentNextDayQuote(quote, tradeDate, 'auction'),
+    ),
+  )
+  if (!quotes.size && !market.topAmount.length && !market.topGainers.length) return existing
+  const sources: string[] = Array.from(
+    new Set([...quotes.values()].map((quote) => quote.source as string)),
+  )
+  if (analysis.quality.source === 'kaipanla' || analysis.quality.source === 'mixed') {
+    sources.push('kaipanla-analysis')
+  }
+  const warnings: string[] = []
+  const coverage =
+    captureCodes.length > 0 ? r2((quotes.size / captureCodes.length) * 100) : 0
+  if (!market.topAmount.length) warnings.push('东财全市场竞价成交额榜缺失')
+  if (!market.topGainers.length) warnings.push('东财全市场竞价涨幅榜缺失')
+  const snapshot: AuctionProcessSnapshot = {
+    capturedAt: new Date().toISOString(),
+    clockTime: now,
+    quotes: Object.fromEntries(quotes),
+    market,
+    sources: Array.from(new Set(sources)),
+    coverage,
+    warnings,
+  }
+  const priorSnapshots = existing?.tradeDate === tradeDate ? existing.snapshots : []
+  const last = priorSnapshots.at(-1)
+  const shouldAppend =
+    !last ||
+    Math.abs((quoteSecond(now) ?? 0) - (quoteSecond(last.clockTime) ?? 0)) >= 10
+  const snapshots = shouldAppend ? [...priorSnapshots, snapshot].slice(-50) : priorSnapshots
+  const archive: AuctionProcessArchive = {
+    signalDate: analysis.asof,
+    tradeDate,
+    generatedAt: new Date().toISOString(),
+    ruleVersion: analysis.ruleVersion,
+    snapshots,
+    finalSnapshot:
+      existing?.tradeDate === tradeDate && existing.finalSnapshot
+        ? existing.finalSnapshot
+        : finalWindow
+          ? snapshot
+          : null,
+  }
+  writeJsonAtomic(path, archive)
+  return archive
+}
+
+async function captureConfirmationSnapshot(
+  analysis: LimitLadderAnalysis,
+  tradeDate: string,
+): Promise<ConfirmationSnapshot | null> {
+  const path = confirmationSnapshotPath(analysis.asof, analysis.ruleVersion)
+  const existing = readJson<ConfirmationSnapshot>(path)
+  if (existing?.tradeDate === tradeDate) return existing
+  const raw = await fetchCandidateQuotes(auctionCaptureCodes(analysis))
+  const quotes = new Map(
+    [...raw].filter(([, quote]) => currentNextDayQuote(quote, tradeDate, 'open')),
+  )
+  if (!quotes.size) return null
+  const snapshot: ConfirmationSnapshot = {
+    signalDate: analysis.asof,
+    tradeDate,
+    capturedAt: new Date().toISOString(),
+    ruleVersion: analysis.ruleVersion,
+    quotes: Object.fromEntries(quotes),
+  }
+  writeJsonAtomic(path, snapshot)
+  return snapshot
+}
+
+function highBoardContextsFromSnapshots(args: {
+  analysis: LimitLadderAnalysis
+  tradeDate: string
+  process?: AuctionProcessArchive | null
+  confirmation?: ConfirmationSnapshot | null
+  archive?: boolean
+}): HighBoardAuctionArchive | null {
+  const roleMap = args.analysis.roleMap
+  const finalSnapshot =
+    args.process?.tradeDate === args.tradeDate ? args.process.finalSnapshot : null
+  if (!roleMap || !finalSnapshot) return null
+  const profileCodes = [
+    ...roleMap.profiles.map((profile) => profile.code),
+    ...roleMap.brokenAnchors.map((profile) => profile.code),
+  ]
+  const processScores = Object.fromEntries(
+    profileCodes.map((code) => [
+      code,
+      processForCandidate(code, args.process?.snapshots ?? []).processScore,
+    ]),
+  )
+  const reactionQuotes =
+    args.confirmation?.tradeDate === args.tradeDate
+      ? args.confirmation.quotes
+      : finalSnapshot.quotes
+  const eventReaction = buildEventReaction({
+    gate: args.analysis.eventGate,
+    quotes: reactionQuotes,
+  })
+  const auction = applyEventReactionToRiskContext(
+    buildHighBoardRiskContext({
+      roleMap,
+      auctionQuotes: finalSnapshot.quotes,
+      processScores,
+      capturedAt: finalSnapshot.capturedAt,
+    }),
+    args.analysis.eventGate,
+    eventReaction,
+  )
+  const open =
+    args.confirmation?.tradeDate === args.tradeDate
+      ? applyEventReactionToRiskContext(
+          buildHighBoardRiskContext({
+            roleMap,
+            auctionQuotes: finalSnapshot.quotes,
+            liveQuotes: args.confirmation.quotes,
+            processScores,
+            capturedAt: args.confirmation.capturedAt,
+          }),
+          args.analysis.eventGate,
+          eventReaction,
+        )
+      : null
+  const archive: HighBoardAuctionArchive = {
+    signalDate: args.analysis.asof,
+    tradeDate: args.tradeDate,
+    generatedAt: new Date().toISOString(),
+    ruleVersion: LIMIT_LADDER_RULE_VERSION,
+    auction,
+    open,
+    eventReaction,
+  }
+  if (args.archive && args.analysis.ruleVersion === LIMIT_LADDER_RULE_VERSION) {
+    writeJsonAtomic(highBoardArchivePath(args.analysis.asof), archive)
+  }
+  return archive
+}
+
+function marketGateThemes(analysis: LimitLadderAnalysis): string[] {
+  return Array.from(
+    new Set(
+      formalCandidateRows(analysis).flatMap((stock) => [
+        stock.primaryTheme,
+        ...stock.themes,
+      ]),
+    ),
+  ).filter(Boolean)
+}
+
+function readMarketGateArchive(signalDate: string): MarketGateArchive | null {
+  return readJson<MarketGateArchive>(marketGateArchivePath(signalDate))
+}
+
+async function capturePremarketMarketRisk(args: {
+  analysis: LimitLadderAnalysis
+  tradeDate: string
+  late: boolean
+}): Promise<MarketGateArchive> {
+  const path = marketGateArchivePath(args.analysis.asof)
+  const existing = readJson<MarketGateArchive>(path)
+  if (existing?.tradeDate === args.tradeDate && existing.premarket) return existing
+  const premarket = await fetchPremarketRiskSnapshot({
+    signalDate: args.analysis.asof,
+    tradeDate: args.tradeDate,
+    late: args.late,
+  })
+  const archive: MarketGateArchive = {
+    signalDate: args.analysis.asof,
+    tradeDate: args.tradeDate,
+    generatedAt: new Date().toISOString(),
+    ruleVersion: LIMIT_LADDER_RULE_VERSION,
+    premarket,
+    auction: null,
+    open: null,
+  }
+  writeJsonAtomic(path, archive)
+  return archive
+}
+
+async function resolveMarketRiskGate(args: {
+  analysis: LimitLadderAnalysis
+  tradeDate: string
+  phase: 'premarket' | 'auction' | 'open'
+  auctionContext?: LadderAuctionContext | null
+  highBoardContext?: HighBoardRiskContext | null
+  allowPremarketCapture?: boolean
+  allowDomesticCapture?: boolean
+}): Promise<MarketRiskGate | null> {
+  let archive = readMarketGateArchive(args.analysis.asof)
+  if (
+    !archive?.premarket &&
+    args.allowPremarketCapture &&
+    args.tradeDate === todayShanghai()
+  ) {
+    archive = await capturePremarketMarketRisk({
+      analysis: args.analysis,
+      tradeDate: args.tradeDate,
+      late: shanghaiClock().minutes >= 9 * 60 + 15,
+    }).catch(() => archive)
+  }
+  const premarket =
+    archive?.tradeDate === args.tradeDate ? archive.premarket : null
+  if (args.phase === 'premarket') {
+    if (!premarket) return null
+    return buildMarketRiskGate({
+      signalDate: args.analysis.asof,
+      tradeDate: args.tradeDate,
+      phase: 'premarket',
+      premarket,
+      themes: marketGateThemes(args.analysis),
+    })
+  }
+  const stored =
+    args.phase === 'open' ? archive?.open : archive?.auction
+  if (stored?.tradeDate === args.tradeDate) return stored
+
+  let domestic: DomesticMarketSnapshot | null = null
+  if (args.allowDomesticCapture) {
+    domestic = await fetchDomesticMarketSnapshot(
+      args.highBoardContext?.state ?? null,
+    ).catch(() => null)
+  }
+  if (!premarket && !domestic) return null
+  const gate = buildMarketRiskGate({
+    signalDate: args.analysis.asof,
+    tradeDate: args.tradeDate,
+    phase: args.phase,
+    premarket,
+    domestic,
+    themes: marketGateThemes(args.analysis),
+    auctionThemes: args.auctionContext?.themes,
+    themeRisk: args.highBoardContext?.themes,
+    largeCapAuctionAmountSharePct:
+      args.auctionContext?.marketStyle?.largeCapAmountSharePct ?? null,
+    highBoardState: args.highBoardContext?.state ?? null,
+    frozenRepairContext:
+      args.phase === 'open'
+        ? archive?.auction?.repairContext ?? null
+        : null,
+  })
+  if (!premarket) {
+    gate.warnings = Array.from(
+      new Set([
+        ...gate.warnings,
+        MISSING_PREMARKET_GATE_WARNING,
+      ]),
+    )
+  }
+  if (args.allowDomesticCapture) {
+    const nextArchive: MarketGateArchive = {
+      signalDate: args.analysis.asof,
+      tradeDate: args.tradeDate,
+      generatedAt: new Date().toISOString(),
+      ruleVersion: LIMIT_LADDER_RULE_VERSION,
+      premarket,
+      auction:
+        args.phase === 'auction'
+          ? gate
+          : archive?.tradeDate === args.tradeDate
+            ? archive.auction
+            : null,
+      open:
+        args.phase === 'open'
+          ? gate
+          : archive?.tradeDate === args.tradeDate
+            ? archive.open
+            : null,
+    }
+    writeJsonAtomic(marketGateArchivePath(args.analysis.asof), nextArchive)
+  }
+  return gate
+}
+
+export interface LiquidityStyleDecision {
+  sizeBucket: LadderSizeBucket
+  adjustment: number
+  independentStrength: boolean
+  confirmationCapped: boolean
+  reasons: string[]
+}
+
+export function scoreLiquidityStyleGate(args: {
+  circulatingMarketCap?: number | null
+  heightTier?: LadderRoleProfile['heightTier'] | null
+  boards?: number
+  themePermission?: ThemePermission | null
+  highBoardState?: HighBoardRiskContext['state'] | null
+  repairContext?: MarketRepairContext | null
+}): LiquidityStyleDecision {
+  const sizeBucket = classifyLadderSizeBucket(
+    args.circulatingMarketCap,
+  )
+  const heightTier =
+    args.heightTier ??
+    ((args.boards ?? 1) >= 3
+      ? 'high'
+      : (args.boards ?? 1) === 2
+        ? 'middle'
+        : 'low')
+  const repair = args.repairContext
+  if (
+    !repair?.applicable ||
+    repair.state !== 'weight-led-repair' ||
+    sizeBucket === 'large' ||
+    sizeBucket === 'unknown'
+  ) {
+    return {
+      sizeBucket,
+      adjustment: 0,
+      independentStrength: false,
+      confirmationCapped: false,
+      reasons:
+        sizeBucket === 'unknown'
+          ? ['流通市值缺失，市值风格因子不参与评分']
+          : [],
+    }
+  }
+
+  const permission = args.themePermission
+  const independentStrength =
+    (permission?.directionScore ?? 0) >= 70 &&
+    (permission?.positiveRate ?? 0) >= 60 &&
+    (permission?.assistantCount ?? 0) >= 2 &&
+    args.highBoardState !== 'panic'
+  let adjustment =
+    heightTier === 'low'
+      ? -4
+      : permission?.riskClass === 'high-beta'
+        ? -8
+        : -6
+  if (independentStrength) adjustment /= 2
+  const reasons = [
+    '9:25确认权重拉指数、市场宽度偏弱',
+    `${sizeBucket === 'small' ? '小盘' : '中盘'}${heightTier === 'low' ? '低位' : '中高位'}流动性受挤压`,
+  ]
+  if (permission?.riskClass === 'high-beta' && heightTier !== 'low') {
+    reasons.push('高Beta中高位加重流动性折价')
+  }
+  if (independentStrength) {
+    reasons.push('题材核心、广度与至少两只助攻共振，解除状态上限并将扣分减半')
+  }
+  return {
+    sizeBucket,
+    adjustment: r2(adjustment),
+    independentStrength,
+    confirmationCapped:
+      heightTier !== 'low' && !independentStrength,
+    reasons,
+  }
+}
+
+export function combineEnvironmentAdjustments(
+  themeAdjustment: number,
+  liquidityAdjustment: number,
+): number {
+  const combined = clamp(
+    themeAdjustment + liquidityAdjustment,
+    -12,
+    5,
+  )
+  // 权重抽水时防御属性不能抵消市值流动性折价；独立题材已经在
+  // scoreLiquidityStyleGate 中通过减半体现。
+  return r2(
+    liquidityAdjustment < 0
+      ? Math.min(combined, liquidityAdjustment)
+      : combined,
+  )
+}
+
+export function scoreNextDayConfirmations(args: {
+  baseRows: LadderStockAnalysis[]
+  comparisonRows?: LadderStockAnalysis[]
+  tradeDate: string
+  clockMinutes: number
+  quotes: Map<string, ScreenerLiveQuote>
+  auctionQuotes?: Record<string, ScreenerLiveQuote> | null
+  auctionContext?: LadderAuctionContext | null
+  highBoardContext?: HighBoardRiskContext | null
+  eventReaction?: LadderEventReaction | null
+  marketGate?: MarketRiskGate | null
+}): Pick<
+  LimitLadderNextDay,
+  | 'stage'
+  | 'auctionSnapshotAvailable'
+  | 'confirmationSnapshotAvailable'
+  | 'auctionContext'
+  | 'highBoardContext'
+  | 'themeRiskAppetite'
+  | 'eventReaction'
+  | 'marketGate'
+  | 'themePermissions'
+  | 'candidates'
+  | 'warnings'
+> {
+  const stage: 'auction' | 'open' =
+    args.clockMinutes < 9 * 60 + 35 ? 'auction' : 'open'
+  const freshQuotes = new Map(
+    Array.from(args.quotes.entries()).filter(([, quote]) =>
+      currentNextDayQuote(quote, args.tradeDate, stage),
+    ),
+  )
+  const warnings: string[] = []
+  if (freshQuotes.size < args.baseRows.length) {
+    warnings.push(
+      `${args.baseRows.length - freshQuotes.size}只候选缺少${args.tradeDate}新鲜行情`,
+    )
+  }
+  const auctionQuotes =
+    args.auctionQuotes &&
+    Object.values(args.auctionQuotes).some(
+      (quote) => quote.tradeDate === args.tradeDate,
+    )
+      ? args.auctionQuotes
+      : null
+  if (stage === 'open' && !auctionQuotes) {
+    warnings.push('9:25竞价快照缺失（终值未冻结），竞价因子已跳过并重归一化')
+  }
+  if (args.auctionContext?.lowConfidence) {
+    warnings.push('竞价过程覆盖不足，过程因子按低置信度处理')
+  }
+  if (args.highBoardContext?.state === 'panic') {
+    warnings.push('高标竞价处于恐慌，中高位接力禁止确认')
+  } else if (args.highBoardContext?.state === 'contraction') {
+    warnings.push('高标竞价处于收缩，确认状态受题材独立强度约束')
+  }
+  if (args.marketGate?.state === 'frozen') {
+    warnings.push('大盘交易闸门冻结，所有连板接力暂停确认')
+  } else if (args.marketGate?.state === 'restricted') {
+    warnings.push('大盘交易闸门限制，高Beta题材禁止执行')
+  } else if (args.marketGate?.state === 'cautious') {
+    warnings.push('大盘交易闸门谨慎，板块必须形成独立竞价强度')
+  }
+  if (
+    args.marketGate?.repairContext?.state === 'weight-led-repair' &&
+    args.marketGate.repairContext.applicable
+  ) {
+    warnings.push('9:25确认权重抽水式修复，中小盘连板执行权限条件降级')
+  }
+  const comparisonRows = args.comparisonRows ?? args.baseRows
+  const quoteRows = comparisonRows
+    .map((stock) => ({ stock, quote: freshQuotes.get(stock.code) }))
+    .filter(
+      (item): item is { stock: LadderStockAnalysis; quote: ScreenerLiveQuote } =>
+        !!item.quote,
+    )
+  const currentAmounts = quoteRows.map((item) => item.quote.amount)
+  const themeMap = new Map(
+    (args.auctionContext?.themes ?? []).map((theme) => [theme.theme, theme]),
+  )
+  const processMap = new Map(
+    (args.auctionContext?.candidateProcesses ?? []).map((process) => [
+      process.code,
+      process,
+    ]),
+  )
+  const themePermissionMap = new Map(
+    (args.marketGate?.themePermissions ?? []).map((permission) => [
+      permission.theme,
+      permission,
+    ]),
+  )
+  const candidates = args.baseRows.map(
+    (stock): NextDayCandidateConfirmation => {
+      const quote = freshQuotes.get(stock.code)
+      const rowWarnings: string[] = []
+      const gateReasons = [...(stock.gateReasons ?? [])]
+      const themePermission =
+        themePermissionMap.get(stock.primaryTheme) ?? null
+      const liquidityStyle = scoreLiquidityStyleGate({
+        circulatingMarketCap: stock.circulatingMarketCap,
+        heightTier: stock.roleProfile?.heightTier,
+        boards: stock.consecutiveDays,
+        themePermission,
+        highBoardState: args.highBoardContext?.state ?? null,
+        repairContext: args.marketGate?.repairContext ?? null,
+      })
+      const environmentAdjustment = combineEnvironmentAdjustments(
+        themePermission?.environmentAdjustment ?? 0,
+        liquidityStyle.adjustment,
+      )
+      if (!quote) {
+        return {
+          code: stock.code,
+          name: stock.name,
+          baseState: stock.state,
+          promotionLane: stock.promotionLane ?? '',
+          baseScore: stock.baseScore ?? stock.score,
+          promotionScore: stock.promotionScore ?? stock.score,
+          tradabilityScore: stock.tradabilityScore ?? stock.score,
+          auctionScore: null,
+          finalAuctionScore: null,
+          processScore: null,
+          themeDirectionScore: null,
+          marketStyleScore: null,
+          sizeBucket: liquidityStyle.sizeBucket,
+          liquidityStyleAdjustment: liquidityStyle.adjustment,
+          styleGateReasons: liquidityStyle.reasons,
+          openScore: null,
+          liveScore: null,
+          environmentAdjustment,
+          decisionScore: null,
+          marketGateState: args.marketGate?.state ?? null,
+          themePermission,
+          state: 'rejected',
+          tradeDate: '',
+          quoteTime: '',
+          openGapPct: null,
+          auctionAmount: null,
+          currentAmount: null,
+          currentPrice: null,
+          vwap: null,
+          inaccessible: true,
+          warnings: ['实时行情缺失、日期陈旧或时间未到确认节点'],
+          gateReasons: [...gateReasons, ...liquidityStyle.reasons],
+        }
+      }
+      const openGapPct =
+        auctionGapPct(auctionQuotes?.[stock.code]) ??
+        (quote.prevClose > 0 && quote.open > 0
+          ? r2(((quote.open - quote.prevClose) / quote.prevClose) * 100)
+          : null)
+      const auctionQuote = auctionQuotes?.[stock.code]
+      const auctionAmount =
+        auctionQuote?.matchedAmount ?? auctionQuote?.amount ?? null
+      const floatCap = stock.circulatingMarketCap ?? null
+      const auctionFloatPct =
+        auctionAmount != null && floatCap && floatCap > 0
+          ? (auctionAmount / floatCap) * 100
+          : null
+      const sameTheme = quoteRows.filter((item) =>
+        item.stock.primaryTheme === stock.primaryTheme ||
+        item.stock.themes.includes(stock.primaryTheme),
+      )
+      const themePositive =
+        sameTheme.length > 0
+          ? (sameTheme.filter((item) => item.quote.changePct > 0).length /
+              sameTheme.length) *
+            100
+          : null
+      const continuedOnePrice = isContinuedOnePrice(quote)
+      const inaccessible =
+        continuedOnePrice || (openGapPct != null && openGapPct > 8)
+      if (continuedOnePrice) rowWarnings.push('次日继续一字，不可达')
+      if (openGapPct != null && openGapPct > 8) {
+        rowWarnings.push('开盘涨幅超过8%，拒绝追价')
+      }
+      const laneAuctionRows = comparisonRows.filter(
+        (candidate) => candidate.promotionLane === stock.promotionLane,
+      )
+      const laneAuctionAmounts = laneAuctionRows
+        .map(
+          (candidate) =>
+            auctionQuotes?.[candidate.code]?.matchedAmount ??
+            auctionQuotes?.[candidate.code]?.amount,
+        )
+        .filter((value): value is number => value != null && Number.isFinite(value))
+      const laneAuctionFloatRatios = laneAuctionRows
+        .map((candidate) => {
+          const amount =
+            auctionQuotes?.[candidate.code]?.matchedAmount ??
+            auctionQuotes?.[candidate.code]?.amount
+          const cap = candidate.circulatingMarketCap
+          return amount != null && cap ? (amount / cap) * 100 : null
+        })
+        .filter((value): value is number => value != null && Number.isFinite(value))
+      if (auctionAmount != null && laneAuctionAmounts.length < 5) {
+        rowWarnings.push('同层竞价样本少于5只，分位按中性分处理')
+      }
+      const finalAuctionScore = auctionQuotes
+        ? nullableWeighted([
+            {
+              value:
+                openGapPct == null
+                  ? null
+                  : openingBandScore(openGapPct, stock.consecutiveDays),
+              weight: 0.2,
+            },
+            {
+              value:
+                auctionAmount == null
+                  ? null
+                  : crossSectionPercentile(auctionAmount, laneAuctionAmounts),
+              weight: 0.1,
+            },
+            {
+              value:
+                auctionFloatPct == null
+                  ? null
+                  : crossSectionPercentile(auctionFloatPct, laneAuctionFloatRatios),
+              weight: 0.1,
+            },
+            { value: inaccessible ? 0 : 100, weight: 0.05 },
+          ])
+        : null
+      const process = processMap.get(stock.code)
+      const themeDirection = themeMap.get(stock.primaryTheme)
+      const marketStyle = args.auctionContext?.marketStyle
+      const stockStyle = classifyAuctionStyle(
+        `${stock.primaryTheme} ${stock.themes.join(' ')}`,
+        stock.circulatingMarketCap ?? null,
+      )
+      const marketStyleScore =
+        marketStyle?.score == null
+          ? null
+          : marketStyle.style === 'mixed'
+            ? 50
+            : stockStyle === marketStyle.style
+              ? marketStyle.score
+              : 45
+      const auctionScore = auctionQuotes
+        ? nullableWeighted([
+            {
+              value:
+                openGapPct == null
+                  ? null
+                  : openingBandScore(openGapPct, stock.consecutiveDays),
+              weight: 0.2,
+            },
+            {
+              value:
+                auctionAmount == null
+                  ? null
+                  : crossSectionPercentile(auctionAmount, laneAuctionAmounts),
+              weight: 0.1,
+            },
+            {
+              value:
+                auctionFloatPct == null
+                  ? null
+                  : crossSectionPercentile(auctionFloatPct, laneAuctionFloatRatios),
+              weight: 0.1,
+            },
+            { value: inaccessible ? 0 : 100, weight: 0.05 },
+            { value: process?.strengtheningScore, weight: 0.15 },
+            { value: process?.cancellationStabilityScore, weight: 0.1 },
+            { value: themeDirection?.score, weight: 0.2 },
+            { value: marketStyleScore, weight: 0.1 },
+          ])
+        : null
+      const vwap = quoteVwap(quote)
+      const vwapScore =
+        vwap == null || quote.price <= 0
+          ? null
+          : quote.price >= vwap
+            ? 100
+            : clamp(100 - ((vwap - quote.price) / vwap) * 1000)
+      const laneQuotes = quoteRows.filter(
+        (item) => item.stock.promotionLane === stock.promotionLane,
+      )
+      const laneRelative =
+        laneQuotes.length > 0
+          ? crossSectionPercentile(
+              quote.changePct,
+              laneQuotes.map((item) => item.quote.changePct),
+            )
+          : null
+      const openScore =
+        stage === 'open'
+          ? weightedAvailable([
+              { value: vwapScore, weight: 0.3 },
+              {
+                value: crossSectionPercentile(quote.amount, currentAmounts),
+                weight: 0.25,
+              },
+              { value: themePositive, weight: 0.2 },
+              { value: laneRelative, weight: 0.15 },
+              { value: inaccessible ? 0 : 100, weight: 0.1 },
+            ])
+          : null
+      const liveScore =
+        stage === 'open'
+          ? weightedAvailable([
+              { value: stock.baseScore ?? stock.score, weight: 0.65 },
+              { value: auctionScore, weight: 0.15 },
+              { value: openScore, weight: 0.2 },
+            ])
+          : weightedAvailable([
+              { value: stock.baseScore ?? stock.score, weight: 0.65 },
+              { value: auctionScore, weight: 0.15 },
+            ])
+      const decisionScore = r2(clamp(liveScore + environmentAdjustment))
+      let state: NextDayState
+      if (inaccessible) state = 'rejected'
+      else if (stage === 'auction') {
+        state =
+          (auctionScore ?? 0) >= 65 && decisionScore >= 65
+            ? 'auction-qualified'
+            : 'waiting'
+      } else if (decisionScore >= 70 && (openScore ?? 0) >= 60) {
+        state = 'confirmed'
+      } else if (decisionScore >= 55) state = 'waiting'
+      else state = 'rejected'
+      const roleProfile = stock.roleProfile
+      const themeRisk = args.highBoardContext?.themes.find(
+        (theme) => theme.theme === stock.primaryTheme,
+      )
+      if (stock.eventGate === 'hard-block') {
+        state = 'rejected'
+        gateReasons.push('消息闸门硬否决未解除')
+      } else if (stock.eventGate === 'risk-cap') {
+        const absorbed =
+          args.eventReaction?.state === 'absorbed' &&
+          quote.changePct > 0 &&
+          args.highBoardContext?.state !== 'panic'
+        if (!absorbed) {
+          state = args.eventReaction?.state === 'amplified' ? 'rejected' : 'waiting'
+          gateReasons.push(
+            args.eventReaction?.state === 'amplified'
+              ? '监管风险被价格负反馈放大'
+              : '监管风险上限等待价格承接验证',
+          )
+        } else {
+          gateReasons.push('监管压力获得竞价承接，风险上限阶段性减轻')
+        }
+      }
+      if (
+        args.highBoardContext?.state === 'panic' &&
+        roleProfile?.heightTier !== 'low'
+      ) {
+        if (state === 'confirmed' || state === 'auction-qualified') state = 'waiting'
+        gateReasons.push('全市场高标恐慌限制中高位接力确认')
+      } else if (
+        args.highBoardContext?.state === 'panic' &&
+        roleProfile?.heightTier === 'low' &&
+        !(themeRisk?.highLowSwitch && themeRisk.score >= 60)
+      ) {
+        if (state === 'confirmed' || state === 'auction-qualified') state = 'waiting'
+        gateReasons.push('恐慌期低位标的未形成题材独立高低切')
+      } else if (
+        args.highBoardContext?.state === 'contraction' &&
+        roleProfile?.heightTier !== 'low' &&
+        themeRisk?.state !== 'expansion'
+      ) {
+        if (state === 'confirmed' || state === 'auction-qualified') state = 'waiting'
+        gateReasons.push('高标收缩且题材未独立扩张')
+      }
+      if (!inaccessible && state !== 'rejected') {
+        if (args.marketGate?.state === 'frozen') {
+          state = 'blocked'
+          gateReasons.push('大盘环境冻结，个股分数不得抵消系统性风险')
+        } else if (themePermission?.state === 'blocked') {
+          state = 'blocked'
+          gateReasons.push(...themePermission.reasons)
+        } else if (
+          themePermission?.state === 'conditional' &&
+          (state === 'confirmed' || state === 'auction-qualified')
+        ) {
+          state = 'waiting'
+          gateReasons.push('板块尚未获得独立行情许可')
+        }
+        if (
+          liquidityStyle.confirmationCapped &&
+          (state === 'confirmed' || state === 'auction-qualified')
+        ) {
+          state = 'waiting'
+          gateReasons.push('权重抽水式修复限制中小盘中高位直接确认')
+        }
+      }
+      gateReasons.push(...liquidityStyle.reasons)
+      return {
+        code: stock.code,
+        name: stock.name,
+        baseState: stock.state,
+        promotionLane: stock.promotionLane ?? '',
+        baseScore: stock.baseScore ?? stock.score,
+        promotionScore: stock.promotionScore ?? stock.score,
+        tradabilityScore: stock.tradabilityScore ?? stock.score,
+        auctionScore,
+        finalAuctionScore,
+        processScore: process?.processScore ?? null,
+        themeDirectionScore: themeDirection?.score ?? null,
+        marketStyleScore,
+        sizeBucket: liquidityStyle.sizeBucket,
+        liquidityStyleAdjustment: liquidityStyle.adjustment,
+        styleGateReasons: liquidityStyle.reasons,
+        openScore,
+        liveScore,
+        environmentAdjustment,
+        decisionScore,
+        marketGateState: args.marketGate?.state ?? null,
+        themePermission,
+        state,
+        tradeDate: quote.tradeDate,
+        quoteTime: quote.quoteTime,
+        openGapPct,
+        auctionAmount,
+        currentAmount: quote.amount,
+        currentPrice: quote.price,
+        vwap,
+        inaccessible,
+        warnings: rowWarnings,
+        gateReasons,
+      }
+    },
+  )
+  return {
+    stage,
+    auctionSnapshotAvailable: !!auctionQuotes,
+    confirmationSnapshotAvailable: stage === 'open' && freshQuotes.size > 0,
+    auctionContext: args.auctionContext ?? null,
+    highBoardContext: args.highBoardContext ?? null,
+    themeRiskAppetite: args.highBoardContext?.themes ?? [],
+    eventReaction: args.eventReaction ?? null,
+    marketGate: args.marketGate ?? null,
+    themePermissions: args.marketGate?.themePermissions ?? [],
+    candidates: candidates.sort(
+      (a, b) =>
+        (b.decisionScore ?? b.liveScore ?? b.baseScore) -
+        (a.decisionScore ?? a.liveScore ?? a.baseScore),
+    ),
+    warnings,
+  }
+}
+
+function pendingConfirmations(
+  baseRows: LadderStockAnalysis[],
+  marketGate?: MarketRiskGate | null,
+): NextDayCandidateConfirmation[] {
+  const permissions = new Map(
+    (marketGate?.themePermissions ?? []).map((permission) => [
+      permission.theme,
+      permission,
+    ]),
+  )
+  return baseRows
+    .map((stock): NextDayCandidateConfirmation => {
+      const baseScore = stock.baseScore ?? stock.score
+      const themePermission = permissions.get(stock.primaryTheme) ?? null
+      const liquidityStyle = scoreLiquidityStyleGate({
+        circulatingMarketCap: stock.circulatingMarketCap,
+        heightTier: stock.roleProfile?.heightTier,
+        boards: stock.consecutiveDays,
+        themePermission,
+        highBoardState:
+          marketGate?.repairContext?.highBoardState ?? null,
+        repairContext: marketGate?.repairContext ?? null,
+      })
+      const environmentAdjustment = combineEnvironmentAdjustments(
+        themePermission?.environmentAdjustment ?? 0,
+        liquidityStyle.adjustment,
+      )
+      return {
+        code: stock.code,
+        name: stock.name,
+        baseState: stock.state,
+        promotionLane:
+          stock.promotionLane ?? `${stock.consecutiveDays}进${stock.consecutiveDays + 1}`,
+        baseScore,
+        promotionScore: stock.promotionScore ?? stock.score,
+        tradabilityScore: stock.tradabilityScore ?? stock.score,
+        auctionScore: null,
+        finalAuctionScore: null,
+        processScore: null,
+        themeDirectionScore: null,
+        marketStyleScore: null,
+        sizeBucket: liquidityStyle.sizeBucket,
+        liquidityStyleAdjustment: liquidityStyle.adjustment,
+        styleGateReasons: liquidityStyle.reasons,
+        openScore: null,
+        liveScore: null,
+        environmentAdjustment,
+        decisionScore: r2(clamp(baseScore + environmentAdjustment)),
+        marketGateState: marketGate?.state ?? null,
+        themePermission,
+        state: 'pending',
+        tradeDate: '',
+        quoteTime: '',
+        openGapPct: null,
+        auctionAmount: null,
+        currentAmount: null,
+        currentPrice: null,
+        vwap: null,
+        inaccessible: false,
+        warnings: [],
+        gateReasons: [
+          ...(stock.gateReasons ?? []),
+          ...liquidityStyle.reasons,
+        ],
+      }
+    })
+    .sort(
+      (a, b) =>
+        (b.decisionScore ?? b.baseScore) - (a.decisionScore ?? a.baseScore),
+    )
+}
+
+export function settleNextDayFromSnapshots(args: {
+  signalDate: string
+  tradeDate: string
+  baseRows: LadderStockAnalysis[]
+  comparisonRows?: LadderStockAnalysis[]
+  process?: AuctionProcessArchive | null
+  confirmation?: ConfirmationSnapshot | null
+  auctionContext?: LadderAuctionContext | null
+  highBoardContext?: HighBoardRiskContext | null
+  eventReaction?: LadderEventReaction | null
+  marketGate?: MarketRiskGate | null
+  outcome?: LadderOutcomeArchive | null
+  warnings?: string[]
+}): LimitLadderNextDay {
+  const finalSnapshot =
+    args.process?.tradeDate === args.tradeDate ? args.process.finalSnapshot : null
+  const confirmation =
+    args.confirmation?.tradeDate === args.tradeDate ? args.confirmation : null
+  const settlementWarnings = [...(args.warnings ?? [])]
+  let scored: Pick<
+    LimitLadderNextDay,
+    | 'auctionSnapshotAvailable'
+    | 'confirmationSnapshotAvailable'
+    | 'auctionContext'
+    | 'highBoardContext'
+    | 'themeRiskAppetite'
+    | 'eventReaction'
+    | 'marketGate'
+    | 'themePermissions'
+    | 'candidates'
+    | 'warnings'
+  >
+
+  if (confirmation) {
+    scored = scoreNextDayConfirmations({
+      baseRows: args.baseRows,
+      comparisonRows: args.comparisonRows,
+      tradeDate: args.tradeDate,
+      clockMinutes: 9 * 60 + 35,
+      quotes: new Map(Object.entries(confirmation.quotes)),
+      auctionQuotes: finalSnapshot?.quotes ?? null,
+      auctionContext: args.auctionContext,
+      highBoardContext: args.highBoardContext,
+      eventReaction: args.eventReaction,
+      marketGate: args.marketGate,
+    })
+  } else if (finalSnapshot) {
+    const auctionScored = scoreNextDayConfirmations({
+      baseRows: args.baseRows,
+      comparisonRows: args.comparisonRows,
+      tradeDate: args.tradeDate,
+      clockMinutes: 9 * 60 + 25,
+      quotes: new Map(Object.entries(finalSnapshot.quotes)),
+      auctionQuotes: finalSnapshot.quotes,
+      auctionContext: args.auctionContext,
+      highBoardContext: args.highBoardContext,
+      eventReaction: args.eventReaction,
+      marketGate: args.marketGate,
+    })
+    scored = {
+      ...auctionScored,
+      confirmationSnapshotAvailable: false,
+    }
+    settlementWarnings.push('9:35确认快照缺失，最终状态仅保留竞价阶段结论')
+  } else {
+    scored = {
+      auctionSnapshotAvailable: false,
+      confirmationSnapshotAvailable: false,
+      auctionContext: args.auctionContext ?? null,
+      highBoardContext: args.highBoardContext ?? null,
+      themeRiskAppetite: args.highBoardContext?.themes ?? [],
+      eventReaction: args.eventReaction ?? null,
+      marketGate: args.marketGate ?? null,
+      themePermissions: args.marketGate?.themePermissions ?? [],
+      candidates: pendingConfirmations(args.baseRows, args.marketGate),
+      warnings: [],
+    }
+    settlementWarnings.push('9:25竞价与9:35确认快照均缺失，未使用收盘行情回填')
+  }
+
+  return {
+    signalDate: args.signalDate,
+    tradeDate: args.tradeDate,
+    generatedAt: new Date().toISOString(),
+    ruleVersion: LIMIT_LADDER_RULE_VERSION,
+    stage: 'settled',
+    auctionSnapshotAvailable: scored.auctionSnapshotAvailable,
+    confirmationSnapshotAvailable: scored.confirmationSnapshotAvailable,
+    auctionContext: args.auctionContext ?? null,
+    highBoardContext: scored.highBoardContext ?? args.highBoardContext ?? null,
+    themeRiskAppetite:
+      scored.themeRiskAppetite ?? args.highBoardContext?.themes ?? [],
+    eventReaction: scored.eventReaction ?? args.eventReaction ?? null,
+    marketGate: scored.marketGate ?? args.marketGate ?? null,
+    themePermissions:
+      scored.themePermissions ?? args.marketGate?.themePermissions ?? [],
+    outcome: args.outcome ?? null,
+    candidates: scored.candidates,
+    warnings: Array.from(
+      new Set([
+        ...settlementWarnings,
+        ...(args.auctionContext?.warnings ?? []),
+        ...scored.warnings,
+      ]),
+    ),
+  }
+}
+
+function legacyAuctionProcess(
+  signalDate: string,
+  analysis: LimitLadderAnalysis,
+): AuctionProcessArchive | null {
+  if (analysis.ruleVersion === LIMIT_LADDER_RULE_VERSION) return null
+  const snapshot = readJson<LegacyAuctionSnapshot>(
+    legacyAuctionSnapshotPath(signalDate, analysis.ruleVersion),
+  )
+  if (!snapshot) return null
+  const synthetic: AuctionProcessSnapshot = {
+    capturedAt: snapshot.capturedAt,
+    clockTime:
+      Object.values(snapshot.quotes)
+        .map((quote) => quote.quoteTime)
+        .sort()
+        .at(-1) ?? '09:25:00',
+    quotes: snapshot.quotes,
+    market: { topAmount: [], topGainers: [] },
+    sources: Array.from(new Set(Object.values(snapshot.quotes).map((quote) => quote.source))),
+    coverage: r2(
+      (Object.keys(snapshot.quotes).length /
+        Math.max(candidateMonitorRows(analysis).length, 1)) *
+        100,
+    ),
+    warnings: ['旧版仅保存9:25终值，不含竞价过程和全市场方向'],
+  }
+  return {
+    signalDate,
+    tradeDate: snapshot.tradeDate,
+    generatedAt: snapshot.capturedAt,
+    ruleVersion: analysis.ruleVersion,
+    snapshots: [synthetic],
+    finalSnapshot: synthetic,
+  }
+}
+
+async function resolveNextTradeDate(
+  signalDate: string,
+  nowDate: string,
+  outcome?: LadderOutcomeArchive | null,
+): Promise<string | null> {
+  if (outcome?.tradeDate) return outcome.tradeDate
+  const archivedNext = allArchivedAnalysisDates().find((date) => date > signalDate)
+  if (archivedNext) return archivedNext
+  const dates = await fetchTradingDates(nowDate).catch(() => [])
+  const calendarNext = dates
+    .filter((date) => date > signalDate)
+    .sort()
+    .at(0)
+  if (calendarNext) return calendarNext
+  const latestSignal = archivedAnalysisDates(nowDate).at(-1)
+  const clock = shanghaiClock()
+  if (
+    latestSignal === signalDate &&
+    nowDate > signalDate &&
+    clock.day >= 1 &&
+    clock.day <= 5
+  ) {
+    return nowDate
+  }
+  return null
+}
+
+export async function fetchLimitLadderNextDay(
+  signalDate: string,
+): Promise<LimitLadderNextDay> {
+  if (!safeDate(signalDate)) throw new Error('signalDate 必须是 YYYY-MM-DD')
+  const analysis = await fetchLimitLadderAnalysis(signalDate)
+  const baseRows = candidateMonitorRows(analysis)
+  const comparisonRows = auctionComparisonRows(analysis)
+  const nowDate = todayShanghai()
+  const clock = shanghaiClock()
+  const warnings: string[] = []
+  let outcome = readOutcomeArchive(signalDate, analysis)
+  const tradeDate = await resolveNextTradeDate(signalDate, nowDate, outcome)
+
+  if (
+    tradeDate === nowDate &&
+    isLadderOutcomeWindow(clock) &&
+    !outcome
+  ) {
+    const current = await fetchLimitLadderAnalysis(nowDate)
+    await maybeArchivePreviousOutcome(nowDate, current, analysis)
+    outcome = readOutcomeArchive(signalDate, analysis)
+  }
+
+  const storedProcess =
+    readJson<AuctionProcessArchive>(
+      auctionProcessPath(signalDate, analysis.ruleVersion),
+    ) ??
+    legacyAuctionProcess(signalDate, analysis)
+  const storedConfirmation = readJson<ConfirmationSnapshot>(
+    confirmationSnapshotPath(signalDate, analysis.ruleVersion),
+  )
+  const storedContext = buildAuctionContext({
+    process: storedProcess,
+    analysisRows: analysis.stocks,
+    formalRows: formalCandidateRows(analysis),
+  })
+  const highBoardPath = existingHighBoardArchivePath(signalDate)
+  const storedHighBoard =
+    (highBoardPath
+      ? readJson<HighBoardAuctionArchive>(highBoardPath)
+      : null) ??
+    (tradeDate
+      ? highBoardContextsFromSnapshots({
+          analysis,
+          tradeDate,
+          process: storedProcess,
+          confirmation: storedConfirmation,
+        })
+      : null)
+  const storedHighBoardContext =
+    storedHighBoard?.open ?? storedHighBoard?.auction ?? null
+  let marketGateArchive = readMarketGateArchive(signalDate)
+  if (
+    tradeDate === nowDate &&
+    isPremarketGateCaptureWindow(clock) &&
+    !marketGateArchive?.premarket
+  ) {
+    marketGateArchive = await capturePremarketMarketRisk({
+      analysis,
+      tradeDate,
+      late: false,
+    }).catch(() => marketGateArchive)
+  }
+  const storedMarketGate =
+    marketGateArchive?.tradeDate === tradeDate
+      ? marketGateArchive.open ??
+        marketGateArchive.auction ??
+        (marketGateArchive.premarket
+          ? buildMarketRiskGate({
+              signalDate,
+              tradeDate: tradeDate ?? '',
+              phase: 'premarket',
+              premarket: marketGateArchive.premarket,
+              themes: marketGateThemes(analysis),
+            })
+          : null)
+      : null
+  if (
+    shouldWarnMissingPremarketGate({
+      tradeDate,
+      nowDate,
+      clockMinutes: clock.minutes,
+      hasPremarketSnapshot:
+        marketGateArchive?.tradeDate === tradeDate &&
+        !!marketGateArchive.premarket,
+    })
+  ) {
+    warnings.push(MISSING_PREMARKET_GATE_WARNING)
+  }
+
+  if (outcome || (tradeDate != null && nowDate > tradeDate)) {
+    if (!outcome) warnings.push(`${tradeDate}次日结果档缺失，未使用当前行情回填`)
+    const settledTradeDate = outcome?.tradeDate ?? tradeDate ?? ''
+    const archivedSettlementPath = existingSettledNextDayPath(signalDate)
+    const archivedSettlement =
+      outcome && archivedSettlementPath
+        ? readJson<LimitLadderNextDay>(archivedSettlementPath)
+        : null
+    if (
+      archivedSettlement?.stage === 'settled' &&
+      archivedSettlement.tradeDate === settledTradeDate &&
+      archivedSettlement.outcome?.generatedAt === outcome?.generatedAt
+    ) {
+      return {
+        ...archivedSettlement,
+        warnings: Array.from(
+          new Set([...archivedSettlement.warnings, ...warnings]),
+        ),
+      }
+    }
+    const settled = settleNextDayFromSnapshots({
+      signalDate,
+      tradeDate: settledTradeDate,
+      baseRows,
+      comparisonRows,
+      process: storedProcess,
+      confirmation: storedConfirmation,
+      auctionContext: storedContext,
+      highBoardContext: storedHighBoardContext,
+      eventReaction: storedHighBoard?.eventReaction ?? null,
+      marketGate: storedMarketGate,
+      outcome,
+      warnings,
+    })
+    if (outcome) writeJsonAtomic(settledNextDayPath(signalDate), settled)
+    return settled
+  }
+
+  if (
+    !tradeDate ||
+    nowDate < tradeDate ||
+    nowDate <= signalDate ||
+    clock.day === 0 ||
+    clock.day === 6 ||
+    clock.minutes < 9 * 60 + 15
+  ) {
+    return {
+      signalDate,
+      tradeDate: tradeDate ?? '',
+      generatedAt: new Date().toISOString(),
+      ruleVersion: LIMIT_LADDER_RULE_VERSION,
+      stage: 'pending',
+      auctionSnapshotAvailable: !!storedProcess?.finalSnapshot,
+      confirmationSnapshotAvailable: !!storedConfirmation,
+      auctionContext: storedContext,
+      highBoardContext: storedHighBoardContext,
+      themeRiskAppetite: storedHighBoardContext?.themes ?? [],
+      eventReaction: storedHighBoard?.eventReaction ?? null,
+      marketGate: storedMarketGate,
+      themePermissions: storedMarketGate?.themePermissions ?? [],
+      outcome: null,
+      candidates: pendingConfirmations(baseRows, storedMarketGate),
+      warnings,
+    }
+  }
+
+  if (tradeDate !== nowDate) {
+    return {
+      signalDate,
+      tradeDate,
+      generatedAt: new Date().toISOString(),
+      ruleVersion: LIMIT_LADDER_RULE_VERSION,
+      stage: 'pending',
+      auctionSnapshotAvailable: !!storedProcess?.finalSnapshot,
+      confirmationSnapshotAvailable: !!storedConfirmation,
+      auctionContext: storedContext,
+      highBoardContext: storedHighBoardContext,
+      themeRiskAppetite: storedHighBoardContext?.themes ?? [],
+      eventReaction: storedHighBoard?.eventReaction ?? null,
+      marketGate: storedMarketGate,
+      themePermissions: storedMarketGate?.themePermissions ?? [],
+      outcome: null,
+      candidates: pendingConfirmations(baseRows, storedMarketGate),
+      warnings: [`目标交易日为${tradeDate}，禁止使用${nowDate}行情`],
+    }
+  }
+
+  let process = storedProcess
+  if (clock.minutes >= 9 * 60 + 15 && clock.minutes < 9 * 60 + 27) {
+    process = await captureAuctionProcess(analysis, tradeDate)
+  }
+  let confirmation = storedConfirmation
+  if (clock.minutes >= 9 * 60 + 35 && clock.minutes < 9 * 60 + 37) {
+    confirmation = await captureConfirmationSnapshot(analysis, tradeDate)
+  }
+  const auctionContext = buildAuctionContext({
+    process,
+    analysisRows: analysis.stocks,
+    formalRows: formalCandidateRows(analysis),
+  })
+  const highBoardArchive = highBoardContextsFromSnapshots({
+    analysis,
+    tradeDate,
+    process,
+    confirmation,
+    archive: true,
+  })
+  const highBoardContext =
+    highBoardArchive?.open ?? highBoardArchive?.auction ?? null
+  const stage = clock.minutes < 9 * 60 + 35 ? 'auction' : 'open'
+  const gateCaptureWindow =
+    (stage === 'auction' &&
+      !!process?.finalSnapshot &&
+      clock.minutes >= 9 * 60 + 25 &&
+      clock.minutes < 9 * 60 + 27) ||
+    (stage === 'open' &&
+      !!confirmation &&
+      clock.minutes >= 9 * 60 + 35 &&
+      clock.minutes < 9 * 60 + 37)
+  const marketGate =
+    (await resolveMarketRiskGate({
+      analysis,
+      tradeDate,
+      phase:
+        stage === 'auction' && !process?.finalSnapshot ? 'premarket' : stage,
+      auctionContext,
+      highBoardContext,
+      allowPremarketCapture: clock.minutes < 9 * 60 + 15,
+      allowDomesticCapture: gateCaptureWindow,
+    })) ?? storedMarketGate
+  const liveQuotes =
+    stage === 'open'
+      ? (confirmation?.quotes ?? {})
+      : (process?.finalSnapshot?.quotes ?? process?.snapshots.at(-1)?.quotes ?? {})
+  const scored = scoreNextDayConfirmations({
+    baseRows,
+    comparisonRows,
+    tradeDate,
+    clockMinutes: clock.minutes,
+    quotes: new Map(Object.entries(liveQuotes)),
+    auctionQuotes: process?.finalSnapshot?.quotes ?? null,
+    auctionContext,
+    highBoardContext,
+    eventReaction: highBoardArchive?.eventReaction ?? null,
+    marketGate,
+  })
+  return {
+    signalDate,
+    tradeDate,
+    generatedAt: new Date().toISOString(),
+    ruleVersion: LIMIT_LADDER_RULE_VERSION,
+    ...scored,
+    outcome: null,
+    warnings: [
+      ...warnings,
+      ...(auctionContext?.warnings ?? []),
+      ...scored.warnings,
+    ],
+  }
+}
+
+let auctionScheduler: ReturnType<typeof setInterval> | null = null
+let auctionSchedulerBusy = false
+
+export function startLimitLadderAuctionScheduler(): void {
+  if (auctionScheduler) return
+  const tick = async () => {
+    if (auctionSchedulerBusy) return
+    const clock = shanghaiClock()
+    if (clock.day === 0 || clock.day === 6) return
+    const today = todayShanghai()
+    const signalDate = archivedAnalysisDates(today).at(-1)
+    if (!signalDate) return
+    const briefPhase = auctionBriefPhaseForMinutes(clock.minutes)
+    const premarketWindow = isPremarketGateCaptureWindow(clock)
+    const captureWindow =
+      (clock.minutes >= 9 * 60 + 15 && clock.minutes < 9 * 60 + 27) ||
+      (clock.minutes >= 9 * 60 + 35 && clock.minutes < 9 * 60 + 37)
+    const outcomeWindow =
+      clock.minutes >= 15 * 60 + 10 &&
+      clock.minutes < 15 * 60 + 20 &&
+      !existingOutcomePath(signalDate)
+    if (!premarketWindow && !captureWindow && !outcomeWindow && !briefPhase) return
+    auctionSchedulerBusy = true
+    try {
+      const nextDay = await fetchLimitLadderNextDay(signalDate)
+      if (briefPhase && nextDay.tradeDate === today) {
+        const analysis = await fetchLimitLadderAnalysis(signalDate)
+        const currentAnalysis = briefPhase === 'open-confirmation'
+          ? await fetchLimitLadderAnalysis(today).catch(() => undefined)
+          : undefined
+        await generateAndDispatchAuctionBrief({
+          phase: briefPhase,
+          analysis,
+          nextDay,
+          currentAnalysis,
+        })
+      }
+    } catch {
+      // A later 15-second tick retries transient quote or archive failures.
+    } finally {
+      auctionSchedulerBusy = false
+    }
+  }
+  auctionScheduler = setInterval(() => void tick(), 15_000)
+  auctionScheduler.unref?.()
+  void tick()
 }
 
 export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<LimitLadderAnalysis> {
   if (!safeDate(asof)) throw new Error('date 必须是 YYYY-MM-DD')
   const today = todayShanghai()
   if (asof !== today) {
-    const archived = readJson<LimitLadderAnalysis>(analysisPath(asof))
+    const path = archivedAnalysisPath(asof)
+    const archived = path ? readJson<LimitLadderAnalysis>(path) : null
     if (!archived) throw new Error(`未找到${asof}的连板天梯归档`)
     return { ...archived, archived: true }
   }
   // 收盘后的同日快照是定盘数据。服务重启或页面再次打开时直接读盘，零上游 API 请求。
   // 当日有手工导入时允许重算并覆盖快照。
   if (isLadderSettledWindow() && !importsByDate.has(asof)) {
-    const archived = readJson<LimitLadderAnalysis>(analysisPath(asof))
+    const archivedPath = archivedAnalysisPath(asof)
+    const archived = archivedPath
+      ? readJson<LimitLadderAnalysis>(archivedPath)
+      : null
+    // A version upgrade must start from a complete new trading-day cycle. Explicit
+    // refreshes may refill the current version, but cannot rewrite a frozen legacy signal.
+    if (archived && archived.ruleVersion !== LIMIT_LADDER_RULE_VERSION) {
+      return { ...archived, archived: true }
+    }
     // 15:00先保存行情定盘；16:30后若龙虎榜此前未发布，允许自动补算一次资金流并覆盖快照。
-    if (archived && (archived.quality.fundFlowComplete !== false || !isLhbPublicationWindow())) {
+    if (
+      archived &&
+      !forcedRecomputeDates.has(asof) &&
+      (archived.quality.fundFlowComplete !== false ||
+        !isLhbPublicationWindow())
+    ) {
       return { ...archived, archived: true }
     }
   }
   const cached = analysisCache.get(asof)
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.value
-  const value = await computeCurrentAnalysis(asof)
-  analysisCache.set(asof, { at: Date.now(), value })
-  return value
+  try {
+    const value = await computeCurrentAnalysis(asof)
+    analysisCache.set(asof, { at: Date.now(), value })
+    return value
+  } finally {
+    forcedRecomputeDates.delete(asof)
+  }
 }
 
 export async function importLimitLadder(input: unknown): Promise<LimitLadderAnalysis> {
   const normalized = normalizeLadderImport(input)
   if (normalized.asof !== todayShanghai()) {
-    throw new Error('第一版只允许导入当前交易日天梯')
+    throw new Error('只允许导入当前交易日天梯')
   }
   importsByDate.set(normalized.asof, normalized)
   analysisCache.delete(normalized.asof)
@@ -1257,4 +4826,5 @@ export async function importLimitLadder(input: unknown): Promise<LimitLadderAnal
 export function clearLimitLadderCache(): void {
   analysisCache.clear()
   clearKplLadderCache()
+  forcedRecomputeDates.add(todayShanghai())
 }

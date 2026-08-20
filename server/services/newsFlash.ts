@@ -39,6 +39,16 @@ export interface NewsFlashData {
   sources: { eastmoney: boolean; sina: boolean; cls: boolean }
 }
 
+export interface NewsFlashWindowData extends NewsFlashData {
+  windowStart: string
+  windowEnd: string
+  sourceCoverage: {
+    fetched: string[]
+    succeeded: string[]
+    warnings: string[]
+  }
+}
+
 // emFetch 只对东财域(np-weblist)节流,cls/新浪非东财域直通不记账,超时语义不变。
 async function fetchJson(url: string, headers?: Record<string, string>): Promise<unknown> {
   const res = await emFetch(url, { headers, timeoutMs: FETCH_TIMEOUT_MS })
@@ -76,6 +86,51 @@ const flashCache = createCache<NewsFlashData>({
 
 export function fetchNewsFlash(): Promise<NewsFlashData> {
   return flashCache.get()
+}
+
+/**
+ * Fetch a bounded overnight window.  The ordinary fast-news cache intentionally
+ * keeps only the latest page for the消息面 tab; the auction brief needs several
+ * pages so a 15:00--09:15 item is not pushed out by late-night headlines.
+ */
+export async function fetchNewsFlashWindow(windowStart: string, windowEnd: string, pages = 4): Promise<NewsFlashWindowData> {
+  const emRaw: unknown[] = []
+  const sinaRaw: unknown[] = []
+  const clsRaw: unknown[] = []
+  const warnings: string[] = []
+  const jobs: Promise<void>[] = []
+  for (let page = 1; page <= Math.max(1, pages); page += 1) {
+    const emUrl = `${EM_URL}&pageIndex=${page}`
+    const sinaUrl = SINA_URL.replace('page=1', `page=${page}`)
+    jobs.push(fetchJson(emUrl).then((value) => { emRaw.push(value) }).catch(() => { warnings.push(`eastmoney page ${page} failed`) }))
+    jobs.push(fetchJson(sinaUrl).then((value) => { sinaRaw.push(value) }).catch(() => { warnings.push(`sina page ${page} failed`) }))
+  }
+  jobs.push(fetchJson(buildClsUrl(100), CLS_HEADERS).then((value) => { clsRaw.push(value) }).catch(() => { warnings.push('cls page failed') }))
+  await Promise.all(jobs)
+  const emItems = emRaw.flatMap(normalizeEastmoney)
+  const clsItems = clsRaw.flatMap(normalizeCls)
+  const sinaItems = sinaRaw.flatMap(normalizeSina)
+  const all = mergeFlashItems([emItems, clsItems, sinaItems], 500)
+  const start = Date.parse(windowStart)
+  const end = Date.parse(windowEnd)
+  const items = all.filter((item) => {
+    const time = Date.parse(item.time)
+    return Number.isFinite(time) && time >= start && time <= end
+  })
+  const succeeded = [
+    ...(emItems.length ? ['eastmoney'] : []),
+    ...(clsItems.length ? ['cls'] : []),
+    ...(sinaItems.length ? ['sina'] : []),
+  ]
+  if (!succeeded.length) throw new Error('[NewsFlash] overnight sources all failed')
+  return {
+    asof: new Date().toISOString(),
+    items,
+    sources: { eastmoney: emItems.length > 0, cls: clsItems.length > 0, sina: sinaItems.length > 0 },
+    windowStart,
+    windowEnd,
+    sourceCoverage: { fetched: ['eastmoney', 'cls', 'sina'], succeeded, warnings },
+  }
 }
 
 /**

@@ -1,9 +1,19 @@
 import { Router } from 'express'
 import {
   fetchLimitLadderAnalysis,
+  fetchLimitLadderNextDay,
   importLimitLadder,
 } from '../services/limitLadder'
 import { fetchKplLimitReason } from '../services/kaipanlaLadder'
+import {
+  buildAuctionBrief,
+  enrichAuctionBriefWithOvernight,
+  polishAuctionBrief,
+  readAuctionBriefState,
+  readAuctionBriefStateByTradeDate,
+  sendServerChanTest,
+  type AuctionBriefPhase,
+} from '../services/auctionBrief'
 
 const router = Router()
 
@@ -15,6 +25,81 @@ router.get('/api/ladder/analysis', async (req, res) => {
     const message = err instanceof Error ? err.message : 'Unknown error'
     const status = message.startsWith('未找到') ? 404 : message.includes('必须') ? 400 : 500
     res.status(status).json({ error: message })
+  }
+})
+
+router.get('/api/ladder/next-day', async (req, res) => {
+  const signalDate =
+    typeof req.query.signalDate === 'string' ? req.query.signalDate : ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(signalDate)) {
+    res.status(400).json({ error: 'signalDate 必须是 YYYY-MM-DD' })
+    return
+  }
+  try {
+    res.json(await fetchLimitLadderNextDay(signalDate))
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    const status = message.startsWith('未找到') ? 404 : 500
+    res.status(status).json({ error: message })
+  }
+})
+
+router.get('/api/ladder/auction-brief', (req, res) => {
+  const tradeDate = typeof req.query.tradeDate === 'string' ? req.query.tradeDate : ''
+  const signalDate = typeof req.query.signalDate === 'string' ? req.query.signalDate : ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(tradeDate || signalDate)) {
+    res.status(400).json({ error: 'tradeDate 或 signalDate 必须是 YYYY-MM-DD' })
+    return
+  }
+  try {
+    res.json(tradeDate ? readAuctionBriefStateByTradeDate(tradeDate) : readAuctionBriefState(signalDate))
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
+
+router.post('/api/ladder/auction-brief/preview', async (req, res) => {
+  const signalDate = typeof req.body?.signalDate === 'string' ? req.body.signalDate : ''
+  const phase = req.body?.phase as AuctionBriefPhase | undefined
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(signalDate)) {
+    res.status(400).json({ error: 'signalDate 必须是 YYYY-MM-DD' })
+    return
+  }
+  if (phase && phase !== 'auction-final' && phase !== 'open-confirmation') {
+    res.status(400).json({ error: 'phase 必须是 auction-final 或 open-confirmation' })
+    return
+  }
+  try {
+    const [analysis, nextDay] = await Promise.all([
+      fetchLimitLadderAnalysis(signalDate),
+      fetchLimitLadderNextDay(signalDate),
+    ])
+    const resolvedPhase =
+      phase ?? (nextDay.stage === 'open' || nextDay.stage === 'settled'
+        ? 'open-confirmation'
+        : 'auction-final')
+    const currentAnalysis = resolvedPhase === 'open-confirmation'
+      ? await fetchLimitLadderAnalysis().catch(() => undefined)
+      : undefined
+    const brief = await enrichAuctionBriefWithOvernight(
+      buildAuctionBrief({ phase: resolvedPhase, analysis, nextDay }),
+      { analysis, nextDay, currentAnalysis },
+    ).catch(() => buildAuctionBrief({ phase: resolvedPhase, analysis, nextDay }))
+    res.json(req.body?.polish === true ? await polishAuctionBrief(brief) : brief)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    const status = message.startsWith('未找到') ? 404 : 500
+    res.status(status).json({ error: message })
+  }
+})
+
+router.post('/api/ladder/notifications/serverchan/test', async (_req, res) => {
+  try {
+    res.json(await sendServerChanTest())
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(message.includes('未配置') ? 400 : 502).json({ error: message })
   }
 })
 
