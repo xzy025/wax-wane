@@ -18,7 +18,12 @@ import analysisRoutes from './routes/analysis'
 import intelRoutes from './routes/intel'
 import holdingsRoutes from './routes/holdings'
 import ladderRoutes from './routes/ladder'
+import opsRoutes from './routes/ops'
 import { startMoneyFlowScheduler } from './services/moneyflowScheduler'
+import { startLimitLadderAuctionScheduler } from './services/limitLadder'
+import { startCrossMarketScheduler } from './services/crossMarketRuntime'
+import { startCheckpointScheduler } from './services/schedulerCheckpoints'
+import { defaultCheckpointHandlers } from './services/checkpointHandlers'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -64,6 +69,7 @@ app.use(analysisRoutes)
 app.use(intelRoutes)
 app.use(holdingsRoutes)
 app.use(ladderRoutes)
+app.use(opsRoutes)
 
 // Initialize database and start server
 async function startServer() {
@@ -82,7 +88,7 @@ async function startServer() {
     } catch (err) {
       console.warn('[Server] GraphRAG schema init failed (non-fatal):', err)
     }
-  } catch (err) {
+  } catch {
     console.warn('[Server] PostgreSQL not available, running in limited mode')
     console.warn('[Server] Agent chat API will work, but database features are disabled')
   }
@@ -96,7 +102,10 @@ async function startServer() {
     console.log(
       `Database: ${dbConnected ? 'PostgreSQL (connected)' : 'PostgreSQL (not connected - limited mode)'}`,
     )
-    startMoneyFlowScheduler()
+startMoneyFlowScheduler()
+    startLimitLadderAuctionScheduler()
+    startCrossMarketScheduler()
+    startCheckpointScheduler(defaultCheckpointHandlers)
   })
 }
 
