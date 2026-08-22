@@ -8,7 +8,7 @@
 //
 // 不伪造成功:捕获不到数据时 sourceStatus=unavailable 并带说明;公开源固定 shadow。
 
-import { fetchIndexQuotes, type IndexQuote, type IndexSpec } from './emQuotes'
+import type { IndexQuote } from './emQuotes'
 import {
   fetchSinaBatchQuotes,
   fetchTencentBatchQuotes,
@@ -20,13 +20,8 @@ import { decodeAuctionLevel1 } from './auctionL1'
 import { appendAuctionReplayEvents } from './auctionL1Replay'
 import type { CheckpointHandlers, SchedulerCheckpoint, SchedulerSourceStatus } from './schedulerCheckpoints'
 import { checkpointSpec } from './schedulerCheckpoints'
-
-const ASIA_INDEX_SPECS: IndexSpec[] = [
-  { secid: '100.N225', code: 'N225' },
-  { secid: '100.KS11', code: 'KS11' },
-  { secid: '100.TOPX', code: 'TOPX' },
-  { secid: '100.KQ11', code: 'KQ11' },
-]
+import { captureAsiaMarketState, writeAsiaMarketState } from './asiaMarketCapture'
+import type { AsiaCheckpoint } from './asiaMarketState'
 
 interface AuctionCandidateUniverse {
   codes: string[]
@@ -46,6 +41,12 @@ const ASIA_CHECKPOINTS = new Set<SchedulerCheckpoint>([
   'asia-0830',
   'asia-0900',
 ])
+
+const ASIA_CHECKPOINT_NAME: Partial<Record<SchedulerCheckpoint, AsiaCheckpoint>> = {
+  'asia-open': 'asia-open',
+  'asia-0830': 'asia-0830',
+  'asia-0900': 'asia-0900',
+}
 
 const AUCTION_CHECKPOINTS = new Set<SchedulerCheckpoint>([
   'auction-initial',
@@ -72,31 +73,6 @@ function phaseTimestamp(checkpoint: SchedulerCheckpoint): string {
   const hh = String(Math.floor(spec.atSec / 3600)).padStart(2, '0')
   const mm = String(Math.floor((spec.atSec % 3600) / 60)).padStart(2, '0')
   return `${hh}:${mm}:00`
-}
-
-async function captureAsiaQuotes(): Promise<{
-  quotes: IndexQuote[]
-  provider: string
-  capturedAt: string
-  warnings: string[]
-}> {
-  const capturedAt = new Date().toISOString()
-  try {
-    const quotes = await fetchIndexQuotes(ASIA_INDEX_SPECS)
-    if (!quotes.length) {
-      return { quotes: [], provider: 'eastmoney-asia', capturedAt, warnings: ['日韩指数行情缺失'] }
-    }
-    const warnings: string[] = []
-    if (quotes.length < 2) warnings.push('日韩指数覆盖不足')
-    return { quotes, provider: 'eastmoney-asia', capturedAt, warnings }
-  } catch (error) {
-    return {
-      quotes: [],
-      provider: 'eastmoney-asia',
-      capturedAt,
-      warnings: [error instanceof Error ? error.message : '日韩行情抓取失败'],
-    }
-  }
 }
 
 function sourceStatusForQuotes(
@@ -201,21 +177,39 @@ export const defaultCheckpointHandlers: CheckpointHandlers = async (checkpoint, 
   const spec = checkpointSpec(checkpoint)
 
   if (ASIA_CHECKPOINTS.has(checkpoint)) {
-    const quoteResult = await captureAsiaQuotes()
+    const asiaCheckpoint = ASIA_CHECKPOINT_NAME[checkpoint]
+    if (!asiaCheckpoint) {
+      return {
+        status: 'failed',
+        sourceStatus: 'unavailable',
+        warnings: [`未识别的日韩检查点: ${checkpoint}`],
+      }
+    }
+    const snapshot = await captureAsiaMarketState({
+      tradeDate,
+      checkpoint: asiaCheckpoint,
+      requireQuotes: true,
+    })
+    if (snapshot.quality !== 'unavailable') {
+      writeAsiaMarketState(snapshot)
+    }
+    const usable = snapshot.instruments.filter(
+      (row) => row.price != null && row.sessionStatus !== 'holiday',
+    )
+    const sourceStatus: SchedulerSourceStatus =
+      snapshot.quality === 'full' ? 'full' : snapshot.quality === 'degraded' ? 'degraded' : 'unavailable'
     return {
       status:
-        quoteResult.quotes.length >= 2
-          ? 'success'
-          : quoteResult.quotes.length
-            ? 'degraded'
-            : 'failed',
-      sourceStatus: quoteResult.quotes.length >= 2 ? 'full' : quoteResult.quotes.length ? 'degraded' : 'unavailable',
-      provider: quoteResult.provider,
-      providerTimestamp: phaseTimestamp(checkpoint),
-      dataAsOf: quoteResult.capturedAt,
+        snapshot.quality === 'full' ? 'success' : snapshot.quality === 'degraded' ? 'degraded' : 'failed',
+      sourceStatus,
+      provider: snapshot.provider,
+      providerTimestamp: snapshot.providerTimestamp,
+      dataAsOf: snapshot.receivedAt,
       warnings: [
-        ...quoteResult.warnings,
-        '日韩量化状态向量将在后续批次接入，当前仅保存基础指数行情',
+        ...snapshot.warnings,
+        usable.length !== snapshot.instruments.length
+          ? `日韩状态可用标的 ${usable.length}/${snapshot.instruments.length}`
+          : '日韩量化状态向量已按检查点时间固化',
       ],
     }
   }
