@@ -14,8 +14,56 @@ import {
   sendServerChanTest,
   type AuctionBriefPhase,
 } from '../services/auctionBrief'
+import {
+  type CrossMarketPhase,
+} from '../services/crossMarketMapping'
+import { resolveCrossMarketSnapshot } from '../services/crossMarketRuntime'
+import { buildAuctionBehaviorResearch } from '../services/auctionBehaviorResearch'
 
 const router = Router()
+
+router.get('/api/ladder/cross-market', async (req, res) => {
+  const tradeDate = typeof req.query.tradeDate === 'string' ? req.query.tradeDate : ''
+  const phase = typeof req.query.phase === 'string' ? req.query.phase : 'premarket'
+  const checkpoint = typeof req.query.checkpoint === 'string' ? req.query.checkpoint : undefined
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(tradeDate)) {
+    res.status(400).json({ error: 'tradeDate 必须是 YYYY-MM-DD' })
+    return
+  }
+  if (phase !== 'premarket' && phase !== 'auction' && phase !== 'open') {
+    res.status(400).json({ error: 'phase 必须是 premarket、auction 或 open' })
+    return
+  }
+  try {
+    const snapshot = await resolveCrossMarketSnapshot(tradeDate, phase as CrossMarketPhase)
+    if (checkpoint) {
+      res.json({ ...snapshot, checkpoint })
+      return
+    }
+    res.json(snapshot)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(502).json({ error: message })
+  }
+})
+
+// 竞价行为研究:由 L1 录制事件聚合研究标签。只读,sourceTier shadow。
+router.get('/api/ladder/auction-behavior', (req, res) => {
+  const tradeDate = typeof req.query.tradeDate === 'string' ? req.query.tradeDate : ''
+  const rawPhase = typeof req.query.phase === 'string' ? req.query.phase : 'auction'
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(tradeDate)) {
+    res.status(400).json({ error: 'tradeDate 必须是 YYYY-MM-DD' })
+    return
+  }
+  const phase: CrossMarketPhase =
+    rawPhase === 'auction' || rawPhase === 'open' ? rawPhase : 'auction'
+  try {
+    res.json(buildAuctionBehaviorResearch({ tradeDate, phase }))
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(500).json({ error: message })
+  }
+})
 
 router.get('/api/ladder/analysis', async (req, res) => {
   const date = typeof req.query.date === 'string' ? req.query.date : undefined
