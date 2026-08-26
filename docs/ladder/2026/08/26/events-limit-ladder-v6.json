@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-08-26T07:10:05.074Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5059224",
+      "publishedAt": "2026-08-26T15:02:27+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "",
+      "title": "A股收评：创业板指冲高回落涨0.51% 大金融方向表现强势",
+      "summary": "截至收盘，上证指数涨0.59%报3912.52点，深证成指涨0.69%报13841.33点，创业板指涨0.51%报3414.88点，北证50涨0.45%报1067.97点。三市成交额18218亿元，较上日缩量224亿元。全市场超2900只个股上涨。板块题材上，黄金概念、证券、造纸板块涨幅居前；医疗服务、电机板块跌幅居前。盘面上，黄金概念冲高震荡，深中华A5连板，迪阿股份、金诚信、白银有色、金一文化、江西铜业涨停，西部矿业、洛阳钼业、北方铜业、高能环境、云南铜业跟涨。证券板块表现强势，锦龙股份、湘财股份涨停，哈投股份、长江证券、招商证券、国元证券、西部证券跟涨。造纸板块盘初走强，青山纸业2连板，民士达、恒达新材、博汇纸业、荣晟环保、景兴纸业跟涨。医疗服务板块高开低走，诚达药业跌超5%，康龙化成、益诺思、博济医药、毕得医药跟跌。电机板块震荡走弱，华瑞股份跌超15%，江特电机、迪贝电气、兆威机电、晨光电机、奕帆传动跟跌。",
+      "codes": [
+        "000017",
+        "301177",
+        "603979",
+        "601212",
+        "002721",
+        "600362",
+        "000712",
+        "600095",
+        "600103"
+      ],
+      "themes": [
+        "黄金",
+        "锂电池",
+        "黄金零售",
+        "有色金属",
+        "金属铜",
+        "通信",
+        "白银",
+        "小金属概念",
+        "证券",
+        "金融概念",
+        "业绩增长",
+        "光模块",
+        "医药",
+        "金融",
+        "周期"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-29T07:02:27.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5059204",
+      "publishedAt": "2026-08-26T14:53:49+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-26/detail-iniprqcs5511912.d.html",
+      "title": "报道：DeepSeek前7月营收4.75亿元 较2025全年增长9倍",
+      "summary": "据两名知悉该公司财务数据的人士透露，2026年前7个月，DeepSeek实现营收约4.75亿元人民币（折合7070万美元），约为其2025全年营收的十倍（即增长9倍）。 两位知情人士补充称，今年1‑7月DeepSeek净亏损约7.15亿元人民币，而2025全年净亏损为9.35亿元。公司正与现有投资人及新投资人就本轮融资展开磋商，计划募资500亿元人民币，目标估值5000亿元人民币。 DeepSeek暂未回复邮件置评请求。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-29T06:53:49.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}
