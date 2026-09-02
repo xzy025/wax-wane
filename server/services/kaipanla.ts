@@ -6,23 +6,29 @@
 // a documented heuristic we compute here, NOT an official value from the app.
 
 import { createCache, sessionTtl } from '../lib/cache'
+import { fetchWithProxy } from '../lib/llm'
+import type { DataStatus } from '../market-data/dataQuality'
 import { fetchAShareData } from './ashare'
 
 export interface SentimentData {
   date: string
-  limitUp: number // 涨停家数 (ZT)
-  limitDown: number // 跌停家数 (DT)
-  breakRate: number // 破板率 % (ZBL) — lower is stronger
-  riseCount: number // 上涨家数 (SZJS)
-  fallCount: number // 下跌家数 (XDJS)
-  yestLimitPerf: number // 昨日涨停今日表现 % (yestRase) — 赚钱效应
-  temperature: number // 0-100 综合情绪温度 (heuristic)
+  limitUp: number | null // 涨停家数 (ZT)
+  limitDown: number | null // 跌停家数 (DT)
+  breakRate: number | null // 破板率 % (ZBL) — lower is stronger
+  riseCount: number | null // 上涨家数 (SZJS)
+  fallCount: number | null // 下跌家数 (XDJS)
+  yestLimitPerf: number | null // 昨日涨停今日表现 % (yestRase) — 赚钱效应
+  temperature: number | null // 0-100 综合情绪温度 (heuristic)
+  /** Available temperature weight (0..1); 0.5 is the minimum usable coverage. */
+  coverage: number
+  status: DataStatus
+  missingReasons: string[]
+  warnings: string[]
   /**
-   * 数据来源:kaipanla=开盘啦原始;derived=开盘啦挂掉后由东财真实涨跌停/宽度推导
-   * (破板率/昨停表现无免费替代源,取中性值);mock=连东财也挂了的最后兜底(全假数据)。
-   * 下游(screener regime/市场结构)据此判断可信度,勿把 mock 当真实情绪落盘分析。
+   * 数据来源:kaipanla=开盘啦原始;derived=开盘啦失败后由 A 股真实宽度/涨跌停推导。
+   * 不可得的因子保持 null；不得用 mock 或中性值代替市场事实。
    */
-  source: 'kaipanla' | 'derived' | 'mock'
+  source: 'kaipanla' | 'derived'
 }
 
 const KPL_URL = 'https://apphq.longhuvip.com/w1/api/index.php'
@@ -59,24 +65,63 @@ const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
  *   - 涨停强度 (limit-ups vs limit-ups+downs): weight 0.20
  */
 export function computeTemperature(n: {
-  limitUp: number
-  limitDown: number
-  breakRate: number
-  riseCount: number
-  fallCount: number
-  yestLimitPerf: number
-}): number {
-  const moneyEffect = clamp01((n.yestLimitPerf + 10) / 20)
-  const totalAdvDec = n.riseCount + n.fallCount
-  const breadth = totalAdvDec > 0 ? n.riseCount / totalAdvDec : 0.5
-  const sealStability = clamp01((100 - n.breakRate) / 100)
-  const limitStrength = n.limitUp + n.limitDown > 0 ? n.limitUp / (n.limitUp + n.limitDown) : 0.5
-  const score = moneyEffect * 0.35 + breadth * 0.3 + sealStability * 0.15 + limitStrength * 0.2
-  return Math.round(clamp01(score) * 100)
+  limitUp: number | null
+  limitDown: number | null
+  breakRate: number | null
+  riseCount: number | null
+  fallCount: number | null
+  yestLimitPerf: number | null
+}): { temperature: number | null; coverage: number; missingReasons: string[] } {
+  const components: Array<{ value: number; weight: number }> = []
+  const missingReasons: string[] = []
+  if (n.yestLimitPerf != null) {
+    components.push({ value: clamp01((n.yestLimitPerf + 10) / 20), weight: 0.35 })
+  } else {
+    missingReasons.push('昨日涨停今日表现不可用')
+  }
+  if (n.riseCount != null && n.fallCount != null) {
+    const total = n.riseCount + n.fallCount
+    components.push({ value: total > 0 ? n.riseCount / total : 0.5, weight: 0.3 })
+  } else {
+    missingReasons.push('市场涨跌宽度不可用')
+  }
+  if (n.breakRate != null) {
+    components.push({ value: clamp01((100 - n.breakRate) / 100), weight: 0.15 })
+  } else {
+    missingReasons.push('破板率不可用')
+  }
+  if (n.limitUp != null && n.limitDown != null) {
+    const total = n.limitUp + n.limitDown
+    components.push({ value: total > 0 ? n.limitUp / total : 0.5, weight: 0.2 })
+  } else {
+    missingReasons.push('涨跌停宽度不可用')
+  }
+  const coverage = components.reduce((sum, component) => sum + component.weight, 0)
+  if (coverage < 0.5) return { temperature: null, coverage, missingReasons }
+  const weighted = components.reduce((sum, component) => sum + component.value * component.weight, 0)
+  return {
+    temperature: Math.round(clamp01(weighted / coverage) * 100),
+    coverage,
+    missingReasons,
+  }
 }
 
-function withTemperature(base: Omit<SentimentData, 'temperature'>): SentimentData {
-  return { ...base, temperature: computeTemperature(base) }
+function withTemperature(
+  base: Omit<SentimentData, 'temperature' | 'coverage' | 'status' | 'missingReasons' | 'warnings'> & {
+    missingReasons?: string[]
+    warnings?: string[]
+  },
+): SentimentData {
+  const calculated = computeTemperature(base)
+  const missingReasons = [...new Set([...(base.missingReasons ?? []), ...calculated.missingReasons])]
+  return {
+    ...base,
+    temperature: calculated.temperature,
+    coverage: calculated.coverage,
+    status: calculated.temperature == null ? 'unavailable' : missingReasons.length ? 'degraded' : 'full',
+    missingReasons,
+    warnings: [...new Set([...(base.warnings ?? []), ...missingReasons])],
+  }
 }
 
 async function fetchSentimentFresh(): Promise<SentimentData> {
@@ -92,7 +137,7 @@ async function fetchSentimentFresh(): Promise<SentimentData> {
       Index: '20',
     }).toString()
 
-    const res = await fetch(KPL_URL, {
+    const res = await fetchWithProxy(KPL_URL, {
       method: 'POST',
       headers: KPL_HEADERS,
       body,
@@ -112,15 +157,17 @@ async function fetchSentimentFresh(): Promise<SentimentData> {
     }
     const nums = json.nums
     if (!nums || typeof nums.ZT !== 'number') throw new Error('unexpected payload shape')
+    const numberOrNull = (value: unknown): number | null =>
+      typeof value === 'number' && Number.isFinite(value) ? value : null
 
     return withTemperature({
       date: json.date ?? '',
-      limitUp: nums.ZT ?? 0,
-      limitDown: nums.DT ?? 0,
-      breakRate: nums.ZBL ?? 0,
-      riseCount: nums.SZJS ?? 0,
-      fallCount: nums.XDJS ?? 0,
-      yestLimitPerf: nums.yestRase ?? 0,
+      limitUp: numberOrNull(nums.ZT),
+      limitDown: numberOrNull(nums.DT),
+      breakRate: numberOrNull(nums.ZBL),
+      riseCount: numberOrNull(nums.SZJS),
+      fallCount: numberOrNull(nums.XDJS),
+      yestLimitPerf: numberOrNull(nums.yestRase),
       source: 'kaipanla',
     })
   } catch (err) {
@@ -132,35 +179,27 @@ async function fetchSentimentFresh(): Promise<SentimentData> {
   try {
     return await deriveSentimentFromAShare()
   } catch (err) {
-    console.warn('[Sentiment] 东财推导也失败,退最后 mock:', err instanceof Error ? err.message : err)
-    return getMockSentiment()
+    const reason = err instanceof Error ? err.message : String(err)
+    console.warn('[Sentiment] 东财推导也失败:', reason)
+    throw new Error(`市场情绪数据不可用：开盘啦与 A 股推导均失败（${reason}）`, { cause: err })
   }
 }
 
 async function deriveSentimentFromAShare(): Promise<SentimentData> {
   const a = await fetchAShareData()
-  if (a.limitUpCount + a.limitDownCount === 0) throw new Error('ashare limit pools empty')
+  if (a.limitUpCount == null || a.limitDownCount == null) {
+    throw new Error('A 股涨跌停池不可用')
+  }
   return withTemperature({
     date: '',
     limitUp: a.limitUpCount,
     limitDown: a.limitDownCount,
-    breakRate: 25, // 破板率无免费替代源→中性(仅占温度权重 0.15)
+    breakRate: null,
     riseCount: a.advance,
     fallCount: a.decline,
-    yestLimitPerf: 0, // 昨停表现同上→中性(0 经 clamp 映射为 0.5)
+    yestLimitPerf: null,
     source: 'derived',
-  })
-}
-
-function getMockSentiment(): SentimentData {
-  return withTemperature({
-    date: '',
-    limitUp: 60,
-    limitDown: 10,
-    breakRate: 25,
-    riseCount: 2800,
-    fallCount: 2200,
-    yestLimitPerf: 0.5,
-    source: 'mock',
+    missingReasons: ['开盘啦破板率不可用', '开盘啦昨日涨停今日表现不可用'],
+    warnings: ['仅使用 A 股真实涨跌停与宽度推导市场情绪'],
   })
 }

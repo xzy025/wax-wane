@@ -1,8 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  fetchKplRealtimeLadder,
   parseKplRealtimeRow,
   parseKplReasonPayload,
 } from './kaipanlaLadder'
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('kaipanla realtime ladder parser', () => {
   it('maps ladder height, concepts, margin eligibility and one-price hints', () => {
@@ -78,6 +83,14 @@ describe('kaipanla realtime ladder parser', () => {
       onePriceHint: false,
       tBoardHint: true,
     })
+  })
+
+  it('retries transient tier failures once and preserves every failed tier in the error', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 503 })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(fetchKplRealtimeLadder()).rejects.toThrow(/1板：HTTP 503.*5板：HTTP 503/)
+    expect(fetchMock).toHaveBeenCalledTimes(10)
   })
 })
 

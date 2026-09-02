@@ -9,6 +9,7 @@ import {
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { shanghaiClock } from '../lib/cache'
+import { activeTradingCalendar, isTradingDayAt, shanghaiClockAt } from './tradingCalendar'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { todayShanghai } from '../lib/time'
@@ -58,6 +59,13 @@ import {
   type PromotionStatistics,
   type ThemeRiskAppetite,
 } from './ladderV4'
+import { buildNextDayRelayPlan } from './limitLadderRelay'
+import { evaluateExecutionEligibility } from './executionEligibility'
+import type { NextDayManualReviewAssessment } from './nextDayManualReview'
+import {
+  scoreThemeLadderRelation,
+  type ThemeLadderEvidence,
+} from './themeLadderRelation'
 import {
   buildMarketRiskGate,
   fetchDomesticMarketSnapshot,
@@ -69,6 +77,28 @@ import {
   type MarketRiskGate,
   type ThemePermission,
 } from './ladderMarketGate'
+import {
+  buildBoardDayObservation,
+  buildBoardSequenceEvidence,
+  buildRelayExpectation,
+  classifyObservedRelayPath,
+  matchRelayExpectation,
+  type BoardDayObservation,
+  type BoardSequenceEvidence,
+  type ExpectationMatch,
+  type RelayExpectation,
+} from './ladderExpectation'
+import { buildRelayPathEvidence } from './relayPathFeatures'
+import { scoreFirstBoardPath, scoreStreakPath, type RelayPathScore } from './relayPathScoring'
+import type { RelayPathEvidence } from './relayPathTypes'
+import { aggregateLimitEventDay, type LimitEventArchive } from '../market-data/limitEventStore'
+import {
+  buildLadderSentimentQuantSnapshot,
+  listLadderSentimentQuant,
+  readLadderSentimentQuant,
+  writeLadderSentimentQuant,
+  type LadderSentimentQuantSnapshot,
+} from './ladderSentimentQuant'
 
 export const LIMIT_LADDER_RULE_VERSION = 'limit-ladder-v6'
 const COMPATIBLE_LADDER_RULE_VERSIONS = [
@@ -80,7 +110,7 @@ const COMPATIBLE_LADDER_RULE_VERSIONS = [
   'limit-ladder-v1',
 ] as const
 const CACHE_MS = 120_000
-const KLINE_COUNT = 180
+const KLINE_COUNT = 250
 const MIN_LADDER_AMOUNT = 100_000_000
 const MAX_NEXT_DAY_CANDIDATES = 10
 const MAX_CANDIDATES_PER_LANE = 3
@@ -145,7 +175,7 @@ export type NextDayState =
   | 'blocked'
   | 'rejected'
 export type LadderSizeBucket = 'small' | 'mid' | 'large' | 'unknown'
-export type MarketCyclePhase = 'ice' | 'repair' | 'climax' | 'ebb'
+export type MarketCyclePhase = 'ice' | 'repair' | 'climax' | 'ebb' | 'unavailable'
 export type ThemeGrade = 'A' | 'B' | 'C' | 'D'
 export type LadderRole = 'space-leader' | 'theme-leader' | 'first-pioneer' | 'mid-ladder' | 'follower'
 export type ShapeArchetype =
@@ -175,6 +205,8 @@ export interface LadderImportStock {
   amount?: number
   sealAmount?: number
   onePrice?: boolean
+  vwapPct?: number | null
+  vwapHold?: boolean | null
 }
 
 export interface LadderImportPayload {
@@ -183,21 +215,24 @@ export interface LadderImportPayload {
 }
 
 export interface MarketCycleInput {
-  temperature: number
-  limitUp: number
-  limitDown: number
-  breakRate: number
-  promotionRate: number
-  yestLimitPerf: number
-  advance: number
-  decline: number
+  temperature: number | null
+  limitUp: number | null
+  limitDown: number | null
+  breakRate: number | null
+  promotionRate: number | null
+  yestLimitPerf: number | null
+  advance: number | null
+  decline: number | null
   maxBoards: number
   ladderContinuity: number
 }
 
 export interface MarketCycle {
   phase: MarketCyclePhase
-  score: number
+  score: number | null
+  rawScore?: number | null
+  coverage?: number
+  missingReasons?: string[]
   directionAvailable: boolean
   reasons: string[]
   current: MarketCycleInput
@@ -278,9 +313,12 @@ export interface LadderPopularity {
 }
 
 export interface LadderV2Scores {
-  promotion: number
-  tradability: number
+  promotion: number | null
+  tradability: number | null
   base: number
+  promotionCoverage?: number
+  tradabilityCoverage?: number
+  missingReasons?: string[]
   promotionDimensions: Record<
     'market' | 'lane' | 'theme' | 'popularity' | 'seal' | 'technical',
     LadderDimension
@@ -325,15 +363,34 @@ export interface LadderDimension {
   note: string
 }
 
+export type DragonVerdict = 'true-dragon' | 'core' | 'follower' | 'insufficient-data'
+
+export interface DragonIdentity {
+  score: number
+  verdict: DragonVerdict
+  dimensions: {
+    drive: LadderDimension
+    leadership: LadderDimension
+    antiDrop: LadderDimension
+    liquidity: LadderDimension
+    absorption: LadderDimension
+  }
+  hardGate: {
+    passed: boolean
+    failed: string[]
+  }
+  evidence: string[]
+}
+
 export interface LadderFundFlow {
   available: boolean
-  score: number
+  score: number | null
   net: number
   instNet: number
   hotNet: number
   lhasaNet: number
   note: string
-  source: 'eastmoney-lhb' | 'missing-neutral'
+  source: 'eastmoney-lhb' | 'unavailable' | 'missing-neutral'
 }
 
 export interface LadderStockAnalysis {
@@ -350,6 +407,13 @@ export interface LadderStockAnalysis {
   subtheme: string
   themeGrade: ThemeGrade
   themeScore: number
+  themeLadder?: ThemeLadderEvidence
+  /** 最近三板的板型×量价序列；模型通过样本外验收前仅作 shadow 展示。 */
+  boardSequence?: BoardSequenceEvidence
+  expectation?: RelayExpectation
+  /** Unified path evidence shared with the first-board route; research-only. */
+  relayPathEvidence?: RelayPathEvidence
+  relayPathScore?: RelayPathScore
   role: LadderRole
   roleProfile?: LadderRoleProfile
   reason: string
@@ -370,9 +434,19 @@ export interface LadderStockAnalysis {
   promotionScore?: number
   tradabilityScore?: number
   baseScore?: number
+  scoreCoverage?: {
+    promotion: number
+    tradability: number
+    missingReasons: string[]
+  }
   candidateRank?: number | null
+  /** Signal-day population funnel; shadow metadata only. */
+  fullLanePool?: boolean
+  hardEligible?: boolean
+  quotaSelected?: boolean
   turnoverCapacity?: TurnoverCapacity
   popularity?: LadderPopularity
+  dragonIdentity?: DragonIdentity
   v2?: LadderV2Scores
   technical: TechnicalEvidence
   dimensions: {
@@ -402,11 +476,16 @@ export interface LadderDataQuality {
   source: 'kaipanla' | 'eastmoney' | 'sina' | 'import' | 'mixed'
   sourceDate: string
   sentimentSource: SentimentData['source']
+  sentimentStatus: SentimentData['status']
   limitFieldsComplete: boolean
   klineComplete: number
   klineTotal: number
   degraded: boolean
   fundFlowComplete: boolean
+  providerAt?: string | null
+  receivedAt?: string | null
+  adjustment?: KlineBar['adjustment'] | null
+  settled?: boolean
   warnings: string[]
 }
 
@@ -417,14 +496,15 @@ export interface LimitLadderAnalysis {
   archived: boolean
   market: {
     cycle: MarketCycle
-    limitUp: number
-    limitDown: number
-    breakRate: number
-    promotionRate: number
-    advance: number
-    decline: number
+    limitUp: number | null
+    limitDown: number | null
+    breakRate: number | null
+    promotionRate: number | null
+    advance: number | null
+    decline: number | null
     maxBoards: number
   }
+  sentimentQuant?: LadderSentimentQuantSnapshot | null
   themes: ThemeAnalysis[]
   promotionLanes?: PromotionLane[]
   promotionStatistics?: PromotionStatistics
@@ -439,6 +519,10 @@ export interface LimitLadderAnalysis {
   stocks: LadderStockAnalysis[]
   quality: LadderDataQuality
   warnings: string[]
+  /** 研究层输出；没有逐笔/盘口成交证据时不得解释为交易建议。 */
+  strategyStatus?: 'research'
+  revision?: number
+  supersedes?: string | null
 }
 
 export interface NextDayCandidateConfirmation {
@@ -449,6 +533,9 @@ export interface NextDayCandidateConfirmation {
   baseScore: number
   promotionScore: number
   tradabilityScore: number
+  themeLadder?: ThemeLadderEvidence
+  expectation?: RelayExpectation
+  expectationMatch?: ExpectationMatch
   auctionScore: number | null
   finalAuctionScore?: number | null
   processScore?: number | null
@@ -458,8 +545,15 @@ export interface NextDayCandidateConfirmation {
   liquidityStyleAdjustment?: number
   styleGateReasons?: string[]
   openScore: number | null
+  /** 09:35 分钟K量价翻红代理；低开/平开候选需要通过。 */
+  openingPullUpConfirmed?: boolean | null
+  openingReboundConfirmed?: boolean | null
+  auctionTailBuyConfirmed?: boolean | null
+  openingConfirmationGate?: 'not-required' | 'passed' | 'blocked' | 'unavailable'
   liveScore: number | null
   environmentAdjustment?: number
+  openingGapAdjustment?: number
+  auctionTailBonus?: number
   decisionScore?: number | null
   marketGateState?: MarketRiskGate['state'] | null
   themePermission?: ThemePermission | null
@@ -474,6 +568,41 @@ export interface NextDayCandidateConfirmation {
   inaccessible: boolean
   warnings: string[]
   gateReasons?: string[]
+  researchConfirmed?: boolean
+  executionEligible?: boolean
+  executionEligibility?: LadderExecutionEligibility
+  /** Screenshot/manual evidence assessment; does not alter execution eligibility. */
+  manualReview?: NextDayManualReviewAssessment
+}
+
+export interface LadderExecutionEligibility {
+  eligible: boolean
+  reasons: string[]
+  evaluatedAt: string
+}
+
+export interface LadderExecutionEligibilityInput {
+  stage: 'pending' | 'auction' | 'open' | 'settled'
+  tradeDate: string
+  quote?: Pick<ScreenerLiveQuote, 'tradeDate' | 'volume' | 'amount'> | null
+  confirmationState: NextDayState | null
+  inaccessible: boolean
+  marketGateState: MarketRiskGate['state'] | null | undefined
+  themePermissionState: ThemePermission['state'] | null | undefined
+  auctionSnapshotAvailable: boolean
+  openSnapshotAvailable: boolean
+  openingConfirmationGate?: NextDayCandidateConfirmation['openingConfirmationGate']
+  technicalAvailable?: boolean
+  riskBudgetAvailable?: boolean
+  relayGateState?: 'NORMAL' | 'HOT' | 'JOINT_CLIMAX' | 'UNAVAILABLE'
+}
+
+/** Single fail-closed execution vocabulary shared by API, archive and relay. */
+export function evaluateLadderExecutionEligibility(
+  input: LadderExecutionEligibilityInput,
+  evaluatedAt = new Date().toISOString(),
+): LadderExecutionEligibility {
+  return evaluateExecutionEligibility(input, evaluatedAt)
 }
 
 export interface AuctionMarketStock {
@@ -564,6 +693,11 @@ export interface LadderOutcomeRow {
   promoted: boolean | null
   tradable: boolean | null
   unresolvedReason: string
+  /** Diagnostic price mark; does not imply a fill. */
+  nextDayOpenToCloseMark?: number | null
+  markPositive?: boolean | null
+  realizedNetReturnPct?: number | null
+  /** @deprecated use nextDayOpenToCloseMark. */
   openToClosePct: number | null
   mfePct: number | null
   maePct: number | null
@@ -581,6 +715,12 @@ export interface LadderOutcomeRow {
   heightTier?: LadderRoleProfile['heightTier']
   liquidityStyleAdjustment?: number
   gateReasons?: string[]
+  /** Full-lane funnel flags. Null means the later stage was not observed. */
+  fullLanePool?: boolean
+  hardEligible?: boolean
+  quotaSelected?: boolean
+  confirmed?: boolean | null
+  filled?: boolean | null
 }
 
 export interface LadderPromotionRateSummary {
@@ -619,12 +759,93 @@ export interface LadderOutcomeArchive {
   rows: LadderOutcomeRow[]
 }
 
+export type RelayRole =
+  | 'relay-candidate'
+  | 'theme-core-observer'
+  | 'emotion-anchor'
+  | 'fallback-observer'
+export type RelayFeedbackStatus = 'supportive' | 'mixed' | 'negative' | 'unavailable'
+export type RelayPlanStage = 'pending' | 'auction' | 'open' | 'settled'
+export type RelayFeedbackSource =
+  | 'settled-analysis'
+  | 'auction-process'
+  | 'open-confirmation'
+  | 'unavailable'
+
+export interface NextDayRelayRelatedStock {
+  code: string
+  name: string
+  boards: number
+  theme: string
+  relation: string
+  changePct?: number | null
+  gapPct?: number | null
+  onePrice?: boolean
+  vwapPct?: number | null
+  vwapHold?: boolean | null
+}
+
+export interface NextDayRelayFeedback {
+  status: RelayFeedbackStatus
+  stage: RelayPlanStage
+  signalDate: string
+  tradeDate: string
+  source: RelayFeedbackSource
+  related: NextDayRelayRelatedStock[]
+  metrics: Record<string, number | string | boolean | null>
+  evidence: string[]
+  warnings: string[]
+}
+
+export interface NextDayRelayItem {
+  code: string
+  name: string
+  boards: number
+  promotionLane: string
+  primaryTheme: string
+  researchTheme: string
+  baseState: LadderState
+  relayRole: RelayRole
+  researchPriority: number
+  executionEligible: boolean
+  executionGateReasons: string[]
+  researchReasons: string[]
+  confirmationConditions: string[]
+  invalidationReasons: string[]
+  noChaseReasons: string[]
+  themeFeedback: NextDayRelayFeedback
+  sameLevelFeedback: NextDayRelayFeedback
+}
+
+export interface NextDayRelayPopulationRow {
+  code: string
+  name: string
+  promotionLane: string
+  fullLanePool: boolean
+  hardEligible: boolean
+  ranked: boolean
+  quotaSelected: boolean
+  confirmed: boolean | null
+  filled: boolean | null
+}
+
+export interface NextDayRelayPlan {
+  status: 'research-score'
+  signalDate: string
+  tradeDate: string
+  generatedAt: string
+  stage: RelayPlanStage
+  items: NextDayRelayItem[]
+  population: NextDayRelayPopulationRow[]
+  warnings: string[]
+}
 export interface LimitLadderNextDay {
   signalDate: string
   tradeDate: string
   generatedAt: string
   ruleVersion: string
   stage: 'pending' | 'auction' | 'open' | 'settled'
+  sentimentQuant?: LadderSentimentQuantSnapshot | null
   auctionSnapshotAvailable: boolean
   confirmationSnapshotAvailable?: boolean
   auctionContext?: LadderAuctionContext | null
@@ -636,6 +857,8 @@ export interface LimitLadderNextDay {
   outcome?: LadderOutcomeArchive | null
   candidates: NextDayCandidateConfirmation[]
   warnings: string[]
+  relayPlan?: NextDayRelayPlan | null
+  strategyStatus?: 'research'
 }
 
 export interface NormalizedStock {
@@ -669,6 +892,11 @@ export interface NormalizedStock {
 interface TechnicalResult {
   evidence: TechnicalEvidence
   bars: KlineBar[]
+  rawBars?: KlineBar[]
+  provider?: string
+  adjustment?: KlineBar['adjustment']
+  providerAt?: string | null
+  receivedAt?: string
 }
 
 interface LadderMarketProfile {
@@ -685,6 +913,12 @@ interface EvidenceArchive {
   generatedAt: string
   ruleVersion: string
   qualityRank: number
+  revision?: number
+  supersedes?: string | null
+  providerAt?: string | null
+  receivedAt?: string | null
+  adjustment?: KlineBar['adjustment'] | null
+  settled?: boolean
   ashare: Pick<
     AShareData,
     | 'limitUpCount'
@@ -698,9 +932,10 @@ interface EvidenceArchive {
   >
   sentiment: SentimentData
   kplLadder: KplRealtimeLadder | null
-  limitUpStocks: LimitStock[]
+  limitUpStocks: LimitStock[] | null
   imported: LadderImportPayload | null
   klines: Record<string, KlineBar[]>
+  rawKlines?: Record<string, KlineBar[]>
   marketProfiles?: Record<string, { circulatingMarketCap: number | null }>
   hotList?: Pick<HotListData, 'eastmoney' | 'ths'>
   promotionLanes?: PromotionLane[]
@@ -787,14 +1022,43 @@ function analysisPath(asof: string, version = LIMIT_LADDER_RULE_VERSION): string
   return join(archiveDir(asof), `analysis-${version}.json`)
 }
 
+function revisionArchivePath(basePath: string, revision: number): string {
+  if (revision <= 1) return basePath
+  return basePath.replace(/\.json$/, `-r${revision}.json`)
+}
+
+function latestRevisionedArchivePath(
+  asof: string,
+  version: string,
+  kind: 'analysis' | 'evidence',
+): string | null {
+  const dir = archiveDir(asof)
+  if (!existsSync(dir)) return null
+  const baseName = `${kind}-${version}.json`
+  const revisionPattern = new RegExp(`^${kind}-${version}-r(\\d+)\\.json$`)
+  const paths = readdirSync(dir)
+    .filter((name) => name === baseName || revisionPattern.test(name))
+    .map((name) => ({
+      name,
+      revision: name === baseName ? 1 : Number(name.match(revisionPattern)?.[1] ?? 0),
+    }))
+    .filter((item) => item.revision > 0)
+    .sort((a, b) => b.revision - a.revision)
+  return paths.length ? join(dir, paths[0].name) : null
+}
+
+function archiveWritePath(basePath: string, revision: number): string {
+  return revisionArchivePath(basePath, revision)
+}
+
 function eventGatePath(asof: string, version = LIMIT_LADDER_RULE_VERSION): string {
   return join(archiveDir(asof), `events-${version}.json`)
 }
 
 function archivedAnalysisPath(asof: string): string | null {
   for (const version of COMPATIBLE_LADDER_RULE_VERSIONS) {
-    const path = analysisPath(asof, version)
-    if (existsSync(path)) return path
+    const path = latestRevisionedArchivePath(asof, version, 'analysis')
+    if (path && existsSync(path)) return path
   }
   return null
 }
@@ -836,6 +1100,14 @@ function allArchivedAnalysisDates(): string[] {
   return archivedAnalysisDates('9999-12-31')
 }
 
+/** 仅返回存在连板天梯 analysis 归档的日期，供前端日期选择器使用。 */
+export function listLimitLadderArchiveDates(limit = 30): string[] {
+  const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.min(200, Math.floor(limit))) : 30
+  return allArchivedAnalysisDates()
+    .sort((a, b) => b.localeCompare(a))
+    .slice(0, safeLimit)
+}
+
 function recentArchivedAnalyses(asof: string, limit = 5): LimitLadderAnalysis[] {
   return archivedAnalysisDates(asof)
     .slice(-limit)
@@ -861,7 +1133,7 @@ function archivedPromotionObservations(asof: string): PromotionObservation[] {
       return (archive?.rows ?? [])
         .filter(
           (row) =>
-            row.population === 'formal' &&
+            row.fullLanePool !== false &&
             typeof row.promoted === 'boolean' &&
             typeof row.fromBoards === 'number',
         )
@@ -930,19 +1202,67 @@ export function classifyMarketCycle(
   current: MarketCycleInput,
   previous?: Pick<MarketCycle, 'phase' | 'current'>,
 ): MarketCycle {
-  const delta = previous ? current.temperature - previous.current.temperature : 0
+  const coverageInputs = [
+    { value: current.temperature, weight: 0.2, label: '情绪温度' },
+    { value: current.limitUp, weight: 0.1, label: '涨停家数' },
+    { value: current.limitDown, weight: 0.1, label: '跌停家数' },
+    { value: current.breakRate, weight: 0.1, label: '破板率' },
+    { value: current.promotionRate, weight: 0.15, label: '晋级率' },
+    { value: current.yestLimitPerf, weight: 0.1, label: '昨日涨停表现' },
+    { value: current.advance, weight: 0.125, label: '上涨家数' },
+    { value: current.decline, weight: 0.125, label: '下跌家数' },
+  ]
+  const coverage = r2(
+    coverageInputs
+      .filter((item) => item.value != null && Number.isFinite(item.value))
+      .reduce((sum, item) => sum + item.weight, 0),
+  )
+  const missingReasons = coverageInputs
+    .filter((item) => item.value == null || !Number.isFinite(item.value))
+    .map((item) => `${item.label}不可用`)
   const reasons: string[] = []
-  let phase: MarketCyclePhase
+  const previousTemperature = previous?.current.temperature ?? null
+  const directionAvailable =
+    previous?.phase !== 'unavailable' &&
+    current.temperature != null &&
+    previousTemperature != null
+  const delta = directionAvailable ? current.temperature! - previousTemperature : null
+
+  if (coverage < 0.5) {
+    return {
+      phase: 'unavailable',
+      score: null,
+      rawScore: null,
+      coverage,
+      missingReasons,
+      directionAvailable: false,
+      reasons: ['市场情绪数据覆盖不足，周期不可判定'],
+      current,
+      previousTemperature: previousTemperature ?? undefined,
+    }
+  }
+
+  let phase: Exclude<MarketCyclePhase, 'unavailable'>
 
   const ebb =
+    directionAvailable &&
     !!previous &&
     (previous.phase === 'repair' || previous.phase === 'climax') &&
-    (delta <= -8 || current.breakRate >= 35 || current.yestLimitPerf < 0)
+    ((delta != null && delta <= -8) ||
+      (current.breakRate != null && current.breakRate >= 35) ||
+      (current.yestLimitPerf != null && current.yestLimitPerf < 0))
   const ice =
-    current.temperature <= 35 ||
-    (current.limitDown >= current.limitUp && current.yestLimitPerf < 0) ||
-    (current.maxBoards <= 2 && current.promotionRate < 15)
+    (current.temperature != null && current.temperature <= 35) ||
+    (current.limitDown != null &&
+      current.limitUp != null &&
+      current.yestLimitPerf != null &&
+      current.limitDown >= current.limitUp &&
+      current.yestLimitPerf < 0) ||
+    (current.maxBoards <= 2 && current.promotionRate != null && current.promotionRate < 15)
   const climax =
+    current.temperature != null &&
+    current.promotionRate != null &&
+    current.breakRate != null &&
     current.temperature >= 70 &&
     current.promotionRate >= 35 &&
     current.breakRate <= 25 &&
@@ -961,9 +1281,12 @@ export function classifyMarketCycle(
     phase = 'repair'
     reasons.push('情绪未达高潮，梯队处于修复或发酵')
   }
-  if (!previous) reasons.push('缺少前日归档，周期方向仅按当日水平判断')
+  if (!directionAvailable) {
+    missingReasons.push('缺少可比前日情绪温度')
+    reasons.push('缺少前日归档或可比温度，周期方向仅按当日水平判断')
+  }
 
-  const scoreByPhase: Record<MarketCyclePhase, number> = {
+  const scoreByPhase: Record<Exclude<MarketCyclePhase, 'unavailable'>, number> = {
     ice: 30,
     repair: 75,
     climax: 65,
@@ -971,11 +1294,14 @@ export function classifyMarketCycle(
   }
   return {
     phase,
-    score: scoreByPhase[phase],
-    directionAvailable: !!previous,
+    score: directionAvailable ? scoreByPhase[phase] : null,
+    rawScore: directionAvailable ? scoreByPhase[phase] : null,
+    coverage,
+    missingReasons,
+    directionAvailable,
     reasons,
     current,
-    previousTemperature: previous?.current.temperature,
+    previousTemperature: previousTemperature ?? undefined,
   }
 }
 
@@ -990,7 +1316,7 @@ function levelContinuity(stocks: Array<{ consecutiveDays: number }>): number {
 
 export function scoreThemes(
   stocks: NormalizedStock[],
-  globalPromotionRate: number,
+  globalPromotionRate: number | null,
   previousStocks: Array<Pick<LadderStockAnalysis, 'code' | 'consecutiveDays' | 'themes' | 'primaryTheme'>> = [],
   anchors: ThemeAnchor[] = [],
 ): ThemeAnalysis[] {
@@ -1233,6 +1559,20 @@ function rollingMean(values: number[], endExclusive: number, window: number): nu
   return slice.length === window ? mean(slice) : null
 }
 
+function rollingNullableMean(
+  values: Array<number | null>,
+  endExclusive: number,
+  window: number,
+): number | null {
+  const start = endExclusive - window
+  if (start < 0) return null
+  const slice = values.slice(start, endExclusive)
+  if (slice.length !== window || slice.some((value) => value == null || !Number.isFinite(value))) {
+    return null
+  }
+  return mean(slice as number[])
+}
+
 function rollingHigh(bars: KlineBar[], endExclusive: number, window: number): number | null {
   const start = endExclusive - window
   if (start < 0) return null
@@ -1253,13 +1593,14 @@ function trueRange(bars: KlineBar[], index: number): number {
 }
 
 function amountRatioAt(bars: KlineBar[], index: number): { value: number | null; source: TechnicalEvidence['amountRatioSource'] } {
-  const amountBase = rollingMean(
+  const amountBase = rollingNullableMean(
     bars.map((bar) => bar.turnover),
     index,
     20,
   )
-  if (amountBase && amountBase > 0 && bars[index].turnover > 0) {
-    return { value: bars[index].turnover / amountBase, source: 'amount' }
+  const turnover = bars[index].turnover
+  if (amountBase && amountBase > 0 && turnover != null && turnover > 0) {
+    return { value: turnover / amountBase, source: 'amount' }
   }
   const volumeBase = rollingMean(
     bars.map((bar) => bar.volume),
@@ -1445,25 +1786,33 @@ function ladderRoleScore(role: LadderRole): number {
 export function scoreLadderFundFlow(day?: LhbDay): LadderFundFlow {
   const moneyMagnitude = (value: number, cap: number) =>
     clamp(Math.log10(1 + Math.abs(value) / 1e6) / Math.log10(301) * cap, 0, cap)
-  let score = 50
-  if (day) {
-    score += Math.sign(day.instNet) * moneyMagnitude(day.instNet, 25)
-    score += Math.sign(day.hotNet) * moneyMagnitude(day.hotNet, 15)
-    score -= Math.max(0, moneyMagnitude(day.lhasaNet ?? 0, 20))
-    score += Math.sign(day.net) * moneyMagnitude(day.net, 10)
+  if (!day) {
+    return {
+      available: false,
+      score: null,
+      net: 0,
+      instNet: 0,
+      hotNet: 0,
+      lhasaNet: 0,
+      note: '资金流不可用；不以中性分伪装证据',
+      source: 'unavailable',
+    }
   }
+  let score = 50
+  score += Math.sign(day.instNet) * moneyMagnitude(day.instNet, 25)
+  score += Math.sign(day.hotNet) * moneyMagnitude(day.hotNet, 15)
+  score -= Math.max(0, moneyMagnitude(day.lhasaNet ?? 0, 20))
+  score += Math.sign(day.net) * moneyMagnitude(day.net, 10)
   score = clamp(r2(score))
   return {
-    available: !!day,
+    available: true,
     score,
-    net: day?.net ?? 0,
-    instNet: day?.instNet ?? 0,
-    hotNet: day?.hotNet ?? 0,
-    lhasaNet: day?.lhasaNet ?? 0,
-    note: day
-      ? `机构${r2(day.instNet / 1e4)}万·游资${r2(day.hotNet / 1e4)}万·拉萨${r2((day.lhasaNet ?? 0) / 1e4)}万`
-      : '未上龙虎榜或数据尚未发布，中性分',
-    source: day ? 'eastmoney-lhb' : 'missing-neutral',
+    net: day.net,
+    instNet: day.instNet,
+    hotNet: day.hotNet,
+    lhasaNet: day.lhasaNet ?? 0,
+    note: `机构${r2(day.instNet / 1e4)}万·游资${r2(day.hotNet / 1e4)}万·拉萨${r2((day.lhasaNet ?? 0) / 1e4)}万`,
+    source: 'eastmoney-lhb',
   }
 }
 
@@ -1508,6 +1857,123 @@ function determineRole(
   if (stock.consecutiveDays === 1 && (timeMinutes(stock.firstTime) ?? Infinity) <= 10 * 60) return 'first-pioneer'
   if (stock.consecutiveDays >= 2) return 'mid-ladder'
   return 'follower'
+}
+
+function dragonDimension(score: number, note: string): LadderDimension {
+  return { score: r2(clamp(score)), note }
+}
+
+/**
+ * Identify the already-emerging leader inside one primary-theme cohort.
+ * This is deliberately a recognition score, not a return forecast.  The
+ * current ladder feed has reliable close/board/seal data but not a complete
+ * cross-sectional 1-minute cache, so drive/anti-drop use explicit proxies.
+ */
+export function scoreDragonIdentity(args: {
+  stock: NormalizedStock
+  theme: ThemeAnalysis
+  peers: NormalizedStock[]
+  role: LadderRole
+  evidence: TechnicalEvidence
+  market: MarketCycle
+  turnover: TurnoverCapacity
+  followerCount: number
+  onePrice: boolean
+}): DragonIdentity {
+  const { stock, theme, peers, role, evidence, market, turnover, followerCount, onePrice } = args
+  const validPeers = peers.length ? peers : [stock]
+  const firstTimes = validPeers
+    .map((item) => timeMinutes(item.firstTime))
+    .filter((value): value is number => value != null)
+  const first = timeMinutes(stock.firstTime)
+  const early = first == null || firstTimes.length < 2
+    ? 50
+    : clamp(100 - ((firstTimes.filter((value) => value < first).length / Math.max(firstTimes.length - 1, 1)) * 100))
+  const peerFollowerMax = Math.max(3, ...validPeers.map((item) =>
+    validPeers.filter((other) => other.code !== item.code && other.firstTime && item.firstTime && other.firstTime > item.firstTime).length,
+  ))
+  const resonance = weightedAvailable([
+    { value: normalizePercent(theme.count, 8), weight: 0.35 },
+    { value: theme.score, weight: 0.4 },
+    { value: normalizePercent(followerCount, peerFollowerMax), weight: 0.25 },
+  ])
+  const drive = weightedAvailable([
+    { value: early, weight: 0.4 },
+    { value: resonance, weight: 0.6 },
+  ])
+
+  const maxBoards = Math.max(...validPeers.map((item) => item.consecutiveDays), stock.consecutiveDays)
+  const boardScore = clamp(100 - (maxBoards - stock.consecutiveDays) * 15)
+  const returns = validPeers.map((item) => item.consecutiveDays * 10 + item.changePct)
+  const returnProxy = stock.consecutiveDays * 10 + stock.changePct
+  const returnScore = crossSectionPercentile(returnProxy, returns)
+  const leadership = weightedAvailable([
+    { value: boardScore, weight: 0.6 },
+    { value: returnScore, weight: 0.4 },
+  ])
+
+  const antiBase = market.phase === 'repair' ? 75 : market.phase === 'ebb' ? 45 : market.phase === 'climax' ? 55 : 60
+  const shapeAdjustment = evidence.shape === 'low-platform-breakout' || evidence.shape === 'trend-platform' ? 10
+    : evidence.shape === 'high-new-high' ? -20 : 0
+  const antiDrop = clamp(antiBase + shapeAdjustment)
+
+  const sealBase = sealScore(stock, onePrice)
+  const sealRatio = stock.sealAmount != null && stock.amount > 0
+    ? clamp((stock.sealAmount / stock.amount / 0.2) * 100)
+    : null
+  const sealQuality = weightedAvailable([
+    { value: sealBase, weight: 0.6 },
+    { value: sealRatio, weight: 0.4 },
+  ])
+  const liquidity = weightedAvailable([
+    { value: turnover.score, weight: 0.5 },
+    { value: sealQuality, weight: 0.5 },
+  ])
+
+  const absorption = weightedAvailable([
+    { value: theme.score, weight: 0.5 },
+    { value: theme.promotionRate, weight: 0.3 },
+    { value: normalizePercent(theme.count, 10), weight: 0.2 },
+  ])
+
+  const dimensions = {
+    drive: dragonDimension(drive, first == null ? '首封时间缺失，带动性为代理分' : `首封${stock.firstTime}·题材内时间序`),
+    leadership: dragonDimension(leadership, `${stock.consecutiveDays}板·题材最高${maxBoards}板·涨幅代理P${Math.round(returnScore)}`),
+    antiDrop: dragonDimension(antiDrop, `市场${market.phase}·${evidence.shape}·分时抗跌数据未接入`),
+    liquidity: dragonDimension(liquidity, `换手${turnover.effectiveTurnoverPct ?? '--'}%·封板${stock.openCount}次`),
+    absorption: dragonDimension(absorption, `${theme.name}·${theme.count}只·晋级${theme.promotionRate ?? '--'}%`),
+  }
+  const failed: string[] = []
+  if (dimensions.drive.score < 40) failed.push('带动性<40')
+  if (dimensions.leadership.score < 40) failed.push('领涨性<40')
+  if (dimensions.antiDrop.score < 35) failed.push('抗跌性<35')
+  if (dimensions.liquidity.score < 35) failed.push('流动性<35')
+  const score = weightedAvailable([
+    { value: dimensions.drive.score, weight: 0.3 },
+    { value: dimensions.leadership.score, weight: 0.25 },
+    { value: dimensions.antiDrop.score, weight: 0.15 },
+    { value: dimensions.liquidity.score, weight: 0.2 },
+    { value: dimensions.absorption.score, weight: 0.1 },
+  ])
+  const insufficient = !stock.firstTime && !evidence.available && stock.amount <= 0
+  const verdict: DragonVerdict = insufficient
+    ? 'insufficient-data'
+    : failed.length
+      ? 'follower'
+      : score >= 75 && (role === 'space-leader' || role === 'theme-leader') && dimensions.drive.score >= 60
+        ? 'true-dragon'
+        : score >= 60 ? 'core' : 'follower'
+  return {
+    score,
+    verdict,
+    dimensions,
+    hardGate: { passed: failed.length === 0, failed },
+    evidence: [
+      '题材内横向比较',
+      '带动性与抗跌性当前使用盘后可得字段代理，未接入完整1分钟因果时序',
+      onePrice ? '一字板不扣龙头强度分，实际可交易性仍单独处理' : '换手板可交易性独立处理',
+    ],
+  }
 }
 
 function statePriority(state: LadderState): number {
@@ -1755,6 +2221,12 @@ export function rankAndClassifyStocks(args: {
   hotListAvailable?: boolean
   roleMap?: LadderRoleMap
   eventGate?: LadderEventGate
+  expectations?: Map<string, {
+    sequence: BoardSequenceEvidence
+    expectation: RelayExpectation
+    relayPathEvidence?: RelayPathEvidence
+    relayPathScore?: RelayPathScore
+  }>
 }): LadderStockAnalysis[] {
   const {
     stocks,
@@ -1768,6 +2240,7 @@ export function rankAndClassifyStocks(args: {
     hotListAvailable = false,
     roleMap,
     eventGate,
+    expectations,
   } = args
   const themeMap = new Map(themes.map((theme) => [theme.name, theme]))
   const maxBoards = Math.max(1, ...stocks.map((stock) => stock.consecutiveDays))
@@ -1782,7 +2255,7 @@ export function rankAndClassifyStocks(args: {
       stock.amount,
     ])
   }
-  const rows = stocks.map((stock) => {
+  const rows: LadderStockAnalysis[] = stocks.map((stock) => {
     const primaryTheme =
       stock.themes
         .map((name) => themeMap.get(name))
@@ -1817,9 +2290,39 @@ export function rankAndClassifyStocks(args: {
       stock.importedOnePrice ??
       (stock.patternHintAvailable ? stock.onePriceHint : evidence.onePrice)
     const tBoard = !onePrice && stock.patternHintAvailable && stock.tBoardHint
+    const themeLadder = scoreThemeLadderRelation({
+      stock: {
+        code: stock.code,
+        name: stock.name,
+        consecutiveDays: stock.consecutiveDays,
+        themes: themeNames(stock),
+        primaryTheme: primaryTheme.name,
+        score: stock.amount,
+        changePct: stock.changePct,
+        onePrice,
+      },
+      peers: stocks.map((peer) => {
+        const peerTheme =
+          peer.themes
+            .map((name) => themeMap.get(name))
+            .filter((theme): theme is ThemeAnalysis => !!theme)
+            .sort((a, b) => b.score - a.score)[0]
+        return {
+          code: peer.code,
+          name: peer.name,
+          consecutiveDays: peer.consecutiveDays,
+          themes: themeNames(peer),
+          primaryTheme: peerTheme?.name ?? (peer.industry || '其他'),
+          score: peer.amount,
+          changePct: peer.changePct,
+          onePrice: peer.importedOnePrice ?? peer.onePriceHint,
+        }
+      }),
+      theme: themeMap.get(primaryTheme.name),
+    })
     const fundFlow = scoreLadderFundFlow(lhb.get(stock.code))
     const lane = laneMap.get(stock.consecutiveDays)
-    const laneScore = lane?.score ?? 70
+    const laneScore = lane?.score ?? null
     const turnoverCapacity = scoreTurnoverCapacity({
       turnoverRate: stock.turnoverRate,
       amount: stock.amount,
@@ -1881,14 +2384,14 @@ export function rankAndClassifyStocks(args: {
         : Math.max(60, turnoverCapacity.amountPercentile)
     const reopen = clamp(sealBase + (tBoard ? 10 : 0) - (onePrice ? 15 : 0))
     const promotionDimensions: LadderV2Scores['promotionDimensions'] = {
-      market: { score: market.score, note: market.reasons.join('；') },
+      market: { score: market.score ?? 0, note: market.reasons.join('；') },
       lane: {
-        score: laneScore,
-        note: lane ? `${lane.label}${lane.dominant ? '·主攻' : ''}` : `${stock.consecutiveDays}进${stock.consecutiveDays + 1}·历史不足`,
+        score: laneScore ?? 0,
+        note: lane ? `${lane.label}${lane.dominant ? '·主攻' : ''}` : `${stock.consecutiveDays}进${stock.consecutiveDays + 1}·历史缺失`,
       },
       theme: {
         score: primaryTheme.score,
-        note: `${primaryTheme.grade}级 ${primaryTheme.name}${primaryTheme.complete ? '·完整梯队' : ''}`,
+        note: `${primaryTheme.grade}级 ${primaryTheme.name}${primaryTheme.complete ? '·完整梯队' : ''}·${themeLadder.note}`,
       },
       popularity: { score: popularity.score, note: popularity.note },
       seal: {
@@ -1919,28 +2422,55 @@ export function rankAndClassifyStocks(args: {
         note: `首封${stock.firstTime || '缺失'}·开板${stock.openCount}`,
       },
     }
-    let promotionScore = weightedAvailable([
-      { value: promotionDimensions.market.score, weight: 0.15 },
+    const dragonIdentity = scoreDragonIdentity({
+      stock,
+      theme: primaryTheme as ThemeAnalysis,
+      peers: stocks.filter((other) => themeNames(other).includes(primaryTheme.name)),
+      role,
+      evidence,
+      market,
+      turnover: turnoverCapacity,
+      followerCount,
+      onePrice,
+    })
+    const promotionInputs = [
+      { value: market.score, weight: 0.15 },
       // 梯队与题材共享部分封板/连续性信息，合计贡献由45%压到40%。
-      { value: promotionDimensions.lane.score, weight: 0.175 },
+      { value: laneScore, weight: 0.175 },
       { value: promotionDimensions.theme.score, weight: 0.225 },
       { value: promotionDimensions.popularity.score, weight: 0.15 },
       { value: promotionDimensions.seal.score, weight: 0.15 },
       { value: promotionDimensions.technical.score, weight: 0.15 },
-    ])
-    let tradabilityScore = weightedAvailable([
+    ]
+    const tradabilityInputs = [
       { value: tradabilityDimensions.accessibility.score, weight: 0.3 },
       { value: tradabilityDimensions.turnoverCapacity.score, weight: 0.3 },
       { value: tradabilityDimensions.liquidity.score, weight: 0.15 },
       { value: tradabilityDimensions.structure.score, weight: 0.15 },
       { value: tradabilityDimensions.reopen.score, weight: 0.1 },
-    ])
+    ]
+    let promotionScore = weightedAvailable(promotionInputs)
+    let tradabilityScore = weightedAvailable(tradabilityInputs)
+    promotionScore = clamp(r2(promotionScore + themeLadder.bonus))
+    const promotionCoverage = promotionInputs
+      .filter((item) => item.value != null)
+      .reduce((sum, item) => sum + item.weight, 0)
+    const tradabilityCoverage = tradabilityInputs
+      .filter((item) => item.value != null)
+      .reduce((sum, item) => sum + item.weight, 0)
+    const scoreMissingReasons = [
+      market.score == null ? '缺少前一交易日市场方向' : '',
+      laneScore == null ? '缺少梯队历史晋级证据' : '',
+      !stock.firstTime ? '缺少正式封板时间' : '',
+      !evidence.available || !evidence.settled ? '缺少已结算K线' : '',
+      !fundFlow.available ? '资金流不可用' : '',
+    ].filter(Boolean)
     const dimensions = {
-      market: { score: market.score, note: market.reasons.join('；') },
+      market: { score: market.score ?? 0, note: market.reasons.join('；') },
       theme: { score: primaryTheme.score, note: `${primaryTheme.grade}级 ${primaryTheme.name}` },
-      ladder: { score: laneScore, note: `${stock.consecutiveDays}板 · ${role}` },
+      ladder: { score: laneScore ?? 0, note: `${stock.consecutiveDays}板 · ${role}` },
       technical: { score: technicalScore(evidence.shape), note: evidence.shape },
-      fundFlow: { score: fundFlow.score, note: fundFlow.note },
+      fundFlow: { score: fundFlow.score ?? 0, note: fundFlow.note },
       seal: { score: promotionSeal, note: stock.firstTime ? `首封${stock.firstTime}` : '封板时间缺失' },
     }
     const penalties: string[] = []
@@ -1989,6 +2519,11 @@ export function rankAndClassifyStocks(args: {
     if (hardFailure || score < 40) state = 'exclude'
     else if (stockEventAction === 'risk-cap') state = 'observe'
     else if (
+      market.score == null ||
+      laneScore == null ||
+      !stock.firstTime ||
+      !evidence.available ||
+      !evidence.settled ||
       degraded ||
       !evidence.available ||
       !mainBoardCode(stock.code) ||
@@ -2006,11 +2541,17 @@ export function rankAndClassifyStocks(args: {
       (primaryTheme.grade === 'A' || primaryTheme.grade === 'B')
     ) {
       state = 'candidate'
-    } else if (score >= 55 || (onePrice && promotionScore >= 65) || stock.consecutiveDays >= 4) state = 'waiting'
+    } else if (
+      score >= 55 ||
+      (onePrice && promotionScore >= 65) ||
+      stock.consecutiveDays >= 4 ||
+      dragonIdentity.verdict === 'core'
+    ) state = 'waiting'
     else state = 'observe'
 
     const warnings = [...stock.warnings]
     if (!stock.firstTime) warnings.push('封板时间缺失')
+    warnings.push(...scoreMissingReasons)
     if (!evidence.available) warnings.push('K线不足')
     if (evidence.available && !evidence.settled) warnings.push(`K线截止${evidence.lastDate}，与分析日不一致`)
     if (onePrice) warnings.push('一字涨停，当日不可执行')
@@ -2042,6 +2583,11 @@ export function rankAndClassifyStocks(args: {
       subtheme: stock.subtheme,
       themeGrade: primaryTheme.grade,
       themeScore: primaryTheme.score,
+      themeLadder,
+      boardSequence: expectations?.get(stock.code)?.sequence,
+      expectation: expectations?.get(stock.code)?.expectation,
+      relayPathEvidence: expectations?.get(stock.code)?.relayPathEvidence,
+      relayPathScore: expectations?.get(stock.code)?.relayPathScore,
       role,
       roleProfile,
       reason: stock.reason,
@@ -2065,12 +2611,21 @@ export function rankAndClassifyStocks(args: {
       candidateRank: null,
       turnoverCapacity,
       popularity,
+      dragonIdentity,
       v2: {
         promotion: promotionScore,
         tradability: tradabilityScore,
         base: score,
+        promotionCoverage,
+        tradabilityCoverage,
+        missingReasons: scoreMissingReasons,
         promotionDimensions,
         tradabilityDimensions,
+      },
+      scoreCoverage: {
+        promotion: r2(promotionCoverage),
+        tradability: r2(tradabilityCoverage),
+        missingReasons: scoreMissingReasons,
       },
       technical: evidence,
       dimensions,
@@ -2093,6 +2648,11 @@ export function rankAndClassifyStocks(args: {
         b.consecutiveDays - a.consecutiveDays ||
         (a.firstTime || '999999').localeCompare(b.firstTime || '999999'),
     )
+  for (const row of prelim) {
+    row.fullLanePool = true
+    row.hardEligible = row.state === 'candidate'
+    row.quotaSelected = false
+  }
   const selectedCodes = new Set<string>()
   const laneCounts = new Map<string, number>()
   const themeCounts = new Map<string, number>()
@@ -2110,6 +2670,7 @@ export function rankAndClassifyStocks(args: {
       continue
     }
     selectedCodes.add(row.code)
+    row.quotaSelected = true
     laneCounts.set(lane, laneCount + 1)
     themeCounts.set(row.primaryTheme, themeCount + 1)
   }
@@ -2131,7 +2692,7 @@ export function rankAndClassifyStocks(args: {
 }
 
 function qualityRank(quality: LadderDataQuality): number {
-  if (quality.sentimentSource === 'mock' || quality.klineTotal === 0) return 0
+  if (quality.sentimentStatus === 'unavailable' || quality.klineTotal === 0) return 0
   const sourceRank =
     !quality.degraded &&
     (quality.source === 'kaipanla' ||
@@ -2145,17 +2706,207 @@ function qualityRank(quality: LadderDataQuality): number {
   return sourceRank * 1_000 + klineCoverage
 }
 
+export interface LadderArchiveEligibility {
+  eligible: boolean
+  reasons: string[]
+}
+
+/**
+ * 归档只接受同一交易日、收盘后、来源可追溯且所有候选已结算的数据。
+ * 这条门槛是 fail-closed：缺少 providerAt、接收时间、原始调整口径或资金流，
+ * 都只能留在研究快照，不能冒充已确认的历史样本。
+ */
+export function canFinalizeLadderArchive(
+  analysis: LimitLadderAnalysis,
+  evidence: EvidenceArchive,
+  nowMs = Date.now(),
+): LadderArchiveEligibility {
+  const reasons: string[] = []
+  if (!isTradingDayAt(nowMs)) reasons.push('当前日期不是交易日')
+  if (!isLadderSettledWindow(shanghaiClockAt(nowMs))) reasons.push('尚未进入收盘定盘窗口')
+  if (analysis.asof !== todayShanghai(nowMs)) reasons.push('只允许归档当前交易日')
+  if (evidence.asof !== analysis.asof) reasons.push('证据日期与分析日期不一致')
+  if (analysis.stocks.length === 0) reasons.push('涨停池为空')
+  if (analysis.quality.sentimentStatus !== 'full') {
+    reasons.push(`情绪数据状态为${analysis.quality.sentimentStatus}`)
+  }
+  if (analysis.quality.sourceDate !== analysis.asof) reasons.push('主数据源不是分析日')
+  if (!analysis.quality.limitFieldsComplete) reasons.push('封板时间或板数不完整')
+  if (analysis.quality.klineTotal <= 0) reasons.push('没有K线证据')
+  if (analysis.quality.klineComplete !== analysis.quality.klineTotal) {
+    reasons.push('K线覆盖不完整')
+  }
+  if (analysis.quality.degraded) reasons.push('数据质量已降级')
+  if (!analysis.quality.fundFlowComplete) reasons.push('资金流证据未发布或不完整')
+  if (analysis.quality.settled !== true) reasons.push('K线尚未标记为已结算')
+  if (!analysis.quality.providerAt) reasons.push('缺少K线providerAt')
+  if (!analysis.quality.receivedAt) reasons.push('缺少K线receivedAt')
+  if (!analysis.quality.adjustment || analysis.quality.adjustment === 'unknown') {
+    reasons.push('缺少明确K线复权口径')
+  }
+  if (!evidence.providerAt) reasons.push('归档证据缺少providerAt')
+  if (!evidence.receivedAt) reasons.push('归档证据缺少receivedAt')
+  if (!evidence.adjustment || evidence.adjustment === 'unknown') reasons.push('归档证据缺少明确K线复权口径')
+  if (!evidence.settled) reasons.push('归档证据未标记为已结算')
+  if (Object.keys(evidence.klines).length !== analysis.quality.klineTotal) {
+    reasons.push('归档K线股票数与候选池不一致')
+  }
+  return { eligible: reasons.length === 0, reasons: Array.from(new Set(reasons)) }
+}
+
+function buildBoardSequenceForStock(args: {
+  stock: NormalizedStock
+  rawBars: KlineBar[]
+  asof: string
+  sessionSettled: boolean
+}): { sequence: BoardSequenceEvidence; observations: BoardDayObservation[] } {
+  const bars = args.rawBars
+    .filter((bar) => bar.date <= args.asof)
+    .sort((a, b) => a.date.localeCompare(b.date))
+  const observations: BoardDayObservation[] = bars.map((bar, index) => {
+    const previous = bars[index - 1]
+    const previousSession = previous ? (() => {
+      const cursor = new Date(`${bar.date.slice(0, 10)}T00:00:00Z`)
+      for (let step = 0; step < 370; step += 1) {
+        cursor.setUTCDate(cursor.getUTCDate() - 1)
+        const date = cursor.toISOString().slice(0, 10)
+        if (activeTradingCalendar().isTradingDay(date)) return date
+      }
+      return ''
+    })() : ''
+    const hasPreviousSession = !!previous && previous.date.slice(0, 10) === previousSession
+    const isLimitUp = hasPreviousSession
+      ? isLimitUpDay(bar, previous.raw?.close ?? previous.close, args.stock.code)
+      : null
+    const current = bar.date === args.asof
+    return buildBoardDayObservation({
+      date: bar.date,
+      code: args.stock.code,
+      name: args.stock.name,
+      open: bar.raw?.open ?? bar.open,
+      high: bar.raw?.high ?? bar.high,
+      low: bar.raw?.low ?? bar.low,
+      close: bar.raw?.close ?? bar.close,
+      previousClose: previous?.raw?.close ?? previous?.close ?? null,
+      volume: bar.volume,
+      previousVolume: previous?.volume ?? null,
+      amount: bar.turnover,
+      turnoverRate: current ? args.stock.turnoverRate : null,
+      firstSealTime: current ? args.stock.firstTime || null : null,
+      lastSealTime: current ? args.stock.lastTime || null : null,
+      reopenCount: current ? args.stock.openCount : null,
+      sealAmount: current ? args.stock.sealAmount : null,
+      limitPrice: isLimitUp ? (bar.raw?.close ?? bar.close) : null,
+      isLimitUp,
+      adjustment: bar.adjustment ?? null,
+      source: bar.provider ?? 'unknown',
+      settled: current ? args.sessionSettled : bar.settled === true,
+    })
+  })
+  return {
+    sequence: buildBoardSequenceEvidence({
+      code: args.stock.code,
+      name: args.stock.name,
+      observations,
+      signalDate: args.asof,
+      declaredBoards: args.stock.consecutiveDays,
+    }),
+    observations,
+  }
+}
+
+function buildRelayExpectations(args: {
+  stocks: NormalizedStock[]
+  technicalResults: Array<[string, TechnicalResult]>
+  asof: string
+  sessionSettled: boolean
+}): Map<string, { sequence: BoardSequenceEvidence; expectation: RelayExpectation; relayPathEvidence: RelayPathEvidence; relayPathScore: RelayPathScore }> {
+  const technicalMap = new Map(args.technicalResults)
+  const eventArchive = readJson<LimitEventArchive>(join(LADDER_ROOT, 'limit-event-history.json'))
+  return new Map(args.stocks.map((stock) => {
+    const result = technicalMap.get(stock.code)
+    const boardResult = buildBoardSequenceForStock({
+      stock,
+      rawBars: result?.rawBars ?? [],
+      asof: args.asof,
+      sessionSettled: args.sessionSettled,
+    })
+    const eventDays = Object.fromEntries(
+      (boardResult.sequence.episodeDates ?? []).map((date) => [
+        date,
+        aggregateLimitEventDay({
+          code: stock.code,
+          date,
+          events: eventArchive?.events ?? [],
+        }),
+      ]),
+    )
+    const relayPathEvidence = buildRelayPathEvidence({
+      code: stock.code,
+      signalDate: args.asof,
+      signalCutoffAt: `${args.asof}T15:10:00+08:00`,
+      lane: `${stock.consecutiveDays}进${stock.consecutiveDays + 1}`,
+      declaredBoards: stock.consecutiveDays,
+      rawBars: result?.rawBars ?? [],
+      adjustedBars: result?.bars ?? [],
+      observations: boardResult.observations,
+      provider: result?.provider ?? 'unknown',
+      providerAt: result?.providerAt ?? null,
+      receivedAt: result?.receivedAt ?? null,
+      sourceRefs: [
+        result?.provider ?? 'unknown',
+        ...(eventArchive ? ['limit-event-history.json'] : []),
+      ],
+      eventDays,
+      environmentPath: {
+        lanePromotionUniverse: null,
+        missingReasons: ['统一路径证据暂未接入历史lane完整池'],
+      },
+    })
+    const relayPathScore = stock.consecutiveDays === 1
+      ? scoreFirstBoardPath(relayPathEvidence)
+      : scoreStreakPath(relayPathEvidence)
+    return [stock.code, {
+      sequence: boardResult.sequence,
+      expectation: buildRelayExpectation(boardResult.sequence),
+      relayPathEvidence,
+      relayPathScore,
+    }]
+  }))
+}
+
 function maybeArchive(
   analysis: LimitLadderAnalysis,
   evidence: EvidenceArchive,
 ): boolean {
-  if (!isLadderSettledWindow() || analysis.asof !== todayShanghai()) return false
-  if (analysis.stocks.length === 0 || analysis.quality.sentimentSource === 'mock') return false
-  const path = evidencePath(analysis.asof)
-  const existing = readJson<EvidenceArchive>(path)
-  if (existing && existing.qualityRank > evidence.qualityRank) return false
-  writeJsonAtomic(path, evidence)
-  writeJsonAtomic(analysisPath(analysis.asof), { ...analysis, archived: true })
+  const eligibility = canFinalizeLadderArchive(analysis, evidence)
+  if (!eligibility.eligible) return false
+  const existingPath = latestRevisionedArchivePath(
+    analysis.asof,
+    LIMIT_LADDER_RULE_VERSION,
+    'evidence',
+  )
+  const existing = existingPath ? readJson<EvidenceArchive>(existingPath) : null
+  if (existing && existing.qualityRank >= evidence.qualityRank) return false
+  const previousAnalysisPath = latestRevisionedArchivePath(
+    analysis.asof,
+    LIMIT_LADDER_RULE_VERSION,
+    'analysis',
+  )
+  const revision = existing ? Math.max(1, existing.revision ?? 1) + 1 : 1
+  const nextEvidencePath = archiveWritePath(evidencePath(analysis.asof), revision)
+  const nextAnalysisPath = archiveWritePath(analysisPath(analysis.asof), revision)
+  writeJsonAtomic(nextEvidencePath, {
+    ...evidence,
+    revision,
+    supersedes: existingPath,
+  })
+  writeJsonAtomic(nextAnalysisPath, {
+    ...analysis,
+    archived: true,
+    revision,
+    supersedes: previousAnalysisPath,
+  })
   if (analysis.eventGate) {
     writeJsonAtomic(eventGatePath(analysis.asof), analysis.eventGate)
   }
@@ -2176,16 +2927,17 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       })),
   ])
   const kplLadder = kplResult.value
+  const ashareLimitUpStocks = ashare.limitUpStocks ?? []
   const profileCodes = Array.from(
     new Set([
-      ...ashare.limitUpStocks.map((stock) => stock.code),
+      ...ashareLimitUpStocks.map((stock) => stock.code),
       ...(kplLadder?.stocks ?? []).map((stock) => stock.code),
       ...(imported?.stocks ?? []).map((stock) => stock.code),
     ]),
   )
   const profiles = await fetchLadderMarketProfiles(profileCodes)
   const merged = mergeStocks(
-    ashare.limitUpStocks,
+    ashareLimitUpStocks,
     kplLadder?.stocks ?? [],
     imported,
     profiles,
@@ -2209,10 +2961,10 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       (tier) => !merged.some((stock) => stock.consecutiveDays === tier),
     ) ?? []
   const source: LadderDataQuality['source'] = imported
-    ? ashare.limitUpStocks.length || kplLadder?.stocks.length
+    ? ashareLimitUpStocks.length || kplLadder?.stocks.length
       ? 'mixed'
       : 'import'
-    : kplLadder?.stocks.length && ashare.limitUpStocks.length
+    : kplLadder?.stocks.length && ashareLimitUpStocks.length
       ? 'mixed'
       : kplLadder?.stocks.length
         ? 'kaipanla'
@@ -2263,12 +3015,21 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     buildThemeAnchors(merged, histories, asof),
     mapLimit(merged, 10, async (stock): Promise<[string, TechnicalResult]> => {
       try {
-        const { klines } = await fetchStockKline(stock.code, 101, KLINE_COUNT)
+        const [result, rawResult] = await Promise.all([
+          fetchStockKline(stock.code, 101, KLINE_COUNT, { adjustment: 'qfq' }),
+          fetchStockKline(stock.code, 101, KLINE_COUNT, { adjustment: 'raw' }).catch(() => null),
+        ])
+        const { klines } = result
         return [
           stock.code,
           {
             evidence: analyzeTechnical(klines, stock.code, asof, sessionSettled),
             bars: klines.filter((bar) => bar.date <= asof),
+            rawBars: rawResult?.klines.filter((bar) => bar.date <= asof),
+            provider: result.provider,
+            adjustment: result.adjustment,
+            providerAt: result.providerAt,
+            receivedAt: result.receivedAt,
           },
         ]
       } catch {
@@ -2309,6 +3070,12 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     eventGate,
   )
   const technicalMap = new Map(technicalResults.map(([code, result]) => [code, result.evidence]))
+  const relayExpectations = buildRelayExpectations({
+    stocks: merged,
+    technicalResults,
+    asof,
+    sessionSettled,
+  })
   const primaryThemeFor = (stock: NormalizedStock) =>
     (stock.themes
       .map((name) => themes.find((theme) => theme.name === name))
@@ -2363,6 +3130,38 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
   const lhbForDay = lhbIndex.get(asof) ?? new Map<string, LhbDay>()
   const fundFlowComplete = lhbForDay.size > 0
   const klineComplete = technicalResults.filter(([, result]) => result.evidence.available && result.evidence.settled).length
+  const klineProviderAts = technicalResults
+    .map(([, result]) => result.providerAt)
+    .filter((value): value is string => !!value)
+  const klineReceivedAts = technicalResults
+    .map(([, result]) => result.receivedAt)
+    .filter((value): value is string => !!value)
+  const klineAdjustments = Array.from(
+    new Set(
+      technicalResults
+        .map(([, result]) => result.adjustment)
+        .filter((value): value is NonNullable<KlineBar['adjustment']> => !!value),
+    ),
+  )
+  const klineMetadataComplete =
+    technicalResults.length === merged.length &&
+    technicalResults.every(
+      ([, result]) =>
+        !!result.provider &&
+        !!result.providerAt &&
+        !!result.receivedAt &&
+        !!result.adjustment,
+    )
+  const qualityProviderAt =
+    klineProviderAts.length === technicalResults.length
+      ? klineProviderAts.slice().sort().at(-1) ?? null
+      : null
+  const qualityReceivedAt =
+    klineReceivedAts.length === technicalResults.length
+      ? klineReceivedAts.slice().sort().at(-1) ?? null
+      : null
+  const qualityAdjustment =
+    klineAdjustments.length === 1 ? klineAdjustments[0] : klineAdjustments.length === 0 ? null : 'unknown'
   const qualityWarnings: string[] = []
   if (kplResult.error) qualityWarnings.push(`开盘啦实时梯队不可用：${kplResult.error}`)
   if (unresolvedKplTiers.length > 0) {
@@ -2377,10 +3176,14 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       `${observationLimitFieldsMissing}只非正式候选观察标的缺少封板时间`,
     )
   }
-  if (sentiment.source === 'mock') qualityWarnings.push('情绪数据为mock，拒绝高置信结论和归档')
+  if (ashare.limitUpStocks == null) qualityWarnings.push('涨停池数据不可用，已依赖其他来源补全')
+  if (sentiment.status !== 'full') {
+    qualityWarnings.push(`情绪数据状态为${sentiment.status}，拒绝高置信结论和归档`)
+  }
   if (klineComplete < merged.length) qualityWarnings.push(`${merged.length - klineComplete}只股票K线不完整`)
   if (!sessionSettled) qualityWarnings.push('交易时段内仅供预览，未完成K线不得生成次日候选')
-  if (!fundFlowComplete) qualityWarnings.push('当日龙虎榜席位尚未发布，资金流维度暂取中性分')
+  if (!fundFlowComplete) qualityWarnings.push('当日龙虎榜席位尚未发布，资金流维度不可用，不取中性分')
+  if (!klineMetadataComplete) qualityWarnings.push('K线缺少provider、providerAt、receivedAt或复权口径，禁止高置信归档')
   const floatCapComplete = merged.filter((stock) => stock.circulatingMarketCap != null).length
   if (floatCapComplete < merged.length) {
     qualityWarnings.push(`${merged.length - floatCapComplete}只股票流通市值缺失，容量分按换手率降级`)
@@ -2395,18 +3198,63 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     source,
     sourceDate: kplLadder?.date || asof,
     sentimentSource: sentiment.source,
+    sentimentStatus: sentiment.status,
     limitFieldsComplete,
     klineComplete,
     klineTotal: merged.length,
     degraded:
       !limitFieldsComplete ||
-      sentiment.source === 'mock' ||
+      sentiment.status !== 'full' ||
       !sessionSettled ||
       unresolvedKplTiers.length > 0 ||
-      (!!kplLadder?.date && kplLadder.date !== asof),
+      (!!kplLadder?.date && kplLadder.date !== asof) ||
+      !klineMetadataComplete,
     fundFlowComplete,
+    providerAt: qualityProviderAt,
+    receivedAt: qualityReceivedAt,
+    adjustment: qualityAdjustment,
+    settled: sessionSettled && klineComplete === merged.length,
     warnings: qualityWarnings,
   }
+  const currentMarks = Object.fromEntries(
+    merged
+      .filter((stock) => mainBoardCode(stock.code))
+      .map((stock) => [stock.code, {
+        code: stock.code,
+        changePct: stock.changePct,
+        isLimitUp: true,
+      }]),
+  )
+  const sentimentQuant = buildLadderSentimentQuantSnapshot({
+    asof,
+    market: {
+      limitUpCount: ashare.limitUpCount,
+      ladderCount: merged.filter((stock) => mainBoardCode(stock.code) && stock.consecutiveDays >= 2).length,
+      previousLadderCount: previous?.stocks.filter((stock) => mainBoardCode(stock.code) && stock.consecutiveDays >= 2).length ?? null,
+      // ALimit/limit-down is not the same as all stocks below -5%; keep this
+      // unavailable until a complete breadth snapshot is supplied.
+      down5Count: null,
+      advanceCount: ashare.advance,
+      declineCount: ashare.decline,
+      flatCount: ashare.flat,
+    },
+    previousFirstBoards: previous?.stocks
+      .filter((stock) => stock.consecutiveDays === 1)
+      .map((stock) => ({ code: stock.code, changePct: null, isLimitUp: null })),
+    previousLadderBoards: previous?.stocks
+      .filter((stock) => mainBoardCode(stock.code) && stock.consecutiveDays >= 2)
+      .map((stock) => ({ code: stock.code, changePct: null, isLimitUp: null })),
+    currentMarks,
+    crowding: null,
+    source: 'derived-from-ladder-v6',
+    sourceStatus: {
+      breadth: 'ok',
+      boardOutcomes: previous ? 'degraded' : 'missing',
+      down5Count: 'missing',
+      crowding: 'missing',
+    },
+  })
+  if (sessionSettled) writeLadderSentimentQuant(sentimentQuant)
   const stocks = rankAndClassifyStocks({
     stocks: merged,
     themes,
@@ -2419,12 +3267,14 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     hotListAvailable: !!hotList && (hotList.eastmoney.length > 0 || hotList.ths.length > 0),
     roleMap,
     eventGate,
+    expectations: relayExpectations,
   })
   const levels = Array.from(new Set(stocks.filter((stock) => stock.consecutiveDays >= 2).map((stock) => stock.consecutiveDays)))
     .sort((a, b) => b - a)
     .map((boards) => ({ boards, stocks: stocks.filter((stock) => stock.consecutiveDays === boards) }))
   const warnings = [...qualityWarnings]
   if (!cycle.directionAvailable) warnings.push('缺少前日归档，周期方向不可计算')
+  warnings.push(...sentimentQuant.warnings)
 
   const analysis: LimitLadderAnalysis = {
     asof,
@@ -2441,6 +3291,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
       decline: ashare.decline,
       maxBoards,
     },
+    sentimentQuant,
     themes,
     promotionLanes,
     promotionStatistics,
@@ -2455,12 +3306,17 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     nextDayCandidates: stocks.filter((stock) => stock.state === 'candidate'),
     quality,
     warnings,
+    strategyStatus: 'research',
   }
   const evidence: EvidenceArchive = {
     asof,
     generatedAt: analysis.generatedAt,
     ruleVersion: LIMIT_LADDER_RULE_VERSION,
     qualityRank: qualityRank(quality),
+    providerAt: qualityProviderAt,
+    receivedAt: qualityReceivedAt,
+    adjustment: qualityAdjustment,
+    settled: quality.settled,
     ashare: {
       limitUpCount: ashare.limitUpCount,
       limitDownCount: ashare.limitDownCount,
@@ -2476,6 +3332,10 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     limitUpStocks: ashare.limitUpStocks,
     imported,
     klines: Object.fromEntries(technicalResults.map(([code, result]) => [code, result.bars])),
+    rawKlines: technicalResults.reduce<Record<string, KlineBar[]>>((acc, [code, result]) => {
+      if (result.rawBars && result.rawBars.length > 0) acc[code] = result.rawBars
+      return acc
+    }, {}),
     marketProfiles: Object.fromEntries(
       merged.map((stock) => [
         stock.code,
@@ -2790,7 +3650,15 @@ async function maybeArchivePreviousOutcome(
     return
   }
   const formalCodes = new Set(formalCandidateRows(previous).map((stock) => stock.code))
-  const candidates = candidateMonitorRows(previous)
+  // Archive the complete lane population, not only formal/wait-open rows.
+  // This is the denominator for an unbiased environment prior; the old
+  // candidate monitor remains intentionally narrower for live UI monitoring.
+  const candidates = previous.stocks.filter(
+    (stock) =>
+      stock.boardType === 'main' &&
+      stock.consecutiveDays >= 1 &&
+      stock.consecutiveDays <= 3,
+  )
   if (!candidates.length) return
   const currentMap = new Map(current.stocks.map((stock) => [stock.code, stock]))
   const priorHighBoardPath = existingHighBoardArchivePath(previous.asof)
@@ -2804,7 +3672,7 @@ async function maybeArchivePreviousOutcome(
     let bar: KlineBar | undefined
     let previousClose: number | null = null
     try {
-      const result = await fetchStockKline(stock.code, 101, 12)
+      const result = await fetchStockKline(stock.code, 101, 12, { adjustment: 'raw' })
       const index = result.klines.findIndex((item) => item.date === tradeDate)
       bar = index >= 0 ? result.klines[index] : undefined
       previousClose = index > 0 ? result.klines[index - 1].close : null
@@ -2820,9 +3688,10 @@ async function maybeArchivePreviousOutcome(
       isLimitUpDay(bar, previousClose, stock.code)
     const resolved = !!bar || ladderPromoted
     const promoted = resolved ? ladderPromoted || klinePromoted : null
-    const onePrice =
-      !!bar && promoted === true && Math.abs(bar.high - bar.low) < 0.005
-    const tradable = bar ? bar.open > 0 && !onePrice : null
+    // A daily bar cannot prove that a next-day order joined the queue or
+    // obtained a fill. Keep promotion and the open/close mark, but never turn
+    // a non-one-price daily bar into a tradable fill by default.
+    const tradable: boolean | null = null
     const resultStatus: LadderOutcomeStatus =
       promoted == null ? 'unresolved' : promoted ? 'promoted' : 'failed'
     const themeRisk = riskContext?.themes.find(
@@ -2852,10 +3721,13 @@ async function maybeArchivePreviousOutcome(
       resultStatus,
       promoted,
       tradable,
-      unresolvedReason: resolved ? '' : '次日K线与连板结果均缺失',
-      openToClosePct: tradable === true && bar ? r2(((bar.close - bar.open) / bar.open) * 100) : null,
-      mfePct: tradable === true && bar ? r2(((bar.high - bar.open) / bar.open) * 100) : null,
-      maePct: tradable === true && bar ? r2(((bar.low - bar.open) / bar.open) * 100) : null,
+      unresolvedReason: resolved ? (bar ? '缺少逐笔/分钟盘口，无法证明成交' : '') : '次日K线与连板结果均缺失',
+      nextDayOpenToCloseMark: bar && bar.open > 0 ? r2(((bar.close - bar.open) / bar.open) * 100) : null,
+      markPositive: bar && bar.open > 0 ? bar.close > bar.open : null,
+      realizedNetReturnPct: null,
+      openToClosePct: bar && bar.open > 0 ? r2(((bar.close - bar.open) / bar.open) * 100) : null,
+      mfePct: bar && bar.open > 0 ? r2(((bar.high - bar.open) / bar.open) * 100) : null,
+      maePct: bar && bar.open > 0 ? r2(((bar.low - bar.open) / bar.open) * 100) : null,
       marketCycle: previous.market.cycle.phase,
       marketRole: stock.roleProfile?.marketRole,
       themeState: themeRisk?.state ?? stock.themeGrade,
@@ -2881,6 +3753,11 @@ async function maybeArchivePreviousOutcome(
         ...(themePermission?.reasons ?? []),
         ...liquidityStyle.reasons,
       ],
+      fullLanePool: true,
+      hardEligible: stock.hardEligible ?? stock.state === 'candidate',
+      quotaSelected: stock.quotaSelected ?? formalCodes.has(stock.code),
+      confirmed: null,
+      filled: null,
     }
   })
   const summary = buildOutcomeSummary(rows)
@@ -2924,6 +3801,108 @@ function openingBandScore(gap: number, boards: number): number {
   if (gap >= lower && gap <= upper) return 100
   if (gap < lower) return clamp(100 - (lower - gap) * 20)
   return clamp(100 - (gap - upper) * 30)
+}
+
+export const OPENING_DIRECT_PULL_UP_MIN_PCT = 0.5
+/** 平开工程带宽：竞价终局在±0.5%内，默认按脆弱开盘处理。 */
+export const OPENING_FLAT_MAX_GAP_PCT = 0.5
+/** 低开/平开基础扣分，只有开盘量价翻红后才解除确认闸门。 */
+export const OPENING_GAP_PENALTY = -6
+/** 竞价终局最后5秒相对前段继续强化且买方未匹配时的加分。 */
+export const AUCTION_TAIL_BUY_BONUS = 3
+export const AUCTION_TAIL_MIN_STRENGTHENING_PCT = 0.2
+const OPENING_REBOUND_MIN_PCT = 0.1
+const AUCTION_TAIL_START_SECONDS = 9 * 3_600 + 24 * 60 + 55
+const AUCTION_TAIL_END_SECONDS = 9 * 3_600 + 25 * 60
+const OPENING_MINUTE_TIMESTAMP_TOLERANCE_SECONDS = 5
+
+/**
+ * 免费报价源没有稳定的1分钟OHLC时，用09:35分钟内的快照代理直拉K：
+ * 价格在开盘价上方至少0.5%。允许数据源最多5秒的时间戳滞后；这是工程默认阈值，
+ * 不等同于完整分钟K回放。
+ */
+export function isOpeningDirectPullUp(quote: ScreenerLiveQuote): boolean {
+  const seconds = quoteSecond(quote.quoteTime)
+  if (
+    seconds == null ||
+    seconds < 9 * 3_600 + 35 * 60 - OPENING_MINUTE_TIMESTAMP_TOLERANCE_SECONDS ||
+    seconds >= 9 * 3_600 + 36 * 60 ||
+    !(quote.open > 0 && quote.price > 0)
+  ) {
+    return false
+  }
+  const risePct = ((quote.price - quote.open) / quote.open) * 100
+  return risePct >= OPENING_DIRECT_PULL_UP_MIN_PCT && quote.high >= quote.price
+}
+
+/**
+ * 09:35快照对“低开/平开后迅速翻红、量价齐升”的可计算代理：
+ * 现价须同时站上昨收、开盘价和成交VWAP，且成交量/成交额已出现。
+ * 免费源没有稳定的逐分钟量柱，因此这是工程代理，不等同于完整1分钟K量价回放。
+ */
+export function isOpeningVolumePriceRebound(quote: ScreenerLiveQuote): boolean {
+  const seconds = quoteSecond(quote.quoteTime)
+  if (
+    seconds == null ||
+    seconds < 9 * 3_600 + 35 * 60 - OPENING_MINUTE_TIMESTAMP_TOLERANCE_SECONDS ||
+    seconds >= 9 * 3_600 + 36 * 60 ||
+    !(quote.prevClose > 0 && quote.open > 0 && quote.price > 0) ||
+    quote.amount <= 0 ||
+    quote.volume <= 0
+  ) {
+    return false
+  }
+  const reboundPct = ((quote.price - quote.prevClose) / quote.prevClose) * 100
+  const vwap = quoteVwap(quote)
+  const volumeRatioSupported = quote.volumeRatio == null || quote.volumeRatio >= 1
+  return (
+    reboundPct >= OPENING_REBOUND_MIN_PCT &&
+    quote.changePct > 0 &&
+    quote.price > quote.open &&
+    (vwap == null || quote.price >= vwap) &&
+    volumeRatioSupported &&
+    quote.high >= quote.price
+  )
+}
+
+/**
+ * 用竞价终值与竞价前段的价差变化，叠加最后5秒买方未匹配，代理“9:24翘尾抢筹”。
+ * 没有过程快照时退化为终值为正且买方未匹配；该退化路径会保守地只加分，不单独放行。
+ */
+export function isAuctionTailBuy(
+  quote: ScreenerLiveQuote | undefined,
+  process?: Pick<AuctionCandidateProcess, 'startGapPct' | 'finalGapPct'> & {
+    finalUnmatchedSide?: ScreenerLiveQuote['unmatchedSide']
+  },
+): boolean {
+  if (!quote) return false
+  const seconds = quoteSecond(quote.quoteTime)
+  if (
+    seconds == null ||
+    seconds < AUCTION_TAIL_START_SECONDS ||
+    seconds > AUCTION_TAIL_END_SECONDS
+  ) {
+    return false
+  }
+  const finalGapPct = process?.finalGapPct ?? auctionGapPct(quote)
+  const strengthened =
+    process?.startGapPct != null && finalGapPct != null
+      ? finalGapPct >= process.startGapPct + AUCTION_TAIL_MIN_STRENGTHENING_PCT
+      : finalGapPct != null && finalGapPct > 0
+  const unmatchedSide = quote.unmatchedSide ?? process?.finalUnmatchedSide
+  const buyPressure =
+    unmatchedSide === 'buy' &&
+    (quote.unmatchedAmount == null || quote.unmatchedAmount > 0)
+  const bookBuyPressure =
+    quote.bid1Volume != null &&
+    quote.ask1Volume != null &&
+    quote.bid1Volume > quote.ask1Volume
+  return strengthened && (buyPressure || bookBuyPressure)
+}
+
+function computeOpeningGapAdjustment(gap: number | null): number {
+  if (gap == null || gap > OPENING_FLAT_MAX_GAP_PCT) return 0
+  return OPENING_GAP_PENALTY
 }
 
 function quoteVwap(quote: ScreenerLiveQuote): number | null {
@@ -3795,6 +4774,7 @@ export function scoreNextDayConfirmations(args: {
   highBoardContext?: HighBoardRiskContext | null
   eventReaction?: LadderEventReaction | null
   marketGate?: MarketRiskGate | null
+  sentimentQuant?: LadderSentimentQuantSnapshot | null
 }): Pick<
   LimitLadderNextDay,
   | 'stage'
@@ -3842,10 +4822,19 @@ export function scoreNextDayConfirmations(args: {
   }
   if (args.marketGate?.state === 'frozen') {
     warnings.push('大盘交易闸门冻结，所有连板接力暂停确认')
+  } else if (args.marketGate?.state === 'unavailable') {
+    warnings.push('大盘交易闸门数据不可用，所有连板接力暂停确认')
   } else if (args.marketGate?.state === 'restricted') {
     warnings.push('大盘交易闸门限制，高Beta题材禁止执行')
   } else if (args.marketGate?.state === 'cautious') {
     warnings.push('大盘交易闸门谨慎，板块必须形成独立竞价强度')
+  }
+  if (args.sentimentQuant?.gateState === 'JOINT_CLIMAX') {
+    warnings.push('昨日双高潮：次日全天NO_NEW_RELAY，强个股只展示不确认')
+  } else if (args.sentimentQuant?.gateState === 'HOT') {
+    warnings.push('昨日情绪与势能偏热，次日接力权重降至0.25')
+  } else if (args.sentimentQuant?.gateState === 'UNAVAILABLE') {
+    warnings.push('关键情绪数据不可用，不能按中性值放行接力')
   }
   if (
     args.marketGate?.repairContext?.state === 'weight-led-repair' &&
@@ -3896,6 +4885,21 @@ export function scoreNextDayConfirmations(args: {
         liquidityStyle.adjustment,
       )
       if (!quote) {
+        const expectationMatch = matchRelayExpectation({ expectation: stock.expectation })
+        const executionEligibility = evaluateLadderExecutionEligibility({
+          stage,
+          tradeDate: args.tradeDate,
+          quote: null,
+          confirmationState: null,
+          inaccessible: true,
+          marketGateState: args.marketGate?.state,
+          themePermissionState: themePermission?.state,
+          auctionSnapshotAvailable: !!auctionQuotes,
+          openSnapshotAvailable: false,
+          openingConfirmationGate: 'unavailable',
+          technicalAvailable: stock.technical.available,
+          relayGateState: args.sentimentQuant?.gateState,
+        })
         return {
           code: stock.code,
           name: stock.name,
@@ -3904,6 +4908,9 @@ export function scoreNextDayConfirmations(args: {
           baseScore: stock.baseScore ?? stock.score,
           promotionScore: stock.promotionScore ?? stock.score,
           tradabilityScore: stock.tradabilityScore ?? stock.score,
+          themeLadder: stock.themeLadder,
+          expectation: stock.expectation,
+          expectationMatch,
           auctionScore: null,
           finalAuctionScore: null,
           processScore: null,
@@ -3913,8 +4920,14 @@ export function scoreNextDayConfirmations(args: {
           liquidityStyleAdjustment: liquidityStyle.adjustment,
           styleGateReasons: liquidityStyle.reasons,
           openScore: null,
+          openingPullUpConfirmed: null,
+          openingReboundConfirmed: null,
+          auctionTailBuyConfirmed: null,
+          openingConfirmationGate: 'unavailable',
           liveScore: null,
           environmentAdjustment,
+          openingGapAdjustment: 0,
+          auctionTailBonus: 0,
           decisionScore: null,
           marketGateState: args.marketGate?.state ?? null,
           themePermission,
@@ -3929,6 +4942,9 @@ export function scoreNextDayConfirmations(args: {
           inaccessible: true,
           warnings: ['实时行情缺失、日期陈旧或时间未到确认节点'],
           gateReasons: [...gateReasons, ...liquidityStyle.reasons],
+          researchConfirmed: false,
+          executionEligible: executionEligibility.eligible,
+          executionEligibility,
         }
       }
       const openGapPct =
@@ -3937,6 +4953,7 @@ export function scoreNextDayConfirmations(args: {
           ? r2(((quote.open - quote.prevClose) / quote.prevClose) * 100)
           : null)
       const auctionQuote = auctionQuotes?.[stock.code]
+      const process = processMap.get(stock.code)
       const auctionAmount =
         auctionQuote?.matchedAmount ?? auctionQuote?.amount ?? null
       const floatCap = stock.circulatingMarketCap ?? null
@@ -3960,6 +4977,38 @@ export function scoreNextDayConfirmations(args: {
       if (continuedOnePrice) rowWarnings.push('次日继续一字，不可达')
       if (openGapPct != null && openGapPct > 8) {
         rowWarnings.push('开盘涨幅超过8%，拒绝追价')
+      }
+      const openingFragile =
+        openGapPct != null && openGapPct <= OPENING_FLAT_MAX_GAP_PCT
+      const openingPullUpConfirmed = stage === 'open' ? isOpeningDirectPullUp(quote) : null
+      const openingReboundConfirmed =
+        stage === 'open' ? isOpeningVolumePriceRebound(quote) : null
+      const auctionTailBuyConfirmed = auctionQuote
+        ? isAuctionTailBuy(auctionQuote, process)
+        : null
+      const openingConfirmationGate: NonNullable<NextDayCandidateConfirmation['openingConfirmationGate']> =
+        !openingFragile
+          ? 'not-required'
+          : stage === 'open' && openingReboundConfirmed
+            ? 'passed'
+            : 'blocked'
+      const openingGapLabel = openGapPct != null && openGapPct < 0 ? '低开' : '平开'
+      if (openingFragile && openingConfirmationGate === 'blocked') {
+        rowWarnings.push(
+          stage === 'open'
+            ? `竞价终局${openingGapLabel}，09:35未出现量价翻红`
+            : `竞价终局${openingGapLabel}，等待9:35开盘量价翻红`,
+        )
+        gateReasons.push(
+          `竞价${openingGapLabel}默认不确认，必须由9:35量价翻红解除等待`,
+        )
+      } else if (openingFragile && openingConfirmationGate === 'passed') {
+        rowWarnings.push(
+          `竞价终局${openingGapLabel}，9:35量价翻红，允许进入确认评分`,
+        )
+      }
+      if (auctionTailBuyConfirmed) {
+        rowWarnings.push('竞价9:24末段翘尾抢筹，决策分加3')
       }
       const laneAuctionRows = comparisonRows.filter(
         (candidate) => candidate.promotionLane === stock.promotionLane,
@@ -4009,8 +5058,16 @@ export function scoreNextDayConfirmations(args: {
             { value: inaccessible ? 0 : 100, weight: 0.05 },
           ])
         : null
-      const process = processMap.get(stock.code)
       const themeDirection = themeMap.get(stock.primaryTheme)
+      const expectationMatch = matchRelayExpectation({
+        expectation: stock.expectation,
+        openGapPct,
+        themeStrength: themeDirection?.score,
+        observedPath: classifyObservedRelayPath({
+          onePrice: continuedOnePrice,
+          openGapPct,
+        }),
+      })
       const marketStyle = args.auctionContext?.marketStyle
       const stockStyle = classifyAuctionStyle(
         `${stock.primaryTheme} ${stock.themes.join(' ')}`,
@@ -4095,9 +5152,24 @@ export function scoreNextDayConfirmations(args: {
               { value: stock.baseScore ?? stock.score, weight: 0.65 },
               { value: auctionScore, weight: 0.15 },
             ])
-      const decisionScore = r2(clamp(liveScore + environmentAdjustment))
+      const openingGapAdjustment = computeOpeningGapAdjustment(openGapPct)
+      const auctionTailBonus = auctionTailBuyConfirmed
+        ? AUCTION_TAIL_BUY_BONUS
+        : 0
+      const sentimentRelayWeight = args.sentimentQuant?.nextDayRelayWeight ?? 1
+      const decisionScore = r2(
+        clamp(
+          liveScore * sentimentRelayWeight +
+            environmentAdjustment +
+            openingGapAdjustment +
+            auctionTailBonus,
+        ),
+      )
       let state: NextDayState
       if (inaccessible) state = 'rejected'
+      else if (openingConfirmationGate === 'blocked') {
+        state = 'waiting'
+      }
       else if (stage === 'auction') {
         state =
           (auctionScore ?? 0) >= 65 && decisionScore >= 65
@@ -4152,9 +5224,13 @@ export function scoreNextDayConfirmations(args: {
         gateReasons.push('高标收缩且题材未独立扩张')
       }
       if (!inaccessible && state !== 'rejected') {
-        if (args.marketGate?.state === 'frozen') {
+        if (args.marketGate?.state === 'frozen' || args.marketGate?.state === 'unavailable') {
           state = 'blocked'
-          gateReasons.push('大盘环境冻结，个股分数不得抵消系统性风险')
+          gateReasons.push(
+            args.marketGate.state === 'unavailable'
+              ? '大盘环境数据不可用，禁止以个股分数抵消未知系统性风险'
+              : '大盘环境冻结，个股分数不得抵消系统性风险',
+          )
         } else if (themePermission?.state === 'blocked') {
           state = 'blocked'
           gateReasons.push(...themePermission.reasons)
@@ -4173,7 +5249,33 @@ export function scoreNextDayConfirmations(args: {
           gateReasons.push('权重抽水式修复限制中小盘中高位直接确认')
         }
       }
+      if (expectationMatch.status === 'violated') {
+        if (state === 'confirmed' || state === 'auction-qualified') state = 'waiting'
+        gateReasons.push('实际路径违背盘后预期，降为等待确认')
+        rowWarnings.push(...expectationMatch.unmet.slice(0, 2))
+      }
+      if (args.sentimentQuant?.gateState === 'JOINT_CLIMAX') {
+        if (!inaccessible) state = 'blocked'
+        gateReasons.push('双高潮次日NO_NEW_RELAY：禁止形成新接力确认')
+      } else if (args.sentimentQuant?.gateState === 'UNAVAILABLE') {
+        if (!inaccessible) state = 'blocked'
+        gateReasons.push('关键情绪数据缺失：不按中性值放行')
+      }
       gateReasons.push(...liquidityStyle.reasons)
+      const executionEligibility = evaluateLadderExecutionEligibility({
+        stage,
+        tradeDate: args.tradeDate,
+        quote,
+        confirmationState: state,
+        inaccessible,
+        marketGateState: args.marketGate?.state,
+        themePermissionState: themePermission?.state,
+        auctionSnapshotAvailable: !!auctionQuotes,
+        openSnapshotAvailable: freshQuotes.size > 0,
+        openingConfirmationGate,
+        technicalAvailable: stock.technical.available && stock.technical.settled,
+        relayGateState: args.sentimentQuant?.gateState,
+      })
       return {
         code: stock.code,
         name: stock.name,
@@ -4182,6 +5284,9 @@ export function scoreNextDayConfirmations(args: {
         baseScore: stock.baseScore ?? stock.score,
         promotionScore: stock.promotionScore ?? stock.score,
         tradabilityScore: stock.tradabilityScore ?? stock.score,
+        themeLadder: stock.themeLadder,
+        expectation: stock.expectation,
+        expectationMatch,
         auctionScore,
         finalAuctionScore,
         processScore: process?.processScore ?? null,
@@ -4191,8 +5296,14 @@ export function scoreNextDayConfirmations(args: {
         liquidityStyleAdjustment: liquidityStyle.adjustment,
         styleGateReasons: liquidityStyle.reasons,
         openScore,
+        openingPullUpConfirmed,
+        openingReboundConfirmed,
+        auctionTailBuyConfirmed,
+        openingConfirmationGate,
         liveScore,
         environmentAdjustment,
+        openingGapAdjustment,
+        auctionTailBonus,
         decisionScore,
         marketGateState: args.marketGate?.state ?? null,
         themePermission,
@@ -4207,6 +5318,9 @@ export function scoreNextDayConfirmations(args: {
         inaccessible,
         warnings: rowWarnings,
         gateReasons,
+        researchConfirmed: state === 'confirmed' || state === 'auction-qualified',
+        executionEligible: executionEligibility.eligible,
+        executionEligibility,
       }
     },
   )
@@ -4232,6 +5346,7 @@ export function scoreNextDayConfirmations(args: {
 function pendingConfirmations(
   baseRows: LadderStockAnalysis[],
   marketGate?: MarketRiskGate | null,
+  sentimentQuant?: LadderSentimentQuantSnapshot | null,
 ): NextDayCandidateConfirmation[] {
   const permissions = new Map(
     (marketGate?.themePermissions ?? []).map((permission) => [
@@ -4256,6 +5371,20 @@ function pendingConfirmations(
         themePermission?.environmentAdjustment ?? 0,
         liquidityStyle.adjustment,
       )
+      const executionEligibility = evaluateLadderExecutionEligibility({
+        stage: 'pending',
+        tradeDate: '',
+        quote: null,
+        confirmationState: null,
+        inaccessible: false,
+        marketGateState: marketGate?.state,
+        themePermissionState: themePermission?.state,
+        auctionSnapshotAvailable: false,
+        openSnapshotAvailable: false,
+        openingConfirmationGate: 'unavailable',
+        technicalAvailable: stock.technical.available && stock.technical.settled,
+        relayGateState: sentimentQuant?.gateState,
+      })
       return {
         code: stock.code,
         name: stock.name,
@@ -4265,6 +5394,9 @@ function pendingConfirmations(
         baseScore,
         promotionScore: stock.promotionScore ?? stock.score,
         tradabilityScore: stock.tradabilityScore ?? stock.score,
+        themeLadder: stock.themeLadder,
+        expectation: stock.expectation,
+        expectationMatch: matchRelayExpectation({ expectation: stock.expectation }),
         auctionScore: null,
         finalAuctionScore: null,
         processScore: null,
@@ -4274,9 +5406,15 @@ function pendingConfirmations(
         liquidityStyleAdjustment: liquidityStyle.adjustment,
         styleGateReasons: liquidityStyle.reasons,
         openScore: null,
+        openingPullUpConfirmed: null,
+        openingReboundConfirmed: null,
+        auctionTailBuyConfirmed: null,
+        openingConfirmationGate: 'unavailable',
         liveScore: null,
         environmentAdjustment,
-        decisionScore: r2(clamp(baseScore + environmentAdjustment)),
+        openingGapAdjustment: 0,
+        auctionTailBonus: 0,
+        decisionScore: r2(clamp(baseScore * (sentimentQuant?.nextDayRelayWeight ?? 1) + environmentAdjustment)),
         marketGateState: marketGate?.state ?? null,
         themePermission,
         state: 'pending',
@@ -4292,7 +5430,12 @@ function pendingConfirmations(
         gateReasons: [
           ...(stock.gateReasons ?? []),
           ...liquidityStyle.reasons,
+          ...(sentimentQuant?.gateState === 'JOINT_CLIMAX' ? ['双高潮次日NO_NEW_RELAY'] : []),
+          ...(sentimentQuant?.gateState === 'UNAVAILABLE' ? ['关键情绪数据缺失，不按中性值放行'] : []),
         ],
+        researchConfirmed: false,
+        executionEligible: executionEligibility.eligible,
+        executionEligibility,
       }
     })
     .sort(
@@ -4306,12 +5449,15 @@ export function settleNextDayFromSnapshots(args: {
   tradeDate: string
   baseRows: LadderStockAnalysis[]
   comparisonRows?: LadderStockAnalysis[]
+  relayRows?: LadderStockAnalysis[]
+  formalRows?: LadderStockAnalysis[]
   process?: AuctionProcessArchive | null
   confirmation?: ConfirmationSnapshot | null
   auctionContext?: LadderAuctionContext | null
   highBoardContext?: HighBoardRiskContext | null
   eventReaction?: LadderEventReaction | null
   marketGate?: MarketRiskGate | null
+  sentimentQuant?: LadderSentimentQuantSnapshot | null
   outcome?: LadderOutcomeArchive | null
   warnings?: string[]
 }): LimitLadderNextDay {
@@ -4346,6 +5492,7 @@ export function settleNextDayFromSnapshots(args: {
       highBoardContext: args.highBoardContext,
       eventReaction: args.eventReaction,
       marketGate: args.marketGate,
+      sentimentQuant: args.sentimentQuant,
     })
   } else if (finalSnapshot) {
     const auctionScored = scoreNextDayConfirmations({
@@ -4359,6 +5506,7 @@ export function settleNextDayFromSnapshots(args: {
       highBoardContext: args.highBoardContext,
       eventReaction: args.eventReaction,
       marketGate: args.marketGate,
+      sentimentQuant: args.sentimentQuant,
     })
     scored = {
       ...auctionScored,
@@ -4375,11 +5523,27 @@ export function settleNextDayFromSnapshots(args: {
       eventReaction: args.eventReaction ?? null,
       marketGate: args.marketGate ?? null,
       themePermissions: args.marketGate?.themePermissions ?? [],
-      candidates: pendingConfirmations(args.baseRows, args.marketGate),
+      candidates: pendingConfirmations(args.baseRows, args.marketGate, args.sentimentQuant),
       warnings: [],
     }
     settlementWarnings.push('9:25竞价与9:35确认快照均缺失，未使用收盘行情回填')
   }
+
+  const relayPlan = buildNextDayRelayPlan({
+    signalDate: args.signalDate,
+    tradeDate: args.tradeDate,
+    stage: 'settled',
+    rows: args.relayRows ?? args.baseRows,
+    formalRows: args.formalRows ?? args.baseRows,
+    quotes: confirmation
+      ? new Map(Object.entries(confirmation.quotes))
+      : finalSnapshot
+        ? new Map(Object.entries(finalSnapshot.quotes))
+        : new Map(),
+    auctionContext: args.auctionContext,
+    sentimentQuant: args.sentimentQuant,
+    confirmations: new Map(scored.candidates.map((candidate) => [candidate.code, candidate])),
+  })
 
   return {
     signalDate: args.signalDate,
@@ -4387,6 +5551,7 @@ export function settleNextDayFromSnapshots(args: {
     generatedAt: new Date().toISOString(),
     ruleVersion: LIMIT_LADDER_RULE_VERSION,
     stage: 'settled',
+    sentimentQuant: args.sentimentQuant ?? null,
     auctionSnapshotAvailable: scored.auctionSnapshotAvailable,
     confirmationSnapshotAvailable: scored.confirmationSnapshotAvailable,
     auctionContext: args.auctionContext ?? null,
@@ -4399,6 +5564,7 @@ export function settleNextDayFromSnapshots(args: {
       scored.themePermissions ?? args.marketGate?.themePermissions ?? [],
     outcome: args.outcome ?? null,
     candidates: scored.candidates,
+    relayPlan,
     warnings: Array.from(
       new Set([
         ...settlementWarnings,
@@ -4406,6 +5572,7 @@ export function settleNextDayFromSnapshots(args: {
         ...scored.warnings,
       ]),
     ),
+    strategyStatus: 'research',
   }
 }
 
@@ -4451,14 +5618,23 @@ async function resolveNextTradeDate(
   outcome?: LadderOutcomeArchive | null,
 ): Promise<string | null> {
   if (outcome?.tradeDate) return outcome.tradeDate
-  const archivedNext = allArchivedAnalysisDates().find((date) => date > signalDate)
-  if (archivedNext) return archivedNext
+  // The next analysis archive is not a trading calendar. If an intermediate
+  // signal day is missing, using a later archive (for example 08-31) would
+  // incorrectly label the 08-28 outcome as 08-31. Resolve the calendar first.
   const dates = await fetchTradingDates(nowDate).catch(() => [])
   const calendarNext = dates
     .filter((date) => date > signalDate)
     .sort()
     .at(0)
   if (calendarNext) return calendarNext
+  // When the provider calendar is unavailable, only use an already archived
+  // date that is not later than today. Never use a future/current analysis as
+  // a substitute for the missing next trading session.
+  const archivedNext = allArchivedAnalysisDates()
+    .filter((date) => date > signalDate && date <= nowDate)
+    .sort()
+    .at(0)
+  if (archivedNext) return archivedNext
   const latestSignal = archivedAnalysisDates(nowDate).at(-1)
   const clock = shanghaiClock()
   if (
@@ -4477,6 +5653,7 @@ export async function fetchLimitLadderNextDay(
 ): Promise<LimitLadderNextDay> {
   if (!safeDate(signalDate)) throw new Error('signalDate 必须是 YYYY-MM-DD')
   const analysis = await fetchLimitLadderAnalysis(signalDate)
+  const sentimentQuant = analysis.sentimentQuant ?? readLadderSentimentQuant(signalDate)
   const baseRows = candidateMonitorRows(analysis)
   const comparisonRows = auctionComparisonRows(analysis)
   const nowDate = todayShanghai()
@@ -4587,12 +5764,15 @@ export async function fetchLimitLadderNextDay(
       tradeDate: settledTradeDate,
       baseRows,
       comparisonRows,
+      relayRows: analysis.stocks,
+      formalRows: formalCandidateRows(analysis),
       process: storedProcess,
       confirmation: storedConfirmation,
       auctionContext: storedContext,
       highBoardContext: storedHighBoardContext,
       eventReaction: storedHighBoard?.eventReaction ?? null,
       marketGate: storedMarketGate,
+      sentimentQuant,
       outcome,
       warnings,
     })
@@ -4614,6 +5794,7 @@ export async function fetchLimitLadderNextDay(
       generatedAt: new Date().toISOString(),
       ruleVersion: LIMIT_LADDER_RULE_VERSION,
       stage: 'pending',
+      sentimentQuant,
       auctionSnapshotAvailable: !!storedProcess?.finalSnapshot,
       confirmationSnapshotAvailable: !!storedConfirmation,
       auctionContext: storedContext,
@@ -4623,8 +5804,21 @@ export async function fetchLimitLadderNextDay(
       marketGate: storedMarketGate,
       themePermissions: storedMarketGate?.themePermissions ?? [],
       outcome: null,
-      candidates: pendingConfirmations(baseRows, storedMarketGate),
+      candidates: pendingConfirmations(baseRows, storedMarketGate, sentimentQuant),
+      relayPlan: buildNextDayRelayPlan({
+        signalDate,
+        tradeDate: tradeDate ?? '',
+        stage: 'pending',
+        rows: analysis.stocks,
+        formalRows: formalCandidateRows(analysis),
+        auctionContext: storedContext,
+        sentimentQuant,
+        confirmations: new Map(
+          pendingConfirmations(baseRows, storedMarketGate, sentimentQuant).map((candidate) => [candidate.code, candidate]),
+        ),
+      }),
       warnings,
+      strategyStatus: 'research',
     }
   }
 
@@ -4635,6 +5829,7 @@ export async function fetchLimitLadderNextDay(
       generatedAt: new Date().toISOString(),
       ruleVersion: LIMIT_LADDER_RULE_VERSION,
       stage: 'pending',
+      sentimentQuant,
       auctionSnapshotAvailable: !!storedProcess?.finalSnapshot,
       confirmationSnapshotAvailable: !!storedConfirmation,
       auctionContext: storedContext,
@@ -4644,8 +5839,21 @@ export async function fetchLimitLadderNextDay(
       marketGate: storedMarketGate,
       themePermissions: storedMarketGate?.themePermissions ?? [],
       outcome: null,
-      candidates: pendingConfirmations(baseRows, storedMarketGate),
+      candidates: pendingConfirmations(baseRows, storedMarketGate, sentimentQuant),
+      relayPlan: buildNextDayRelayPlan({
+        signalDate,
+        tradeDate: tradeDate ?? '',
+        stage: 'pending',
+        rows: analysis.stocks,
+        formalRows: formalCandidateRows(analysis),
+        auctionContext: storedContext,
+        sentimentQuant,
+        confirmations: new Map(
+          pendingConfirmations(baseRows, storedMarketGate, sentimentQuant).map((candidate) => [candidate.code, candidate]),
+        ),
+      }),
       warnings: [`目标交易日为${tradeDate}，禁止使用${nowDate}行情`],
+      strategyStatus: 'research',
     }
   }
 
@@ -4707,13 +5915,27 @@ export async function fetchLimitLadderNextDay(
     highBoardContext,
     eventReaction: highBoardArchive?.eventReaction ?? null,
     marketGate,
+    sentimentQuant,
+  })
+  const relayPlan = buildNextDayRelayPlan({
+    signalDate,
+    tradeDate,
+    stage,
+    rows: analysis.stocks,
+    formalRows: formalCandidateRows(analysis),
+    quotes: new Map(Object.entries(liveQuotes)),
+    auctionContext,
+    sentimentQuant,
+    confirmations: new Map(scored.candidates.map((candidate) => [candidate.code, candidate])),
   })
   return {
     signalDate,
     tradeDate,
     generatedAt: new Date().toISOString(),
     ruleVersion: LIMIT_LADDER_RULE_VERSION,
+    sentimentQuant,
     ...scored,
+    relayPlan,
     outcome: null,
     warnings: [
       ...warnings,
@@ -4726,51 +5948,114 @@ export async function fetchLimitLadderNextDay(
 let auctionScheduler: ReturnType<typeof setInterval> | null = null
 let auctionSchedulerBusy = false
 
-export function startLimitLadderAuctionScheduler(): void {
-  if (auctionScheduler) return
-  const tick = async () => {
-    if (auctionSchedulerBusy) return
-    const clock = shanghaiClock()
-    if (clock.day === 0 || clock.day === 6) return
-    const today = todayShanghai()
-    const signalDate = archivedAnalysisDates(today).at(-1)
-    if (!signalDate) return
-    const briefPhase = auctionBriefPhaseForMinutes(clock.minutes)
-    const premarketWindow = isPremarketGateCaptureWindow(clock)
-    const captureWindow =
-      (clock.minutes >= 9 * 60 + 15 && clock.minutes < 9 * 60 + 27) ||
-      (clock.minutes >= 9 * 60 + 35 && clock.minutes < 9 * 60 + 37)
-    const outcomeWindow =
-      clock.minutes >= 15 * 60 + 10 &&
-      clock.minutes < 15 * 60 + 20 &&
-      !existingOutcomePath(signalDate)
-    if (!premarketWindow && !captureWindow && !outcomeWindow && !briefPhase) return
-    auctionSchedulerBusy = true
-    try {
-      const nextDay = await fetchLimitLadderNextDay(signalDate)
-      if (briefPhase && nextDay.tradeDate === today) {
-        const analysis = await fetchLimitLadderAnalysis(signalDate)
-        const currentAnalysis = briefPhase === 'open-confirmation'
-          ? await fetchLimitLadderAnalysis(today).catch(() => undefined)
-          : undefined
-        await generateAndDispatchAuctionBrief({
-          phase: briefPhase,
-          analysis,
-          nextDay,
-          currentAnalysis,
-        })
-      }
-    } catch {
-      // A later 15-second tick retries transient quote or archive failures.
-    } finally {
-      auctionSchedulerBusy = false
-    }
-  }
-  auctionScheduler = setInterval(() => void tick(), 15_000)
-  auctionScheduler.unref?.()
-  void tick()
+export interface LimitLadderAuctionSchedulerStatus {
+  lastTickAt: string | null
+  signalDate: string | null
+  today: string | null
+  nextTradeDate: string | null
+  phase: string | null
+  action: 'idle' | 'skipped' | 'dispatching' | 'sent' | 'failed'
+  reason: string | null
+  error: string | null
 }
 
+let auctionSchedulerStatus: LimitLadderAuctionSchedulerStatus = {
+  lastTickAt: null,
+  signalDate: null,
+  today: null,
+  nextTradeDate: null,
+  phase: null,
+  action: 'idle',
+  reason: null,
+  error: null,
+}
+
+export function getLimitLadderAuctionSchedulerStatus(): LimitLadderAuctionSchedulerStatus {
+  return { ...auctionSchedulerStatus }
+}
+
+export async function runLimitLadderAuctionSchedulerTick(nowMs = Date.now()): Promise<void> {
+  if (auctionSchedulerBusy) return
+  const clock = shanghaiClockAt(nowMs)
+  const today = todayShanghai(nowMs)
+  auctionSchedulerStatus = {
+    ...auctionSchedulerStatus,
+    lastTickAt: new Date(nowMs).toISOString(),
+    today,
+    signalDate: null,
+    nextTradeDate: null,
+    phase: null,
+    action: 'idle',
+    reason: null,
+    error: null,
+  }
+  if (!isTradingDayAt(nowMs)) {
+    auctionSchedulerStatus = { ...auctionSchedulerStatus, action: 'skipped', reason: '当前日期不是交易日' }
+    return
+  }
+  const signalDate = archivedAnalysisDates(today).at(-1)
+  auctionSchedulerStatus = { ...auctionSchedulerStatus, signalDate: signalDate ?? null }
+  if (!signalDate) {
+    auctionSchedulerStatus = { ...auctionSchedulerStatus, action: 'skipped', reason: '没有可用于隔日预案的连板收盘归档' }
+    return
+  }
+  const briefPhase = auctionBriefPhaseForMinutes(clock.minutes)
+  auctionSchedulerStatus = { ...auctionSchedulerStatus, phase: briefPhase }
+  const premarketWindow = isPremarketGateCaptureWindow(clock)
+  const captureWindow =
+    (clock.minutes >= 9 * 60 + 15 && clock.minutes < 9 * 60 + 27) ||
+    (clock.minutes >= 9 * 60 + 35 && clock.minutes < 9 * 60 + 37)
+  const outcomeWindow =
+    clock.minutes >= 15 * 60 + 10 &&
+    clock.minutes < 15 * 60 + 20 &&
+    !existingOutcomePath(signalDate)
+  if (!premarketWindow && !captureWindow && !outcomeWindow && !briefPhase) {
+    auctionSchedulerStatus = { ...auctionSchedulerStatus, action: 'idle', reason: '当前不在调度窗口' }
+    return
+  }
+  auctionSchedulerBusy = true
+  try {
+    const nextDay = await fetchLimitLadderNextDay(signalDate)
+    auctionSchedulerStatus = { ...auctionSchedulerStatus, nextTradeDate: nextDay.tradeDate }
+    if (briefPhase && nextDay.tradeDate === today) {
+      auctionSchedulerStatus = { ...auctionSchedulerStatus, action: 'dispatching' }
+      const analysis = await fetchLimitLadderAnalysis(signalDate)
+      const currentAnalysis = briefPhase === 'open-confirmation'
+        ? await fetchLimitLadderAnalysis(today).catch(() => undefined)
+        : undefined
+      await generateAndDispatchAuctionBrief({
+        phase: briefPhase,
+        analysis,
+        nextDay,
+        currentAnalysis,
+      })
+      auctionSchedulerStatus = { ...auctionSchedulerStatus, action: 'sent', reason: null }
+    } else if (briefPhase) {
+      auctionSchedulerStatus = {
+        ...auctionSchedulerStatus,
+        action: 'skipped',
+        reason: `最新可用连板归档 ${signalDate} 的下一交易日为 ${nextDay.tradeDate ?? '未知'}，不是当前交易日 ${today}`,
+      }
+    }
+  } catch (error) {
+    auctionSchedulerStatus = {
+      ...auctionSchedulerStatus,
+      action: 'failed',
+      error: error instanceof Error ? error.message : '连板推送调度失败',
+      reason: '本次调度未完成，后续 tick 将重试',
+    }
+  } finally {
+    auctionSchedulerBusy = false
+  }
+}
+
+export function startLimitLadderAuctionScheduler(): boolean {
+  if (auctionScheduler) return false
+  auctionScheduler = setInterval(() => void runLimitLadderAuctionSchedulerTick(), 15_000)
+  auctionScheduler.unref?.()
+  void runLimitLadderAuctionSchedulerTick()
+  return true
+}
 export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<LimitLadderAnalysis> {
   if (!safeDate(asof)) throw new Error('date 必须是 YYYY-MM-DD')
   const today = todayShanghai()
@@ -4778,7 +6063,7 @@ export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<
     const path = archivedAnalysisPath(asof)
     const archived = path ? readJson<LimitLadderAnalysis>(path) : null
     if (!archived) throw new Error(`未找到${asof}的连板天梯归档`)
-    return { ...archived, archived: true }
+    return { ...archived, archived: true, strategyStatus: 'research' }
   }
   // 收盘后的同日快照是定盘数据。服务重启或页面再次打开时直接读盘，零上游 API 请求。
   // 当日有手工导入时允许重算并覆盖快照。
@@ -4790,7 +6075,7 @@ export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<
     // A version upgrade must start from a complete new trading-day cycle. Explicit
     // refreshes may refill the current version, but cannot rewrite a frozen legacy signal.
     if (archived && archived.ruleVersion !== LIMIT_LADDER_RULE_VERSION) {
-      return { ...archived, archived: true }
+      return { ...archived, archived: true, strategyStatus: 'research' }
     }
     // 15:00先保存行情定盘；16:30后若龙虎榜此前未发布，允许自动补算一次资金流并覆盖快照。
     if (
@@ -4799,7 +6084,7 @@ export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<
       (archived.quality.fundFlowComplete !== false ||
         !isLhbPublicationWindow())
     ) {
-      return { ...archived, archived: true }
+      return { ...archived, archived: true, strategyStatus: 'research' }
     }
   }
   const cached = analysisCache.get(asof)

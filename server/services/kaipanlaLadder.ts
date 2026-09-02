@@ -7,6 +7,12 @@ const KPL_HEADERS = {
   'User-Agent': 'lhb/5.18.0 (iPhone; iOS 16.0)',
 }
 const REASON_CACHE_MS = 10 * 60_000
+const KPL_LADDER_TIERS = [1, 2, 3, 4, 5] as const
+const KPL_TIER_REQUEST_TIMEOUT_MS = 8_000
+const KPL_TIER_TOTAL_TIMEOUT_MS = 12_000
+const KPL_TIER_RETRY_DELAY_MS = 150
+
+type KplLadderTier = (typeof KPL_LADDER_TIERS)[number]
 
 export interface KplRealtimeStock {
   code: string
@@ -21,10 +27,17 @@ export interface KplRealtimeStock {
   sealAmount: number
   amount: number
   turnoverRate: number
+  openCount?: number
   amplitudePct: number
   isMarginEligible: boolean
   onePriceHint: boolean
   tBoardHint: boolean
+  /** Optional point-in-time security master fields supplied by an authorized feed. */
+  isSt?: boolean
+  isDelisting?: boolean
+  isSuspended?: boolean
+  listingStatus?: string
+  statusEvidence?: 'historical-master' | 'provider-field'
 }
 
 export interface KplRealtimeLadder {
@@ -32,6 +45,13 @@ export interface KplRealtimeLadder {
   stocks: KplRealtimeStock[]
   complete: boolean
   missingTiers: number[]
+  /** Per-tier request failures retained when a partial ladder is returned. */
+  tierFailures?: Array<{ tier: number; message: string }>
+  source?: string
+  providerAt?: string | null
+  capturedAt?: string
+  fromCache?: boolean
+  cacheAgeMs?: number | null
 }
 
 export interface KplLimitReasonDetail {
@@ -101,6 +121,22 @@ function unique(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean)))
 }
 
+function tierFailureMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error)
+  return message.replace(/\s+/g, ' ').trim().slice(0, 160) || 'unknown error'
+}
+
+function isRetryableTierFailure(error: unknown): boolean {
+  const name = error instanceof Error ? error.name : ''
+  const message = tierFailureMessage(error)
+  return error instanceof TypeError || name === 'AbortError' || name === 'TimeoutError' ||
+    /^(HTTP (408|425|429|5\d\d)|unexpected payload shape)/.test(message)
+}
+
+function waitForRetry(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export function parseKplRealtimeRow(row: unknown, tier: number): KplRealtimeStock | null {
   if (!Array.isArray(row)) return null
   const code = normalizeCode(row[0])
@@ -133,7 +169,10 @@ export function parseKplRealtimeRow(row: unknown, tier: number): KplRealtimeStoc
   }
 }
 
-async function fetchTier(tier: number): Promise<{ date: string; tier: number; stocks: KplRealtimeStock[] }> {
+async function fetchTierOnce(
+  tier: KplLadderTier,
+  timeoutMs: number,
+): Promise<{ date: string; tier: number; stocks: KplRealtimeStock[] }> {
   const params = new URLSearchParams({
     Order: '0',
     a: 'DailyLimitPerformance',
@@ -149,7 +188,7 @@ async function fetchTier(tier: number): Promise<{ date: string; tier: number; st
   })
   const response = await fetch(`${KPL_LADDER_URL}?${params}`, {
     headers: KPL_HEADERS,
-    signal: AbortSignal.timeout(8_000),
+    signal: AbortSignal.timeout(timeoutMs),
   })
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   const payload = (await response.json()) as KplTierPayload
@@ -166,12 +205,39 @@ async function fetchTier(tier: number): Promise<{ date: string; tier: number; st
   }
 }
 
+async function fetchTier(tier: KplLadderTier): Promise<{ date: string; tier: number; stocks: KplRealtimeStock[] }> {
+  const deadline = Date.now() + KPL_TIER_TOTAL_TIMEOUT_MS
+  let lastFailure: unknown = null
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const remainingMs = deadline - Date.now()
+    if (remainingMs <= 0) break
+    try {
+      return await fetchTierOnce(tier, Math.min(KPL_TIER_REQUEST_TIMEOUT_MS, remainingMs))
+    } catch (error) {
+      lastFailure = error
+      if (
+        attempt === 1 ||
+        !isRetryableTierFailure(error) ||
+        deadline - Date.now() <= KPL_TIER_RETRY_DELAY_MS
+      ) break
+      await waitForRetry(KPL_TIER_RETRY_DELAY_MS)
+    }
+  }
+  throw lastFailure ?? new Error('tier request timed out before it could start')
+}
+
 async function fetchKplRealtimeLadderFresh(): Promise<KplRealtimeLadder> {
-  const settled = await Promise.allSettled([1, 2, 3, 4, 5].map(fetchTier))
+  const settled = await Promise.allSettled(KPL_LADDER_TIERS.map(fetchTier))
   const fulfilled = settled
     .filter((result): result is PromiseFulfilledResult<Awaited<ReturnType<typeof fetchTier>>> => result.status === 'fulfilled')
     .map((result) => result.value)
-  if (fulfilled.length === 0) throw new Error('开盘啦实时梯队接口不可用')
+  const tierFailures = settled.flatMap((result, index) => result.status === 'rejected'
+    ? [{ tier: KPL_LADDER_TIERS[index] ?? index + 1, message: tierFailureMessage(result.reason) }]
+    : [])
+  if (fulfilled.length === 0) {
+    const details = tierFailures.map((failure) => `${failure.tier}板：${failure.message}`).join('；') || '未返回可用层级'
+    throw new Error(`开盘啦实时梯队接口不可用（${details}）`)
+  }
 
   const dates = fulfilled.map((result) => result.date).filter(Boolean)
   const date = dates.sort().at(-1) ?? ''
@@ -183,8 +249,19 @@ async function fetchKplRealtimeLadderFresh(): Promise<KplRealtimeLadder> {
     ).values(),
   )
   const presentTiers = new Set(fulfilled.map((result) => result.tier))
-  const missingTiers = [1, 2, 3, 4, 5].filter((tier) => !presentTiers.has(tier))
-  return { date, stocks, complete: missingTiers.length === 0, missingTiers }
+  const missingTiers = KPL_LADDER_TIERS.filter((tier) => !presentTiers.has(tier))
+  return {
+    date,
+    stocks,
+    complete: missingTiers.length === 0,
+    missingTiers,
+    tierFailures,
+    source: 'kaipanla',
+    providerAt: null,
+    capturedAt: new Date().toISOString(),
+    fromCache: false,
+    cacheAgeMs: 0,
+  }
 }
 
 const ladderCache = createCache<KplRealtimeLadder>({
@@ -193,8 +270,18 @@ const ladderCache = createCache<KplRealtimeLadder>({
   fetcher: fetchKplRealtimeLadderFresh,
 })
 
-export function fetchKplRealtimeLadder(): Promise<KplRealtimeLadder> {
-  return ladderCache.get()
+export async function fetchKplRealtimeLadder(): Promise<KplRealtimeLadder> {
+  const before = ladderCache.peek()
+  const value = await ladderCache.get()
+  const ageMs = ladderCache.ageMs()
+  const fromCache = before === value && ageMs != null && ageMs > 0
+  return {
+    ...value,
+    source: value.source ?? 'kaipanla',
+    capturedAt: value.capturedAt ?? new Date().toISOString(),
+    fromCache,
+    cacheAgeMs: ageMs,
+  }
 }
 
 export function parseKplReasonPayload(
