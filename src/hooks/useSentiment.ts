@@ -4,15 +4,19 @@ import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface SentimentData {
   date: string
-  limitUp: number
-  limitDown: number
-  breakRate: number
-  riseCount: number
-  fallCount: number
-  yestLimitPerf: number
-  temperature: number
-  /** 服务端三级兜底链的来源标注(kaipanla→东财推导→mock);mock 不落 localStorage。 */
-  source?: 'kaipanla' | 'derived' | 'mock'
+  limitUp: number | null
+  limitDown: number | null
+  breakRate: number | null
+  riseCount: number | null
+  fallCount: number | null
+  yestLimitPerf: number | null
+  temperature: number | null
+  coverage?: number
+  status?: 'full' | 'degraded' | 'stale' | 'unavailable'
+  missingReasons?: string[]
+  warnings?: string[]
+  /** 服务端来源标注：开盘啦原始或由真实 A 股宽度/涨跌停推导。 */
+  source?: 'kaipanla' | 'derived'
 }
 
 export interface SentimentResult {
@@ -20,6 +24,7 @@ export interface SentimentResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
+  status: 'full' | 'degraded' | 'stale' | 'unavailable'
   refresh: () => void
 }
 
@@ -39,27 +44,35 @@ export function useSentiment(date: string = getLastTradingDay()): SentimentResul
   const [lastUpdated, setLastUpdated] = useState<Date | null>(
     cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
+  const [status, setStatus] = useState<SentimentResult['status']>(cachedData ? 'stale' : 'unavailable')
   const fetching = useRef(false)
+  const latestData = useRef<SentimentData | null>(cachedData ?? null)
+  const setCurrentData = useCallback((next: SentimentData | null) => {
+    latestData.current = next
+    setData(next)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
 
     const entry = getDay(date)
     const cached = entry?.sentiment as SentimentData | undefined
-    // 历史上误存过 mock(修复前无守卫),读到就当没有:今日走重取,历史日显示空态。
-    if (cached && typeof cached.temperature === 'number' && cached.source !== 'mock') {
-      setData(cached)
+    // 修复前可能存过 source=mock 的旧缓存；不再把它当市场事实使用。
+    if (cached && typeof cached.temperature !== 'undefined' && (cached as { source?: string }).source !== 'mock') {
+      setCurrentData(cached)
       setLastUpdated(entry ? new Date(entry.timestamp) : null)
       setError(null)
+      setStatus(cached.status ?? (isLatest ? 'stale' : 'full'))
       setLoading(false)
       return
     }
 
     // Sentiment is an intraday metric; only fetch for the current day.
     if (!isLatest) {
-      setData(null)
+      setCurrentData(null)
       setLastUpdated(null)
-      setError(null)
+      setError('No archived sentiment data for this date')
+      setStatus('unavailable')
       setLoading(false)
       return
     }
@@ -73,14 +86,16 @@ export function useSentiment(date: string = getLastTradingDay()): SentimentResul
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const result: SentimentData = await res.json()
         if (cancelled) return
-        setData(result)
-        // mock 兜底数据只做当次展示,不写进日存档冒充真实历史情绪。
-        if (result.source !== 'mock') saveDay(date, { sentiment: result })
+        setCurrentData(result)
+        if (result.status !== 'unavailable') saveDay(date, { sentiment: result })
         setLastUpdated(new Date())
+        setStatus(result.status ?? 'full')
         setError(null)
       } catch {
         if (cancelled) return
         setError('Failed to fetch sentiment')
+        setCurrentData(latestData.current)
+        setStatus(latestData.current ? 'stale' : 'unavailable')
       } finally {
         if (!cancelled) {
           setLoading(false)
@@ -93,7 +108,7 @@ export function useSentiment(date: string = getLastTradingDay()): SentimentResul
       cancelled = true
       fetching.current = false
     }
-  }, [date, isLatest])
+  }, [date, isLatest, setCurrentData])
 
   const refresh = useCallback(async () => {
     if (!isLatest || fetching.current) return
@@ -105,17 +120,20 @@ export function useSentiment(date: string = getLastTradingDay()): SentimentResul
       const res = await fetchWithTimeout('/api/sentiment')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: SentimentData = await res.json()
-      setData(result)
-      if (result.source !== 'mock') saveDay(date, { sentiment: result })
+      setCurrentData(result)
+      if (result.status !== 'unavailable') saveDay(date, { sentiment: result })
       setLastUpdated(new Date())
+      setStatus(result.status ?? 'full')
       setError(null)
     } catch {
+      setCurrentData(latestData.current)
       setError('Failed to fetch sentiment')
+      setStatus(latestData.current ? 'stale' : 'unavailable')
     } finally {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isLatest])
+  }, [date, isLatest, setCurrentData])
 
-  return { data, loading, error, lastUpdated, refresh }
+  return { data, loading, error, lastUpdated, status, refresh }
 }

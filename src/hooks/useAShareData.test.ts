@@ -75,7 +75,7 @@ describe('useAShareData', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/ashare', expect.objectContaining({ signal: expect.any(AbortSignal) }))
   })
 
-  it('uses mock data when API returns empty indices', async () => {
+  it('marks the response unavailable when API returns empty indices', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ indices: [], limitUpCount: 0 }),
@@ -87,12 +87,11 @@ describe('useAShareData', () => {
       expect(result.current.loading).toBe(false)
     })
 
-    // Should fall back to mock data
-    expect(result.current.data).not.toBeNull()
-    expect(result.current.data!.indices.length).toBe(5)
+    expect(result.current.data).toBeNull()
+    expect(result.current.status).toBe('unavailable')
   })
 
-  it('uses mock data on fetch error', async () => {
+  it('keeps data unavailable on fetch error when no previous observation exists', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
     const { result } = renderHook(() => useAShareData())
@@ -102,8 +101,8 @@ describe('useAShareData', () => {
     })
 
     expect(result.current.error).toBe('Failed to fetch A-share data')
-    // Should have mock data as fallback
-    expect(result.current.data).not.toBeNull()
+    expect(result.current.data).toBeNull()
+    expect(result.current.status).toBe('unavailable')
   })
 
   it('refresh function fetches data again', async () => {

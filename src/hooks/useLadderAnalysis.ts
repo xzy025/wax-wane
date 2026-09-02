@@ -4,6 +4,30 @@ import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 const LADDER_SNAPSHOT_PREFIX = 'limit-ladder-snapshot-v6:'
 const CURRENT_LADDER_RULE_VERSION = 'limit-ladder-v6'
 
+async function fetchLadderJson<T>(url: string, timeoutMs: number): Promise<T> {
+  let lastError: unknown = null
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const response = await fetchWithTimeout(url, timeoutMs, {
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
+      })
+      const json = (await response.json()) as T & { error?: string }
+      if (!response.ok || json.error) {
+        throw new Error(json.error ?? 'HTTP ' + response.status)
+      }
+      return json
+    } catch (reason) {
+      lastError = reason
+      if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 250))
+    }
+  }
+  if (lastError instanceof TypeError && lastError.message === 'Failed to fetch') {
+    throw new Error('连板天梯服务不可达：请确认后端 3002 与 Vite 代理均已启动')
+  }
+  throw lastError instanceof Error ? lastError : new Error('Failed to load ladder data')
+}
+
 function readLadderSnapshot(date: string): LimitLadderAnalysis | null {
   try {
     const raw = localStorage.getItem(`${LADDER_SNAPSHOT_PREFIX}${date}`)
@@ -38,7 +62,7 @@ export type NextDayState =
   | 'waiting'
   | 'blocked'
   | 'rejected'
-export type MarketCyclePhase = 'ice' | 'repair' | 'climax' | 'ebb'
+export type MarketCyclePhase = 'ice' | 'repair' | 'climax' | 'ebb' | 'unavailable'
 export type ThemeGrade = 'A' | 'B' | 'C' | 'D'
 export type LadderRole =
   | 'space-leader'
@@ -55,6 +79,139 @@ export type ShapeArchetype =
   | 'high-new-high'
   | 'non-platform-breakout'
   | 'insufficient'
+
+export type ExpectationPath =
+  | 'tradable-acceleration'
+  | 'divergence-reseal'
+  | 'one-price-untradeable'
+  | 'break-failure'
+
+export interface BoardSequenceEvidence {
+  code: string
+  name: string
+  latestThree: Array<{
+    date: string
+    boardType: string
+    volumeRatio: number | null
+    volumeLabel: string
+    volumeIsDouble: boolean
+    coverage: number
+    dataQuality: 'full' | 'partial' | 'unavailable'
+    missingReasons: string[]
+  }>
+  signature: string[]
+  volumeRatios: Array<number | null>
+  coverage: number
+  dataQuality: 'full' | 'partial' | 'unavailable'
+  qingshanPattern: boolean
+  missingReasons: string[]
+}
+
+export interface RelayExpectation {
+  status: 'research-score'
+  modelStatus: 'shadow-heuristic' | 'shadow-logistic' | 'unavailable'
+  modelVersion: string
+  primaryPath: ExpectationPath | null
+  probabilities: Record<ExpectationPath, number | null>
+  heuristicScores?: Record<ExpectationPath, number | null>
+  calibratedProbabilities?: Record<ExpectationPath, number> | null
+  probabilityStatus?: 'unavailable' | 'research-score' | 'calibrated' | string
+  confidence: number | null
+  clearExpectation: boolean
+  expectedOpenGapPct: [number, number] | null
+  expectedTouchTime: [string, string] | null
+  expectedMaxReopenCount: number | null
+  allowedPaths: ExpectationPath[]
+  prohibitedPaths: ExpectationPath[]
+  sequence: BoardSequenceEvidence
+  evidence: string[]
+  missingReasons: string[]
+}
+
+export interface ExpectationMatch {
+  status: 'met' | 'partial' | 'violated' | 'unavailable'
+  fit: number | null
+  componentScores: {
+    openGap: number | null
+    preSealAmount: number | null
+    firstTouch: number | null
+    reopen: number | null
+    theme: number | null
+  }
+  matched: string[]
+  unmet: string[]
+  missingReasons: string[]
+}
+
+export type SentimentGateState = 'NORMAL' | 'HOT' | 'JOINT_CLIMAX' | 'UNAVAILABLE'
+export type SentimentQuantStatus = 'complete' | 'partial' | 'unavailable'
+
+export interface SentimentMetric {
+  id: string
+  label: string
+  value: number | null
+  threshold: string
+  state: 'hot' | 'cold' | 'unavailable'
+  score: -2 | 2 | null
+  denominator: number | null
+  coverage: number | null
+  evidence: string
+}
+
+export interface LadderSentimentQuantSnapshot {
+  schemaVersion: string
+  asof: string
+  generatedAt: string
+  status: SentimentQuantStatus
+  source: string
+  sourceStatus: Record<string, 'ok' | 'degraded' | 'missing'>
+  emotion: { score: number | null; maxScore: number; coverage: number; metrics: SentimentMetric[]; missingReasons: string[] }
+  market: { score: number | null; maxScore: number; coverage: number; metrics: SentimentMetric[]; missingReasons: string[] }
+  B: number | null
+  M: number | null
+  C: number | null
+  crowding: {
+    status: 'available' | 'unavailable'
+    rMid: number | null
+    rClose: number | null
+    percentileMid: number | null
+    percentileClose: number | null
+    percentile: number | null
+    level: 'low' | 'normal' | 'high' | 'extreme' | 'unavailable'
+    evidence: string[]
+    missingReasons: string[]
+  }
+  gateState: SentimentGateState
+  nextDayRelayWeight: 0 | 0.25 | 1 | null
+  noNewRelay: boolean
+  warnings: string[]
+  evidence: string[]
+}
+
+export type ThemeLadderRelation =
+  | 'replenishment'
+  | 'leader-driven'
+  | 'follower'
+  | 'isolated'
+  | 'unavailable'
+
+export interface ThemeLadderEvidence {
+  relation: ThemeLadderRelation
+  score: number | null
+  bonus: number
+  parentTheme: string
+  leader: { code: string; name: string; consecutiveDays: number } | null
+  lowerLadderCodes: string[]
+  lowerLadderCount: number
+  lowerLadderPositiveRate: number | null
+  themeGrade: ThemeGrade | null
+  themeBreadth: number | null
+  themeContinuity: number | null
+  themePromotionRate: number | null
+  evidence: string[]
+  missingReasons: string[]
+  note: string
+}
 
 export interface LadderImportStock {
   code: string
@@ -73,11 +230,217 @@ export interface LadderImportStock {
   amount?: number
   sealAmount?: number
   onePrice?: boolean
+  vwapPct?: number | null
+  vwapHold?: boolean | null
 }
 
 export interface LadderImportPayload {
   asof: string
   stocks: LadderImportStock[]
+}
+
+export type FirstBoardScanStatus = 'live' | 'closed' | 'unavailable'
+export type FirstBoardScanBoardType = 'main' | 'twenty' | 'beijing'
+export type FirstBoardLifecycle =
+  | 'detected'
+  | 'sealed'
+  | 'opened'
+  | 'resealed'
+  | 'closed-limit'
+  | 'failed'
+export type FirstBoardScoreCategory = 'focus' | 'observe' | 'low-priority' | 'data-insufficient'
+export type FirstBoardDimensionKey =
+  | 'market'
+  | 'theme'
+  | 'seal'
+  | 'structure'
+  | 'price-volume'
+  | 'wyckoff'
+  | 'brooks'
+
+export interface FirstBoardDimensionScore {
+  key: FirstBoardDimensionKey
+  score: number | null
+  weight: number
+  confidence: number
+  asOf: string
+  evidence: string[]
+  unavailableReason?: string
+}
+
+export interface FirstBoardCompositeScore {
+  moment: 'discovery' | 'settled'
+  scoreVersion: string
+  rawScore: number | null
+  finalScore: number | null
+  provisionalScore?: number | null
+  effectiveCoverage?: number
+  rankEligible?: boolean
+  requiredGroupsComplete?: boolean
+  pointInTimeCausal?: boolean
+  settledFreshContractSatisfied?: boolean
+  coverage: number
+  missingDimensions?: FirstBoardDimensionKey[]
+  manifest?: {
+    version: string
+    dimensions: Record<string, { weight: number; input: string }>
+  }
+  category: FirstBoardScoreCategory
+  dimensions: FirstBoardDimensionScore[]
+}
+
+export interface FirstBoardScanCandidate {
+  code: string
+  name: string
+  price: number
+  changePct: number
+  firstTime: string
+  nDayBoards?: string
+  firstSeenAt: string
+  amount: number
+  turnoverRate: number
+  sealAmount: number
+  primaryTheme: string
+  boardType: FirstBoardScanBoardType
+  onePrice: boolean
+  tBoard: boolean
+  reason: string
+  eligibility: {
+    status: 'eligible' | 'ineligible' | 'unknown'
+    eligible: boolean
+    statusEvidence: 'historical-master' | 'provider-field' | 'name-regex' | 'missing'
+    confidence: 'high' | 'degraded' | 'unknown'
+    reasons: string[]
+  }
+  tradability: {
+    status: 'tradable' | 'not-tradable' | 'unknown'
+    confidence: number
+    reasons: string[]
+  }
+  lifecycle: FirstBoardLifecycle
+  lifecycleHistory: Array<{ at: string; lifecycle: FirstBoardLifecycle; reason: string }>
+  firstDetectedAt: string
+  lastObservedAt: string
+  providerFirstSealAt: string
+  lastSealAt: string
+  firstSeenSequence: number
+  latestSequence: number
+  openCount: number
+  providerOpenCount?: number | null
+  observedOpenCount?: number
+  everDetected: boolean
+  currentlySealed: boolean
+  finalSealed: boolean | null
+  rankEligible?: boolean
+  initialPrice: number
+  initialAmount: number
+  initialTurnoverRate: number
+  initialSealAmount: number
+  source: string
+  fromCache: boolean
+  dataAsOf: string
+  dataQuality: 'full' | 'degraded' | 'insufficient'
+  evidenceStatus: 'live' | 'verified' | 'provisional' | 'unavailable'
+  sourceConflict: string[]
+  discoveryScore: FirstBoardCompositeScore
+  discoverySnapshot?: {
+    snapshotId: string
+    observedAt: string
+    decisionAt: string
+    inputHash: string
+    source: string
+    providerAt: string | null
+    dataQuality: 'full' | 'degraded' | 'insufficient'
+    price: number
+    amount: number
+    turnoverRate: number
+    sealAmount: number
+    firstTime: string
+    openCount: number
+    score: FirstBoardCompositeScore
+    selectionScore: number | null
+  }
+  liveSnapshot?: FirstBoardScanCandidate['discoverySnapshot']
+  settlementSnapshot?: FirstBoardScanCandidate['discoverySnapshot'] | null
+  liveScore?: FirstBoardCompositeScore
+  discoverySnapshotRef?: string
+  settlementSnapshotRef?: string | null
+  settledScore: FirstBoardCompositeScore | null
+  selectionScore?: number | null
+  themeLadder?: {
+    state: 'complete' | 'partial' | 'none' | 'unavailable'
+    levels: number[]
+    maxBoards: number
+    higherBoardCount: number
+    bonus: number
+    evidence: string[]
+  }
+  wyckoffPhase: string | null
+  wyckoffEvents: string[]
+  brooksContext: string | null
+  brooksEvents: string[]
+  relayPathEvidence?: {
+    coverage?: { overall?: number; missingReasons?: string[] }
+    missingReasons?: string[]
+    boardClass?: string
+  }
+  relayPathScore?: {
+    pathResearchScore?: number | null
+    pathCoverage?: number
+    dataConfidence?: number
+    failedConditions?: string[]
+    probabilityStatus?: string
+  }
+}
+
+export interface FirstBoardScanSnapshot {
+  slot: number
+  scannedAt: string
+  newCount: number
+  firstBoardCount: number
+  excludedStCount: number
+  accepted: boolean
+  observationKey: string
+  dataQuality: 'full' | 'degraded' | 'insufficient'
+  rejectionReasons: string[]
+}
+
+export interface FirstBoardScanResponse {
+  tradeDate: string
+  generatedAt: string
+  schemaVersion: string
+  scoreVersion: string
+  ruleVersion: string
+  sourceVersion?: string
+  rulesVersion?: string
+  status: FirstBoardScanStatus
+  window: {
+    start: string
+    end: string
+    intervalMinutes: number
+    intervalSeconds: number
+  }
+  lastScanAt: string | null
+  nextScanAt: string | null
+  scanCount: number
+  rejectedObservationCount: number
+  candidates: FirstBoardScanCandidate[]
+  allCandidates?: FirstBoardScanCandidate[]
+  everDetectedPool?: FirstBoardScanCandidate[]
+  finalSealedPool?: FirstBoardScanCandidate[]
+  rankEligiblePool?: FirstBoardScanCandidate[]
+  displayPool?: FirstBoardScanCandidate[]
+  hardEligiblePool?: FirstBoardScanCandidate[]
+  rankedPool?: FirstBoardScanCandidate[]
+  displayCandidates?: FirstBoardScanCandidate[]
+  snapshots: FirstBoardScanSnapshot[]
+  excludedStCount: number
+  dataQuality: 'full' | 'degraded' | 'insufficient'
+  dataAsOf: string | null
+  source: string
+  fromCache: boolean
+  evidenceStatus: 'live' | 'verified' | 'provisional' | 'unavailable'
+  warnings: string[]
 }
 
 export interface ThemeAnalysis {
@@ -293,6 +656,24 @@ export interface LadderStockAnalysis {
   subtheme: string
   themeGrade: ThemeGrade
   themeScore: number
+  themeLadder?: ThemeLadderEvidence
+  boardSequence?: BoardSequenceEvidence
+  expectation?: RelayExpectation
+  relayPathEvidence?: {
+    schemaVersion?: string
+    boardClass?: string
+    quality?: string
+    missingReasons?: string[]
+    coverage?: { overall?: number; byField?: Record<string, number>; missingReasons?: string[] }
+  }
+  relayPathScore?: {
+    model?: string
+    pathResearchScore?: number | null
+    pathCoverage?: number
+    dataConfidence?: number
+    probabilityStatus?: 'research-score' | 'calibrated' | 'unavailable' | string
+    failedConditions?: string[]
+  }
   role: LadderRole
   roleProfile?: LadderRoleProfile
   reason: string
@@ -316,10 +697,26 @@ export interface LadderStockAnalysis {
   candidateRank?: number | null
   turnoverCapacity?: TurnoverCapacity
   popularity?: LadderPopularity
+  dragonIdentity?: {
+    score: number
+    verdict: 'true-dragon' | 'core' | 'follower' | 'insufficient-data'
+    dimensions: {
+      drive: { score: number; note: string }
+      leadership: { score: number; note: string }
+      antiDrop: { score: number; note: string }
+      liquidity: { score: number; note: string }
+      absorption: { score: number; note: string }
+    }
+    hardGate: { passed: boolean; failed: string[] }
+    evidence: string[]
+  }
   v2?: {
-    promotion: number
-    tradability: number
+    promotion: number | null
+    tradability: number | null
     base: number
+    promotionCoverage?: number
+    tradabilityCoverage?: number
+    missingReasons?: string[]
     promotionDimensions: Record<string, { score: number; note: string }>
     tradabilityDimensions: Record<string, { score: number; note: string }>
   }
@@ -330,13 +727,13 @@ export interface LadderStockAnalysis {
   >
   fundFlow: {
     available: boolean
-    score: number
+    score: number | null
     net: number
     instNet: number
     hotNet: number
     lhasaNet: number
     note: string
-    source: 'eastmoney-lhb' | 'missing-neutral'
+    source: 'eastmoney-lhb' | 'unavailable' | 'missing-neutral'
   }
   penalties: string[]
   warnings: string[]
@@ -355,31 +752,35 @@ export interface LimitLadderAnalysis {
   market: {
     cycle: {
       phase: MarketCyclePhase
-      score: number
+      score: number | null
+      rawScore?: number | null
+      coverage?: number
+      missingReasons?: string[]
       directionAvailable: boolean
       reasons: string[]
       current: {
-        temperature: number
-        limitUp: number
-        limitDown: number
-        breakRate: number
-        promotionRate: number
-        yestLimitPerf: number
-        advance: number
-        decline: number
+        temperature: number | null
+        limitUp: number | null
+        limitDown: number | null
+        breakRate: number | null
+        promotionRate: number | null
+        yestLimitPerf: number | null
+        advance: number | null
+        decline: number | null
         maxBoards: number
         ladderContinuity: number
       }
       previousTemperature?: number
     }
-    limitUp: number
-    limitDown: number
-    breakRate: number
-    promotionRate: number
-    advance: number
-    decline: number
+    limitUp: number | null
+    limitDown: number | null
+    breakRate: number | null
+    promotionRate: number | null
+    advance: number | null
+    decline: number | null
     maxBoards: number
   }
+  sentimentQuant?: LadderSentimentQuantSnapshot | null
   themes: ThemeAnalysis[]
   promotionLanes?: PromotionLane[]
   promotionStatistics?: PromotionStatistics
@@ -396,14 +797,100 @@ export interface LimitLadderAnalysis {
     source: 'kaipanla' | 'eastmoney' | 'sina' | 'import' | 'mixed'
     sourceDate: string
     sentimentSource: 'kaipanla' | 'derived' | 'mock'
+    sentimentStatus?: 'full' | 'degraded' | 'stale' | 'unavailable'
     limitFieldsComplete: boolean
     klineComplete: number
     klineTotal: number
     degraded: boolean
     fundFlowComplete?: boolean
+    providerAt?: string | null
+    receivedAt?: string | null
+    adjustment?: 'raw' | 'qfq' | 'hfq' | 'none' | 'unknown' | null
+    settled?: boolean
     warnings: string[]
   }
   warnings: string[]
+  strategyStatus?: 'research'
+  revision?: number
+  supersedes?: string | null
+}
+
+export type NextDayManualReviewStatus = 'unreviewed' | 'partial' | 'reviewed'
+
+export interface NextDayManualReviewInput {
+  signalDate: string
+  code: string
+  name?: string
+  source?: string
+  sourceRef?: string
+  capturedAt?: string
+  personality?: {
+    historySampleCount1y?: number | null
+    limitUpSuccessCount1y?: number | null
+    limitUpSuccessRateNonOnePct1y?: number | null
+    blastedCount1y?: number | null
+    sealSuccessRateNonOnePct1y?: number | null
+    nextDayOpenHighRate1y?: number | null
+    nextDayAvgOpenGapPct1y?: number | null
+    nextDayPositiveCloseRate1y?: number | null
+    nextDayAvgOpenClosePct1y?: number | null
+    lastLimitTouchDate?: string | null
+    lastLimitTouchStatus?: 'sealed' | 'blasted' | 'unknown' | null
+  }
+  current?: {
+    currentSingleOrderAmountWan?: number | null
+    maxSingleOrderAmountWan?: number | null
+    sealToVolumePct?: number | null
+    sealToFloatPct?: number | null
+    limitUpTurnoverAmountYi?: number | null
+  }
+  capital?: {
+    mainNetInflowWan?: number | null
+    mainNetInflowPct?: number | null
+    inflowRank?: number | null
+    retailNetInflowWan?: number | null
+  }
+  divergence?: {
+    themePositiveRatePct?: number | null
+    sameLevelPositiveRatePct?: number | null
+    coreVwapHold?: boolean | null
+    assistantCount?: number | null
+  }
+  note?: string
+}
+
+export interface NextDayManualReviewComponent {
+  score: number | null
+  weight: number
+  coveragePct: number
+  evidence: string[]
+}
+
+export interface NextDayManualReviewAssessment {
+  version: 'next-day-manual-review-v1'
+  status: NextDayManualReviewStatus
+  finalScore: number | null
+  provisionalScore: number | null
+  coveragePct: number
+  source: string
+  sourceRef?: string
+  capturedAt?: string
+  updatedAt: string
+  missingReasons: string[]
+  components: {
+    automatic: NextDayManualReviewComponent
+    personality: NextDayManualReviewComponent
+    sealAndTurnover: NextDayManualReviewComponent
+    capital: NextDayManualReviewComponent
+    divergence: NextDayManualReviewComponent
+    themeLadder: NextDayManualReviewComponent
+  }
+  evidence: NextDayManualReviewInput
+}
+
+export interface NextDayManualReviewPayload {
+  signalDate: string
+  reviews: NextDayManualReviewInput[]
 }
 
 export interface NextDayCandidateConfirmation {
@@ -414,6 +901,9 @@ export interface NextDayCandidateConfirmation {
   baseScore: number
   promotionScore: number
   tradabilityScore: number
+  themeLadder?: ThemeLadderEvidence
+  expectation?: RelayExpectation
+  expectationMatch?: ExpectationMatch
   auctionScore: number | null
   finalAuctionScore?: number | null
   processScore?: number | null
@@ -425,10 +915,16 @@ export interface NextDayCandidateConfirmation {
   openScore: number | null
   liveScore: number | null
   environmentAdjustment?: number
+  openingGapAdjustment?: number
+  auctionTailBonus?: number
   decisionScore?: number | null
   marketGateState?: MarketGateState | null
   themePermission?: ThemePermission | null
   state: NextDayState
+  openingPullUpConfirmed?: boolean | null
+  openingReboundConfirmed?: boolean | null
+  auctionTailBuyConfirmed?: boolean | null
+  openingConfirmationGate?: 'not-required' | 'passed' | 'blocked' | 'unavailable'
   tradeDate: string
   quoteTime: string
   openGapPct: number | null
@@ -439,6 +935,14 @@ export interface NextDayCandidateConfirmation {
   inaccessible: boolean
   warnings: string[]
   gateReasons?: string[]
+  researchConfirmed?: boolean
+  executionEligible?: boolean
+  executionEligibility?: {
+    eligible: boolean
+    reasons: string[]
+    evaluatedAt: string
+  }
+  manualReview?: NextDayManualReviewAssessment
 }
 
 export type AuctionStyle =
@@ -530,6 +1034,10 @@ export interface LadderOutcomeRow {
   promoted: boolean | null
   tradable: boolean | null
   unresolvedReason: string
+  nextDayOpenToCloseMark?: number | null
+  markPositive?: boolean | null
+  realizedNetReturnPct?: number | null
+  /** @deprecated use nextDayOpenToCloseMark. */
   openToClosePct: number | null
   mfePct: number | null
   maePct: number | null
@@ -583,12 +1091,93 @@ export interface LadderOutcomeArchive {
   rows: LadderOutcomeRow[]
 }
 
+export type RelayRole =
+  | 'relay-candidate'
+  | 'theme-core-observer'
+  | 'emotion-anchor'
+  | 'fallback-observer'
+export type RelayFeedbackStatus = 'supportive' | 'mixed' | 'negative' | 'unavailable'
+export type RelayPlanStage = 'pending' | 'auction' | 'open' | 'settled'
+export type RelayFeedbackSource =
+  | 'settled-analysis'
+  | 'auction-process'
+  | 'open-confirmation'
+  | 'unavailable'
+
+export interface NextDayRelayRelatedStock {
+  code: string
+  name: string
+  boards: number
+  theme: string
+  relation: string
+  changePct?: number | null
+  gapPct?: number | null
+  onePrice?: boolean
+  vwapPct?: number | null
+  vwapHold?: boolean | null
+}
+
+export interface NextDayRelayFeedback {
+  status: RelayFeedbackStatus
+  stage: RelayPlanStage
+  signalDate: string
+  tradeDate: string
+  source: RelayFeedbackSource
+  related: NextDayRelayRelatedStock[]
+  metrics: Record<string, number | string | boolean | null>
+  evidence: string[]
+  warnings: string[]
+}
+
+export interface NextDayRelayItem {
+  code: string
+  name: string
+  boards: number
+  promotionLane: string
+  primaryTheme: string
+  researchTheme: string
+  baseState: LadderState
+  relayRole: RelayRole
+  researchPriority: number
+  executionEligible: boolean
+  executionGateReasons: string[]
+  researchReasons: string[]
+  confirmationConditions: string[]
+  invalidationReasons: string[]
+  noChaseReasons: string[]
+  themeFeedback: NextDayRelayFeedback
+  sameLevelFeedback: NextDayRelayFeedback
+}
+
+export interface NextDayRelayPopulationRow {
+  code: string
+  name: string
+  promotionLane: string
+  fullLanePool: boolean
+  hardEligible: boolean
+  ranked: boolean
+  quotaSelected: boolean
+  confirmed: boolean | null
+  filled: boolean | null
+}
+
+export interface NextDayRelayPlan {
+  status: 'research-score'
+  signalDate: string
+  tradeDate: string
+  generatedAt: string
+  stage: RelayPlanStage
+  items: NextDayRelayItem[]
+  population?: NextDayRelayPopulationRow[]
+  warnings: string[]
+}
 export interface LimitLadderNextDay {
   signalDate: string
   tradeDate: string
   generatedAt: string
   ruleVersion: string
   stage: 'pending' | 'auction' | 'open' | 'settled'
+  sentimentQuant?: LadderSentimentQuantSnapshot | null
   auctionSnapshotAvailable: boolean
   confirmationSnapshotAvailable?: boolean
   auctionContext?: LadderAuctionContext | null
@@ -600,6 +1189,8 @@ export interface LimitLadderNextDay {
   outcome?: LadderOutcomeArchive | null
   candidates: NextDayCandidateConfirmation[]
   warnings: string[]
+  relayPlan?: NextDayRelayPlan | null
+  strategyStatus?: 'research'
 }
 
 export type RiskAppetiteState = 'expansion' | 'divergence' | 'contraction' | 'panic'
@@ -663,8 +1254,8 @@ export interface LadderEventReaction {
   evidence: string[]
 }
 
-export type ExternalRiskState = 'risk-on' | 'mixed' | 'risk-off' | 'panic'
-export type MarketGateState = 'normal' | 'cautious' | 'restricted' | 'frozen'
+export type ExternalRiskState = 'risk-on' | 'mixed' | 'risk-off' | 'panic' | 'unavailable'
+export type MarketGateState = 'normal' | 'cautious' | 'restricted' | 'frozen' | 'unavailable'
 export type MarketRepairState =
   | 'unconfirmed'
   | 'broad-repair'
@@ -697,7 +1288,9 @@ export interface PremarketRiskSnapshot {
   frozenAt: string
   late: boolean
   state: ExternalRiskState
-  riskScore: number
+  riskScore: number | null
+  usRiskScore?: number | null
+  asiaRiskScore?: number | null
   coverage: number
   us: MarketRiskQuote[]
   asia: MarketRiskQuote[]
@@ -718,15 +1311,15 @@ export interface DomesticMarketSnapshot {
   capturedAt: string
   indices: MarketRiskQuote[]
   styleIndices?: MarketRiskQuote[]
-  advance: number
-  decline: number
-  flat: number
-  limitUp: number
-  limitDown: number
+  advance: number | null
+  decline: number | null
+  flat: number | null
+  limitUp: number | null
+  limitDown: number | null
   indexRiskScore: number | null
   breadthRiskScore: number | null
   highBoardRiskScore: number | null
-  riskScore: number
+  riskScore: number | null
   coverage: number
   reasons: string[]
   warnings: string[]
@@ -766,7 +1359,7 @@ export interface MarketRiskGate {
   generatedAt: string
   phase: 'premarket' | 'auction' | 'open'
   state: MarketGateState
-  riskScore: number
+  riskScore: number | null
   externalRiskScore: number | null
   domesticRiskScore: number | null
   domesticConfirmed: boolean
@@ -889,6 +1482,87 @@ export interface OvernightContext {
   warnings: string[]
 }
 
+export type CrossMarketPhase = 'premarket' | 'auction' | 'open'
+export type CrossMarketProbabilityStatus = 'unavailable' | 'research-score' | 'calibrated'
+export type LiquidityRegimeState = 'stock-crowding' | 'incremental-broad' | 'balanced' | 'unavailable'
+export type CapitalLaneId = 'hard-tech' | 'innovative-drug' | 'small-theme' | 'index-weight'
+
+export interface LiquidityRegimeSnapshot {
+  phase: CrossMarketPhase
+  cutoffAt: string
+  source: 'full-market-clist' | 'unavailable'
+  totalAmount: number | null
+  baselineSessions: number
+  sameTimeTurnoverRatio: number | null
+  turnoverZ: number | null
+  advanceRatePct: number | null
+  top50AmountSharePct: number | null
+  concentrationDeltaPct: number | null
+  largeSmallSpreadPct: number | null
+  state: LiquidityRegimeState
+  confidence: number
+  warnings: string[]
+}
+
+export interface CapitalSeesawLane {
+  id: CapitalLaneId
+  label: string
+  externalShock: number
+  domesticCycle: number
+  auctionConfirmation: number
+  openConfirmation: number
+  liquidityAdjustment: number
+  interactionAdjustment: number
+  netResearchScore: number
+  state: '强化' | '分化' | '背离' | '观察' | '不可用'
+  reasons: string[]
+  warnings: string[]
+}
+
+export interface CapitalTransfer {
+  from: CapitalLaneId
+  to: CapitalLaneId
+  strength: number
+  label: '统计关联' | '资金偏移'
+  reasons: string[]
+}
+
+export interface CapitalSeesawMatrix {
+  phase: CrossMarketPhase
+  generatedAt: string
+  status: CrossMarketProbabilityStatus
+  lanes: CapitalSeesawLane[]
+  transfers: CapitalTransfer[]
+  warnings: string[]
+}
+
+export interface CrossMarketSnapshot {
+  tradeDate: string
+  scheduledCutoffAt: string
+  capturedAt: string
+  captureStatus: 'on-time' | 'late-live' | 'unavailable'
+  cutoffAt: string
+  generatedAt: string
+  phase: CrossMarketPhase
+  modelVersion: string
+  graphVersion: string
+  probabilityStatus: CrossMarketProbabilityStatus
+  researchStatus: 'rejected' | 'research' | 'paper-trade' | 'eligible'
+  dataQuality: {
+    status: 'full' | 'degraded' | 'unavailable'
+    sourceCoveragePct: number
+    staleSources: string[]
+    missingSources: string[]
+    warnings: string[]
+  }
+  liquidityRegime?: LiquidityRegimeSnapshot
+  capitalSeesaw?: CapitalSeesawMatrix
+  sourceShocks: Array<Record<string, unknown>>
+  themePredictions: Array<Record<string, unknown>>
+  stockPredictions: Array<Record<string, unknown>>
+  rejectedMappings: Array<{ edgeId: string; reason: string }>
+  warnings: string[]
+}
 export interface NotificationDeliveryRecord {
   idempotencyKey: string
   signalDate: string
@@ -991,13 +1665,16 @@ export function useLadderAnalysis(date: string) {
 
   const load = useCallback(
     async (refresh = false) => {
-      if (refresh) await fetch('/api/refresh?market=ladder', { method: 'POST' }).catch(() => {})
-      const res = await fetchWithTimeout(
-        `/api/ladder/analysis?date=${encodeURIComponent(date)}`,
+      if (refresh) {
+        await fetch('/api/refresh?market=ladder', {
+          method: 'POST',
+          cache: 'no-store',
+        }).catch(() => {})
+      }
+      const json = await fetchLadderJson<LimitLadderAnalysis>(
+        '/api/ladder/analysis?date=' + encodeURIComponent(date),
         120_000,
       )
-      const json = (await res.json()) as LimitLadderAnalysis & { error?: string }
-      if (!res.ok || json.error) throw new Error(json.error ?? `HTTP ${res.status}`)
       writeLadderSnapshot(json)
       if (activeDate.current === date) {
         setData(json)
@@ -1018,11 +1695,18 @@ export function useLadderAnalysis(date: string) {
       setLoading(false)
       return
     }
+    // A date change must not keep rendering the previous date's archive while
+    // the new request is pending or unavailable.
+    setData(null)
+    setError(null)
     fetching.current = true
     setLoading(true)
     load()
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load ladder')
+        if (!cancelled && activeDate.current === date) {
+          setData(null)
+          setError(err instanceof Error ? err.message : 'Failed to load ladder')
+        }
       })
       .finally(() => {
         if (!cancelled) {
@@ -1078,6 +1762,35 @@ export function useLadderAnalysis(date: string) {
   return { data, loading, error, refresh, importData }
 }
 
+/** Dates with an actual ladder analysis archive, not merely a market session. */
+export function useLadderArchiveDates(limit = 30): { dates: Set<string>; loading: boolean } {
+  const [dates, setDates] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    fetchLadderJson<{ dates: string[] }>(
+      '/api/ladder/archive-dates?limit=' + encodeURIComponent(String(limit)),
+      10_000,
+    )
+      .then((json) => {
+        if (!cancelled) setDates(new Set(json.dates.filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value))))
+      })
+      .catch(() => {
+        if (!cancelled) setDates(new Set())
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [limit])
+
+  return { dates, loading }
+}
+
 export function useLadderNextDay(signalDate: string, enabled = true, refreshKey = 0) {
   const requestKey = enabled && signalDate ? signalDate : ''
   const [result, setResult] = useState<{
@@ -1086,17 +1799,27 @@ export function useLadderNextDay(signalDate: string, enabled = true, refreshKey 
     error: string | null
   }>({ key: '', data: null, error: null })
 
+  const saveManualReviews = useCallback(async (payload: NextDayManualReviewPayload) => {
+    const response = await fetchWithTimeout('/api/ladder/next-day/manual-review', 30_000, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const json = (await response.json()) as LimitLadderNextDay & { error?: string }
+    if (!response.ok || json.error) throw new Error(json.error ?? `HTTP ${response.status}`)
+    if (payload.signalDate === signalDate) setResult({ key: requestKey, data: json, error: null })
+    return true
+  }, [requestKey, signalDate])
+
   useEffect(() => {
     let cancelled = false
     const load = async () => {
       if (!requestKey) return
       try {
-        const response = await fetchWithTimeout(
-          `/api/ladder/next-day?signalDate=${encodeURIComponent(signalDate)}`,
+        const json = await fetchLadderJson<LimitLadderNextDay>(
+          '/api/ladder/next-day?signalDate=' + encodeURIComponent(signalDate),
           30_000,
         )
-        const json = (await response.json()) as LimitLadderNextDay & { error?: string }
-        if (!response.ok || json.error) throw new Error(json.error ?? `HTTP ${response.status}`)
         if (!cancelled) {
           setResult({ key: requestKey, data: json, error: null })
         }
@@ -1120,10 +1843,103 @@ export function useLadderNextDay(signalDate: string, enabled = true, refreshKey 
   }, [refreshKey, requestKey, signalDate])
 
   return result.key === requestKey
+    ? { data: result.data, error: result.error, saveManualReviews }
+    : { data: null, error: null, saveManualReviews }
+}
+
+export function useFirstBoardScan(tradeDate: string, enabled = true, refreshKey = 0) {
+  const requestKey = enabled && /^\d{4}-\d{2}-\d{2}$/.test(tradeDate)
+    ? `first-board-scan:${tradeDate}`
+    : ''
+  const [result, setResult] = useState<{
+    key: string
+    data: FirstBoardScanResponse | null
+    error: string | null
+  }>({ key: '', data: null, error: null })
+
+  useEffect(() => {
+    let cancelled = false
+    if (!requestKey) return
+    const load = async () => {
+      try {
+        const json = await fetchLadderJson<FirstBoardScanResponse>(
+          `/api/ladder/first-board-scan?tradeDate=${encodeURIComponent(tradeDate)}`,
+          15_000,
+        )
+        if (!cancelled) setResult({ key: requestKey, data: json, error: null })
+      } catch (reason) {
+        if (!cancelled) {
+          setResult({
+            key: requestKey,
+            data: null,
+            error: reason instanceof Error ? reason.message : 'Failed to load first-board scan',
+          })
+        }
+      }
+    }
+    void load()
+    // The backend owns the exact 60-second scan slots; this shorter poll only
+    // makes the ladder panel reflect a completed slot without a manual refresh.
+    const timer = setInterval(() => void load(), 30_000)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
+  }, [refreshKey, requestKey, tradeDate])
+
+  return result.key === requestKey
     ? { data: result.data, error: result.error }
     : { data: null, error: null }
 }
 
+export function useCrossMarketSnapshot(
+  tradeDate: string,
+  phase: CrossMarketPhase,
+  enabled = true,
+  refreshKey = 0,
+) {
+  const requestKey = enabled && tradeDate ? tradeDate + ':' + phase : ''
+  const [result, setResult] = useState<{
+    key: string
+    data: CrossMarketSnapshot | null
+    error: string | null
+  }>({ key: '', data: null, error: null })
+
+  useEffect(() => {
+    let cancelled = false
+    if (!requestKey) return
+    const load = async () => {
+      try {
+        const json = await fetchLadderJson<CrossMarketSnapshot>(
+          '/api/ladder/cross-market?tradeDate=' +
+            encodeURIComponent(tradeDate) +
+            '&phase=' +
+            encodeURIComponent(phase),
+          30_000,
+        )
+        if (!cancelled) setResult({ key: requestKey, data: json, error: null })
+      } catch (reason) {
+        if (!cancelled) {
+          setResult({
+            key: requestKey,
+            data: null,
+            error: reason instanceof Error ? reason.message : 'Failed to load cross-market snapshot',
+          })
+        }
+      }
+    }
+    void load()
+    const timer = setInterval(() => void load(), 30_000)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
+  }, [phase, refreshKey, requestKey, tradeDate])
+
+  return result.key === requestKey
+    ? { data: result.data, error: result.error }
+    : { data: null, error: null }
+}
 export function useAuctionBriefs(signalDate: string, enabled = true, refreshKey = 0) {
   const requestKey = enabled && signalDate ? signalDate : ''
   const [result, setResult] = useState<{
@@ -1137,12 +1953,10 @@ export function useAuctionBriefs(signalDate: string, enabled = true, refreshKey 
     const load = async () => {
       if (!requestKey) return
       try {
-        const response = await fetchWithTimeout(
-          `/api/ladder/auction-brief?signalDate=${encodeURIComponent(signalDate)}`,
+        const json = await fetchLadderJson<AuctionBriefState>(
+          '/api/ladder/auction-brief?signalDate=' + encodeURIComponent(signalDate),
           15_000,
         )
-        const json = (await response.json()) as AuctionBriefState & { error?: string }
-        if (!response.ok || json.error) throw new Error(json.error ?? `HTTP ${response.status}`)
         if (!cancelled) {
           setResult({ key: requestKey, data: json, error: null })
         }

@@ -16,11 +16,12 @@ export interface MarketStructureBoard {
 export interface MarketStructureSummary {
   asof: string
   generatedAt: string
-  limitUp: number
-  limitDown: number
-  advanceCount: number
-  declineCount: number
-  breakRate: number
+  limitUp: number | null
+  limitDown: number | null
+  advanceCount: number | null
+  declineCount: number | null
+  breakRate: number | null
+  sentimentStatus?: 'full' | 'degraded' | 'stale' | 'unavailable'
   boardTotal: number
   hsCount: number
   lsCount: number

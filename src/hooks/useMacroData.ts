@@ -4,16 +4,16 @@ import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 export interface MacroIndicator {
   id: string
-  value: number
-  previousClose: number
+  value: number | null
+  previousClose: number | null
   unit: string
-  /** 服务端来源标注:live=真实上游,mock=占位假数(不落 localStorage 日存档)。 */
-  source?: 'live' | 'mock'
-}
-
-/** mock 占位指标只做当次展示,过滤后再落日存档,避免假数冒充真实历史。 */
-function realOnly(indicators: MacroIndicator[]): MacroIndicator[] {
-  return indicators.filter((i) => i.source !== 'mock')
+  source?: 'twelve-data' | 'exchange-rate-api' | 'unavailable'
+  status?: 'full' | 'degraded' | 'stale' | 'unavailable'
+  providerAt?: string | null
+  receivedAt?: string
+  asOf?: string | null
+  warnings?: string[]
+  missingReasons?: string[]
 }
 
 export interface MacroDataResult {
@@ -21,6 +21,7 @@ export interface MacroDataResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
+  status: 'full' | 'degraded' | 'stale' | 'unavailable'
   refresh: () => void
 }
 
@@ -28,6 +29,12 @@ async function fetchFromBackend(): Promise<MacroIndicator[]> {
   const res = await fetchWithTimeout('/api/mcp/macro/indicators')
   if (!res.ok) throw new Error(`Macro API: ${res.status}`)
   return res.json()
+}
+
+function responseStatus(data: MacroIndicator[]): MacroDataResult['status'] {
+  if (data.length === 0 || data.every((item) => item.status === 'unavailable' || item.value == null)) return 'unavailable'
+  if (data.some((item) => item.status && item.status !== 'full')) return 'degraded'
+  return 'full'
 }
 
 // ── Hook ───────────────────────────────────────────────────────
@@ -44,7 +51,13 @@ export function useMacroData(date: string = getLastTradingDay()): MacroDataResul
   const [lastUpdated, setLastUpdated] = useState<Date | null>(
     cachedData && cachedData.length > 0 && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
+  const [status, setStatus] = useState<MacroDataResult['status']>(cachedData?.length ? (isLatest ? 'stale' : responseStatus(cachedData)) : 'unavailable')
   const fetching = useRef(false)
+  const latestData = useRef<MacroIndicator[]>(cachedData ?? [])
+  const setCurrentData = useCallback((next: MacroIndicator[]) => {
+    latestData.current = next
+    setData(next)
+  }, [])
 
   // When date changes, load from cache or fetch
   useEffect(() => {
@@ -55,18 +68,20 @@ export function useMacroData(date: string = getLastTradingDay()): MacroDataResul
 
     // If cached data exists, use it (for both today and past dates)
     if (cached && cached.length > 0) {
-      setData(cached)
+      setCurrentData(cached)
       setLastUpdated(entry ? new Date(entry.timestamp) : null)
       setError(null)
+      setStatus(isLatest ? 'stale' : responseStatus(cached))
       setLoading(false)
       return
     }
 
     // Past date without cache: no data
     if (!isLatest) {
-      setData([])
+      setCurrentData([])
       setLastUpdated(null)
-      setError('No data for this date')
+      setError('No archived macro data for this date')
+      setStatus('unavailable')
       setLoading(false)
       return
     }
@@ -79,14 +94,17 @@ export function useMacroData(date: string = getLastTradingDay()): MacroDataResul
       try {
         const result = await fetchFromBackend()
         if (cancelled) return
-        setData(result)
+        setCurrentData(result)
         setLastUpdated(new Date())
-        setError(null)
-        const real = realOnly(result)
-        if (real.length > 0) saveDay(date, { macro: real })
+        const nextStatus = responseStatus(result)
+        setStatus(nextStatus)
+        setError(nextStatus === 'unavailable' ? 'Macro data unavailable' : null)
+        if (result.some((item) => item.value != null)) saveDay(date, { macro: result })
       } catch (e) {
         if (cancelled) return
+        setCurrentData(latestData.current)
         setError(e instanceof Error ? e.message : 'Unknown error')
+        setStatus(latestData.current.length ? 'stale' : 'unavailable')
       } finally {
         if (!cancelled) {
           setLoading(false)
@@ -99,7 +117,7 @@ export function useMacroData(date: string = getLastTradingDay()): MacroDataResul
       cancelled = true
       fetching.current = false
     }
-  }, [date, isLatest])
+  }, [date, isLatest, setCurrentData])
 
   const refresh = useCallback(async () => {
     if (!isLatest || fetching.current) return
@@ -110,18 +128,21 @@ export function useMacroData(date: string = getLastTradingDay()): MacroDataResul
       // Clear only the macro server cache first
       try { await fetch('/api/refresh?market=macro', { method: 'POST' }) } catch { /* ignore */ }
       const result = await fetchFromBackend()
-      setData(result)
+      setCurrentData(result)
       setLastUpdated(new Date())
-      setError(null)
-      const real = realOnly(result)
-      if (real.length > 0) saveDay(date, { macro: real })
+      const nextStatus = responseStatus(result)
+      setStatus(nextStatus)
+      setError(nextStatus === 'unavailable' ? 'Macro data unavailable' : null)
+      if (result.some((item) => item.value != null)) saveDay(date, { macro: result })
     } catch (e) {
+      setCurrentData(latestData.current)
       setError(e instanceof Error ? e.message : 'Unknown error')
+      setStatus(latestData.current.length ? 'stale' : 'unavailable')
     } finally {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isLatest])
+  }, [date, isLatest, setCurrentData])
 
-  return { data, loading, error, lastUpdated, refresh }
+  return { data, loading, error, lastUpdated, status, refresh }
 }

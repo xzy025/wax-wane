@@ -22,19 +22,42 @@ export interface VolumeRecord {
   turnover: number
 }
 
+export type MarketDataStatus = 'full' | 'degraded' | 'stale' | 'unavailable'
+
+export interface DataComponentQuality {
+  component: string
+  source: string
+  status: MarketDataStatus
+  providerAt: string | null
+  receivedAt: string | null
+  asOf: string | null
+  stale: boolean
+  warnings: string[]
+  missingReasons: string[]
+  derived?: boolean
+}
+
 export interface AShareData {
   indices: IndexQuote[]
-  limitUpCount: number
-  limitDownCount: number
-  advance: number
-  decline: number
-  flat: number
-  promotionRate: number
-  promotedCount: number
-  promotionTotal: number
-  volumeHistory: VolumeRecord[]
-  /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指. May be absent in cached older data. */
-  totalTurnover?: number
+  limitUpCount: number | null
+  limitDownCount: number | null
+  advance: number | null
+  decline: number | null
+  flat: number | null
+  promotionRate: number | null
+  promotedCount: number | null
+  promotionTotal: number | null
+  volumeHistory: VolumeRecord[] | null
+  /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指; null if unknown. */
+  totalTurnover: number | null
+  quality?: {
+    indices: DataComponentQuality
+    breadth: DataComponentQuality
+    limitUp: DataComponentQuality
+    limitDown: DataComponentQuality
+    promotion: DataComponentQuality
+    volume: DataComponentQuality
+  }
 }
 
 export interface AShareResult {
@@ -42,17 +65,19 @@ export interface AShareResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
+  status: MarketDataStatus
   refresh: () => void
 }
 
 // ── Profitability score ────────────────────────────────────
 
 export function calcProfitabilityScore(
-  limitUp: number,
-  limitDown: number,
-  advance: number,
-  decline: number,
-): number {
+  limitUp: number | null,
+  limitDown: number | null,
+  advance: number | null,
+  decline: number | null,
+): number | null {
+  if (limitUp == null || limitDown == null || advance == null || decline == null) return null
   const limitRatio = limitUp / Math.max(limitDown, 1)
   const adRatio = advance / Math.max(decline, 1)
   const cappedLimit = Math.min(limitRatio, 5)
@@ -61,95 +86,17 @@ export function calcProfitabilityScore(
   return Math.round((cappedLimit / 5) * 40 + (cappedAD / 5) * 40 + limitBonus * 20)
 }
 
-// ── Mock data ──────────────────────────────────────────────
+function isUsable(data: AShareData): boolean {
+  return Array.isArray(data.indices) && data.indices.length > 0
+}
 
-function getMockData(): AShareData {
-  return {
-    indices: [
-      {
-        code: '000001',
-        name: '上证指数',
-        price: 3350.59,
-        changePct: -0.31,
-        changeAmt: -10.58,
-        volume: 2938192,
-        turnover: 358628340000,
-        high: 3365.2,
-        low: 3340.1,
-        open: 3355.0,
-        prevClose: 3361.17,
-      },
-      {
-        code: '399001',
-        name: '深证成指',
-        price: 11121.95,
-        changePct: -0.39,
-        changeAmt: -43.44,
-        volume: 4291266,
-        turnover: 502516180000,
-        high: 11200.0,
-        low: 11080.0,
-        open: 11180.0,
-        prevClose: 11165.39,
-      },
-      {
-        code: '399006',
-        name: '创业板指',
-        price: 2175.66,
-        changePct: 0.12,
-        changeAmt: 2.61,
-        volume: 1823456,
-        turnover: 210000000000,
-        high: 2185.0,
-        low: 2165.0,
-        open: 2170.0,
-        prevClose: 2173.05,
-      },
-      {
-        code: '000688',
-        name: '科创50',
-        price: 986.45,
-        changePct: 0.85,
-        changeAmt: 8.32,
-        volume: 856234,
-        turnover: 98000000000,
-        high: 992.0,
-        low: 978.0,
-        open: 980.0,
-        prevClose: 978.13,
-      },
-      {
-        code: '899050',
-        name: '北证50',
-        price: 1025.38,
-        changePct: 1.23,
-        changeAmt: 12.46,
-        volume: 423156,
-        turnover: 32000000000,
-        high: 1030.0,
-        low: 1015.0,
-        open: 1018.0,
-        prevClose: 1012.92,
-      },
-    ],
-    limitUpCount: 65,
-    limitDownCount: 12,
-    advance: 2800,
-    decline: 2100,
-    flat: 300,
-    promotionRate: 35,
-    promotedCount: 21,
-    promotionTotal: 60,
-    volumeHistory: [
-      { date: '05-23', volume: 18234567, turnover: 2876543210000 },
-      { date: '05-26', volume: 21123456, turnover: 3234567890000 },
-      { date: '05-27', volume: 16987654, turnover: 2676543210000 },
-      { date: '05-28', volume: 22234567, turnover: 3434567890000 },
-      { date: '05-29', volume: 19876543, turnover: 3098765432000 },
-      { date: '05-30', volume: 20543210, turnover: 3156789012000 },
-      { date: '05-31', volume: 23052654, turnover: 3071144520000 },
-    ],
+function responseStatus(data: AShareData): MarketDataStatus {
+  if (!isUsable(data)) return 'unavailable'
+  const components = data.quality ? Object.values(data.quality) : []
+  if (components.some((component) => component.status === 'unavailable' || component.status === 'degraded')) {
+    return 'degraded'
   }
+  return 'full'
 }
 
 // ── Hook ───────────────────────────────────────────────────
@@ -168,7 +115,15 @@ export function useAShareData(date: string = getLastTradingDay()): AShareResult 
   const [lastUpdated, setLastUpdated] = useState<Date | null>(
     cachedData && cachedEntry ? new Date(cachedEntry.timestamp) : null,
   )
+  const [status, setStatus] = useState<MarketDataStatus>(
+    cachedData ? (isLatest ? 'stale' : responseStatus(cachedData)) : 'unavailable',
+  )
   const fetching = useRef(false)
+  const latestData = useRef<AShareData | null>(cachedData ?? null)
+  const setCurrentData = useCallback((next: AShareData | null) => {
+    latestData.current = next
+    setData(next)
+  }, [])
 
   // When date changes, load from cache or fetch
   useEffect(() => {
@@ -179,18 +134,20 @@ export function useAShareData(date: string = getLastTradingDay()): AShareResult 
 
     // If cached data exists, use it (for both today and past dates)
     if (cached) {
-      setData(cached)
+      setCurrentData(cached)
       setLastUpdated(entry ? new Date(entry.timestamp) : null)
       setError(null)
+      setStatus(isLatest ? 'stale' : responseStatus(cached))
       setLoading(false)
       return
     }
 
     // Past date without cache: no data
     if (!isLatest) {
-      setData(null)
+      setCurrentData(null)
       setLastUpdated(null)
-      setError('No data for this date')
+      setError('No archived A-share data for this date')
+      setStatus('unavailable')
       setLoading(false)
       return
     }
@@ -206,20 +163,18 @@ export function useAShareData(date: string = getLastTradingDay()): AShareResult 
         const result: AShareData = await res.json()
         if (cancelled) return
 
-        if (!result.indices || result.indices.length === 0) {
-          // Placeholder only; do not persist mock so the cache stays clean.
-          setData((prev) => prev ?? getMockData())
-        } else {
-          setData(result)
-          saveDay(date, { ashare: result })
-          setLastUpdated(new Date())
-        }
+        if (!isUsable(result)) throw new Error('A-share response did not include index quotes')
+        setCurrentData(result)
+        saveDay(date, { ashare: result })
+        setLastUpdated(new Date())
+        setStatus(responseStatus(result))
         setError(null)
       } catch {
         if (cancelled) return
-        // Don't overwrite good data with mock; only placeholder if empty.
-        setData((prev) => prev ?? getMockData())
+        // Retain only an actual previous observation; never synthesize quotes.
+        setCurrentData(latestData.current)
         setError('Failed to fetch A-share data')
+        setStatus(latestData.current ? 'stale' : 'unavailable')
       } finally {
         if (!cancelled) {
           setLoading(false)
@@ -232,7 +187,7 @@ export function useAShareData(date: string = getLastTradingDay()): AShareResult 
       cancelled = true
       fetching.current = false
     }
-  }, [date, isLatest])
+  }, [date, isLatest, setCurrentData])
 
   const refresh = useCallback(async () => {
     if (!isLatest || fetching.current) return
@@ -246,23 +201,22 @@ export function useAShareData(date: string = getLastTradingDay()): AShareResult 
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const result: AShareData = await res.json()
 
-      if (!result.indices || result.indices.length === 0) {
-        setData((prev) => prev ?? getMockData())
-      } else {
-        setData(result)
-        saveDay(date, { ashare: result })
-        setLastUpdated(new Date())
-      }
+      if (!isUsable(result)) throw new Error('A-share response did not include index quotes')
+      setCurrentData(result)
+      saveDay(date, { ashare: result })
+      setLastUpdated(new Date())
+      setStatus(responseStatus(result))
       setError(null)
     } catch {
-      // Keep the last good data; just surface the error (e.g. rate-limited).
-      setData((prev) => prev ?? getMockData())
+      // Keep last-good data visible as stale; do not create a placeholder.
+      setCurrentData(latestData.current)
       setError('Failed to fetch A-share data')
+      setStatus(latestData.current ? 'stale' : 'unavailable')
     } finally {
       setLoading(false)
       fetching.current = false
     }
-  }, [date, isLatest])
+  }, [date, isLatest, setCurrentData])
 
-  return { data, loading, error, lastUpdated, refresh }
+  return { data, loading, error, lastUpdated, status, refresh }
 }
