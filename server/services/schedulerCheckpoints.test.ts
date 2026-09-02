@@ -1,8 +1,9 @@
 import { mkdtempSync, readdirSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
+  buildSchedulerStatusSnapshot,
   checkpointInWindowAt,
   checkpointsForPhase,
   listCheckpointStatuses,
@@ -122,6 +123,34 @@ describe('checkpoint scheduler single instance', () => {
     })
   })
 
+  it('retries a failed checkpoint during its window and stops after success', async () => {
+    await withTempStatus(async () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-08-21T09:15:30+08:00'))
+      let attempts = 0
+      try {
+        startCheckpointScheduler(async () => {
+          attempts += 1
+          return attempts === 1
+            ? { status: 'failed', sourceStatus: 'unavailable', warnings: ['temporary'] }
+            : { status: 'success', sourceStatus: 'full', warnings: [] }
+        })
+        await vi.advanceTimersByTimeAsync(0)
+        expect(attempts).toBe(1)
+        expect(readCheckpointStatus('2026-08-21', 'auction-initial')?.status).toBe('failed')
+
+        await vi.advanceTimersByTimeAsync(5_000)
+        expect(attempts).toBe(2)
+        expect(readCheckpointStatus('2026-08-21', 'auction-initial')?.status).toBe('success')
+
+        await vi.advanceTimersByTimeAsync(5_000)
+        expect(attempts).toBe(2)
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+  })
+
   it('honours the dev-mode disable switch', () => {
     process.env.SCHEDULER_CHECKPOINTS_DISABLED = 'true'
     try {
@@ -148,5 +177,31 @@ describe('checkpoint phase mapping', () => {
     expect(checkpointsForPhase('settled')).toEqual(['settled'])
     expect(phaseOfCheckpoint('auction-lock')).toBe('auction')
     expect(phaseOfCheckpoint('asia-open')).toBe('premarket')
+  })
+})
+describe('scheduler status snapshot', () => {
+  it('exposes the active phase, missing checkpoints, source states, and last-good runs', async () => {
+    await withTempStatus(async () => {
+      writeCheckpointStatus(statusFor('overnight-context'))
+      writeCheckpointStatus(statusFor('asia-open', {
+        status: 'failed',
+        captureStatus: 'unavailable',
+        sourceStatus: 'unavailable',
+      }))
+
+      const snapshot = buildSchedulerStatusSnapshot(
+        Date.parse('2026-08-21T09:01:00+08:00'),
+        '2026-08-21',
+      )
+      expect(snapshot.currentPhase).toBe('premarket')
+      expect(snapshot.currentCheckpoint).toBe('asia-0900')
+      expect(snapshot.missingCheckpoints).toContain('asia-open')
+      expect(snapshot.lastGood['overnight-context']?.status).toBe('success')
+      expect(snapshot.checkpoints['asia-open']).toMatchObject({
+        captureStatus: 'unavailable',
+        sourceStatus: 'unavailable',
+      })
+      expect(snapshot.nextWindow?.checkpoint).toBe('pre-auction')
+    })
   })
 })

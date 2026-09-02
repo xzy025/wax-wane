@@ -25,6 +25,7 @@ import {
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { todayShanghai } from '../lib/time'
+import { isTradingDayAt } from './tradingCalendar'
 
 export const SCHEDULER_CHECKPOINTS_VERSION = 'scheduler-checkpoints-v1'
 
@@ -73,6 +74,43 @@ export interface SchedulerStatus {
   dataAsOf?: string
   warnings: string[]
   error?: string
+}
+
+export interface SchedulerNextWindow {
+  checkpoint: SchedulerCheckpoint
+  phase: SchedulerPhase
+  label: string
+  atSecondsOfDay: number
+}
+
+export interface SchedulerCheckpointView {
+  checkpoint: SchedulerCheckpoint
+  phase: SchedulerPhase
+  label: string
+  atSecondsOfDay: number
+  cutoffSecondsOfDay: number
+  status: SchedulerRunStatus | 'missing'
+  captureStatus: SchedulerCaptureStatus
+  sourceStatus: SchedulerSourceStatus
+  runId?: string
+  provider?: string
+  providerTimestamp?: string
+  finishedAt?: string
+  dataAsOf?: string
+  warnings: string[]
+}
+
+export interface SchedulerStatusSnapshot {
+  now: string
+  tradeDate: string
+  currentPhase: SchedulerPhase | null
+  currentCheckpoint: SchedulerCheckpoint | null
+  lastRuns: Record<string, SchedulerStatus>
+  missingCheckpoints: SchedulerCheckpoint[]
+  nextWindow: SchedulerNextWindow | null
+  checkpoints: Record<string, SchedulerCheckpointView>
+  lastGood: Record<string, SchedulerStatus>
+  warnings: string[]
 }
 
 export interface CheckpointSpec {
@@ -130,7 +168,7 @@ function shanghaiClockAt(nowMs: number): { day: number; sec: number } {
 /** 当前正处于 on-time 窗口的检查点(无则 null)。仅供内部与测试。 */
 export function checkpointInWindowAt(nowMs: number): SchedulerCheckpoint | null {
   const clock = shanghaiClockAt(nowMs)
-  if (clock.day === 0 || clock.day === 6) return null
+  if (!isTradingDayAt(nowMs)) return null
   const found = CHECKPOINT_SCHEDULE.find(
     (row) => clock.sec >= row.atSec && clock.sec < row.cutoffSec,
   )
@@ -140,9 +178,111 @@ export function checkpointInWindowAt(nowMs: number): SchedulerCheckpoint | null 
 /** 下一个尚未开始的检查点(用于状态接口展示)。 */
 export function nextCheckpointAt(nowMs: number): CheckpointSpec | null {
   const clock = shanghaiClockAt(nowMs)
-  if (clock.day === 0 || clock.day === 6) return null
+  if (!isTradingDayAt(nowMs)) return null
   const upcoming = CHECKPOINT_SCHEDULE.find((row) => clock.sec < row.atSec)
   return upcoming ?? null
+}
+
+function isWeekdayAt(nowMs: number): boolean {
+  const day = shanghaiClockAt(nowMs).day
+  return day !== 0 && day !== 6
+}
+
+function isUsableCheckpointStatus(status: SchedulerStatus | undefined): status is SchedulerStatus {
+  return Boolean(
+    status &&
+      (status.status === 'success' || status.status === 'degraded') &&
+      status.captureStatus !== 'unavailable',
+  )
+}
+
+/** 成功或最终降级才阻止同一窗口的重复运行;失败状态允许继续重试。 */
+export function isTerminalCheckpointStatus(status: SchedulerStatus | null): boolean {
+  return status?.status === 'success' || status?.status === 'degraded'
+}
+
+function currentPhaseAt(nowMs: number): SchedulerPhase | null {
+  if (!isWeekdayAt(nowMs)) return null
+  const clock = shanghaiClockAt(nowMs)
+  const active = CHECKPOINT_SCHEDULE.find(
+    (row) => clock.sec >= row.atSec && clock.sec < row.cutoffSec,
+  )
+  if (active) return active.phase
+  const latest = CHECKPOINT_SCHEDULE.filter((row) => clock.sec >= row.atSec).at(-1)
+  return latest?.phase ?? 'premarket'
+}
+
+function checkpointView(
+  spec: CheckpointSpec,
+  status: SchedulerStatus | undefined,
+  nowMs: number,
+): SchedulerCheckpointView {
+  const clock = shanghaiClockAt(nowMs)
+  const windowEnded = isWeekdayAt(nowMs) && clock.sec >= spec.cutoffSec
+  return {
+    checkpoint: spec.checkpoint,
+    phase: spec.phase,
+    label: spec.label,
+    atSecondsOfDay: spec.atSec,
+    cutoffSecondsOfDay: spec.cutoffSec,
+    status: status?.status ?? (windowEnded ? 'missing' : 'scheduled'),
+    captureStatus: status?.captureStatus ?? 'unavailable',
+    sourceStatus: status?.sourceStatus ?? 'unavailable',
+    runId: status?.runId || undefined,
+    provider: status?.provider,
+    providerTimestamp: status?.providerTimestamp,
+    finishedAt: status?.finishedAt,
+    dataAsOf: status?.dataAsOf,
+    warnings: status?.warnings ?? (windowEnded ? [`${spec.checkpoint} 尚无归档`] : []),
+  }
+}
+
+/** 只读汇总调度状态,不触发采集、不写入归档。 */
+export function buildSchedulerStatusSnapshot(
+  nowMs = Date.now(),
+  tradeDate = todayShanghai(nowMs),
+): SchedulerStatusSnapshot {
+  const lastRuns = listCheckpointStatuses(tradeDate)
+  const next = nextCheckpointAt(nowMs)
+  const checkpoints = Object.fromEntries(
+    CHECKPOINT_SCHEDULE.map((spec) => [
+      spec.checkpoint,
+      checkpointView(spec, lastRuns[spec.checkpoint], nowMs),
+    ]),
+  ) as Record<string, SchedulerCheckpointView>
+  const missingCheckpoints = CHECKPOINT_SCHEDULE.filter((spec) => {
+    const view = checkpoints[spec.checkpoint]
+    return view.status === 'missing' ||
+      view.status === 'failed' ||
+      view.status === 'skipped' ||
+      (view.captureStatus === 'unavailable' && view.status !== 'scheduled')
+  }).map((spec) => spec.checkpoint)
+  const lastGood = Object.fromEntries(
+    Object.entries(lastRuns).filter(([, status]) => isUsableCheckpointStatus(status)),
+  )
+  const warnings = [
+    ...missingCheckpoints.map((checkpoint) => `${checkpoint} 缺少可用归档`),
+    ...Object.values(lastRuns).flatMap((status) => status.warnings),
+  ].filter((warning, index, all) => all.indexOf(warning) === index).slice(0, 40)
+  return {
+    now: new Date(nowMs).toISOString(),
+    tradeDate,
+    currentPhase: currentPhaseAt(nowMs),
+    currentCheckpoint: checkpointInWindowAt(nowMs),
+    lastRuns,
+    missingCheckpoints,
+    nextWindow: next
+      ? {
+          checkpoint: next.checkpoint,
+          phase: next.phase,
+          label: next.label,
+          atSecondsOfDay: next.atSec,
+        }
+      : null,
+    checkpoints,
+    lastGood,
+    warnings,
+  }
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -236,80 +376,83 @@ export interface CheckpointHandlers {
 let checkpointMonitor: ReturnType<typeof setInterval> | null = null
 let checkpointMonitorBusy = false
 
+export async function runCheckpointSchedulerTick(
+  handlers: CheckpointHandlers,
+  nowMs = Date.now(),
+): Promise<void> {
+  if (checkpointMonitorBusy) return
+  const tradeDate = todayShanghai(nowMs)
+  const checkpoint = checkpointInWindowAt(nowMs)
+  if (!checkpoint) return
+  if (isTerminalCheckpointStatus(readCheckpointStatus(tradeDate, checkpoint))) return
+  checkpointMonitorBusy = true
+  const runId = newRunId(tradeDate, checkpoint)
+  const startedAt = new Date(nowMs).toISOString()
+  const captureStatus: SchedulerCaptureStatus = 'on-time'
+  try {
+    const partial = (await handlers(checkpoint, tradeDate)) ?? {}
+    const sourceStatus = (partial.sourceStatus as SchedulerSourceStatus | undefined) ??
+      'unavailable'
+    const result: SchedulerStatus = {
+      runId,
+      tradeDate,
+      phase: phaseOfCheckpoint(checkpoint),
+      checkpoint,
+      status:
+        partial.status === 'success' || partial.status === 'degraded' || partial.status === 'failed'
+          ? (partial.status as SchedulerRunStatus)
+          : sourceStatus === 'full'
+            ? 'success'
+            : sourceStatus === 'degraded'
+              ? 'degraded'
+              : 'failed',
+      captureStatus,
+      sourceStatus,
+      provider: partial.provider as string | undefined,
+      providerTimestamp: partial.providerTimestamp as string | undefined,
+      startedAt,
+      finishedAt: new Date(nowMs).toISOString(),
+      dataAsOf: partial.dataAsOf as string | undefined,
+      warnings: Array.isArray(partial.warnings)
+        ? (partial.warnings as string[])
+        : [],
+      error: typeof partial.error === 'string' ? partial.error : undefined,
+    }
+    writeCheckpointStatus(result)
+  } catch {
+    const result: SchedulerStatus = {
+      runId,
+      tradeDate,
+      phase: phaseOfCheckpoint(checkpoint),
+      checkpoint,
+      status: 'failed',
+      captureStatus,
+      sourceStatus: 'unavailable',
+      startedAt,
+      finishedAt: new Date(nowMs).toISOString(),
+      warnings: [checkpoint + ' 采集失败，等待下一次 tick 重试'],
+    }
+    writeCheckpointStatus(result)
+  } finally {
+    checkpointMonitorBusy = false
+  }
+}
+
 /**
  * 启动单实例检查点调度器。
  *
- * 每个正式检查点被 ## 处理句柄驱动;句柄返回部分状态,由调度器补齐时间戳并幂等落盘。
+ * 每个正式检查点被处理句柄驱动;句柄返回部分状态,由调度器补齐时间戳并幂等落盘。
  * 任何时刻只允许一个检查点在 on-time 窗口内运行;错过窗口的检查点不补建。
  * 开发环境可用 SCHEDULER_CHECKPOINTS_DISABLED=true 关闭。
  */
 export function startCheckpointScheduler(handlers: CheckpointHandlers): boolean {
   if (process.env.SCHEDULER_CHECKPOINTS_DISABLED === 'true') return false
   if (checkpointMonitor) return false
-  const tick = async () => {
-    if (checkpointMonitorBusy) return
-    const tradeDate = todayShanghai()
-    const checkpoint = checkpointInWindowAt(Date.now())
-    if (!checkpoint) return
-    if (readCheckpointStatus(tradeDate, checkpoint)) return
-    checkpointMonitorBusy = true
-    const runId = newRunId(tradeDate, checkpoint)
-    const startedAt = new Date().toISOString()
-    const captureStatus: SchedulerCaptureStatus = 'on-time'
-    try {
-      const partial = (await handlers(checkpoint, tradeDate)) ?? {}
-      const sourceStatus = (partial.sourceStatus as SchedulerSourceStatus | undefined) ??
-        'unavailable'
-      const result: SchedulerStatus = {
-        runId,
-        tradeDate,
-        phase: phaseOfCheckpoint(checkpoint),
-        checkpoint,
-        status:
-          partial.status === 'success' || partial.status === 'degraded' || partial.status === 'failed'
-            ? (partial.status as SchedulerRunStatus)
-            : sourceStatus === 'full'
-              ? 'success'
-              : sourceStatus === 'degraded'
-                ? 'degraded'
-                : 'failed',
-        captureStatus,
-        sourceStatus,
-        provider: partial.provider as string | undefined,
-        providerTimestamp: partial.providerTimestamp as string | undefined,
-        startedAt,
-        finishedAt: new Date().toISOString(),
-        dataAsOf: partial.dataAsOf as string | undefined,
-        warnings: Array.isArray(partial.warnings)
-          ? (partial.warnings as string[])
-          : [],
-        error: typeof partial.error === 'string' ? partial.error : undefined,
-      }
-      writeCheckpointStatus(result)
-    } catch {
-      const result: SchedulerStatus = {
-        runId,
-        tradeDate,
-        phase: phaseOfCheckpoint(checkpoint),
-        checkpoint,
-        status: 'failed',
-        captureStatus,
-        sourceStatus: 'unavailable',
-        startedAt,
-        finishedAt: new Date().toISOString(),
-        warnings: [`${checkpoint} 采集失败，等待下一次 tick 重试`],
-      }
-      writeCheckpointStatus(result)
-    } finally {
-      checkpointMonitorBusy = false
-    }
-  }
-  checkpointMonitor = setInterval(() => void tick(), 5_000)
+  checkpointMonitor = setInterval(() => void runCheckpointSchedulerTick(handlers), 5_000)
   checkpointMonitor.unref?.()
-  void tick()
+  void runCheckpointSchedulerTick(handlers)
   return true
 }
-
 /** 测试钩子:重置单实例状态。 */
 export function resetCheckpointScheduler(): void {
   if (checkpointMonitor) {

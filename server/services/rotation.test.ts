@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeRotationUniverse, rankTopMovers, returnsAgainstBenchmark, selectRotationUniverse } from './rotation'
+import {
+  buildQuickTinyRotationResult,
+  normalizeRotationUniverse,
+  rankTopMovers,
+  returnsAgainstBenchmark,
+  selectRotationUniverse,
+} from './rotation'
+import { makeQuickTinyBoardCode, parseQuickTinyBoardCode, type QuickTinyRotationPayload } from './quicktinyRotation'
 
 describe('rankTopMovers(成分股当日涨跌幅榜)', () => {
   it('按 changePct 降序排序', () => {
@@ -84,5 +91,46 @@ describe('returnsAgainstBenchmark', () => {
   it('板块缺失窗口起止交易日时不伪造固定窗口收益', () => {
     const board = [{ date: '2026-01-02', close: 103 }, { date: '2026-01-03', close: 106 }]
     expect(returnsAgainstBenchmark(board, benchmark, 2)).toBeNull()
+  })
+})
+
+describe('QuickTiny 分类适配', () => {
+  it('题材板块代码可以无损往返中文名称', () => {
+    const code = makeQuickTinyBoardCode('kpl', 'Micro（硅基）OLED')
+    expect(parseQuickTinyBoardCode(code)).toEqual({ source: 'kpl', name: 'Micro（硅基）OLED' })
+  })
+
+  it('按开盘啦原始涨跌映射四象限并保留量比/区间/股数', () => {
+    const payload: QuickTinyRotationPayload = {
+      quadrants: {
+        highStrong: [{ name: '硅光技术概念', todayChange: 3, periodChange: 20.05, recentChange: 16.5, stockCount: 22, volumeRatio: 0.72, positionInRange: 74 }],
+        lowStrong: [{ name: '光纤', todayChange: 2.9, periodChange: -6.82, recentChange: 6.92, stockCount: 18 }],
+        highWeak: [],
+        lowWeak: [],
+      },
+      meta: {
+        source: 'kpl',
+        sourceLabel: '开盘啦题材',
+        period: 60,
+        strengthPeriod: 5,
+        date: '20260814',
+        sectorCount: 2,
+        volumeProgress: 100,
+      },
+    }
+    const result = buildQuickTinyRotationResult('theme', 60, 5, payload)
+    expect(result.provider).toBe('quicktiny')
+    expect(result.sourceLabel).toBe('开盘啦题材')
+    expect(result.asof).toBe('2026-08-14')
+    expect(result.summary).toMatchObject({ total: 2, hs: 1, ls: 1, hw: 0, lw: 0 })
+    expect(result.boards[0]).toMatchObject({
+      name: '硅光技术概念',
+      quadrant: 'hs',
+      longChg: 20.05,
+      shortChg: 16.5,
+      stockCount: 22,
+      volumeRatio: 0.72,
+      positionInRange: 74,
+    })
   })
 })

@@ -325,6 +325,37 @@ export function isTempoResult(v: unknown): v is RotationTempoResult {
   return typeof r.asof === 'string' && Array.isArray(r.dates) && Array.isArray(r.rows)
 }
 
+function safeTempoDate(asof: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(asof)
+}
+
+export function tempoArchivePath(asof: string): string {
+  if (!safeTempoDate(asof)) throw new Error(`asof 必须是 YYYY-MM-DD，收到 ${asof}`)
+  return join(SCREENER_DIR, `tempo-${asof}.json`)
+}
+
+/**
+ * Read exactly the requested point-in-time archive. This function is
+ * intentionally read-only and never falls back to the latest or live result;
+ * a missing historical archive is represented as null.
+ */
+export function readRotationTempoArchive(asof: string): RotationTempoResult | null {
+  if (!safeTempoDate(asof)) return null
+  try {
+    const raw = JSON.parse(readFileSync(tempoArchivePath(asof), 'utf8'))
+    return isTempoResult(raw) && raw.asof === asof
+      ? { ...raw, fromArchive: true }
+      : null
+  } catch {
+    return null
+  }
+}
+
+/** Async adapter for callers that use the other rotation collectors. */
+export async function fetchRotationTempoAt(asof: string): Promise<RotationTempoResult | null> {
+  return readRotationTempoArchive(asof)
+}
+
 function loadLatestTempoDisk(): RotationTempoResult | null {
   let files: string[]
   try {

@@ -16,8 +16,20 @@ import { classifyHighDivergence } from './divergenceRules'
 import { classifyVolBreakout } from './volBreakoutRules'
 import { classifyBreakoutHold } from './breakoutHoldRules'
 import { classifyTrendNewHigh } from './trendNewHighRules'
+import {
+  fetchQuickTinyRotation,
+  fetchQuickTinyStockQuadrant,
+  fetchQuickTinyStockSectors,
+  makeQuickTinyBoardCode,
+  parseQuickTinyBoardCode,
+  quickTinyResponseSourceForCategory,
+  quickTinySourceForCategory,
+  type QuickTinyQuadrantKey,
+  type QuickTinyRotationPayload,
+} from './quicktinyRotation'
 
-export type RotationCategory = 'industry' | 'concept'
+export type RotationCategory = 'theme' | 'industry' | 'concept'
+export type EastmoneyRotationCategory = Exclude<RotationCategory, 'theme'>
 
 export interface RotationBoard {
   code: string // BKxxxx
@@ -29,6 +41,10 @@ export interface RotationBoard {
   shortExcess: number // 相对沪深300的短窗超额收益
   quadrant: Quadrant
   reconstructed?: boolean // 板块指数日线不可用时，按成分股等权日收益重构
+  stockCount?: number
+  volumeRatio?: number | null
+  positionInRange?: number | null
+  positionPctRank?: number | null
 }
 export interface RotationSummary {
   total: number
@@ -44,10 +60,10 @@ export interface RotationDataQuality {
   selectedTotal: number // 本轮实际取数的行业数
   directCount: number // 官方板块指数日线有效数
   reconstructedCount: number // 成分股等权重构有效数
-  representedPct: number // 有效行 / 选中行
-  directCoveragePct: number // 官方日线 / 选中行；低时不能代表市场宽度
+  representedPct: number | null // 不完整分页时保持 null
+  directCoveragePct: number | null // 不完整分页时保持 null
   degraded: boolean
-  taxonomy: 'em-mixed-dedup-v1'
+  taxonomy: 'quicktiny-kpl-v1' | 'quicktiny-cls-industry-v1' | 'quicktiny-cls-concept-v1' | 'em-mixed-dedup-v1'
 }
 export interface RotationResult {
   asof: string
@@ -57,6 +73,10 @@ export interface RotationResult {
   boards: RotationBoard[]
   summary: RotationSummary
   quality: RotationDataQuality
+  provider: 'quicktiny' | 'eastmoney'
+  sourceLabel: string
+  volumeAdjusted?: boolean
+  volumeProgress?: number
 }
 
 export const ROTATION = {
@@ -77,7 +97,7 @@ export const ROTATION = {
   DEFAULT_SHORT: 5,
 } as const
 
-const FS: Record<RotationCategory, string> = { industry: 'm:90+t:2', concept: 'm:90+t:3' }
+const FS: Record<EastmoneyRotationCategory, string> = { industry: 'm:90+t:2', concept: 'm:90+t:3' }
 const CLIST_HOSTS = ['push2delay.eastmoney.com', 'push2.eastmoney.com', '82.push2.eastmoney.com']
 // 行业宇宙按成交额截断时，仍保留消费大类及其酒类/饮料细分，避免“有轮动但列表没看见”。
 const CORE_INDUSTRY_CODES = new Set(['BK0438', 'BK1575', 'BK1279', 'BK1577', 'BK1282', 'BK1585', 'BK1281'])
@@ -108,7 +128,7 @@ const romanRank = (name: string) => {
 }
 
 /** 东财 t:2 同时含部分Ⅱ/Ⅲ层级。只清除可以确定的同名层级重复，保留其余层级关系供后续正式 taxonomy 接入。 */
-export function normalizeRotationUniverse(category: RotationCategory, universe: BoardMeta[]): BoardMeta[] {
+export function normalizeRotationUniverse(category: EastmoneyRotationCategory, universe: BoardMeta[]): BoardMeta[] {
   if (category !== 'industry') return universe
   const byName = new Map<string, BoardMeta>()
   for (const board of universe) {
@@ -122,7 +142,7 @@ export function normalizeRotationUniverse(category: RotationCategory, universe: 
 }
 
 /** 成交额聚焦不应吞掉消费大类及酒类/饮料细分。 */
-export function selectRotationUniverse(category: RotationCategory, rawUniverse: BoardMeta[], cap: number = ROTATION.BOARD_CAP): BoardMeta[] {
+export function selectRotationUniverse(category: EastmoneyRotationCategory, rawUniverse: BoardMeta[], cap: number = ROTATION.BOARD_CAP): BoardMeta[] {
   const sorted = [...normalizeRotationUniverse(category, rawUniverse)].sort((a, b) => b.amount - a.amount)
   if (category !== 'industry' || sorted.length <= cap) return sorted.slice(0, cap)
   const selected = new Map(sorted.slice(0, cap).map((b) => [b.code, b]))
@@ -133,44 +153,85 @@ export function selectRotationUniverse(category: RotationCategory, rawUniverse: 
 }
 
 /** clist 翻页取一个分类的板块宇宙(镜像主机轮换容错)。 */
-async function fetchClistPage(category: RotationCategory, pn: number): Promise<Record<string, unknown>[]> {
+interface ClistPageResult {
+  rows: Record<string, unknown>[]
+  total: number | null
+}
+
+async function fetchClistPage(
+  category: EastmoneyRotationCategory,
+  pn: number,
+): Promise<ClistPageResult | null> {
   for (let i = 0; i < CLIST_HOSTS.length; i++) {
     const host = CLIST_HOSTS[(pn + i) % CLIST_HOSTS.length]
     const url =
-      `https://${host}/api/qt/clist/get?pn=${pn}&pz=100&po=1&np=1&fltt=2&invt=2&fid=f3` +
-      `&fs=${encodeURIComponent(FS[category])}&fields=f12,f13,f14,f3,f6`
+      'https://' + host + '/api/qt/clist/get?pn=' + pn + '&pz=100&po=1&np=1&fltt=2&invt=2&fid=f3' +
+      '&fs=' + encodeURIComponent(FS[category]) + '&fields=f12,f13,f14,f3,f6'
     try {
       const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
-      if (!res.ok) throw new Error(`clist HTTP ${res.status}`)
+      if (!res.ok) throw new Error('clist HTTP ' + res.status)
       const json = (await res.json()) as any
-      return (json?.data?.diff ?? []) as Record<string, unknown>[]
+      const total = Number(json?.data?.total)
+      return {
+        rows: (json?.data?.diff ?? []) as Record<string, unknown>[],
+        total: Number.isFinite(total) && total > 0 ? total : null,
+      }
     } catch {
       /* 试下一个镜像 */
     }
   }
-  return []
+  return null
 }
 
-// 导出:reboundReview(反攻日复盘卡)按名字定位券商板块用;rotation 内部逻辑不变。
-export async function fetchBoardUniverse(category: RotationCategory): Promise<BoardMeta[]> {
+interface BoardUniverseCapture {
+  rows: BoardMeta[]
+  expectedTotal: number | null
+  fetchedRawCount: number
+  fetchedPages: number
+  failedPages: number
+  complete: boolean
+}
+
+async function fetchBoardUniverseCapture(
+  category: EastmoneyRotationCategory,
+): Promise<BoardUniverseCapture> {
   const out: BoardMeta[] = []
+  let expectedTotal: number | null = null
+  let fetchedRawCount = 0
+  let fetchedPages = 0
+  let failedPages = 0
+  let lastPageSize = 0
   for (let pn = 1; pn <= 6; pn++) {
-    const rows = await fetchClistPage(category, pn)
-    if (rows.length === 0) break
-    for (const d of rows) {
+    const page = await fetchClistPage(category, pn)
+    if (!page) {
+      failedPages += 1
+      break
+    }
+    fetchedPages += 1
+    expectedTotal = page.total ?? expectedTotal
+    lastPageSize = page.rows.length
+    fetchedRawCount += page.rows.length
+    if (page.rows.length === 0) break
+    for (const d of page.rows) {
       const code = String(d.f12 ?? '')
       const name = String(d.f14 ?? '')
       if (!code || !name) continue
-      // 剔除 资金属性/风格/盘口/财报 类"伪板块"(融资融券/深股通/MSCI/昨日…),只留真实行业/概念。
       if (CONCEPT_BLOCKLIST.some((b) => name.includes(b))) continue
       out.push({ code, name, todayChg: num(d.f3), amount: num(d.f6) })
     }
-    if (rows.length < 100) break
+    if (page.rows.length < 100) break
     await new Promise((rs) => setTimeout(rs, 120))
   }
-  return out
+  const complete =
+    failedPages === 0 &&
+    (expectedTotal != null ? fetchedRawCount >= expectedTotal : fetchedPages < 6 && lastPageSize < 100)
+  return { rows: out, expectedTotal, fetchedRawCount, fetchedPages, failedPages, complete }
 }
 
+/** 导出兼容入口；需要覆盖率元数据时使用内部 capture。 */
+export async function fetchBoardUniverse(category: EastmoneyRotationCategory): Promise<BoardMeta[]> {
+  return (await fetchBoardUniverseCapture(category)).rows
+}
 // 板块日线 bars 长缓存(历史不可变;手动刷新时清空以纳入当日最新)。
 // 原为 closes-only,节奏表(rotationTempo)需要 volume 判放缩量 → 升级存全 bars,
 // 象限视图经 getBoardCloses 薄壳零改动;fetchIndexKline 本就返回 OHLCV,零额外上游成本。
@@ -284,12 +345,13 @@ function boardFromSeries(
   }
 }
 
-async function fetchRotationFresh(
-  category: RotationCategory,
+async function fetchEastmoneyRotationFresh(
+  category: EastmoneyRotationCategory,
   longWin: number,
   shortWin: number,
 ): Promise<RotationResult> {
-  const rawUniverse = await fetchBoardUniverse(category)
+  const universeCapture = await fetchBoardUniverseCapture(category)
+  const rawUniverse = universeCapture.rows
   const taxonomyUniverse = normalizeRotationUniverse(category, rawUniverse)
   const universe = selectRotationUniverse(category, rawUniverse)
   const benchmarkBars = await getBoardBars('1.000300')
@@ -333,22 +395,128 @@ async function fetchRotationFresh(
     lw: cnt('lw'),
     shortUpPct: rows.length ? r2((shortUp / rows.length) * 100) : 0,
   }
-  const representedPct = universe.length ? r2((rows.length / universe.length) * 100) : 0
-  const directCoveragePct = universe.length ? r2((directRows.length / universe.length) * 100) : 0
+  const representedPct = universeCapture.complete && universe.length ? r2((rows.length / universe.length) * 100) : null
+  const directCoveragePct = universeCapture.complete && universe.length ? r2((directRows.length / universe.length) * 100) : null
   const quality: RotationDataQuality = {
-    rawTotal: rawUniverse.length,
+    rawTotal: universeCapture.expectedTotal ?? universeCapture.fetchedRawCount,
     taxonomyTotal: taxonomyUniverse.length,
     selectedTotal: universe.length,
     directCount: directRows.length,
     reconstructedCount: reconRows.length,
     representedPct,
     directCoveragePct,
-    degraded: directCoveragePct < ROTATION.DIRECT_COVERAGE_MIN_PCT,
+    degraded: !universeCapture.complete || directCoveragePct == null || directCoveragePct < ROTATION.DIRECT_COVERAGE_MIN_PCT,
     taxonomy: 'em-mixed-dedup-v1',
   }
 
   console.log(`[Rotation] ${category} 原始${rawUniverse.length}/去重${taxonomyUniverse.length}/选中${universe.length}→有效${rows.length}(官方${directRows.length},重构${reconRows.length});长${longWin}/短${shortWin}日`)
-  return { asof: todayShanghai(), category, longWin, shortWin, boards: rows, summary, quality }
+  return {
+    asof: todayShanghai(),
+    category,
+    longWin,
+    shortWin,
+    boards: rows,
+    summary,
+    quality,
+    provider: 'eastmoney',
+    sourceLabel: '东方财富' + (category === 'industry' ? '行业' : '概念') + (universeCapture.complete ? '' : '（分页不完整）'),
+  }
+}
+
+const QUICKTINY_QUADRANTS: Record<QuickTinyQuadrantKey, Quadrant> = {
+  highStrong: 'hs',
+  lowStrong: 'ls',
+  highWeak: 'hw',
+  lowWeak: 'lw',
+}
+
+const QUICKTINY_TAXONOMY: Record<RotationCategory, RotationDataQuality['taxonomy']> = {
+  theme: 'quicktiny-kpl-v1',
+  industry: 'quicktiny-cls-industry-v1',
+  concept: 'quicktiny-cls-concept-v1',
+}
+
+function normalizeAsof(date: string): string {
+  return /^\d{8}$/.test(date) ? `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}` : date
+}
+
+/** 将 QuickTiny 的四象限响应映射为项目通用结构。其象限按原始涨跌划分，不减沪深300。 */
+export function buildQuickTinyRotationResult(
+  category: RotationCategory,
+  longWin: number,
+  shortWin: number,
+  payload: QuickTinyRotationPayload,
+): RotationResult {
+  const source = quickTinySourceForCategory(category)
+  const boards = (Object.entries(QUICKTINY_QUADRANTS) as Array<[QuickTinyQuadrantKey, Quadrant]>)
+    .flatMap(([key, quadrant]) =>
+      payload.quadrants[key].map((row): RotationBoard => ({
+        code: makeQuickTinyBoardCode(source, row.name),
+        name: row.name,
+        todayChg: r2(row.todayChange),
+        longChg: r2(row.periodChange),
+        shortChg: r2(row.recentChange),
+        // 兼容现有前端字段；QuickTiny 模式下这里等于原始涨跌，不代表相对指数超额。
+        longExcess: r2(row.periodChange),
+        shortExcess: r2(row.recentChange),
+        quadrant,
+        stockCount: row.stockCount,
+        volumeRatio: row.volumeRatio,
+        positionInRange: row.positionInRange,
+        positionPctRank: row.positionPctRank,
+      })),
+    )
+    .sort((a, b) => b.shortChg - a.shortChg)
+
+  const count = (quadrant: Quadrant) => boards.filter((board) => board.quadrant === quadrant).length
+  const shortUp = boards.filter((board) => board.shortChg >= 0).length
+  const total = boards.length
+  const sectorCount = Number.isFinite(payload.meta.sectorCount) && payload.meta.sectorCount > 0 ? payload.meta.sectorCount : null
+  return {
+    asof: normalizeAsof(payload.meta.date),
+    category,
+    longWin,
+    shortWin,
+    boards,
+    summary: {
+      total,
+      hs: count('hs'),
+      ls: count('ls'),
+      hw: count('hw'),
+      lw: count('lw'),
+      shortUpPct: total ? r2((shortUp / total) * 100) : 0,
+    },
+    quality: {
+      rawTotal: sectorCount ?? total,
+      taxonomyTotal: sectorCount ?? total,
+      selectedTotal: sectorCount ?? total,
+      directCount: total,
+      reconstructedCount: 0,
+      representedPct: sectorCount ? r2((total / sectorCount) * 100) : null,
+      directCoveragePct: sectorCount ? r2((total / sectorCount) * 100) : null,
+      degraded: total === 0 || sectorCount == null || total < sectorCount * 0.9,
+      taxonomy: QUICKTINY_TAXONOMY[category],
+    },
+    provider: 'quicktiny',
+    sourceLabel: payload.meta.sourceLabel,
+    volumeAdjusted: payload.meta.volumeAdjusted,
+    volumeProgress: payload.meta.volumeProgress,
+  }
+}
+
+async function fetchRotationFresh(
+  category: RotationCategory,
+  longWin: number,
+  shortWin: number,
+): Promise<RotationResult> {
+  try {
+    const payload = await fetchQuickTinyRotation(quickTinySourceForCategory(category), longWin, shortWin)
+    return buildQuickTinyRotationResult(category, longWin, shortWin, payload)
+  } catch (error) {
+    if (category === 'theme') throw error
+    console.warn(`[Rotation] QuickTiny ${category} 不可用，降级东方财富：${error instanceof Error ? error.message : String(error)}`)
+    return fetchEastmoneyRotationFresh(category, longWin, shortWin)
+  }
 }
 
 // 结果按 分类|长窗|短窗 分别缓存(共享 closesCache,切窗口免重取日线)。
@@ -377,10 +545,23 @@ export function clearRotationCache(): void {
   barsCache.clear()
 }
 
-/** 搜个股 → 解析 + 取其所属板块名(供前端过滤命中的板块)。 */
-export async function fetchStockBoards(query: string): Promise<{ code: string; name: string; boards: string[] }> {
+/** 搜个股 → 解析 + 按当前分类取所属板块名(供前端过滤命中的板块)。 */
+export async function fetchStockBoards(
+  query: string,
+  category: RotationCategory = 'theme',
+): Promise<{ code: string; name: string; boards: string[] }> {
   const m = await resolveStock(query)
   if (!m) return { code: '', name: '', boards: [] }
+  try {
+    const payload = await fetchQuickTinyStockSectors(m.code)
+    const source = quickTinyResponseSourceForCategory(category)
+    const hit = payload.results.find((result) => result.source === source)
+    if (hit) return { code: m.code, name: m.name, boards: hit.sectors.map((sector) => sector.name).filter(Boolean) }
+  } catch {
+    // 题材没有可等价替代的分类源；行业/概念继续尝试东方财富降级。
+    if (category === 'theme') return { code: m.code, name: m.name, boards: [] }
+  }
+  if (category === 'theme') return { code: m.code, name: m.name, boards: [] }
   const secid = toSecids(m.code)[0]
   if (!secid) return { code: m.code, name: m.name, boards: [] }
   try {
@@ -465,6 +646,9 @@ export interface BoardStocksResult {
   topMovers: { code: string; name: string; changePct: number }[]
   /** 与主选股器一致的并列形态命中；资金流共振需要披露日对齐的调研数据，不在板块下钻中伪造。 */
   strategyHits: BoardStrategyHit[]
+  /** 全部成分股涨跌榜；QuickTiny 口径同时提供现价和行业。 */
+  members?: Array<{ code: string; name: string; changePct: number; price?: number; industry?: string }>
+  sourceLabel?: string
 }
 export type BoardStrategyGroup = 'pullback' | 'highdiv' | 'volbreak' | 'bhold' | 'trendnew'
 export interface BoardStrategyHit {
@@ -483,6 +667,46 @@ const TOP_MOVERS_N = 10
  *  蓝筹反转板块(如保险)成分股基本不符合新高战法趋势模板,靠这个才能看清"具体是谁在涨"。 */
 export function rankTopMovers<T extends { changePct: number }>(members: T[], n: number): T[] {
   return [...members].sort((a, b) => b.changePct - a.changePct).slice(0, n)
+}
+
+async function fetchQuickTinyBoardStocksFresh(
+  code: string,
+  parsed: NonNullable<ReturnType<typeof parseQuickTinyBoardCode>>,
+): Promise<BoardStocksResult> {
+  const payload = await fetchQuickTinyStockQuadrant(
+    parsed.source,
+    parsed.name,
+    ROTATION.DEFAULT_LONG,
+    ROTATION.DEFAULT_SHORT,
+  )
+  const members = rankTopMovers(
+    payload.allStocks
+      .map((stock) => ({
+        code: String(stock.code ?? ''),
+        name: String(stock.name ?? ''),
+        changePct: num(stock.todayChange),
+        price: num(stock.close) || undefined,
+        industry: stock.industry || undefined,
+      }))
+      .filter((stock) => stock.code && stock.name),
+    payload.allStocks.length,
+  )
+  const topMovers = members.slice(0, TOP_MOVERS_N).map(({ code: stockCode, name, changePct }) => ({
+    code: stockCode,
+    name,
+    changePct,
+  }))
+  return {
+    code,
+    name: payload.sectorName || parsed.name,
+    scanned: members.length,
+    breakout: [],
+    trigger: [],
+    topMovers,
+    strategyHits: [],
+    members,
+    sourceLabel: payload.meta.sourceLabel,
+  }
 }
 
 /** 板块成分股(报价调用 fs=b:BKxxxx,不受 kline 限流);按成交额降序。changePct=当日涨跌幅%(f3)。
@@ -513,6 +737,8 @@ export async function fetchBoardConstituents(
 }
 
 async function fetchBoardStocksFresh(bkCode: string): Promise<BoardStocksResult> {
+  const quickTiny = parseQuickTinyBoardCode(bkCode)
+  if (quickTiny) return fetchQuickTinyBoardStocksFresh(bkCode, quickTiny)
   const allMembers = await fetchBoardConstituents(bkCode)
   const topMovers = rankTopMovers(allMembers, TOP_MOVERS_N).map(({ code, name, changePct }) => ({ code, name, changePct }))
   const members = allMembers.slice(0, ROTATION.DRILL_CAP)
@@ -555,7 +781,17 @@ async function fetchBoardStocksFresh(bkCode: string): Promise<BoardStocksResult>
   const breakout = enriched.filter((c) => c.group === 'breakout').sort((a, b) => b.score - a.score).map(strip)
   const trigger = enriched.filter((c) => c.group === 'trigger').sort((a, b) => b.score - a.score).map(strip)
   console.log(`[Rotation] 下钻 ${bkCode}:成分 ${members.length} → 突破 ${breakout.length}/扳机 ${trigger.length}/并列形态 ${strategyHits.length}`)
-  return { code: bkCode, name: bkCode, scanned: members.length, breakout, trigger, topMovers, strategyHits }
+  return {
+    code: bkCode,
+    name: bkCode,
+    scanned: members.length,
+    breakout,
+    trigger,
+    topMovers,
+    strategyHits,
+    members: rankTopMovers(allMembers, allMembers.length).map(({ code, name, changePct }) => ({ code, name, changePct })),
+    sourceLabel: '东方财富板块成分',
+  }
 }
 
 const drillCaches = new Map<string, Cache<BoardStocksResult>>()
