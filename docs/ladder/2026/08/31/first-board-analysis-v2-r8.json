@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "first-board-scan-v2",
+  "tradeDate": "2026-08-31",
+  "ruleVersion": "first-board-scan-v2",
+  "scoreVersion": "first-board-score-v3",
+  "generatedAt": "2026-08-31T14:49:30.686Z",
+  "dataQuality": "degraded",
+  "dataAsOf": "2026-08-31T14:49:30.686Z",
+  "source": "kaipanla-realtime",
+  "sourceVersion": "kaipanla-first-board-adapter-v1",
+  "rulesVersion": "first-board-scan-v2",
+  "strategyStatus": "research",
+  "evidenceStatus": "unavailable",
+  "candidates": [],
+  "summary": {
+    "allDiscovered": 0,
+    "finalSealed": 0,
+    "tradableNextOpen": 0
+  },
+  "revision": 8,
+  "supersedes": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\31\\first-board-analysis-v2-r7.json"
+}

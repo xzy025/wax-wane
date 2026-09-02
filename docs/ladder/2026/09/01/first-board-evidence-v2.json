@@ -1,0 +1,1173 @@
+{
+  "schemaVersion": "first-board-scan-v2",
+  "tradeDate": "2026-09-01",
+  "ruleVersion": "first-board-scan-v2",
+  "observations": [
+    {
+      "observationKey": "2026-09-01:1",
+      "slot": 1,
+      "observedAt": "2026-09-01T01:36:55.734Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:9",
+      "slot": 9,
+      "observedAt": "2026-09-01T01:44:41.448Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:10",
+      "slot": 10,
+      "observedAt": "2026-09-01T01:45:01.512Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:11",
+      "slot": 11,
+      "observedAt": "2026-09-01T01:46:01.601Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:12",
+      "slot": 12,
+      "observedAt": "2026-09-01T01:47:01.698Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:13",
+      "slot": 13,
+      "observedAt": "2026-09-01T01:48:01.808Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:14",
+      "slot": 14,
+      "observedAt": "2026-09-01T01:49:01.919Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:15",
+      "slot": 15,
+      "observedAt": "2026-09-01T01:50:02.001Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:16",
+      "slot": 16,
+      "observedAt": "2026-09-01T01:51:02.084Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:17",
+      "slot": 17,
+      "observedAt": "2026-09-01T01:52:02.188Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:18",
+      "slot": 18,
+      "observedAt": "2026-09-01T01:53:02.263Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:19",
+      "slot": 19,
+      "observedAt": "2026-09-01T01:54:02.352Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:20",
+      "slot": 20,
+      "observedAt": "2026-09-01T01:55:02.462Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:21",
+      "slot": 21,
+      "observedAt": "2026-09-01T01:56:02.564Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:22",
+      "slot": 22,
+      "observedAt": "2026-09-01T01:57:02.660Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:23",
+      "slot": 23,
+      "observedAt": "2026-09-01T01:58:02.752Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:24",
+      "slot": 24,
+      "observedAt": "2026-09-01T01:59:02.848Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:25",
+      "slot": 25,
+      "observedAt": "2026-09-01T02:00:02.945Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:26",
+      "slot": 26,
+      "observedAt": "2026-09-01T02:01:03.020Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:27",
+      "slot": 27,
+      "observedAt": "2026-09-01T02:02:03.079Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:28",
+      "slot": 28,
+      "observedAt": "2026-09-01T02:03:03.175Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:29",
+      "slot": 29,
+      "observedAt": "2026-09-01T02:04:03.241Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:30",
+      "slot": 30,
+      "observedAt": "2026-09-01T02:05:03.332Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:31",
+      "slot": 31,
+      "observedAt": "2026-09-01T02:06:03.437Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:32",
+      "slot": 32,
+      "observedAt": "2026-09-01T02:07:03.507Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:33",
+      "slot": 33,
+      "observedAt": "2026-09-01T02:08:03.584Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:34",
+      "slot": 34,
+      "observedAt": "2026-09-01T02:09:03.650Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:35",
+      "slot": 35,
+      "observedAt": "2026-09-01T02:10:03.706Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:36",
+      "slot": 36,
+      "observedAt": "2026-09-01T02:11:03.781Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:37",
+      "slot": 37,
+      "observedAt": "2026-09-01T02:12:03.832Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:38",
+      "slot": 38,
+      "observedAt": "2026-09-01T02:13:03.883Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:39",
+      "slot": 39,
+      "observedAt": "2026-09-01T02:14:03.938Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:40",
+      "slot": 40,
+      "observedAt": "2026-09-01T02:15:04.003Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:41",
+      "slot": 41,
+      "observedAt": "2026-09-01T02:16:04.073Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:42",
+      "slot": 42,
+      "observedAt": "2026-09-01T02:17:04.126Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:43",
+      "slot": 43,
+      "observedAt": "2026-09-01T02:18:04.176Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:44",
+      "slot": 44,
+      "observedAt": "2026-09-01T02:19:04.278Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:45",
+      "slot": 45,
+      "observedAt": "2026-09-01T02:20:04.344Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:46",
+      "slot": 46,
+      "observedAt": "2026-09-01T02:21:04.395Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:47",
+      "slot": 47,
+      "observedAt": "2026-09-01T02:22:04.446Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:48",
+      "slot": 48,
+      "observedAt": "2026-09-01T02:23:04.499Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:49",
+      "slot": 49,
+      "observedAt": "2026-09-01T02:24:04.561Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:50",
+      "slot": 50,
+      "observedAt": "2026-09-01T02:25:04.641Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:51",
+      "slot": 51,
+      "observedAt": "2026-09-01T02:26:04.744Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:52",
+      "slot": 52,
+      "observedAt": "2026-09-01T02:27:04.808Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:53",
+      "slot": 53,
+      "observedAt": "2026-09-01T02:28:04.878Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:54",
+      "slot": 54,
+      "observedAt": "2026-09-01T02:29:04.988Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:55",
+      "slot": 55,
+      "observedAt": "2026-09-01T02:30:00.103Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:56",
+      "slot": 56,
+      "observedAt": "2026-09-01T02:31:00.260Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:57",
+      "slot": 57,
+      "observedAt": "2026-09-01T02:32:00.326Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:58",
+      "slot": 58,
+      "observedAt": "2026-09-01T02:33:00.423Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:59",
+      "slot": 59,
+      "observedAt": "2026-09-01T02:34:00.509Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    },
+    {
+      "observationKey": "2026-09-01:60",
+      "slot": 60,
+      "observedAt": "2026-09-01T02:35:00.574Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-01",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用"
+      ],
+      "payloadHash": "2a451f05addefd3ed147efe3213d12626dd11839b27c759c9b192e983e6dc24c"
+    }
+  ]
+}
