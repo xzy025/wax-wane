@@ -3,10 +3,16 @@ import Papa from 'papaparse'
 import { FileArrowUp, FlagBanner, X } from 'phosphor-react'
 import {
   useAuctionBriefs,
+  useCrossMarketSnapshot,
+  useFirstBoardScan,
+  useLadderArchiveDates,
   useLadderAnalysis,
   useLadderNextDay,
   useLadderReason,
   type AuctionBriefState,
+  type CapitalLaneId,
+  type CrossMarketPhase,
+  type CrossMarketSnapshot,
   type NotificationDeliveryStatus,
   type LadderImportPayload,
   type LadderImportStock,
@@ -17,14 +23,21 @@ import {
   type LadderRoleMap,
   type MarketRiskGate,
   type HighBoardRiskContext,
+  type FirstBoardScanResponse,
   type NextDayCandidateConfirmation,
+  type NextDayManualReviewPayload,
+  type NextDayRelayItem,
+  type NextDayRelayPlan,
   type NextDayState,
   type LadderState,
   type LadderStockAnalysis,
+  type LadderSentimentQuantSnapshot,
+  type RelayExpectation,
   type PromotionLane,
   type PromotionStatistics,
 } from '../hooks/useLadderAnalysis'
 import MarketDatePicker from '../components/MarketDatePicker'
+import PremarketWorkbench from '../components/PremarketWorkbench'
 import { useTradingDates } from '../hooks/useMoneyFlow'
 import { getLastSettledTradingDay } from '../utils/marketHistory'
 import type { Translation } from '../types'
@@ -546,7 +559,10 @@ function MarketGatePanel({ gate, t }: { gate: MarketRiskGate; t: Translation['la
       {gate.premarket ? (
         <div className="ladder-market-context">
           <div>
-            <h3>{t.v5.overnightContext}</h3>
+            <h3>{t.v5.overnightContext} · 美股指数</h3>
+            <small className="ladder-market-context-note">
+              风险 {fmtScore(gate.premarket?.usRiskScore)} · 题材方向另见美股映射研究
+            </small>
             {us.map((row) => (
               <span key={row.code}>
                 {row.name}{' '}
@@ -555,7 +571,10 @@ function MarketGatePanel({ gate, t }: { gate: MarketRiskGate; t: Translation['la
             ))}
           </div>
           <div>
-            <h3>{t.v5.asiaContext}</h3>
+            <h3>{t.v5.asiaContext} · 日韩指数/科技大票背景</h3>
+            <small className="ladder-market-context-note">
+              风险 {fmtScore(gate.premarket?.asiaRiskScore)} · 非科技连板不直接套用
+            </small>
             {asia.map((row) => (
               <span key={row.code}>
                 {row.name}{' '}
@@ -603,6 +622,336 @@ function MarketGatePanel({ gate, t }: { gate: MarketRiskGate; t: Translation['la
           {[...gate.reasons, ...gate.warnings].join(' · ')}
         </div>
       )}
+    </section>
+  )
+}
+
+function expectationPathLabel(path: string | null, language: 'zh' | 'en'): string {
+  if (!path) return '--'
+  const labels: Record<string, [string, string]> = {
+    'tradable-acceleration': ['可交易加速', 'Tradable acceleration'],
+    'divergence-reseal': ['分歧回封', 'Divergence reseal'],
+    'one-price-untradeable': ['一字不可交易', 'One-price untradeable'],
+    'break-failure': ['炸板失败', 'Break failure'],
+    'one-price': ['一字', 'One-price'],
+    't-board': ['T字', 'T-board'],
+    'gap-turnover': ['高开换手', 'Gap turnover'],
+    'flat-turnover': ['平开换手', 'Flat turnover'],
+  }
+  return labels[path]?.[language === 'zh' ? 0 : 1] ?? path
+}
+
+const DEFAULT_LADDER_V7: NonNullable<Translation['ladder']['v7']> = {
+  expectation: '预期—确认路径',
+  expectationSubtitle: '最近三板板型×量价序列，仅作研究影子层展示',
+  sequence: '最近三板序列',
+  sequenceDataQuality: '序列质量',
+  qingshan: '青山实验签名',
+  primaryPath: '主路径',
+  probabilities: '路径概率',
+  confidence: '置信度',
+  expectedOpen: '预期高开',
+  expectedTouch: '预期触板窗口',
+  expectedReopen: '最多重开',
+  allowed: '允许路径',
+  prohibited: '禁止路径',
+  match: '盘中匹配',
+  matchStatuses: { met: '满足', partial: '部分满足', violated: '违背', unavailable: '不可用' },
+  sentimentQuant: '双高潮情绪闸门',
+  sentimentSubtitle: 'B（情绪）+ M（大盘势能）= C；缺数据不按中性放行',
+  emotionScore: '情绪 B',
+  marketScore: '大盘 M',
+  combinedScore: '合计 C',
+  relayWeight: '次日接力权重',
+  gate: '闸门状态',
+  gateStates: { NORMAL: '常态', HOT: '火热', JOINT_CLIMAX: '双高潮', UNAVAILABLE: '不可用' },
+  crowding: '拥挤度',
+  unavailable: '不可用',
+  noNewRelay: '次日全天 NO_NEW_RELAY',
+  researchOnly: '研究输出，不构成自动交易许可',
+}
+
+function SentimentQuantPanel({
+  snapshot,
+  t,
+  language,
+}: {
+  snapshot: LadderSentimentQuantSnapshot
+  t: Translation['ladder']
+  language: 'zh' | 'en'
+}) {
+  const score = (value: number | null) => (value == null ? '--' : String(value))
+  const v7 = t.v7 ?? DEFAULT_LADDER_V7
+  return (
+    <section className={`ladder-sentiment-quant ladder-sentiment-quant--${snapshot.gateState}`} aria-label={v7.sentimentQuant}>
+      <header className="ladder-section-heading">
+        <div>
+          <h2>{v7.sentimentQuant}</h2>
+          <span>{v7.sentimentSubtitle}</span>
+        </div>
+        <div className="ladder-sentiment-quant-state">
+          <strong>{v7.gateStates[snapshot.gateState]}</strong>
+          {snapshot.noNewRelay && <em>{v7.noNewRelay}</em>}
+        </div>
+      </header>
+      <div className="ladder-sentiment-quant-score-grid">
+        <div><span>{v7.emotionScore}</span><strong>{score(snapshot.B)}</strong></div>
+        <div><span>{v7.marketScore}</span><strong>{score(snapshot.M)}</strong></div>
+        <div><span>{v7.combinedScore}</span><strong>{score(snapshot.C)}</strong></div>
+        <div><span>{v7.relayWeight}</span><strong>{snapshot.nextDayRelayWeight == null ? '--' : snapshot.nextDayRelayWeight}</strong></div>
+        <div><span>{v7.crowding}</span><strong>{snapshot.crowding.percentile == null ? '--' : `P${snapshot.crowding.percentile.toFixed(0)}`}</strong></div>
+      </div>
+      <div className="ladder-sentiment-quant-metrics">
+        {[...snapshot.emotion.metrics, ...snapshot.market.metrics].map((metric) => (
+          <div key={metric.id} className={`ladder-sentiment-metric ladder-sentiment-metric--${metric.state}`}>
+            <span>{metric.label}</span>
+            <b>{metric.score == null ? v7.unavailable : metric.score > 0 ? '+2' : '-2'}</b>
+            <small>{metric.evidence}</small>
+          </div>
+        ))}
+      </div>
+      {(snapshot.warnings.length > 0 || snapshot.crowding.missingReasons.length > 0) && (
+        <div className="ladder-candidate-warning">
+          {[...snapshot.warnings, ...snapshot.crowding.missingReasons].join(' · ')}
+        </div>
+      )}
+      <small className="ladder-sentiment-quant-note">{v7.researchOnly} · {language === 'zh' ? snapshot.asof : snapshot.generatedAt}</small>
+    </section>
+  )
+}
+
+function ExpectationPanel({
+  expectation,
+  match,
+  t,
+  language,
+}: {
+  expectation: RelayExpectation
+  match?: { status: 'met' | 'partial' | 'violated' | 'unavailable'; fit: number | null }
+  t: Translation['ladder']
+  language: 'zh' | 'en'
+}) {
+  const v7 = t.v7 ?? DEFAULT_LADDER_V7
+  return (
+    <section className="ladder-expectation-panel">
+      <header className="ladder-section-heading">
+        <div>
+          <h3>{v7.expectation}</h3>
+          <span>{v7.expectationSubtitle}</span>
+        </div>
+        {match && <strong className={`ladder-expectation-match ladder-expectation-match--${match.status}`}>
+          {v7.match}: {v7.matchStatuses[match.status]}{match.fit == null ? '' : ` ${match.fit.toFixed(0)}%`}
+        </strong>}
+      </header>
+      <div className="ladder-expectation-grid">
+        <div><span>{v7.sequence}</span><strong>{expectation.sequence.signature.map((item) => expectationPathLabel(item, language)).join(' → ') || '--'}</strong></div>
+        <div><span>{v7.sequenceDataQuality}</span><strong>{expectation.sequence.dataQuality} · {expectation.sequence.coverage.toFixed(0)}%</strong></div>
+        <div><span>{v7.qingshan}</span><strong>{expectation.sequence.qingshanPattern ? '✓' : '--'}</strong></div>
+        <div><span>{v7.primaryPath}</span><strong>{expectationPathLabel(expectation.primaryPath, language)}</strong></div>
+        <div><span>{v7.confidence}</span><strong>{expectation.confidence == null ? '--' : expectation.probabilityStatus === 'research-score' ? `研究分 ${expectation.confidence.toFixed(0)}` : `${(expectation.confidence * 100).toFixed(0)}%`}</strong></div>
+        <div><span>{v7.expectedOpen}</span><strong>{expectation.expectedOpenGapPct ? `${expectation.expectedOpenGapPct[0]}% ~ ${expectation.expectedOpenGapPct[1]}%` : '--'}</strong></div>
+        <div><span>{v7.expectedTouch}</span><strong>{expectation.expectedTouchTime?.join(' ~ ') ?? '--'}</strong></div>
+        <div><span>{v7.expectedReopen}</span><strong>{expectation.expectedMaxReopenCount == null ? '--' : expectation.expectedMaxReopenCount}</strong></div>
+      </div>
+      {expectation.evidence.length > 0 && <p className="ladder-expectation-evidence">{expectation.evidence.join(' · ')}</p>}
+      {expectation.missingReasons.length > 0 && <p className="ladder-expectation-missing">{expectation.missingReasons.join(' · ')}</p>}
+    </section>
+  )
+}
+
+const CAPITAL_LANE_ORDER: CapitalLaneId[] = [
+  'hard-tech',
+  'innovative-drug',
+  'small-theme',
+  'index-weight',
+]
+
+function signed(value: number): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}`
+}
+
+function CapitalSeesawPanel({
+  snapshot,
+  error,
+  language,
+}: {
+  snapshot: CrossMarketSnapshot | null
+  error: string | null
+  language: 'zh' | 'en'
+}) {
+  if (!snapshot && !error) return null
+  const isZh = language === 'zh'
+  const liquidity = snapshot?.liquidityRegime
+  const matrix = snapshot?.capitalSeesaw
+  const lanes = CAPITAL_LANE_ORDER.map((id) => matrix?.lanes.find((lane) => lane.id === id)).filter(
+    (lane): lane is NonNullable<typeof lane> => !!lane,
+  )
+  const laneLabels = new Map(matrix?.lanes.map((lane) => [lane.id, lane.label]) ?? [])
+  const warnings = Array.from(
+    new Set(
+      [
+        error,
+        ...(snapshot?.warnings ?? []),
+        ...(snapshot?.dataQuality.warnings ?? []),
+        ...(liquidity?.warnings ?? []),
+        ...(matrix?.warnings ?? []),
+      ].filter((item): item is string => !!item),
+    ),
+  )
+  const phaseLabel =
+    snapshot?.phase === 'premarket' ? '09:15' : snapshot?.phase === 'auction' ? '09:25' : '09:35'
+  const regimeLabels: Record<string, string> = isZh
+    ? {
+        'stock-crowding': '存量集中',
+        'incremental-broad': '增量普涨',
+        balanced: '均衡',
+        unavailable: '不可用',
+      }
+    : {
+        'stock-crowding': 'Stock crowding',
+        'incremental-broad': 'Broad inflow',
+        balanced: 'Balanced',
+        unavailable: 'Unavailable',
+      }
+
+  return (
+    <section className="ladder-capital-seesaw" aria-label="资金跷跷板矩阵">
+      <header className="ladder-section-heading">
+        <div>
+          <h2>{isZh ? '资金跷跷板矩阵' : 'Capital seesaw matrix'}</h2>
+          <span>
+            {isZh
+              ? '美股映射（CPO/大科技、创新药）× A股板块节律 × 同刻流动性；仅表示统计关联'
+              : 'Cross-market shock × A-share rhythm × same-time liquidity; statistical association only'}
+          </span>
+        </div>
+        <div className="ladder-seesaw-status">
+          <span>{phaseLabel}</span>
+          <strong>{snapshot?.probabilityStatus ?? 'unavailable'}</strong>
+        </div>
+      </header>
+
+      <div className="ladder-seesaw-liquidity">
+        <div>
+          <span>{isZh ? '流动性状态' : 'Liquidity'}</span>
+          <strong>{regimeLabels[liquidity?.state ?? 'unavailable']}</strong>
+        </div>
+        <div>
+          <span>{isZh ? '同刻成交额比' : 'Turnover ratio'}</span>
+          <strong>
+            {liquidity?.sameTimeTurnoverRatio == null
+              ? '--'
+              : `${liquidity.sameTimeTurnoverRatio.toFixed(2)}x`}
+          </strong>
+        </div>
+        <div>
+          <span>{isZh ? '上涨宽度' : 'Advance breadth'}</span>
+          <strong>
+            {liquidity?.advanceRatePct == null ? '--' : `${liquidity.advanceRatePct.toFixed(1)}%`}
+          </strong>
+        </div>
+        <div>
+          <span>{isZh ? '前50集中度变化' : 'Top-50 concentration'}</span>
+          <strong>
+            {liquidity?.concentrationDeltaPct == null
+              ? '--'
+              : `${signed(liquidity.concentrationDeltaPct)}pp`}
+          </strong>
+        </div>
+        <div>
+          <span>{isZh ? '大小盘价差' : 'Large-small spread'}</span>
+          <strong>
+            {liquidity?.largeSmallSpreadPct == null
+              ? '--'
+              : `${signed(liquidity.largeSmallSpreadPct)}%`}
+          </strong>
+        </div>
+        <div>
+          <span>{isZh ? '同刻基线' : 'Baseline'}</span>
+          <strong>{liquidity ? `${liquidity.baselineSessions}/20` : '--'}</strong>
+        </div>
+      </div>
+
+      {lanes.length > 0 ? (
+        <div className="ladder-seesaw-lanes">
+          {lanes.map((lane) => (
+            <article
+              key={lane.id}
+              className={`ladder-seesaw-lane ladder-seesaw-lane--${lane.state}`}
+            >
+              <header>
+                <div>
+                  <h3>{lane.label}</h3>
+                  <span>{lane.state}</span>
+                </div>
+                <strong className="mono" aria-label={`${lane.label} research-score`}>
+                  {lane.netResearchScore.toFixed(1)}
+                </strong>
+              </header>
+              <dl>
+                <div>
+                  <dt>{isZh ? '美股映射' : 'US mapping'}</dt>
+                  <dd>
+                    {lane.id === 'hard-tech' || lane.id === 'innovative-drug'
+                      ? signed(lane.externalShock)
+                      : '--'}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{isZh ? '昨日节律' : 'Cycle'}</dt>
+                  <dd>{signed(lane.domesticCycle)}</dd>
+                </div>
+                <div>
+                  <dt>{isZh ? '竞价确认' : 'Auction'}</dt>
+                  <dd>{signed(lane.auctionConfirmation)}</dd>
+                </div>
+                <div>
+                  <dt>{isZh ? '开盘确认' : 'Open'}</dt>
+                  <dd>{signed(lane.openConfirmation)}</dd>
+                </div>
+                <div>
+                  <dt>{isZh ? '流动性' : 'Liquidity'}</dt>
+                  <dd>{signed(lane.liquidityAdjustment)}</dd>
+                </div>
+                <div>
+                  <dt>{isZh ? '交互项' : 'Interaction'}</dt>
+                  <dd>{signed(lane.interactionAdjustment)}</dd>
+                </div>
+              </dl>
+              <p>{lane.reasons.join(' · ')}</p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="ladder-seesaw-missing">
+          {isZh ? '资金通道层尚不可用。' : 'Capital lane layer is unavailable.'}
+        </div>
+      )}
+
+      <div className="ladder-seesaw-transfers">
+        <h3>{isZh ? '统计关联 / 资金偏移' : 'Statistical association / capital tilt'}</h3>
+        {matrix?.transfers.length ? (
+          matrix.transfers.map((transfer, index) => (
+            <div key={`${transfer.from}:${transfer.to}:${index}`}>
+              <strong>{transfer.label}</strong>
+              <span>
+                {laneLabels.get(transfer.from) ?? transfer.from} →{' '}
+                {laneLabels.get(transfer.to) ?? transfer.to}
+              </span>
+              <b className="mono">{transfer.strength.toFixed(1)}</b>
+              <em>{transfer.reasons.join(' · ')}</em>
+            </div>
+          ))
+        ) : (
+          <p>
+            {isZh
+              ? '当前未识别出满足完整证据门槛的资金偏移。'
+              : 'No capital tilt meets the full evidence gate.'}
+          </p>
+        )}
+      </div>
+
+      {warnings.length > 0 && <div className="ladder-seesaw-warning">{warnings.join(' · ')}</div>}
     </section>
   )
 }
@@ -814,16 +1163,25 @@ function AuctionBriefPanel({
                       <div className="ladder-overnight-card" key={news.id}>
                         <div className="ladder-overnight-title">
                           <strong>{news.title}</strong>
-                          <span>{news.category} · {news.verification} · {news.importanceScore}</span>
+                          <span>
+                            {news.category} · {news.verification} · {news.importanceScore}
+                          </span>
                         </div>
                         <p>{news.impactPath}</p>
                         {news.relatedStocks.length > 0 && (
                           <div className="ladder-related-stocks">
                             {news.relatedStocks.map((stock) => (
-                              <span className={`ladder-related-stock ladder-related-stock--${stock.validationState}`} key={`${news.id}-${stock.code}`}>
+                              <span
+                                className={`ladder-related-stock ladder-related-stock--${stock.validationState}`}
+                                key={`${news.id}-${stock.code}`}
+                              >
                                 <b>{stock.name}</b> <small>{stock.code}</small>
                                 <em>{stock.validationState}</em>
-                                <i>{stock.changePct == null ? '待竞价' : `${stock.changePct >= 0 ? '+' : ''}${stock.changePct.toFixed(2)}%`}</i>
+                                <i>
+                                  {stock.changePct == null
+                                    ? '待竞价'
+                                    : `${stock.changePct >= 0 ? '+' : ''}${stock.changePct.toFixed(2)}%`}
+                                </i>
                                 <span title={stock.relationReason}>{stock.relationReason}</span>
                               </span>
                             ))}
@@ -906,7 +1264,7 @@ function OutcomeReview({
               <th>{t.v2.lane}</th>
               <th>{t.v2.outcomeState}</th>
               <th>{t.v2.tradable}</th>
-              <th>{t.v2.openClose}</th>
+              <th>{t.v2.openClose}（标记）</th>
               <th>MFE</th>
               <th>MAE</th>
             </tr>
@@ -931,7 +1289,9 @@ function OutcomeReview({
                 </td>
                 <td>{row.tradable == null ? '--' : row.tradable ? t.v2.yes : t.v2.no}</td>
                 <td className="mono">
-                  {row.openToClosePct == null ? '--' : `${row.openToClosePct.toFixed(2)}%`}
+                  {(row.nextDayOpenToCloseMark ?? row.openToClosePct) == null
+                    ? '--'
+                    : `${(row.nextDayOpenToCloseMark ?? row.openToClosePct)?.toFixed(2)}%`}
                 </td>
                 <td className="mono">{row.mfePct == null ? '--' : `${row.mfePct.toFixed(2)}%`}</td>
                 <td className="mono">{row.maePct == null ? '--' : `${row.maePct.toFixed(2)}%`}</td>
@@ -944,21 +1304,164 @@ function OutcomeReview({
   )
 }
 
+function relayStatusLabel(status: NextDayRelayItem['themeFeedback']['status'], language: 'zh' | 'en'): string {
+  if (language === 'en') {
+    return {
+      supportive: 'supportive',
+      mixed: 'mixed',
+      negative: 'negative',
+      unavailable: 'unavailable',
+    }[status]
+  }
+  return {
+    supportive: '强化',
+    mixed: '分化',
+    negative: '转弱',
+    unavailable: '不可用',
+  }[status]
+}
+
+function relayRoleLabel(role: NextDayRelayItem['relayRole'], language: 'zh' | 'en'): string {
+  if (language === 'en') {
+    return {
+      'relay-candidate': 'relay candidate',
+      'theme-core-observer': 'theme core observer',
+      'emotion-anchor': 'emotion anchor',
+      'fallback-observer': 'fallback observer',
+    }[role]
+  }
+  return {
+    'relay-candidate': '可接力观察',
+    'theme-core-observer': '板块核心观察',
+    'emotion-anchor': '情绪/空间锚点',
+    'fallback-observer': '补充观察',
+  }[role]
+}
+
+function themeLadderRelationLabel(
+  relation: NonNullable<LadderStockAnalysis['themeLadder']>['relation'],
+): string {
+  return {
+    replenishment: '上方龙头·补涨',
+    'leader-driven': '高标带动·有梯队',
+    follower: '高标跟随',
+    isolated: '未形成结构',
+    unavailable: '数据不足',
+  }[relation]
+}
+
+function NextDayRelayPlanPanel({
+  plan,
+  language,
+}: {
+  plan: NextDayRelayPlan
+  language: 'zh' | 'en'
+}) {
+  const zh = language === 'zh'
+  const feedbackLabel = (label: string, feedback: NextDayRelayItem['themeFeedback']) => (
+    <div className="ladder-relay-feedback">
+      <strong>{label}</strong>
+      <span className={'ladder-relay-status ladder-relay-status--' + feedback.status}>
+        {relayStatusLabel(feedback.status, language)}
+      </span>
+      <small>{feedback.evidence[0] ?? (zh ? '等待本阶段数据' : 'waiting for current-stage data')}</small>
+      {feedback.related.length > 0 && (
+        <small>
+          {(zh ? '关联：' : 'Related: ') +
+            feedback.related.slice(0, 3).map((related) => related.name).join('、')}
+        </small>
+      )}
+    </div>
+  )
+  return (
+    <section className="ladder-relay-plan" aria-label={zh ? '次日接力计划' : 'Next-day relay plan'}>
+      <header className="ladder-section-heading">
+        <div>
+          <h2>{zh ? '次日接力计划' : 'Next-day relay plan'}</h2>
+          <span>
+            research-score · {zh ? '研究排序，不代表概率或交易指令' : 'research ranking; not probability or instruction'}
+          </span>
+        </div>
+        <div className="ladder-stage">
+          <span>{zh ? '数据阶段' : 'Stage'}</span>
+          <strong>{plan.stage}</strong>
+          <small>{plan.tradeDate || '--'}</small>
+        </div>
+      </header>
+      {plan.warnings.length > 0 && (
+        <div className="ladder-candidate-warning">{plan.warnings.join(' · ')}</div>
+      )}
+      <div className="ladder-relay-grid">
+        {plan.items.slice(0, 12).map((item) => (
+          <article
+            key={item.code}
+            className="ladder-relay-card"
+            data-testid={'relay-plan-item-' + item.code}
+            data-stage={plan.stage}
+            data-execution-eligible={item.executionEligible ? 'true' : 'false'}
+          >
+            <div className="ladder-relay-card__heading">
+              <div>
+                <strong>{item.name}</strong>
+                <span className="mono">{item.code} · {item.boards}板 · {item.promotionLane}</span>
+              </div>
+              <div className="ladder-relay-card__badges">
+                <span className="ladder-relay-role">{relayRoleLabel(item.relayRole, language)}</span>
+                <span className="ladder-relay-priority">P{item.researchPriority}</span>
+              </div>
+            </div>
+            <div className="ladder-relay-card__meta">
+              <span>{item.primaryTheme} → {item.researchTheme}</span>
+              <strong className={item.executionEligible ? 'is-eligible' : 'is-ineligible'}>
+                {item.executionEligible
+                  ? (zh ? '严格闸门通过（研究展示）' : 'strict gate passed (research)')
+                  : (zh ? '不可执行/仅观察' : 'observation only')}
+              </strong>
+            </div>
+            <div className="ladder-relay-feedback-grid">
+              {feedbackLabel(zh ? '同板块高标' : 'Theme leaders', item.themeFeedback)}
+              {feedbackLabel(zh ? '同身位梯队' : 'Same lane', item.sameLevelFeedback)}
+            </div>
+            <details>
+              <summary>{zh ? '确认条件 / 失效条件 / 不追价原因' : 'Confirmation / invalidation / no-chase'}</summary>
+              <div className="ladder-relay-details">
+                <div><b>{zh ? '确认' : 'Confirm'}：</b>{item.confirmationConditions.join('；')}</div>
+                <div><b>{zh ? '实战闸门' : 'Execution gate'}：</b>{(item.executionGateReasons ?? []).join('；') || (zh ? '全部通过（研究展示）' : 'all passed (research)')}</div>
+                <div><b>{zh ? '失效' : 'Invalidate'}：</b>{item.invalidationReasons.join('；') || '--'}</div>
+                <div><b>{zh ? '不追价' : 'No chase'}：</b>{item.noChaseReasons.join('；') || '--'}</div>
+              </div>
+            </details>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
 function NextDayCandidates({
   candidates,
   confirmations,
+  relayItems,
+  dataDate,
   stage,
   snapshotAvailable,
   warning,
+  onImportManualReviews,
+  manualReviewMessage,
   t,
+  language,
   onSelect,
 }: {
   candidates: LadderStockAnalysis[]
   confirmations: Map<string, NextDayCandidateConfirmation>
+  relayItems?: Map<string, NextDayRelayItem>
+  dataDate?: string
   stage: 'pending' | 'auction' | 'open' | 'settled'
   snapshotAvailable: boolean | null
   warning: string
+  onImportManualReviews: () => void
+  manualReviewMessage: string
   t: Translation['ladder']
+  language: 'zh' | 'en'
   onSelect: (stock: LadderStockAnalysis) => void
 }) {
   return (
@@ -969,11 +1472,15 @@ function NextDayCandidates({
           <span>{t.v2.candidateScope}</span>
         </div>
         <div className="ladder-stage">
+          <button type="button" className="ladder-manual-review-button" onClick={onImportManualReviews}>
+            截图补录 JSON
+          </button>
           <span>{t.v2.stage}</span>
           <strong>{t.v2.stages[stage]}</strong>
           {snapshotAvailable === false && (stage === 'open' || stage === 'settled') && (
             <em>{t.v2.auctionSnapshotMissing}</em>
           )}
+          {manualReviewMessage && <small>{manualReviewMessage}</small>}
         </div>
       </header>
       {warning && <div className="ladder-candidate-warning">{warning}</div>}
@@ -986,6 +1493,12 @@ function NextDayCandidates({
                 <th>{t.table.stock}</th>
                 <th>{t.v2.lane}</th>
                 <th>{t.table.theme}</th>
+                <th>题材梯队</th>
+                <th>截图复核</th>
+                <th>最终复核分</th>
+                <th>研究定位</th>
+                <th>反馈/阶段</th>
+                <th>{t.v2.dragonIdentity}</th>
                 <th>{t.v6.sizeBucket}</th>
                 <th>{t.v2.promotionScore}</th>
                 <th>{t.v2.tradabilityScore}</th>
@@ -1004,6 +1517,7 @@ function NextDayCandidates({
             <tbody>
               {candidates.slice(0, 10).map((stock, index) => {
                 const live = confirmations.get(stock.code)
+                const research = relayItems?.get(stock.code)
                 const nextState = live?.state ?? 'pending'
                 return (
                   <tr key={stock.code} onClick={() => onSelect(stock)}>
@@ -1020,8 +1534,91 @@ function NextDayCandidates({
                       </span>
                     </td>
                     <td>
-                      <span className={`ladder-theme ladder-theme--${stock.themeGrade}`}>
+                      <span className={'ladder-theme ladder-theme--' + stock.themeGrade}>
                         {stock.primaryTheme}
+                      </span>
+                    </td>
+                    <td
+                      title={stock.themeLadder
+                        ? [...stock.themeLadder.evidence, ...stock.themeLadder.missingReasons].join(' · ')
+                        : '缺少题材梯队关系证据'}
+                    >
+                      {stock.themeLadder ? (
+                        <>
+                          <strong>{themeLadderRelationLabel(stock.themeLadder.relation)}</strong>
+                          <span className="ladder-cell-subtext">
+                            {stock.themeLadder.bonus > 0 ? `结构 +${stock.themeLadder.bonus.toFixed(1)}` : '结构 +0'}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="ladder-cell-subtext">--</span>
+                      )}
+                    </td>
+                    <td
+                      title={live?.manualReview?.missingReasons.join(' · ') ?? '尚未补录截图证据'}
+                    >
+                      {live?.manualReview ? (
+                        <>
+                          <strong>
+                            {live.manualReview.status === 'reviewed'
+                              ? '已复核'
+                              : live.manualReview.status === 'partial'
+                                ? '部分'
+                                : '待补录'}
+                          </strong>
+                          <span className="ladder-cell-subtext">
+                            覆盖 {live.manualReview.coveragePct.toFixed(0)}%
+                          </span>
+                        </>
+                      ) : (
+                        <span className="ladder-cell-subtext">待截图</span>
+                      )}
+                    </td>
+                    <td className="mono score-live">
+                      {live?.manualReview?.finalScore == null
+                        ? '--'
+                        : live.manualReview.finalScore.toFixed(1)}
+                      {live?.manualReview?.provisionalScore != null &&
+                        live.manualReview.finalScore == null && (
+                          <span className="ladder-cell-subtext">
+                            临时 {live.manualReview.provisionalScore.toFixed(1)}
+                          </span>
+                        )}
+                    </td>
+                    <td>
+                      <span>{research ? relayRoleLabel(research.relayRole, 'zh') : '--'}</span>
+                      <span className="ladder-cell-subtext">
+                        {research ? 'P' + research.researchPriority : '--'}
+                      </span>
+                    </td>
+                    <td title={research ? [...research.researchReasons, ...(research.executionGateReasons ?? [])].join(' · ') : undefined}>
+                      {research
+                        ? [
+                            research.themeFeedback.status,
+                            research.sameLevelFeedback.status,
+                          ].join(' / ')
+                        : '--'}
+                      <span className="ladder-cell-subtext">
+                        {(dataDate || '--') + ' · ' + stage}
+                      </span>
+                    </td>
+                    <td
+                      className="mono score-base"
+                      title={[
+                        stock.dragonIdentity?.verdict ?? 'insufficient-data',
+                        ...(stock.dragonIdentity?.hardGate.failed ?? []),
+                        ...(stock.dragonIdentity?.evidence ?? []),
+                      ].join(' · ')}
+                    >
+                      {stock.dragonIdentity ? stock.dragonIdentity.score.toFixed(1) : '--'}
+                      <span className="ladder-cell-subtext">
+                        {stock.dragonIdentity?.verdict === 'true-dragon'
+                          ? '真龙'
+                          : stock.dragonIdentity?.verdict === 'core'
+                            ? '核心'
+                            : stock.dragonIdentity?.verdict === 'follower'
+                              ? '跟风'
+                              : '数据不足'}
                       </span>
                     </td>
                     <td>
@@ -1045,7 +1642,21 @@ function NextDayCandidates({
                         ? '--'
                         : `${live.liquidityStyleAdjustment >= 0 ? '+' : ''}${live.liquidityStyleAdjustment.toFixed(1)}`}
                     </td>
-                    <td className="mono score-live">{fmtScore(live?.decisionScore)}</td>
+                    <td
+                      className="mono score-live"
+                      title={[
+                        live?.openingGapAdjustment
+                          ? `开盘脆弱性调整 ${live.openingGapAdjustment >= 0 ? '+' : ''}${live.openingGapAdjustment.toFixed(1)}`
+                          : '',
+                        live?.auctionTailBonus
+                          ? `9:24翘尾抢筹 ${live.auctionTailBonus >= 0 ? '+' : ''}${live.auctionTailBonus.toFixed(1)}`
+                          : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    >
+                      {fmtScore(live?.decisionScore)}
+                    </td>
                     <td title={live?.themePermission?.reasons.join(' · ')}>
                       {live?.themePermission
                         ? t.v5.permissionStates[live.themePermission.state]
@@ -1060,6 +1671,33 @@ function NextDayCandidates({
                       title={[...(live?.gateReasons ?? []), ...(live?.warnings ?? [])].join(' · ')}
                     >
                       <NextDayStateBadge state={nextState} t={t} />
+                      {live && (
+                        <span className="ladder-cell-subtext">
+                          {language === 'zh'
+                            ? `${live.researchConfirmed ? '研究确认' : '研究观察'} · ${live.executionEligible ? '执行许可' : '不可执行'}`
+                            : `${live.researchConfirmed ? 'research confirmed' : 'research only'} · ${live.executionEligible ? 'execution eligible' : 'not executable'}`}
+                        </span>
+                      )}
+                      {live?.openingConfirmationGate === 'blocked' && (
+                        <span className="ladder-cell-subtext">
+                          {language === 'zh'
+                            ? '低/平开 · 等9:35量价翻红'
+                            : 'low/flat auction · wait for 09:35 rebound'}
+                        </span>
+                      )}
+                      {live?.openingConfirmationGate === 'passed' && (
+                        <span className="ladder-cell-subtext">
+                          {language === 'zh'
+                            ? `低/平开后9:35量价翻红${live.auctionTailBuyConfirmed ? ' · 9:24翘尾加分' : ''}`
+                            : `09:35 rebound after low/flat${live.auctionTailBuyConfirmed ? ' · 09:24 tail bonus' : ''}`}
+                        </span>
+                      )}
+                      {live?.openingConfirmationGate !== 'passed' &&
+                        live?.auctionTailBuyConfirmed && (
+                          <span className="ladder-cell-subtext">
+                            {language === 'zh' ? '9:24翘尾抢筹 · 已加分' : '09:24 tail buying · bonus added'}
+                          </span>
+                        )}
                     </td>
                   </tr>
                 )
@@ -1069,6 +1707,210 @@ function NextDayCandidates({
         </div>
       ) : (
         <div className="ladder-candidate-empty">{t.v2.candidateEmpty}</div>
+      )}
+    </section>
+  )
+}
+
+function FirstBoardScanPanel({
+  scan,
+  error,
+  t,
+}: {
+  scan: FirstBoardScanResponse | null
+  error: string | null
+  t: Translation['ladder']
+}) {
+  const dimensionLabels: Record<string, string> = {
+    market: '市场',
+    theme: '题材',
+    seal: '封板',
+    structure: '结构',
+    'price-volume': '量价',
+    wyckoff: '维科夫代理',
+    brooks: 'Brooks代理',
+  }
+  const lifecycleLabels: Record<string, string> = {
+    detected: '发现',
+    sealed: '仍封板',
+    opened: '炸板/离开',
+    resealed: '回封',
+    'closed-limit': '收盘封住',
+    failed: '收盘未封',
+  }
+  const categoryLabels: Record<string, string> = {
+    focus: '重点观察',
+    observe: '观察',
+    'low-priority': '低优先',
+    'data-insufficient': '数据不足',
+  }
+  const status = scan?.status ?? 'unavailable'
+  const statusLabel = t.firstBoardScan.statuses[status]
+  const emptyMessage = status === 'live'
+    ? t.firstBoardScan.empty
+    : status === 'unavailable'
+      ? t.firstBoardScan.unavailableEmpty
+      : t.firstBoardScan.closedEmpty
+  const lastScan = scan?.lastScanAt
+    ? new Date(scan.lastScanAt).toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '--:--'
+  const snapshots = scan?.snapshots ?? []
+  return (
+    <section className="ladder-first-board-scan" aria-label={t.firstBoardScan.title}>
+      <header className="ladder-section-heading">
+        <div>
+          <h2>{t.firstBoardScan.title}</h2>
+          <span>{t.firstBoardScan.subtitle}</span>
+        </div>
+        <div className={`ladder-first-board-status ladder-first-board-status--${status}`}>
+          <span>{scan?.tradeDate ?? '--'}</span>
+          <strong>{statusLabel}</strong>
+        </div>
+      </header>
+
+      {scan && (
+        <div className="ladder-first-board-metrics">
+          <div>
+            <span>{t.firstBoardScan.window}</span>
+            <strong>
+              {scan.window.start}–{scan.window.end} · {scan.window.intervalMinutes}{' '}
+              {t.firstBoardScan.minutes}
+            </strong>
+          </div>
+          <div>
+            <span>{t.firstBoardScan.scanCount}</span>
+            <strong>{scan.scanCount}</strong>
+          </div>
+          <div>
+            <span>{t.firstBoardScan.newCount}</span>
+            <strong>{(scan.allCandidates ?? scan.candidates).length}</strong>
+            <small>全量合格池</small>
+          </div>
+          <div>
+            <span>展示 / 合格池</span>
+            <strong>{scan.candidates.length} / {(scan.allCandidates ?? scan.candidates).length}</strong>
+          </div>
+          <div>
+            <span>{t.firstBoardScan.lastScan}</span>
+            <strong>{lastScan}</strong>
+          </div>
+          <div>
+            <span>{t.firstBoardScan.stExcluded}</span>
+            <strong>{scan.excludedStCount}</strong>
+          </div>
+        </div>
+      )}
+
+      {error && <div className="ladder-candidate-warning">{error}</div>}
+      {scan?.warnings.length ? (
+        <div className="ladder-candidate-warning">{scan.warnings.join(' · ')}</div>
+      ) : null}
+      {scan && scan.dataQuality !== 'full' && (
+        <div className="ladder-candidate-warning">
+          数据质量：{scan.dataQuality} · 来源：{scan.source} · 研究观察，不构成交易许可
+        </div>
+      )}
+      {scan && (
+        <div className="ladder-candidate-warning">
+          研究状态：{scan.strategyStatus ?? 'research'} · Top10 仅为展示截面，不能作为策略池截断
+        </div>
+      )}
+
+      {scan?.candidates.length ? (
+        <div className="ladder-first-board-grid">
+          {scan.candidates.map((candidate) => (
+            <article className="ladder-first-board-card" key={candidate.code}>
+                <header>
+                  <div>
+                    <strong>{candidate.name}</strong>
+                    <span className="mono">{candidate.code}</span>
+                  </div>
+                  <div className="ladder-first-board-score">
+                    <b className="mono">{candidate.selectionScore ?? candidate.discoveryScore.finalScore ?? '--'}</b>
+                    <small>{categoryLabels[candidate.discoveryScore.category]}</small>
+                  </div>
+                </header>
+                <div className="ladder-first-board-tags">
+                  <span>{candidate.primaryTheme || '其他'}</span>
+                  <span>{candidate.reason}</span>
+                  <span>{lifecycleLabels[candidate.lifecycle] ?? candidate.lifecycle}</span>
+                  <span>{candidate.evidenceStatus}</span>
+                  <span>
+                    {candidate.themeLadder?.state === 'complete'
+                      ? `完整梯队补涨 +${candidate.themeLadder.bonus}`
+                      : '板块非入池门槛'}
+                  </span>
+                </div>
+                <div className="ladder-first-board-score-meta">
+                  <span>涨幅 +{candidate.changePct.toFixed(2)}%</span>
+                  <span>覆盖 {(candidate.discoveryScore.coverage * 100).toFixed(0)}%</span>
+                  <span>开板 {candidate.openCount} 次</span>
+                  <span>可成交 {candidate.tradability.status}</span>
+                  <span>形态/量价优先</span>
+                </div>
+                {candidate.relayPathScore && (
+                  <div className="ladder-first-board-score-meta">
+                    <span>
+                      路径研究分 {candidate.relayPathScore.pathResearchScore ?? '--'}
+                    </span>
+                    <span>
+                      路径覆盖 {(candidate.relayPathScore.pathCoverage != null
+                        ? candidate.relayPathScore.pathCoverage
+                        : (candidate.relayPathEvidence?.coverage?.overall ?? 0) * 100).toFixed(0)}%
+                    </span>
+                    <span>{candidate.relayPathEvidence?.boardClass ?? '路径分型未知'}</span>
+                    {(candidate.relayPathScore.failedConditions?.length ?? 0) > 0 && (
+                      <span title={candidate.relayPathScore.failedConditions?.join(' · ')}>存在路径失败条件</span>
+                    )}
+                  </div>
+                )}
+                <div className="ladder-first-board-dimensions">
+                  {candidate.discoveryScore.dimensions.map((dimension) => (
+                    <span key={dimension.key} title={dimension.evidence.join(' · ') || dimension.unavailableReason}>
+                      {dimensionLabels[dimension.key]} {dimension.score == null ? '--' : dimension.score.toFixed(0)}
+                    </span>
+                  ))}
+                </div>
+                <dl>
+                <div>
+                  <dt>{t.firstBoardScan.firstSeal}</dt>
+                  <dd className="mono">{fmtTime(candidate.firstTime)}</dd>
+                </div>
+                <div>
+                  <dt>{t.firstBoardScan.turnover}</dt>
+                  <dd className="mono">
+                    {candidate.turnoverRate > 0 ? `${candidate.turnoverRate.toFixed(2)}%` : '--'}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t.firstBoardScan.amount}</dt>
+                  <dd className="mono">{fmtYi(candidate.amount)}</dd>
+                </div>
+                <div>
+                  <dt>{t.firstBoardScan.price}</dt>
+                  <dd className="mono">{candidate.price.toFixed(2)}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="ladder-candidate-empty">
+          {emptyMessage}
+        </div>
+      )}
+
+      {snapshots.length > 0 && (
+        <div className="ladder-first-board-timeline">
+          {snapshots.map((snapshot) => (
+            <span key={snapshot.slot}>
+              {snapshot.scannedAt.slice(11, 16)} · +{snapshot.newCount}
+            </span>
+          ))}
+        </div>
       )}
     </section>
   )
@@ -1129,11 +1971,13 @@ function EvidenceDrawer({
   stock,
   date,
   t,
+  language,
   onClose,
 }: {
   stock: LadderStockAnalysis
   date: string
   t: Translation['ladder']
+  language: 'zh' | 'en'
   onClose: () => void
 }) {
   const { detail, loading: reasonLoading, error: reasonError } = useLadderReason(stock.code, date)
@@ -1222,6 +2066,33 @@ function EvidenceDrawer({
             <span>{t.v4.heightTiers[stock.roleProfile.heightTier]}</span>
             <span>{t.v4.lifecycles[stock.roleProfile.lifecycle]}</span>
             <small>{stock.roleProfile.evidence.join(' · ')}</small>
+          </section>
+        )}
+
+        {stock.expectation && (
+          <ExpectationPanel expectation={stock.expectation} t={t} language={language} />
+        )}
+
+        {stock.relayPathScore && (
+          <section className="ladder-expectation-panel">
+            <div className="ladder-section-heading">
+              <div>
+                <h3>1～N板来时路（研究影子分）</h3>
+                <span>{stock.relayPathEvidence?.boardClass ?? '分型未知'} · {stock.relayPathEvidence?.quality ?? '质量未知'}</span>
+              </div>
+              <strong>{stock.relayPathScore.pathResearchScore ?? '--'}</strong>
+            </div>
+            <div className="ladder-expectation-grid">
+              <div><span>路径覆盖</span><strong>{stock.relayPathScore.pathCoverage ?? '--'}</strong></div>
+              <div><span>数据置信</span><strong>{stock.relayPathScore.dataConfidence ?? '--'}</strong></div>
+              <div><span>概率状态</span><strong>{stock.relayPathScore.probabilityStatus ?? 'research-score'}</strong></div>
+            </div>
+            {(stock.relayPathScore.failedConditions?.length ?? 0) > 0 && (
+              <p className="ladder-expectation-missing">{stock.relayPathScore.failedConditions?.join(' · ')}</p>
+            )}
+            {(stock.relayPathEvidence?.missingReasons?.length ?? 0) > 0 && (
+              <p className="ladder-expectation-missing">{stock.relayPathEvidence?.missingReasons?.join(' · ')}</p>
+            )}
           </section>
         )}
 
@@ -1436,12 +2307,20 @@ export default function LadderView({ t, language }: LadderViewProps) {
   const [heightFilter, setHeightFilter] = useState('all')
   const [selectedStock, setSelectedStock] = useState<LadderStockAnalysis | null>(null)
   const [importMessage, setImportMessage] = useState('')
+  const [manualReviewMessage, setManualReviewMessage] = useState('')
   const [liveRefreshKey, setLiveRefreshKey] = useState(0)
   const fileRef = useRef<HTMLInputElement>(null)
+  const manualReviewFileRef = useRef<HTMLInputElement>(null)
+  const { dates: ladderArchiveDates } = useLadderArchiveDates()
   const { data, loading, error, refresh, importData } = useLadderAnalysis(date)
+  const { data: firstBoardScan, error: firstBoardScanError } = useFirstBoardScan(
+    date,
+    mode === 'single',
+    liveRefreshKey,
+  )
   const isResearchLadder = /^limit-ladder-v[23456]$/.test(data?.ruleVersion ?? '')
   const supportsNextDayReview = /^limit-ladder-v[123456]$/.test(data?.ruleVersion ?? '')
-  const { data: nextDay, error: nextDayError } = useLadderNextDay(
+  const { data: nextDay, error: nextDayError, saveManualReviews } = useLadderNextDay(
     date,
     supportsNextDayReview,
     liveRefreshKey,
@@ -1451,20 +2330,30 @@ export default function LadderView({ t, language }: LadderViewProps) {
     /^limit-ladder-v[3456]$/.test(data?.ruleVersion ?? ''),
     liveRefreshKey,
   )
+  const crossMarketPhase: CrossMarketPhase =
+    nextDay?.stage === 'open' || nextDay?.stage === 'settled'
+      ? 'open'
+      : nextDay?.stage === 'auction' || nextDay?.auctionSnapshotAvailable
+        ? 'auction'
+        : 'premarket'
+  const { data: crossMarket, error: crossMarketError } = useCrossMarketSnapshot(
+    nextDay?.tradeDate ?? '',
+    crossMarketPhase,
+    mode === 'single' && supportsNextDayReview && !!nextDay?.tradeDate,
+    liveRefreshKey,
+  )
   const { dates: allTradingDates } = useTradingDates()
-  const recentTradingDates = useMemo(() => {
+  const calendarTradingDates = useMemo(() => {
     const settledThrough = getLastSettledTradingDay()
-    return new Set(
-      Array.from(allTradingDates)
-        .filter((tradingDate) => tradingDate <= settledThrough)
-        .slice(0, 5),
+    const dates = new Set(
+      [...allTradingDates, ...ladderArchiveDates].filter((tradingDate) => tradingDate <= settledThrough),
     )
-  }, [allTradingDates])
-  const latestSettled = recentTradingDates.values().next().value as string | undefined
-
-  useEffect(() => {
-    if (latestSettled && !recentTradingDates.has(date)) setDate(latestSettled)
-  }, [date, latestSettled, recentTradingDates])
+    // The latest settled date may not be present in a lagging upstream calendar
+    // yet. Keep it visible/selectable so an unavailable current date is shown
+    // explicitly instead of silently falling back to an older archive.
+    dates.add(date)
+    return dates
+  }, [allTradingDates, date, ladderArchiveDates])
 
   const filteredStocks = useMemo(() => {
     if (!data) return []
@@ -1525,6 +2414,28 @@ export default function LadderView({ t, language }: LadderViewProps) {
     }
   }
 
+  const handleManualReviewImport = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    try {
+      const raw = JSON.parse(await file.text()) as Partial<NextDayManualReviewPayload> | NextDayManualReviewPayload
+      const payload: NextDayManualReviewPayload = {
+        signalDate: String(raw.signalDate ?? date),
+        reviews: Array.isArray(raw.reviews) ? raw.reviews : [],
+      }
+      if (payload.signalDate !== date) {
+        throw new Error(`文件信号日${payload.signalDate}与当前页面${date}不一致`)
+      }
+      if (!payload.reviews.length) throw new Error('reviews 不能为空')
+      await saveManualReviews(payload)
+      setManualReviewMessage(`已保存${payload.reviews.length}只截图复核，正在刷新最终分`)
+      setLiveRefreshKey((current) => current + 1)
+    } catch (err) {
+      setManualReviewMessage(`截图复核导入失败：${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
   const handleRefresh = async () => {
     await refresh()
     setLiveRefreshKey((current) => current + 1)
@@ -1554,16 +2465,18 @@ export default function LadderView({ t, language }: LadderViewProps) {
                 {copy.phases[data.market.cycle.phase]}
               </span>
               <span>
-                {copy.limitUp} <b>{data.market.limitUp}</b>
+                {copy.limitUp} <b>{data.market.limitUp ?? '—'}</b>
               </span>
               <span>
-                {copy.limitDown} <b>{data.market.limitDown}</b>
+                {copy.limitDown} <b>{data.market.limitDown ?? '—'}</b>
               </span>
               <span>
-                {copy.breakRate} <b>{data.market.breakRate.toFixed(1)}%</b>
+                {copy.breakRate}{' '}
+                <b>{data.market.breakRate == null ? '—' : `${data.market.breakRate.toFixed(1)}%`}</b>
               </span>
               <span>
-                {copy.promotionRate} <b>{data.market.promotionRate.toFixed(1)}%</b>
+                {copy.promotionRate}{' '}
+                <b>{data.market.promotionRate == null ? '—' : `${data.market.promotionRate.toFixed(1)}%`}</b>
               </span>
               <span>
                 {copy.maxBoards}{' '}
@@ -1583,7 +2496,7 @@ export default function LadderView({ t, language }: LadderViewProps) {
               onSelect={setDate}
               onRefresh={() => void handleRefresh()}
               t={t}
-              availableDates={recentTradingDates.size ? recentTradingDates : new Set([date])}
+              availableDates={calendarTradingDates}
             />
           </div>
           <input
@@ -1592,6 +2505,13 @@ export default function LadderView({ t, language }: LadderViewProps) {
             type="file"
             accept=".csv,.json"
             onChange={handleImport}
+          />
+          <input
+            ref={manualReviewFileRef}
+            className="sr-only"
+            type="file"
+            accept=".json"
+            onChange={handleManualReviewImport}
           />
           <button
             type="button"
@@ -1609,8 +2529,32 @@ export default function LadderView({ t, language }: LadderViewProps) {
         <div className="ladder-quality-warning">{data.warnings.join(' · ')}</div>
       ) : null}
 
+      {mode === 'single' && (
+        <PremarketWorkbench refreshKey={liveRefreshKey} crossMarket={crossMarket} />
+      )}
+
+      {mode === 'single' && (
+        <FirstBoardScanPanel
+          scan={firstBoardScan}
+          error={firstBoardScanError}
+          t={copy}
+        />
+      )}
+
       {mode === 'single' && nextDay?.marketGate && (
         <MarketGatePanel gate={nextDay.marketGate} t={copy} />
+      )}
+
+      {mode === 'single' && (nextDay?.sentimentQuant ?? data?.sentimentQuant) && (
+        <SentimentQuantPanel
+          snapshot={(nextDay?.sentimentQuant ?? data?.sentimentQuant) as LadderSentimentQuantSnapshot}
+          t={copy}
+          language={language}
+        />
+      )}
+
+      {mode === 'single' && (
+        <CapitalSeesawPanel snapshot={crossMarket} error={crossMarketError} language={language} />
       )}
 
       {mode === 'single' &&
@@ -1649,14 +2593,23 @@ export default function LadderView({ t, language }: LadderViewProps) {
         <OutcomeReview outcome={nextDay.outcome} t={copy} />
       )}
 
+      {mode === 'single' && isResearchLadder && nextDay?.relayPlan && (
+        <NextDayRelayPlanPanel plan={nextDay.relayPlan} language={language} />
+      )}
+
       {mode === 'single' && isResearchLadder && data && (
         <NextDayCandidates
           candidates={orderedNextDayCandidates}
           confirmations={confirmationMap}
+          relayItems={new Map((nextDay?.relayPlan?.items ?? []).map((item) => [item.code, item]))}
+          dataDate={nextDay?.tradeDate}
           stage={nextDay?.stage ?? 'pending'}
           snapshotAvailable={nextDay ? nextDay.auctionSnapshotAvailable : null}
           warning={[nextDayError, ...(nextDay?.warnings ?? [])].filter(Boolean).join(' · ')}
+          onImportManualReviews={() => manualReviewFileRef.current?.click()}
+          manualReviewMessage={manualReviewMessage}
           t={copy}
+          language={language}
           onSelect={setSelectedStock}
         />
       )}
@@ -1841,6 +2794,7 @@ export default function LadderView({ t, language }: LadderViewProps) {
           stock={selectedStock}
           date={date}
           t={copy}
+          language={language}
           onClose={() => setSelectedStock(null)}
         />
       )}

@@ -69,6 +69,24 @@ export function getLastTradingDay(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
+/**
+ * The latest session with settled ladder data. The limit-ladder signal is
+ * generated after 15:10, so intraday views must keep using the previous
+ * session as the signal date.
+ */
+export function getLastSettledTradingDay(now = new Date()): string {
+  const d = new Date(now)
+  const minutes = now.getHours() * 60 + now.getMinutes()
+  if (minutes < 15 * 60 + 10) {
+    d.setDate(d.getDate() - 1)
+  }
+
+  while (d.getDay() === 0 || d.getDay() === 6) {
+    d.setDate(d.getDate() - 1)
+  }
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 function readHistory(): HistoryMap {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)

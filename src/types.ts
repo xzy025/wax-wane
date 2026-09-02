@@ -61,7 +61,18 @@ export interface Translation {
   language: { label: string; zh: string; en: string }
   rotation: {
     searchPlaceholder: string
-    category: { label: string; industry: string; concept: string }
+    category: { label: string; theme: string; industry: string; concept: string }
+    source: { label: string; all: string; direct: string; reconstructed: string }
+    quality: {
+      direct: string
+      reconstructed: string
+      coverage: string
+      degraded: string
+      source: string
+      date: string
+      sectors: string
+      volumeProgress: string
+    }
     longLabel: string
     shortLabel: string
     dayN: string
@@ -74,7 +85,9 @@ export interface Translation {
     up: string
     down: string
     shortUpShare: string
+    shortOutperformShare: string
     legend: string
+    legendQuickTiny: string
     lastUpdated: string
     quads: {
       hs: { tag: string; meaning: string }
@@ -82,7 +95,9 @@ export interface Translation {
       hw: { tag: string; meaning: string }
       lw: { tag: string; meaning: string }
     }
-    card: { long: string; today: string }
+    card: { long: string; today: string; position: string; volume: string; stocks: string }
+    outperform: string
+    underperform: string
     drill: {
       title: string
       hint: string
@@ -93,6 +108,9 @@ export interface Translation {
       breakout: string
       trigger: string
       topMovers: string
+      strategyHits: string
+      allMembers: string
+      hideMembers: string
     }
     structure: {
       title: string
@@ -165,6 +183,49 @@ export interface Translation {
       empty: string
       loadFail: string
       legend: string
+      sourceDisclosure: string
+      sourceEastmoney: string
+      sourceState: {
+        em: string
+        kpl: string
+        live: string
+        recon: string
+        down: string
+        off: string
+      }
+      rhythm: {
+        title: string
+        benchmark: string
+        active: string
+        strongToday: string
+        breadth: {
+          expansion: string
+          rotation: string
+          contraction: string
+        }
+        groups: {
+          first: { title: string; hint: string }
+          second: { title: string; hint: string }
+          core: { title: string; hint: string }
+          mature: { title: string; hint: string }
+          reset: { title: string; hint: string }
+        }
+        stages: {
+          launch1: string
+          reflow1: string
+          day2: string
+          day3: string
+          late: string
+          divergence: string
+          reset: string
+          adjust: string
+        }
+        guideTitle: string
+        flow: string
+        order: string
+        caveat: string
+        boardLinkTitle: string
+      }
     }
   }
   themes: {
@@ -560,6 +621,218 @@ export interface Translation {
     quality: string
     degraded: string
     archived: string
+    firstBoardScan: {
+      title: string
+      subtitle: string
+      statuses: Record<'live' | 'closed' | 'unavailable', string>
+      window: string
+      minutes: string
+      scanCount: string
+      newCount: string
+      lastScan: string
+      stExcluded: string
+      firstSeal: string
+      turnover: string
+      amount: string
+      price: string
+      empty: string
+      closedEmpty: string
+      unavailableEmpty: string
+    }
+    v2: {
+      lanes: string
+      research: string
+      dominantLane: string
+      dominant: string
+      supply: string
+      historyRate: string
+      themeCoverage: string
+      sealStability: string
+      candidates: string
+      candidateScope: string
+      candidateEmpty: string
+      stage: string
+      stages: Record<'pending' | 'auction' | 'open' | 'settled', string>
+      nextStates: Record<
+        'pending' | 'auction-qualified' | 'confirmed' | 'waiting' | 'blocked' | 'rejected',
+        string
+      >
+      auctionSnapshotMissing: string
+      lane: string
+      promotionScore: string
+      tradabilityScore: string
+      dragonIdentity: string
+      baseScore: string
+      auctionScore: string
+      openScore: string
+      liveScore: string
+      turnover: string
+      legacyEvidence: string
+      promotionEvidence: string
+      tradabilityEvidence: string
+      factorLane: string
+      factorPopularity: string
+      factorAccessibility: string
+      factorTurnoverCapacity: string
+      factorLiquidity: string
+      factorStructure: string
+      factorReopen: string
+      floatCap: string
+      amountFloatRatio: string
+      effectiveTurnover: string
+      amountPercentile: string
+      popularity: string
+      followers: string
+      auctionDirection: string
+      processSamples: string
+      coverage: string
+      marketStyle: string
+      unavailable: string
+      topFiveConcentration: string
+      weightedShare: string
+      confidence: string
+      dataSources: string
+      themeAuctionRank: string
+      directionState: string
+      score: string
+      positiveRate: string
+      weightedGap: string
+      coreAssist: string
+      assists: string
+      topAuctionAmount: string
+      auctionStates: Record<
+        'leading' | 'resonant' | 'isolated-one-price' | 'weak' | 'unavailable',
+        string
+      >
+      outcomeReview: string
+      formalPromotionRate: string
+      waitOpenRate: string
+      population: string
+      outcomeState: string
+      tradable: string
+      openClose: string
+      populations: Record<'formal' | 'wait-open', string>
+      outcomeStates: Record<'promoted' | 'failed' | 'unresolved', string>
+      yes: string
+      no: string
+      auctionBriefs: string
+      auctionBriefSchedule: string
+      briefPhases: Record<'auction-final' | 'open-confirmation', string>
+      deliveryStates: Record<'pending' | 'sent' | 'failed' | 'disabled' | 'not-configured', string>
+      strength: string
+      direction: string
+      generationMode: string
+      generationModes: Record<'rules' | 'rules-ai-polished', string>
+      briefDetails: string
+      briefPending: string
+    }
+    v4: {
+      roleMap: string
+      roleMapSubtitle: string
+      heightTiers: Record<'high' | 'middle' | 'low', string>
+      marketRoles: Record<'space-leader' | 'co-space-leader' | 'high-anchor' | 'normal', string>
+      themeRoles: Record<
+        'theme-position-leader' | 'co-theme-position-leader' | 'core-assistant' | 'follower',
+        string
+      >
+      lifecycles: Record<
+        'acceleration' | 'consensus' | 'divergence' | 'broken-maintain' | 'repair-relaunch' | 'ebb',
+        string
+      >
+      positionDelta: string
+      followers: string
+      riskRadar: string
+      riskRadarSubtitle: string
+      marketRisk: string
+      marketRiskStates: Record<'normal' | 'elevated' | 'severe', string>
+      eventActions: Record<'hard-block' | 'risk-cap' | 'theme-adjust' | 'informational', string>
+      noRiskEvents: string
+      highBoardRisk: string
+      highBoardSubtitle: string
+      appetiteStates: Record<'expansion' | 'divergence' | 'contraction' | 'panic', string>
+      nuclearRate: string
+      onePriceRetention: string
+      vwapHold: string
+      resealRate: string
+      highLowSwitch: string
+      eventReaction: string
+      reactionStates: Record<'absorbed' | 'neutral' | 'amplified' | 'unavailable', string>
+      rawRate: string
+      adjustedRate: string
+      sample: string
+      confidenceLevels: Record<'low' | 'medium' | 'high', string>
+    }
+    v5: {
+      marketGate: string
+      marketGateSubtitle: string
+      gateStates: Record<'normal' | 'cautious' | 'restricted' | 'frozen', string>
+      externalRisk: string
+      domesticRisk: string
+      domesticConfirmed: string
+      notConfirmed: string
+      overnightContext: string
+      asiaContext: string
+      macroContext: string
+      themePermissions: string
+      permissionStates: Record<'allowed' | 'conditional' | 'blocked', string>
+      riskClasses: Record<'high-beta' | 'defensive' | 'cyclical' | 'neutral', string>
+      independent: string
+      environmentAdjustment: string
+      decisionScore: string
+      noSnapshot: string
+    }
+    v6: {
+      repairStructure: string
+      repairSubtitle: string
+      repairStates: Record<
+        | 'unconfirmed'
+        | 'broad-repair'
+        | 'weight-led-repair'
+        | 'small-cap-repair'
+        | 'mixed'
+        | 'risk-continuation',
+        string
+      >
+      largeCap: string
+      smallCap: string
+      sizeSpread: string
+      advanceRate: string
+      largeCapAmountShare: string
+      confidence: string
+      displayOnly: string
+      sizeBucket: string
+      sizeBuckets: Record<'small' | 'mid' | 'large' | 'unknown', string>
+      liquidityStyleAdjustment: string
+    }
+    v7?: {
+      expectation: string
+      expectationSubtitle: string
+      sequence: string
+      sequenceDataQuality: string
+      qingshan: string
+      primaryPath: string
+      probabilities: string
+      confidence: string
+      expectedOpen: string
+      expectedTouch: string
+      expectedReopen: string
+      allowed: string
+      prohibited: string
+      match: string
+      matchStatuses: Record<'met' | 'partial' | 'violated' | 'unavailable', string>
+      sentimentQuant: string
+      sentimentSubtitle: string
+      emotionScore: string
+      marketScore: string
+      combinedScore: string
+      relayWeight: string
+      gate: string
+      gateStates: Record<'NORMAL' | 'HOT' | 'JOINT_CLIMAX' | 'UNAVAILABLE', string>
+      crowding: string
+      unavailable: string
+      noNewRelay: string
+      researchOnly: string
+    }
     badges: {
       margin: string
       chiNext: string
@@ -575,7 +848,7 @@ export interface Translation {
       twenty: string
     }
     states: Record<'candidate' | 'waiting' | 'observe' | 'exclude', string>
-    phases: Record<'ice' | 'repair' | 'climax' | 'ebb', string>
+    phases: Record<'ice' | 'repair' | 'climax' | 'ebb' | 'unavailable', string>
     roles: Record<
       'space-leader' | 'theme-leader' | 'first-pioneer' | 'mid-ladder' | 'follower',
       string
@@ -613,6 +886,7 @@ export interface Translation {
       theme: string
       ladder: string
       technical: string
+      fundFlow: string
       seal: string
       trigger: string
       invalidation: string
@@ -740,11 +1014,36 @@ export interface Translation {
     desc: string
     scan: string
     scanTip: string
+    intradayScan: string
+    intradayScanTip: string
+    intradayScanUnavailable: string
+    intradayScanning: string
+    closeScan: string
+    closeScanTip: string
+    closeScanUnavailable: string
+    closeScanning: string
+    intradayProvisional: string
+    closeConfirmed: string
+    provisionalBadge: string
+    quoteAsOf: string
+    qualitySources: string
+    quoteCoverage: string
+    historyCoverage: string
+    crossAgreement: string
+    retainedSnapshot: string
     dailySaved: string
     dailySaveFail: string
+    dailySaveStageScan: string
+    dailySaveStageForward: string
+    dailySaveStageStructure: string
+    dailySaveStageReview: string
     scanning: string
     lastUpdated: string
     dataAsof: string
+    scanAsof: string
+    scannedAt: string
+    marketDataLagged: string
+    marketDataCoverage: string
     cached: string
     degraded: string
     staleScanning: string
@@ -767,6 +1066,11 @@ export interface Translation {
       trendNew: string
       trendWatch: string
       accum: string
+      accumNew: string
+      accumPileStall: string
+      accumContinuous: string
+      accumOther: string
+      resilience: string
       instAccum: string
       orgSurvey: string
       track: string
@@ -788,10 +1092,24 @@ export interface Translation {
       trendnew: string
       trendwatch: string
       accum: string
+      resilience: string
       instAccum: string
       orgSurvey: string
     }
     phNote: string
+    resilienceDesc: string
+    resilienceCard: {
+      benchmark: string
+      relative: string
+      vwap: string
+      closeLocation: string
+      mainInflow: string
+      fundingAdjustment: string
+      volumeRatio: string
+      turnover: string
+      lhb: string
+      research: string
+    }
     hdDesc: string
     hdCard: {
       nh: string
@@ -846,6 +1164,8 @@ export interface Translation {
       attempts: string
       span: string
       volume: string
+      volumeConfirmation: string
+      volumeLevel: { weak: string; effective: string; strong: string }
       historyVolume: string
       floorRise: string
       closeStrength: string
@@ -949,16 +1269,15 @@ export interface Translation {
       rs: string
       days: string
       monitorNote: string
-      stairNote: string
-      box: string
-      stair: string
-      bullish: string
-      rising: string
-      locked: string
     }
     acDesc: string
     acCard: {
       vol: string
+      volumeState: string
+      newVolume: string
+      continuous: string
+      volumePileStall: string
+      demandDominant: string
       flat: string
       flatOk: string
       consol: string
@@ -966,6 +1285,12 @@ export interface Translation {
       pos: string
       days: string
       monitorNote: string
+      stairNote: string
+      box: string
+      stair: string
+      bullish: string
+      rising: string
+      locked: string
       holderDown: string
       holderUp: string
       holderTip: string
@@ -1011,6 +1336,7 @@ export interface Translation {
       attack: string
       caution: string
       retreat: string
+      unavailable: string
       temp: string
       limitUp: string
       breakRate: string
