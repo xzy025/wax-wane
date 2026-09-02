@@ -1,40 +1,40 @@
 {
-  "generatedAt": "2026-08-26T07:28:05.312Z",
+  "generatedAt": "2026-09-01T16:01:46.651Z",
   "ruleVersions": [
     "limit-ladder-v3",
     "limit-ladder-v4",
     "limit-ladder-v5",
     "limit-ladder-v6"
   ],
-  "latestSignalDate": "2026-08-25",
-  "latestTradeDate": "2026-08-26",
+  "latestSignalDate": "2026-08-27",
+  "latestTradeDate": "2026-08-28",
   "sample": {
-    "signalDays": 6,
-    "formalCandidates": 27,
-    "validFormalCandidates": 27,
-    "unresolvedFormalCandidates": 0
+    "signalDays": 8,
+    "formalCandidates": 40,
+    "validFormalCandidates": 39,
+    "unresolvedFormalCandidates": 1
   },
   "overall": {
-    "total": 27,
-    "valid": 27,
-    "promoted": 6,
-    "failed": 21,
-    "unresolved": 0,
-    "promotionRate": 22.22,
-    "coverage": 100,
-    "ci95Low": 10.61,
-    "ci95High": 40.76
+    "total": 40,
+    "valid": 39,
+    "promoted": 11,
+    "failed": 28,
+    "unresolved": 1,
+    "promotionRate": 28.21,
+    "coverage": 97.5,
+    "ci95Low": 16.54,
+    "ci95High": 43.78
   },
   "waitOpen": {
-    "total": 4,
-    "valid": 4,
-    "promoted": 4,
-    "failed": 0,
+    "total": 6,
+    "valid": 6,
+    "promoted": 5,
+    "failed": 1,
     "unresolved": 0,
-    "promotionRate": 100,
+    "promotionRate": 83.33,
     "coverage": 100,
-    "ci95Low": 51.01,
-    "ci95High": 100
+    "ci95Low": 43.65,
+    "ci95High": 96.99
   },
   "trade": {
     "observations": 25,
@@ -42,7 +42,10 @@
     "wins": 10,
     "losses": 15,
     "winRate": 40,
+    "markPositiveRate": 40,
     "averageOpenToClosePct": -0.03,
+    "averageNextDayOpenToCloseMark": -0.03,
+    "realizedNetReturnPct": null,
     "averageMfePct": 4.83,
     "averageMaePct": -4.06
   },
@@ -51,71 +54,84 @@
       "fromBoards": 1,
       "key": "1进2",
       "label": "1进2",
-      "total": 14,
-      "valid": 14,
-      "promoted": 2,
-      "failed": 12,
-      "unresolved": 0,
-      "promotionRate": 14.29,
-      "coverage": 100,
-      "ci95Low": 4.01,
-      "ci95High": 39.94
+      "total": 20,
+      "valid": 19,
+      "promoted": 5,
+      "failed": 14,
+      "unresolved": 1,
+      "promotionRate": 26.32,
+      "coverage": 95,
+      "ci95Low": 11.81,
+      "ci95High": 48.79
     },
     {
       "fromBoards": 2,
       "key": "2进3",
       "label": "2进3",
-      "total": 10,
-      "valid": 10,
-      "promoted": 3,
-      "failed": 7,
+      "total": 14,
+      "valid": 14,
+      "promoted": 4,
+      "failed": 10,
       "unresolved": 0,
-      "promotionRate": 30,
+      "promotionRate": 28.57,
       "coverage": 100,
-      "ci95Low": 10.78,
-      "ci95High": 60.32
+      "ci95Low": 11.72,
+      "ci95High": 54.65
     },
     {
       "fromBoards": 3,
       "key": "3进4",
       "label": "3进4",
-      "total": 3,
-      "valid": 3,
-      "promoted": 1,
-      "failed": 2,
+      "total": 6,
+      "valid": 6,
+      "promoted": 2,
+      "failed": 4,
       "unresolved": 0,
       "promotionRate": 33.33,
       "coverage": 100,
-      "ci95Low": 6.15,
-      "ci95High": 79.23
+      "ci95Low": 9.68,
+      "ci95High": 70
     }
   ],
   "byScoreBucket": [
     {
       "key": "65-74",
       "label": "65-74",
-      "total": 19,
-      "valid": 19,
-      "promoted": 3,
-      "failed": 16,
+      "total": 21,
+      "valid": 21,
+      "promoted": 4,
+      "failed": 17,
       "unresolved": 0,
-      "promotionRate": 15.79,
+      "promotionRate": 19.05,
       "coverage": 100,
-      "ci95Low": 5.52,
-      "ci95High": 37.57
+      "ci95Low": 7.67,
+      "ci95High": 40
     },
     {
       "key": "75-84",
       "label": "75-84",
-      "total": 8,
-      "valid": 8,
-      "promoted": 3,
-      "failed": 5,
+      "total": 18,
+      "valid": 17,
+      "promoted": 7,
+      "failed": 10,
+      "unresolved": 1,
+      "promotionRate": 41.18,
+      "coverage": 94.44,
+      "ci95Low": 21.61,
+      "ci95High": 63.99
+    },
+    {
+      "key": "85+",
+      "label": "85+",
+      "total": 1,
+      "valid": 1,
+      "promoted": 0,
+      "failed": 1,
       "unresolved": 0,
-      "promotionRate": 37.5,
+      "promotionRate": 0,
       "coverage": 100,
-      "ci95Low": 13.68,
-      "ci95High": 69.43
+      "ci95Low": 0,
+      "ci95High": 79.35
     }
   ],
   "byMarketCycle": [
@@ -148,15 +164,15 @@
     {
       "key": "repair",
       "label": "repair",
-      "total": 10,
-      "valid": 10,
-      "promoted": 3,
-      "failed": 7,
-      "unresolved": 0,
-      "promotionRate": 30,
-      "coverage": 100,
-      "ci95Low": 10.78,
-      "ci95High": 60.32
+      "total": 23,
+      "valid": 22,
+      "promoted": 8,
+      "failed": 14,
+      "unresolved": 1,
+      "promotionRate": 36.36,
+      "coverage": 95.65,
+      "ci95Low": 19.73,
+      "ci95High": 57.05
     },
     {
       "key": "unknown",
@@ -189,15 +205,15 @@
     {
       "key": "low",
       "label": "low",
-      "total": 7,
-      "valid": 7,
-      "promoted": 0,
-      "failed": 7,
-      "unresolved": 0,
-      "promotionRate": 0,
-      "coverage": 100,
-      "ci95Low": 0,
-      "ci95High": 35.43
+      "total": 20,
+      "valid": 19,
+      "promoted": 5,
+      "failed": 14,
+      "unresolved": 1,
+      "promotionRate": 26.32,
+      "coverage": 95,
+      "ci95Low": 11.81,
+      "ci95High": 48.79
     },
     {
       "key": "middle",
@@ -228,17 +244,30 @@
   ],
   "bySizeBucket": [
     {
+      "key": "mid",
+      "label": "mid",
+      "total": 3,
+      "valid": 2,
+      "promoted": 0,
+      "failed": 2,
+      "unresolved": 1,
+      "promotionRate": 0,
+      "coverage": 66.67,
+      "ci95Low": 0,
+      "ci95High": 65.76
+    },
+    {
       "key": "small",
       "label": "small",
-      "total": 12,
-      "valid": 12,
-      "promoted": 1,
-      "failed": 11,
+      "total": 22,
+      "valid": 22,
+      "promoted": 6,
+      "failed": 16,
       "unresolved": 0,
-      "promotionRate": 8.33,
+      "promotionRate": 27.27,
       "coverage": 100,
-      "ci95Low": 1.49,
-      "ci95High": 35.39
+      "ci95Low": 13.15,
+      "ci95High": 48.15
     },
     {
       "key": "unknown",
@@ -262,10 +291,10 @@
     "note": "样本未达到长期校准门槛，只能做描述性复盘。"
   },
   "recommendations": [
-    "当前仅6个信号日、27个正式候选，未达到120个交易日/300个候选的校准门槛；只做记录，不自动改权重。",
-    "分层复核：2进3当前晋级率30%；1进2当前晋级率14.29%，优先检查其环境闸门和候选阈值。",
-    "分数校准：比较75-84与65-74相对总体22.22%，达到足够样本后再调整 promotionScore 门槛。",
-    "实际交易胜率40%，样本25；继续将晋级率与开收收益胜率分开校准。"
+    "当前仅8个信号日、40个正式候选，未达到120个交易日/300个候选的校准门槛；只做记录，不自动改权重。",
+    "分层复核：3进4当前晋级率33.33%；1进2当前晋级率26.32%，优先检查其环境闸门和候选阈值。",
+    "分数校准：比较75-84与65-74相对总体28.21%，达到足够样本后再调整 promotionScore 门槛。",
+    "次日开收标记正收益率40%，样本25；该指标不是可实现交易胜率。"
   ],
   "sources": [
     {
@@ -315,6 +344,22 @@
       "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\25\\outcome-limit-ladder-v6.json",
       "formalCandidates": 4,
       "formalPromotionRate": 0
+    },
+    {
+      "signalDate": "2026-08-26",
+      "tradeDate": "2026-08-27",
+      "ruleVersion": "limit-ladder-v6",
+      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\26\\outcome-limit-ladder-v6.json",
+      "formalCandidates": 4,
+      "formalPromotionRate": 100
+    },
+    {
+      "signalDate": "2026-08-27",
+      "tradeDate": "2026-08-28",
+      "ruleVersion": "limit-ladder-v6",
+      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\27\\outcome-limit-ladder-v6.json",
+      "formalCandidates": 9,
+      "formalPromotionRate": 22.22
     }
   ]
 }
