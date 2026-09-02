@@ -42,6 +42,154 @@ export function isRelayCheckpointKnown(checkpoint: string): checkpoint is RelayR
   return RELAY_REVIEW_CHECKPOINT_ORDER.includes(checkpoint as RelayReviewCheckpoint)
 }
 
+function parseIso(value: string): number {
+  const ms = Date.parse(value)
+  if (!Number.isFinite(ms)) throw new Error(`非法 ISO 时间: ${value}`)
+  return ms
+}
+
+/**
+ * Timezone-safe ISO comparison (handles +08:00 vs Z offsets that would break
+ * lexicographic ordering). Throws on unparseable values instead of silently
+ * misordering.
+ */
+export function compareIsoTimes(a: string, b: string): number {
+  return parseIso(a) - parseIso(b)
+}
+
+export function isIsoTime(value: string): boolean {
+  return Number.isFinite(Date.parse(value))
+}
+
+export interface RelayQualityAggregationInput {
+  sourceRefs: readonly RelaySourceRef[]
+}
+
+/**
+ * WP3.1: quality must reflect the actual source set, not merely "there are N
+ * sourceRefs". Degraded/shadow/unavailable sources can never be marketed as
+ * formal/100%. Point-in-time is only true when every usable source is checked.
+ */
+export function aggregateRelaySourceQuality(
+  input: RelayQualityAggregationInput,
+): RelayReviewQuality {
+  const sources = input.sourceRefs
+  const total = sources.length
+  const usable = sources.filter((source) => source.quality !== 'unavailable')
+  const formal = sources.filter((source) => source.quality === 'formal')
+  const unusable = sources.filter((source) => source.quality === 'unavailable')
+  const missingLayers = Array.from(new Set(sources.flatMap((source) => source.missingReasons ?? [])))
+  const coveragePct = total > 0 ? Math.round((formal.length / total) * 1000) / 10 : null
+  let status: RelayReviewQuality['status']
+  if (total === 0) {
+    status = 'unavailable'
+    missingLayers.push('sourceRefs')
+  } else if (unusable.length === total) {
+    status = 'unavailable'
+  } else if (unusable.length > 0 || usable.some((source) => source.quality === 'degraded')) {
+    // Any unusable or degraded source prevents formality.
+    status = 'degraded'
+  } else if (usable.some((source) => source.quality === 'shadow' || source.quality === 'legacy-unverified')) {
+    // Shadow/legacy sources are research evidence, not formal point-in-time.
+    status = 'partial'
+  } else {
+    status = 'formal'
+  }
+  return {
+    status,
+    pointInTime: status === 'formal',
+    coveragePct,
+    sourceCount: total,
+    missingLayers: Array.from(new Set(missingLayers)),
+    warnings: [],
+  }
+}
+
+function sourceRefsSorted(sourceRefs: ReadonlyArray<RelaySourceRef>): RelaySourceRef[] {
+  return sortBy(sourceRefs, (s) => `${s.sourceId}|${s.eventAt ?? ''}|${s.capturedAt}`)
+}
+
+/**
+ * WP3.1: verify a single revision document against the whole contract. Returns
+ * a list of violations; an empty list means the document is trustworthy. Hash
+ * verification catches legal-JSON tampering.
+ */
+export function validateRelayDailyReview(revision: RelayDailyReviewV1): string[] {
+  const errors: string[] = []
+  if (revision.schemaVersion !== 'relay-daily-review-v1') {
+    errors.push('schemaVersion 非法: ' + revision.schemaVersion)
+  }
+  if (!safeRelayDate(revision.signalDate)) errors.push('signalDate 非法: ' + revision.signalDate)
+  if (!safeRelayDate(revision.tradeDate)) errors.push('tradeDate 非法: ' + revision.tradeDate)
+  if (revision.timezone !== 'Asia/Shanghai') errors.push(`timezone 非法: ${revision.timezone}`)
+  for (const field of [revision.decisionAt, revision.dataCutoffAt, revision.generatedAt] as const) {
+    if (!isIsoTime(field)) errors.push(`时间字段非法: ${field}`)
+  }
+  if (!Number.isInteger(revision.revision) || revision.revision < 1) errors.push(`revision 非法: ${revision.revision}`)
+  if (revision.runtimePermission !== 'research-only') errors.push(`runtimePermission 非法: ${revision.runtimePermission}`)
+  if (revision.latestCheckpoint !== 'close-plan' && revision.checkpoints.length === 0) {
+    errors.push('latestCheckpoint 非 close-plan 但 checkpoints 为空')
+  }
+  let previous: RelayReviewCheckpoint | null = null
+  for (const entry of revision.checkpoints) {
+    if (!isRelayCheckpointKnown(entry.checkpoint)) {
+      errors.push(`未知检查点: ${entry.checkpoint}`)
+      continue
+    }
+    const index = RELAY_REVIEW_CHECKPOINT_ORDER.indexOf(entry.checkpoint)
+    if (previous) {
+      const previousIndex = RELAY_REVIEW_CHECKPOINT_ORDER.indexOf(previous)
+      if (index < previousIndex) {
+        errors.push(`检查点顺序倒退: ${previous} -> ${entry.checkpoint}`)
+      }
+    }
+    previous = entry.checkpoint
+  }
+  const closePlanHash = computeClosePlanHash({
+    signalDate: revision.signalDate,
+    tradeDate: revision.tradeDate,
+    dataCutoffAt: revision.dataCutoffAt,
+    ruleVersion: revision.ruleVersion,
+    taxonomyVersion: revision.taxonomyVersion,
+    closePlan: revision.closePlan,
+  })
+  if (revision.closePlanHash !== closePlanHash) errors.push('closePlanHash 不匹配')
+  const sourceHash = computeSourceHash(revision.closePlan.sourceRefs)
+  if (revision.sourceHash !== sourceHash) errors.push('sourceHash 不匹配')
+  const evidenceHashes = computeEvidenceHashes(revision.closePlan.sourceRefs)
+  if (
+    revision.evidenceHashes.length !== evidenceHashes.length ||
+    !evidenceHashes.every((hash, index) => hash === revision.evidenceHashes[index])
+  ) {
+    errors.push('evidenceHashes 不匹配')
+  }
+  const revisionContentHash = computeRevisionContentHash({
+    closePlanHash: revision.closePlanHash,
+    checkpoints: revision.checkpoints,
+    outcome: revision.outcome,
+    validation: revision.validation,
+    warnings: revision.warnings,
+  })
+  if (revision.revisionContentHash !== revisionContentHash) errors.push('revisionContentHash 不匹配')
+  const documentHash = computeDocumentHash(revision)
+  if (revision.documentHash !== documentHash) errors.push('documentHash 不匹配')
+  if (revision.supersedes && revision.revision <= 1) {
+    errors.push('revision 1 不应存在 supersedes')
+  }
+  if (revision.supersedes && revision.supersedes.revision >= revision.revision) {
+    errors.push('supersedes 指向非前序 revision')
+  }
+  return errors
+}
+
+export function isRelayDailyReviewValid(revision: RelayDailyReviewV1): boolean {
+  return validateRelayDailyReview(revision).length === 0
+}
+
+function safeRelayDate(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value)
+}
+
 function stableCheckpoints(checkpoints: readonly RelayCheckpoint[]): RelayCheckpoint[] {
   return [...checkpoints].sort((a, b) => {
     const pa = RELAY_REVIEW_CHECKPOINT_ORDER.indexOf(a.checkpoint)
@@ -250,14 +398,11 @@ export function buildRelayClosePlan(input: BuildRelayClosePlanInput): RelayDaily
     sourceRefs: sortBy(input.sourceRefs ?? [], (s) => `${s.sourceId}|${s.eventAt ?? ''}`),
   }
   const sourceCount = closePlan.sourceRefs.length
+  const aggregatedQuality = aggregateRelaySourceQuality({ sourceRefs: closePlan.sourceRefs })
   const quality: RelayReviewQuality = {
-    status: sourceCount === 0 ? 'unavailable' : 'formal',
-    pointInTime: true,
-    coveragePct: sourceCount > 0 ? 100 : null,
-    sourceCount,
-    missingLayers: sourceCount === 0 ? ['sourceRefs'] : [],
-    warnings: [],
+    ...aggregatedQuality,
     ...input.quality,
+    sourceCount,
   }
   const closePlanHash = computeClosePlanHash({
     signalDate: input.signalDate,
@@ -355,23 +500,26 @@ export function projectRelayCheckpoint(
   if (input.dataCutoffAt > input.decisionAt) {
     throw new Error('dataCutoffAt 不得晚于 decisionAt')
   }
+  if (compareIsoTimes(input.dataCutoffAt, input.decisionAt) > 0) {
+    throw new Error('dataCutoffAt 不得晚于 decisionAt')
+  }
   for (const source of input.sourceRefs) {
-    if (source.eventAt && source.eventAt > source.dataCutoffAt) {
+    if (source.eventAt && compareIsoTimes(source.eventAt, source.dataCutoffAt) > 0) {
       throw new Error(`eventAt 晚于 dataCutoffAt: ${source.sourceId}`)
     }
-    if (source.providerAt && source.providerAt > source.dataCutoffAt) {
+    if (source.providerAt && compareIsoTimes(source.providerAt, source.dataCutoffAt) > 0) {
       throw new Error(`providerAt 晚于 dataCutoffAt: ${source.sourceId}`)
     }
-    if (source.receivedAt > source.decisionAt) {
+    if (compareIsoTimes(source.receivedAt, source.decisionAt) > 0) {
       throw new Error(`receivedAt 晚于 decisionAt: ${source.sourceId}`)
     }
-    if (source.knownAt > source.decisionAt) {
+    if (compareIsoTimes(source.knownAt, source.decisionAt) > 0) {
       throw new Error(`knownAt 晚于 decisionAt: ${source.sourceId}`)
     }
-    if (source.capturedAt > source.decisionAt) {
+    if (compareIsoTimes(source.capturedAt, source.decisionAt) > 0) {
       throw new Error(`capturedAt 晚于 decisionAt: ${source.sourceId}`)
     }
-    if (source.dataCutoffAt > source.decisionAt) {
+    if (compareIsoTimes(source.dataCutoffAt, source.decisionAt) > 0) {
       throw new Error(`dataCutoffAt 晚于 decisionAt: ${source.sourceId}`)
     }
   }
@@ -381,15 +529,11 @@ export function projectRelayCheckpoint(
     observedAt: input.observedAt,
     dataCutoffAt: input.dataCutoffAt,
     decisionAt: input.decisionAt,
-    sourceRefs: sortBy(input.sourceRefs, (s) => `${s.sourceId}|${s.eventAt ?? ''}`),
+    sourceRefs: sourceRefsSorted(input.sourceRefs),
     quality: {
-      status: input.sourceRefs.length === 0 ? 'unavailable' : 'formal',
-      pointInTime: true,
-      coveragePct: input.sourceRefs.length > 0 ? 100 : null,
-      sourceCount: input.sourceRefs.length,
-      missingLayers: input.sourceRefs.length === 0 ? ['sourceRefs'] : [],
-      warnings: [],
+      ...aggregateRelaySourceQuality({ sourceRefs: input.sourceRefs }),
       ...input.quality,
+      sourceCount: input.sourceRefs.length,
     },
     warnings: [...new Set(input.warnings ?? [])],
   }
@@ -407,8 +551,8 @@ export function projectRelayCheckpoint(
     ...current,
     phase,
     latestCheckpoint: input.checkpoint,
-    decisionAt: input.decisionAt,
-    dataCutoffAt: input.dataCutoffAt,
+    // Top-level dataCutoffAt/decisionAt stay frozen from the close-plan
+    // contract; each checkpoint entry carries its own observedAt/decisionAt.
     settled: input.checkpoint === 'settled' || input.checkpoint === 'exit-settled',
     closePlanHash: current.closePlanHash,
     revisionContentHash,

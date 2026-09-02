@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
+  aggregateRelaySourceQuality,
   buildRelayClosePlan,
+  compareIsoTimes,
   computeEvidenceHashes,
   computeRevisionContentHash,
   computeSourceHash,
   deriveLanePermission,
+  isRelayDailyReviewValid,
   projectRelayCheckpoint,
+  validateRelayDailyReview,
   validateSchedulerCheckpointMapping,
   type BuildRelayClosePlanInput,
 } from './relayDailyReviewBuilder'
@@ -210,5 +214,70 @@ describe('relay daily review builder', () => {
 
   it('maps every scheduler checkpoint to the relay review enum', () => {
     expect(() => validateSchedulerCheckpointMapping()).not.toThrow()
+  })
+
+  it('aggregates quality from sourceRefs instead of promoting on count (WP3.1)', () => {
+    const sources = baseInput.sourceRefs ?? []
+    const firstSource = sources[0]
+    if (!firstSource) throw new Error('test requires sourceRefs')
+    const base = (overrides: Partial<BuildRelayClosePlanInput> = {}) => buildRelayClosePlan({ ...baseInput, ...overrides })
+    // No sources → unavailable, never formal.
+    const empty = base({ sourceRefs: [] })
+    expect(empty.quality.status).toBe('unavailable')
+    expect(empty.quality.coveragePct).toBeNull()
+    // degraded source → degraded, never formal/100%.
+    const degraded = base({
+      sourceRefs: [{
+        ...firstSource,
+        quality: 'degraded' as const,
+      }],
+    })
+    expect(degraded.quality.status).toBe('degraded')
+    expect(degraded.quality.coveragePct).not.toBe(100)
+    expect(degraded.quality.pointInTime).toBe(false)
+    // shadow source must not be promoted to formal.
+    const shadow = base({
+      sourceRefs: [{
+        ...firstSource,
+        quality: 'shadow' as const,
+      }],
+    })
+    expect(shadow.quality.status).toBe('partial')
+    expect(shadow.quality.pointInTime).toBe(false)
+  })
+
+  it('aggregates quality with partial formal coverage (WP3.1)', () => {
+    const sources = baseInput.sourceRefs ?? []
+    const firstSource = sources[0]
+    if (!firstSource) throw new Error('test requires sourceRefs')
+    const quality = aggregateRelaySourceQuality({
+      sourceRefs: [
+        { ...firstSource, quality: 'formal' },
+        { ...firstSource, quality: 'unavailable' },
+      ],
+    })
+    expect(quality.status).toBe('degraded')
+    expect(quality.sourceCount).toBe(2)
+  })
+
+  it('compares ISO timestamps across timezone offsets (WP3.1)', () => {
+    const sameInstant = compareIsoTimes('2026-08-31T09:25:05+08:00', '2026-08-31T01:25:05Z')
+    expect(sameInstant).toBe(0)
+    expect(compareIsoTimes('2026-08-31T09:25:05+08:00', '2026-08-31T09:25:04+08:00')).toBeGreaterThan(0)
+    expect(() => compareIsoTimes('not-a-date', '2026-08-31')).toThrow(/非法 ISO/)
+  })
+
+  it('validates a pristine plan and rejects a tampered one (WP3.1)', () => {
+    const plan = buildRelayClosePlan(baseInput)
+    expect(isRelayDailyReviewValid(plan)).toBe(true)
+    const tampered = {
+      ...plan,
+      closePlan: {
+        ...plan.closePlan,
+        sentiment: '被篡改',
+      } as typeof plan.closePlan,
+    }
+    expect(isRelayDailyReviewValid(tampered)).toBe(false)
+    expect(validateRelayDailyReview(tampered)).toContain('closePlanHash 不匹配')
   })
 })

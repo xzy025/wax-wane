@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from 'fs'
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -10,6 +10,7 @@ import {
   readRelayDailyReview,
   RelayReviewStoreError,
   relayReviewPath,
+  resolveSignalDateForTradeDate,
 } from './relayDailyReviewStore'
 import { buildRelayClosePlan, type BuildRelayClosePlanInput } from './relayDailyReviewBuilder'
 
@@ -155,13 +156,48 @@ describe('relay daily review store', () => {
   it('detects a corrupt latest revision explicitly and can fall back to last-good', () => {
     freezeRelayClosePlan(buildRelayClosePlan(baseInput))
     appendRelayCheckpoint('2026-08-28', auctionInput)
-    // Corrupt the r2 file on disk.
+    // Corrupt the r2 file on disk (invalid JSON).
     writeFileSync(relayReviewPath('2026-08-28', 2), '{broken', 'utf8')
 
-    expect(() => readRelayDailyReview('2026-08-28')).toThrow(/损坏/)
+    expect(() => readRelayDailyReview('2026-08-28')).toThrow(/校验|损坏/)
     const fallback = readRelayDailyReview('2026-08-28', undefined, { allowLastGood: true })
     expect(fallback?.revision).toBe(1)
     expect(fallback?.warnings.join(' ')).toContain('回退到 last-good')
+  })
+
+  it('treats legal JSON with a tampered hash as corrupt and only trusts validated last-good', () => {
+    freezeRelayClosePlan(buildRelayClosePlan(baseInput))
+    appendRelayCheckpoint('2026-08-28', auctionInput)
+    // Tamper with r2's closePlanHash without breaking JSON syntax.
+    const r2 = JSON.parse(readFileSync(relayReviewPath('2026-08-28', 2), 'utf8')) as { closePlanHash: string }
+    writeFileSync(relayReviewPath('2026-08-28', 2), JSON.stringify({ ...r2, closePlanHash: 'tampered' }, null, 2), 'utf8')
+
+    expect(() => readRelayDailyReview('2026-08-28')).toThrow(/未通过完整校验/)
+    expect(listRelayDailyReviewRevisions('2026-08-28')[1].valid).toBe(false)
+    expect(() => freezeRelayClosePlan(buildRelayClosePlan(baseInput))).not.toThrow()
+    const fallback = readRelayDailyReview('2026-08-28', undefined, { allowLastGood: true })
+    expect(fallback?.revision).toBe(1)
+  })
+
+  it('rejects an invalid supersedes chain fail-closed', () => {
+    freezeRelayClosePlan(buildRelayClosePlan(baseInput))
+    appendRelayCheckpoint('2026-08-28', auctionInput)
+    const r2Raw = JSON.parse(readFileSync(relayReviewPath('2026-08-28', 2), 'utf8')) as { supersedes: { revision: number; documentHash: string } }
+    writeFileSync(
+      relayReviewPath('2026-08-28', 2),
+      JSON.stringify({ ...r2Raw, supersedes: { revision: 99, documentHash: 'wrong' } }, null, 2),
+      'utf8',
+    )
+    expect(() => readRelayDailyReview('2026-08-28')).toThrow(/未通过完整校验/)
+  })
+
+  it('resolves signalDate from tradeDate when they differ (normal T+1)', () => {
+    freezeRelayClosePlan(buildRelayClosePlan(baseInput))
+    expect(resolveSignalDateForTradeDate('2026-08-31')).toEqual({
+      signalDate: '2026-08-28',
+      tradeDate: '2026-08-31',
+    })
+    expect(resolveSignalDateForTradeDate('2026-08-30')).toBeNull()
   })
 
   it('rejects a mixed signalDate during checkpoint projection', () => {

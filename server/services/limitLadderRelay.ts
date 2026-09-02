@@ -16,22 +16,20 @@ import type {
 import type { LadderSentimentQuantSnapshot } from './ladderSentimentQuant'
 import { evaluateExecutionEligibility } from './executionEligibility'
 import { buildRelayFeedbackEvidence } from './relayFeedbackEvidence'
+import { resolveThemeLabel } from './themeTaxonomy'
 
-const RELAY_PARENT_THEMES: Record<string, string> = {
-  '疫苗概念': '医药',
-  '创新药': '医药',
-  '中药': '医药',
-  '基因疗法': '医药',
-  '光纤概念': '通信',
-  '光通信': '通信',
-  'CPO': '通信',
-}
-
-function relayResearchTheme(row: LadderStockAnalysis): string {
-  const mapped = RELAY_PARENT_THEMES[row.primaryTheme]
-  if (mapped) return mapped
-  const alias = row.themes.find((theme) => RELAY_PARENT_THEMES[theme])
-  return alias ? RELAY_PARENT_THEMES[alias] : row.primaryTheme
+/**
+ * WP3.1 Fix 5: no duplicate parent-theme hardcoding here. Research-parent theme
+ * resolution delegates to the versioned themeTaxonomy; provider/as-of are
+ * threaded through so the mapping is replayable per signalDate.
+ */
+function relayResearchTheme(row: LadderStockAnalysis, asof: string): string {
+  const candidates = [row.primaryTheme, ...row.themes]
+  for (const candidate of candidates) {
+    const mapping = resolveThemeLabel(candidate, 'ladder', asof)
+    if (mapping.status === 'mapped' && mapping.canonicalName) return mapping.canonicalName
+  }
+  return row.primaryTheme
 }
 
 function relaySource(stage: RelayPlanStage): RelayFeedbackSource {
@@ -141,8 +139,8 @@ function buildRelayFeedbacks(
   }
 
   const themeFeedback = (row: LadderStockAnalysis): NextDayRelayFeedback => {
-    const researchTheme = relayResearchTheme(row)
-    const themeRows = rows.filter((item) => relayResearchTheme(item) === researchTheme)
+const researchTheme = relayResearchTheme(row, args.signalDate)
+    const themeRows = rows.filter((item) => relayResearchTheme(item, args.signalDate) === researchTheme)
     const direction = args.auctionContext?.themes.find((item) =>
       item.theme === researchTheme ||
       item.theme === row.primaryTheme ||
@@ -266,7 +264,7 @@ function buildRelayFeedbacks(
       signalDate: args.signalDate,
       tradeDate: args.tradeDate,
       status,
-      related: relayRelated(laneRows, '同身位反馈', relayResearchTheme(row), quotes, args.tradeDate),
+      related: relayRelated(laneRows, '同身位反馈', relayResearchTheme(row, args.signalDate), quotes, args.tradeDate),
       metrics: {
         lane,
         sampleCount: current.length,
@@ -398,11 +396,12 @@ function strictExecutionGateReasons(args: {
 }
 export function buildNextDayRelayPlan(args: RelayBuilderArgs): NextDayRelayPlan {
   const formalCodes = new Set((args.formalRows ?? []).map((row) => row.code))
-  const parentThemes = new Set((args.formalRows ?? []).map(relayResearchTheme))
+const parentThemes = new Set((args.formalRows ?? []).map((row) => relayResearchTheme(row, args.signalDate)))
+
   const rankedRows = args.rows
     .filter((row) =>
       formalCodes.has(row.code) ||
-      parentThemes.has(relayResearchTheme(row)) ||
+      parentThemes.has(relayResearchTheme(row, args.signalDate)) ||
       row.onePrice ||
       row.role === 'space-leader' ||
       row.role === 'theme-leader' ||
@@ -419,7 +418,7 @@ export function buildNextDayRelayPlan(args: RelayBuilderArgs): NextDayRelayPlan 
   const feedbacks = buildRelayFeedbacks(args, args.rows, quotes, sourceWarnings)
 
   const items = rows.map((row): NextDayRelayItem => {
-    const researchTheme = relayResearchTheme(row)
+    const researchTheme = relayResearchTheme(row, args.signalDate)
     const anchor = row.onePrice || row.role === 'space-leader'
     const medicineCore =
       researchTheme === '医药' &&

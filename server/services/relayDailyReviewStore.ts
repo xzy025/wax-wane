@@ -4,7 +4,9 @@ import { fileURLToPath } from 'url'
 import { readAtomicJson, writeAtomicJson } from '../lib/atomicJsonStore'
 import {
   computeDocumentHash,
+  computeRevisionContentHash,
   projectRelayCheckpoint,
+  validateRelayDailyReview,
   type ProjectRelayCheckpointInput,
 } from './relayDailyReviewBuilder'
 import type {
@@ -56,11 +58,15 @@ export function relayReviewPath(signalDate: string, revision: number): string {
 }
 
 const REVISION_RE = /^relay-daily-review-v1(?:-r(\d+))?\.json$/
+const DATE_DIR_RE = /^\d{4}-\d{2}-\d{2}$/
 
 export interface RelayRevisionMeta {
   revision: number
   path: string
   documentHash: string
+  /** WP3.1: false when the JSON parses but fails contract/hash validation. */
+  valid: boolean
+  errors: string[]
 }
 
 function readRevisionMeta(signalDate: string): RelayRevisionMeta[] {
@@ -73,7 +79,14 @@ function readRevisionMeta(signalDate: string): RelayRevisionMeta[] {
     const revision = match[1] ? Number(match[1]) : 1
     const full = join(dir, file)
     const doc = readAtomicJson<RelayDailyReviewV1>(full)
-    out.push({ revision, path: full, documentHash: doc?.documentHash ?? '' })
+    const errors = doc ? validateRelayDailyReview(doc) : ['JSON 无法解析或结构非法']
+    out.push({
+      revision,
+      path: full,
+      documentHash: doc?.documentHash ?? '',
+      valid: errors.length === 0,
+      errors,
+    })
   }
   return out.sort((a, b) => a.revision - b.revision)
 }
@@ -83,10 +96,22 @@ export function listRelayDailyReviewRevisions(signalDate: string): RelayRevision
   return readRevisionMeta(signalDate)
 }
 
+/** Read a raw doc and fail-closed if it fails full contract validation. */
+export function readValidatedRevision(path: string): RelayDailyReviewV1 {
+  const doc = readAtomicJson<RelayDailyReviewV1>(path)
+  if (!doc) throw new RelayReviewStoreError('corrupt', `文件无法解析: ${path}`)
+  const errors = validateRelayDailyReview(doc)
+  if (errors.length > 0) {
+    throw new RelayReviewStoreError('corrupt', `文件未通过完整校验: ${path}；${errors.slice(0, 3).join('；')}`)
+  }
+  return doc
+}
+
 /**
  * Read a revision. revision omitted → latest available. A missing file returns
- * null; a corrupt latest file raises an explicit `corrupt` error (fail-closed)
- * unless options.allowLastGood, which returns the last good revision.
+ * null; a corrupt OR tampered (valid-JSON-but-bad-hash) revision raises an
+ * explicit `corrupt` error (fail-closed) unless options.allowLastGood, which
+ * only falls back to the previous revision that passed full validation.
  */
 export function readRelayDailyReview(
   signalDate: string,
@@ -97,20 +122,23 @@ export function readRelayDailyReview(
   if (metas.length === 0) return null
   const target = revision != null ? metas.find((row) => row.revision === revision) : metas[metas.length - 1]
   if (!target) return null
-  const doc = readAtomicJson<RelayDailyReviewV1>(target.path)
-  if (doc) return doc
-  if (revision != null) throw new RelayReviewStoreError('corrupt', `revision ${revision} 文件损坏: ${target.path}`)
+  if (target.valid) return readAtomicJson<RelayDailyReviewV1>(target.path)
+  if (revision != null) {
+    throw new RelayReviewStoreError('corrupt', `revision ${revision} 未通过完整校验: ${target.path}；${target.errors.slice(0, 3).join('；')}`)
+  }
   if (metas.length > 1 && options.allowLastGood) {
-    const previous = metas[metas.length - 2]
-    const lastGood = readAtomicJson<RelayDailyReviewV1>(previous.path)
-    if (lastGood) {
-      return {
-        ...lastGood,
-        warnings: [...lastGood.warnings, `最新 revision 文件损坏，回退到 last-good revision ${previous.revision}`],
+    const previous = [...metas].reverse().find((row) => row.valid)
+    if (previous) {
+      const lastGood = readAtomicJson<RelayDailyReviewV1>(previous.path)
+      if (lastGood) {
+        return {
+          ...lastGood,
+          warnings: [...lastGood.warnings, `最新 revision 未通过校验，回退到 last-good revision ${previous.revision}`],
+        }
       }
     }
   }
-  throw new RelayReviewStoreError('corrupt', `最新 revision 文件损坏且无 last-good: ${target.path}`)
+  throw new RelayReviewStoreError('corrupt', `最新 revision 未通过完整校验且无可用 last-good: ${target.path}`)
 }
 
 export function latestRelayRevision(signalDate: string): RelayRevisionMeta | null {
@@ -127,6 +155,9 @@ export function latestRelayRevision(signalDate: string): RelayRevisionMeta | nul
 export function freezeRelayClosePlan(revision: RelayDailyReviewV1): RelayDailyReviewV1 {
   const metas = readRevisionMeta(revision.signalDate)
   if (metas.length > 0) {
+    if (!metas[0].valid) {
+      throw new RelayReviewStoreError('corrupt', `signalDate ${revision.signalDate} rev1 未通过完整校验，禁止覆盖`)
+    }
     const first = readAtomicJson<RelayDailyReviewV1>(metas[0].path)
     if (first && first.revisionContentHash === revision.revisionContentHash) {
       return first
@@ -169,7 +200,7 @@ export function appendRelayOutcome(
 ): RelayDailyReviewV1 {
   const current = readRelayDailyReview(signalDate)
   if (!current) throw new RelayReviewStoreError('not-found', `signalDate ${signalDate} 尚未冻结 close plan`)
-  if (current.outcome && current.latestCheckpoint === 'settled') {
+  if (current.outcome && (current.latestCheckpoint === 'settled' || current.latestCheckpoint === 'exit-settled')) {
     throw new RelayReviewStoreError('conflict', 'settled outcome 已写入，禁止改写')
   }
   const projected = projectRelayCheckpoint(current, {
@@ -182,9 +213,19 @@ export function appendRelayOutcome(
     sourceRefs: [],
     warnings: ['outcome 归档'],
   })
+  // WP3.1 Fix 1: outcome must be part of the revision hash chain, so the
+  // projected revision (hash computed before outcome was attached) must be
+  // finalized through the same path as every other revision.
   const withOutcome: RelayDailyReviewV1 = {
     ...projected,
     outcome,
+    revisionContentHash: computeRevisionContentHash({
+      closePlanHash: projected.closePlanHash,
+      checkpoints: projected.checkpoints,
+      outcome,
+      validation: projected.validation,
+      warnings: projected.warnings,
+    }),
   }
   return writeNextRevision(signalDate, current, withOutcome)
 }
@@ -219,17 +260,44 @@ export function relayReviewArchiveExists(signalDate: string): boolean {
   return latestRelayRevision(signalDate) !== null
 }
 
+/**
+ * Scan every frozen relay review ledger (under the relay root) and return the
+ * one whose ledger `tradeDate` matches. Archives are stored under signalDate,
+ * so this cannot be a directory-name lookup; it must inspect ledger fields.
+ */
+export function listFrozenLedgersByTradeDate(): Array<{ signalDate: string; tradeDate: string }> {
+  const root = relayReviewRoot()
+  if (!existsSync(root)) return []
+  const out: Array<{ signalDate: string; tradeDate: string }> = []
+  for (const year of readdirSync(root)) {
+    if (!/^\d{4}$/.test(year)) continue
+    const yearPath = join(root, year)
+    if (!existsSync(yearPath)) continue
+    for (const month of readdirSync(yearPath)) {
+      if (!/^\d{2}$/.test(month)) continue
+      const monthPath = join(yearPath, month)
+      if (!existsSync(monthPath)) continue
+      for (const signalDate of readdirSync(monthPath)) {
+        if (!DATE_DIR_RE.test(signalDate)) continue
+        const dir = join(monthPath, signalDate)
+        if (!existsSync(dir)) continue
+        const metas = readRevisionMeta(signalDate)
+        if (metas.length === 0) continue
+        const doc = readAtomicJson<RelayDailyReviewV1>(metas[0].path)
+        if (doc && safeDate(doc.tradeDate)) {
+          out.push({ signalDate: doc.signalDate, tradeDate: doc.tradeDate })
+        }
+      }
+    }
+  }
+  return out.sort((a, b) => a.tradeDate.localeCompare(b.tradeDate))
+}
+
 /** Resolve signalDate strictly from a frozen ledger tradeDate; null if absent. */
 export function resolveSignalDateForTradeDate(tradeDate: string): { signalDate: string; tradeDate: string } | null {
   if (!safeDate(tradeDate)) throw new Error(`tradeDate 必须是 YYYY-MM-DD，收到 ${tradeDate}`)
-  const root = relayReviewRoot()
-  const [year, month] = tradeDate.split('-')
-  const dir = join(root, year, month, tradeDate)
-  if (!existsSync(dir)) return null
-  const metas = readRevisionMeta(tradeDate)
-  if (metas.length === 0) return null
-  const doc = readAtomicJson<RelayDailyReviewV1>(metas[0].path)
-  return doc ? { signalDate: doc.signalDate, tradeDate: doc.tradeDate } : null
+  const ledger = listFrozenLedgersByTradeDate().find((row) => row.tradeDate === tradeDate)
+  return ledger ?? null
 }
 
 export function getRelayReviewPhase(signalDate: string): RelayReviewPhase | null {
