@@ -2,8 +2,15 @@
 
 import { EM_HEADERS, SINA_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
+import { fetchWithProxy } from '../lib/llm'
 import { createCache, sessionTtl } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
+import {
+  createComponentQuality,
+  unavailableComponent,
+  type DataComponentQuality,
+} from '../market-data/dataQuality'
+import { buildPointInTimeEvidence, type PointInTimeEvidence } from '../market-data/pointInTime'
 
 // hq.sinajs.cn responds in GBK; decoding it as UTF-8 turns stock names into mojibake.
 let gbkDecoder: InstanceType<typeof TextDecoder> | null | undefined
@@ -65,19 +72,27 @@ export interface VolumeRecord {
 
 export interface AShareData {
   indices: IndexQuote[]
-  limitUpCount: number
-  limitDownCount: number
-  limitUpStocks: LimitStock[]
-  limitDownStocks: LimitStock[]
-  advance: number
-  decline: number
-  flat: number
-  promotionRate: number
-  promotedCount: number
-  promotionTotal: number
-  volumeHistory: VolumeRecord[]
-  /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指 turnover. 0 if unavailable. */
-  totalTurnover: number
+  limitUpCount: number | null
+  limitDownCount: number | null
+  limitUpStocks: LimitStock[] | null
+  limitDownStocks: LimitStock[] | null
+  advance: number | null
+  decline: number | null
+  flat: number | null
+  promotionRate: number | null
+  promotedCount: number | null
+  promotionTotal: number | null
+  volumeHistory: VolumeRecord[] | null
+  /** 沪深两市当日总成交额 (元) = 上证综指 + 深证成指 turnover; null if unknown. */
+  totalTurnover: number | null
+  quality: {
+    indices: DataComponentQuality
+    breadth: DataComponentQuality
+    limitUp: DataComponentQuality
+    limitDown: DataComponentQuality
+    promotion: DataComponentQuality
+    volume: DataComponentQuality
+  }
 }
 
 // ── Cache (market-aware) ───────────────────────────────────
@@ -170,7 +185,16 @@ function toStr(v: unknown): string {
 
 // ── Fetchers ───────────────────────────────────────────────
 
-async function fetchIndicesAndBreadth(): Promise<{ indices: IndexQuote[]; advance: number; decline: number; flat: number }> {
+interface IndicesAndBreadth {
+  indices: IndexQuote[]
+  advance: number | null
+  decline: number | null
+  flat: number | null
+  source: 'eastmoney' | 'sina'
+  warnings: string[]
+}
+
+async function fetchIndicesAndBreadth(): Promise<IndicesAndBreadth> {
   // Try EastMoney first
   try {
     const fields = 'f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18,f104,f105,f106'
@@ -210,7 +234,7 @@ async function fetchIndicesAndBreadth(): Promise<{ indices: IndexQuote[]; advanc
           }
         }
 
-        if (indices.length > 0) return { indices, advance, decline, flat }
+        if (indices.length > 0) return { indices, advance, decline, flat, source: 'eastmoney', warnings: [] }
       }
     }
   } catch {
@@ -222,7 +246,7 @@ async function fetchIndicesAndBreadth(): Promise<{ indices: IndexQuote[]; advanc
     const sinaUrl = 'https://hq.sinajs.cn/list=sh000001,sz399001,sz399006'
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(sinaUrl, {
+    const res = await fetchWithProxy(sinaUrl, {
       headers: { ...SINA_HEADERS, Referer: 'https://finance.sina.com.cn/' },
       signal: controller.signal,
     })
@@ -272,13 +296,22 @@ async function fetchIndicesAndBreadth(): Promise<{ indices: IndexQuote[]; advanc
         })
       }
 
-      if (indices.length > 0) return { indices, advance: 0, decline: 0, flat: 0 }
+      if (indices.length > 0) {
+        return {
+          indices,
+          advance: null,
+          decline: null,
+          flat: null,
+          source: 'sina',
+          warnings: ['Sina index fallback does not provide market breadth'],
+        }
+      }
     }
   } catch {
     // Both failed
   }
 
-  return { indices: [], advance: 0, decline: 0, flat: 0 }
+  throw new Error('A 股指数与市场宽度均不可用')
 }
 
 async function fetchLimitPool(type: 'up' | 'down'): Promise<{ count: number; stocks: LimitStock[] }> {
@@ -290,8 +323,10 @@ async function fetchLimitPool(type: 'up' | 'down'): Promise<{ count: number; sto
   if (!res.ok) throw new Error(`East Money ${endpoint}: ${res.status}`)
   const json = (await res.json()) as any
 
-  const pool = (json?.data?.pool ?? []) as EMLimitPoolItem[]
-  const count = toNum(json?.data?.tc) || pool.length
+  const payload = json?.data
+  if (!payload || !Array.isArray(payload.pool)) throw new Error(`East Money ${endpoint}: payload missing pool`)
+  const pool = payload.pool as EMLimitPoolItem[]
+  const count = typeof payload.tc === 'number' && Number.isFinite(payload.tc) ? payload.tc : pool.length
   const stocks: LimitStock[] = pool.map((item) => ({
     code: toStr(item.c),
     name: toStr(item.n),
@@ -350,7 +385,7 @@ async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: nu
 
   for (let page = 1; page <= MAX_PAGES; page++) {
     const url = `https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=${page}&num=${PAGE_SIZE}&sort=changepercent&asc=${asc}&node=hs_a&symbol=&_s_r_a=srt`
-    const res = await fetch(url, { headers: SINA_HEADERS })
+    const res = await fetchWithProxy(url, { headers: SINA_HEADERS })
     if (!res.ok) throw new Error(`Sina limit pool: ${res.status}`)
 
     const data: SinaStock[] = (await res.json()) as any
@@ -392,6 +427,35 @@ async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: nu
   return { count: totalCount, stocks }
 }
 
+interface SourcedLimitPool {
+  data: { count: number; stocks: LimitStock[] }
+  source: 'eastmoney' | 'sina'
+  warnings: string[]
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+
+async function fetchLimitPoolWithFallback(direction: 'up' | 'down'): Promise<SourcedLimitPool> {
+  try {
+    return { data: await fetchLimitPool(direction), source: 'eastmoney', warnings: [] }
+  } catch (eastMoneyError) {
+    try {
+      return {
+        data: await fetchSinaLimitPool(direction),
+        source: 'sina',
+        warnings: [`East Money limit-${direction} unavailable: ${errorMessage(eastMoneyError)}`],
+      }
+    } catch (sinaError) {
+      throw new Error(
+        `A 股${direction === 'up' ? '涨停' : '跌停'}池不可用：East Money ${errorMessage(eastMoneyError)}；Sina ${errorMessage(sinaError)}`,
+        { cause: sinaError },
+      )
+    }
+  }
+}
+
 // ── Date helper ─────────────────────────────────────────
 
 function getRecentTradingDay(offset = 0): string {
@@ -412,13 +476,11 @@ async function fetchPromotionRate(): Promise<{ rate: number; promoted: number; t
   const todayStr = getRecentTradingDay(0)
   const yesterdayStr = getRecentTradingDay(1)
 
-  const [todayRes, yesterdayRes] = await Promise.allSettled([
+  const [todayPool, yesterdayPool] = await Promise.all([
     fetchLimitPoolRaw(todayStr),
     fetchLimitPoolRaw(yesterdayStr),
   ])
-
-  const todayPool = todayRes.status === 'fulfilled' ? todayRes.value : []
-  const yesterdayTotal = yesterdayRes.status === 'fulfilled' ? yesterdayRes.value.length : 0
+  const yesterdayTotal = yesterdayPool.length
 
   if (yesterdayTotal === 0) return { rate: 0, promoted: 0, total: 0 }
 
@@ -432,9 +494,10 @@ async function fetchPromotionRate(): Promise<{ rate: number; promoted: number; t
 async function fetchLimitPoolRaw(date: string): Promise<LimitStock[]> {
   const url = `https://push2ex.eastmoney.com/getTopicZTPool?ut=7eea3edcaed734bea9cb3fce871cbecd&dpt=wz.ztzt&date=${date}&_=${Date.now()}`
   const res = await emFetch(url, { headers: EM_HEADERS })
-  if (!res.ok) return []
+  if (!res.ok) throw new Error(`East Money promotion pool: ${res.status}`)
   const json = (await res.json()) as any
-  const pool = (json?.data?.pool ?? []) as EMLimitPoolItem[]
+  if (!json?.data || !Array.isArray(json.data.pool)) throw new Error('East Money promotion pool: payload missing pool')
+  const pool = json.data.pool as EMLimitPoolItem[]
   return pool.map((item) => ({
     code: toStr(item.c),
     name: toStr(item.n),
@@ -667,7 +730,7 @@ export async function fetchStockQuote(stockCode: string): Promise<StockQuote | n
     const url = `https://hq.sinajs.cn/list=${symbol}`
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(url, {
+    const res = await fetchWithProxy(url, {
       headers: { ...SINA_HEADERS, Referer: 'https://finance.sina.com.cn/' },
       signal: controller.signal,
     })
@@ -752,9 +815,44 @@ export interface KlineBar {
   high: number
   low: number
   volume: number
-  turnover: number
+  /** Transaction value is null when a provider does not expose it. */
+  turnover: number | null
   amplitude: number
   changePct: number
+  provider?: string
+  adjustment?: KlineAdjustment
+  providerAt?: string | null
+  receivedAt?: string
+  settled?: boolean
+  /** Raw unadjusted OHLC, when the provider returns it alongside adjusted bars. */
+  raw?: {
+    open: number
+    close: number
+    high: number
+    low: number
+  } | null
+  adjustmentFactor?: number | null
+}
+
+export type KlineAdjustment = 'raw' | 'qfq' | 'hfq' | 'none' | 'unknown'
+
+/**
+ * K-line response metadata is intentionally optional for old fixture callers,
+ * but every production response returned below populates it. Consumers that
+ * need execution labels must require raw + verified metadata explicitly.
+ */
+export interface KlineFetchResult {
+  name: string
+  klines: KlineBar[]
+  provider?: 'eastmoney' | 'tencent' | 'sina' | 'unknown'
+  adjustment?: KlineAdjustment
+  providerAt?: string | null
+  requestedAt?: string
+  receivedAt?: string
+  endpointVersion?: string | null
+  quality?: 'full' | 'partial' | 'degraded' | 'unusable'
+  warnings?: string[]
+  evidence?: PointInTimeEvidence<KlineBar[]>
 }
 
 // ── Per-host circuit breaker for kline sources ────────────────────────────
@@ -780,14 +878,63 @@ export async function fetchStockKline(
   stockCode: string,
   period: number = 101, // 101=daily, 102=weekly, 103=monthly
   count: number = 30,
-): Promise<{ name: string; klines: KlineBar[] }> {
+  options: { adjustment?: KlineAdjustment } = {},
+): Promise<KlineFetchResult> {
+  const requestedAt = new Date().toISOString()
+  const adjustment = options.adjustment ?? 'qfq'
+  const response = (
+    name: string,
+    klines: KlineBar[],
+    provider: KlineFetchResult['provider'],
+    actualAdjustment: KlineAdjustment,
+    warnings: string[] = [],
+  ): KlineFetchResult => {
+    const receivedAt = new Date().toISOString()
+    const enriched = klines.map((bar) => ({
+      ...bar,
+      provider,
+      adjustment: actualAdjustment,
+      providerAt: null,
+      receivedAt,
+      raw:
+        actualAdjustment === 'raw' || actualAdjustment === 'none'
+          ? { open: bar.open, close: bar.close, high: bar.high, low: bar.low }
+          : null,
+      adjustmentFactor: actualAdjustment === 'raw' || actualAdjustment === 'none' ? 1 : null,
+    }))
+    return {
+      name,
+      klines: enriched,
+      provider,
+      adjustment: actualAdjustment,
+      providerAt: null,
+      requestedAt,
+      receivedAt,
+      endpointVersion: 'eastmoney-stock-kline-v1',
+      quality: warnings.length || (actualAdjustment !== 'raw' && adjustment === 'raw') ? 'degraded' : 'partial',
+      warnings,
+      evidence: buildPointInTimeEvidence({
+        asOfDate: klines.at(-1)?.date.slice(0, 10) ?? todayShanghai(),
+        providerAt: null,
+        requestedAt,
+        receivedAt,
+        decisionAt: receivedAt,
+        provider: provider ?? 'unknown',
+        endpointVersion: 'eastmoney-stock-kline-v1',
+        adjustment: actualAdjustment,
+        payload: enriched,
+        missingReasons: warnings,
+      }),
+    }
+  }
   const prefix = stockCode.startsWith('6') ? '1' : '0'
   const secid = `${prefix}.${stockCode}`
 
   // Try EastMoney first (前复权, fqt=1). Skip while cooling down.
   if (!klineHostCooling('em')) {
     try {
-      const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=${period}&fqt=1&end=20500101&lmt=${count}`
+      const fqt = adjustment === 'raw' || adjustment === 'none' ? 0 : adjustment === 'hfq' ? 2 : 1
+      const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=${period}&fqt=${fqt}&end=20500101&lmt=${count}`
       const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
 
       if (res.ok) {
@@ -814,7 +961,7 @@ export async function fetchStockKline(
             }
           }
           clearKlineHost('em')
-          return { name, klines }
+          return response(name, klines, 'eastmoney', adjustment, [])
         }
       }
       tripKlineHost('em') // non-ok or empty payload → cool down for the rest of the batch
@@ -834,17 +981,18 @@ export async function fetchStockKline(
         : /^[489]/.test(stockCode)
           ? `bj${stockCode}` // 北交所 43/83/87/88/920…
           : `sz${stockCode}`
-      const tcUrl = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${tcSym},${tcPeriod},,,${count},qfq`
+      const tcMode = adjustment === 'raw' || adjustment === 'none' ? '' : adjustment === 'hfq' ? 'hfq' : 'qfq'
+      const tcUrl = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${tcSym},${tcPeriod},,,${count},${tcMode}`
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 5000)
-      const res = await fetch(tcUrl, { headers: SINA_HEADERS, signal: controller.signal })
+      const res = await fetchWithProxy(tcUrl, { headers: SINA_HEADERS, signal: controller.signal })
       clearTimeout(timeout)
 
       if (res.ok) {
         const json = (await res.json()) as any
         const node = json?.data?.[tcSym]
         // qfqday/qfqweek/qfqmonth when adjusted; fall back to plain key if absent.
-        const rows = (node?.[`qfq${tcPeriod}`] ?? node?.[tcPeriod]) as (string | number)[][] | undefined
+        const rows = (node?.[`${tcMode}${tcPeriod}`] ?? node?.[tcPeriod]) as (string | number)[][] | undefined
         const name = toStr(node?.qt?.[tcSym]?.[1])
         const klines: KlineBar[] = []
 
@@ -870,7 +1018,7 @@ export async function fetchStockKline(
             })
           }
           clearKlineHost('tencent')
-          return { name, klines }
+          return response(name, klines, 'tencent', adjustment, ['source-fallback:eastmoney->tencent'])
         }
       }
       tripKlineHost('tencent') // non-ok (e.g. 501 rate-limit) or empty → cool down
@@ -885,7 +1033,7 @@ export async function fetchStockKline(
   const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${symbol}&scale=${scale}&ma=no&datalen=${count}`
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 5000)
-  const res = await fetch(url, { headers: SINA_HEADERS, signal: controller.signal })
+  const res = await fetchWithProxy(url, { headers: SINA_HEADERS, signal: controller.signal })
   clearTimeout(timeout)
 
   if (!res.ok) throw new Error(`Sina kline failed: ${res.status}`)
@@ -914,7 +1062,10 @@ export async function fetchStockKline(
     }
   }
 
-  return { name: '', klines }
+  return response('', klines, 'sina', 'raw', [
+    'source-fallback:eastmoney/tencent->sina',
+    ...(adjustment === 'raw' ? [] : [`adjustment-fallback:${adjustment}->raw`]),
+  ])
 }
 
 // ── Stock fundamentals ────────────────────────────────────
@@ -967,7 +1118,7 @@ export async function fetchStockFundamentals(stockCode: string): Promise<StockFu
     const url = `https://hq.sinajs.cn/list=${symbol}`
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
-    const res = await fetch(url, {
+    const res = await fetchWithProxy(url, {
       headers: { ...SINA_HEADERS, Referer: 'https://finance.sina.com.cn/' },
       signal: controller.signal,
     })
@@ -1135,7 +1286,7 @@ export async function fetchIndexKline(secid: string, count: number): Promise<Ind
     const [m, code] = secid.split('.')
     const sym = (m === '1' ? 'sh' : 'sz') + code
     const url = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${sym},day,,,${count},qfq`
-    const res = await fetch(url, { headers: SINA_HEADERS, signal: AbortSignal.timeout(8000) })
+    const res = await fetchWithProxy(url, { headers: SINA_HEADERS, signal: AbortSignal.timeout(8000) })
     if (res.ok) {
       const json = (await res.json()) as any
       const node = json?.data?.[sym]
@@ -1159,7 +1310,7 @@ export async function fetchIndexKline(secid: string, count: number): Promise<Ind
     const [m, code] = secid.split('.')
     const sym = (m === '1' ? 'sh' : 'sz') + code
     const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${sym}&scale=240&ma=no&datalen=${count}`
-    const res = await fetch(url, { headers: SINA_HEADERS, signal: AbortSignal.timeout(8000) })
+    const res = await fetchWithProxy(url, { headers: SINA_HEADERS, signal: AbortSignal.timeout(8000) })
     if (res.ok) {
       const data = (await res.json()) as Array<{
         day: string
@@ -1189,7 +1340,7 @@ export async function fetchIndexKline(secid: string, count: number): Promise<Ind
 /** Fetch one index's 7-day kline from Sina (no turnover → estimate via avg price). */
 async function fetchSinaKline(symbol: string): Promise<Map<string, { volume: number; turnover: number }>> {
   const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${symbol}&scale=240&ma=no&datalen=7`
-  const res = await fetch(url, { headers: SINA_HEADERS })
+  const res = await fetchWithProxy(url, { headers: SINA_HEADERS })
   if (!res.ok) throw new Error(`Sina ${symbol}: ${res.status}`)
   const data = await res.json() as Array<{ day: string; open: string; close: string; volume: string }>
   if (!Array.isArray(data) || data.length === 0) throw new Error(`Sina ${symbol}: empty`)
@@ -1223,17 +1374,26 @@ function mergeKlineMaps(maps: Map<string, { volume: number; turnover: number }>[
     })
 }
 
-async function fetchVolumeHistory(): Promise<VolumeRecord[]> {
+interface VolumeHistoryResult {
+  rows: VolumeRecord[]
+  source: 'eastmoney' | 'sina'
+  warnings: string[]
+  derived: boolean
+}
+
+async function fetchVolumeHistory(): Promise<VolumeHistoryResult> {
+  let eastMoneyError = ''
   // Try East Money kline API first (sum SH + SZ for the two-market total).
   try {
     const maps = await Promise.all(VOLUME_MARKETS_EM.map((s) => fetchEMKline(s)))
     const merged = mergeKlineMaps(maps)
     if (merged.length > 0) {
       console.log('[Volume] East Money kline: merged', merged.length, 'days across', maps.length, 'markets')
-      return merged
+      return { rows: merged, source: 'eastmoney', warnings: [], derived: false }
     }
   } catch (err) {
-    console.log('[Volume] East Money kline failed:', err instanceof Error ? err.message : err)
+    eastMoneyError = err instanceof Error ? err.message : String(err)
+    console.log('[Volume] East Money kline failed:', eastMoneyError)
   }
 
   // Fallback: Sina API (no turnover field, estimated from volume × avg price).
@@ -1241,11 +1401,21 @@ async function fetchVolumeHistory(): Promise<VolumeRecord[]> {
     console.log('[Volume] Trying Sina fallback...')
     const maps = await Promise.all(VOLUME_MARKETS_SINA.map((s) => fetchSinaKline(s)))
     const merged = mergeKlineMaps(maps)
+    if (merged.length === 0) throw new Error('Sina kline payload empty')
     console.log('[Volume] Sina fallback: merged', merged.length, 'days across', maps.length, 'markets')
-    return merged
+    return {
+      rows: merged,
+      source: 'sina',
+      warnings: [
+        ...(eastMoneyError ? [`East Money volume history unavailable: ${eastMoneyError}`] : []),
+        'Sina volume turnover is derived from volume × average price',
+      ],
+      derived: true,
+    }
   } catch (err) {
-    console.log('[Volume] Sina fallback failed:', err instanceof Error ? err.message : err)
-    return []
+    const sinaError = err instanceof Error ? err.message : String(err)
+    console.log('[Volume] Sina fallback failed:', sinaError)
+    throw new Error(`A 股成交额历史不可用：${eastMoneyError || 'East Money empty'}；${sinaError}`, { cause: err })
   }
 }
 
@@ -1262,14 +1432,8 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
   // time out the core market data below.
   const [breadthResult, limitUpResult, limitDownResult, promoResult, volumeResult] = await Promise.allSettled([
     fetchIndicesAndBreadth(),
-    fetchLimitPool('up').then((r) => {
-      if (r.count === 0) throw new Error('EM limit-up empty')
-      return r
-    }).catch(() => fetchSinaLimitPool('up')),
-    fetchLimitPool('down').then((r) => {
-      if (r.count === 0) throw new Error('EM limit-down empty')
-      return r
-    }).catch(() => fetchSinaLimitPool('down')),
+    fetchLimitPoolWithFallback('up'),
+    fetchLimitPoolWithFallback('down'),
     fetchPromotionRate(),
     fetchVolumeHistory(),
   ])
@@ -1281,29 +1445,78 @@ async function fetchAShareDataFresh(): Promise<AShareData> {
   if (breadthResult.value.indices.length === 0) throw new Error('AShare: indices empty')
 
   const breadth = breadthResult.value
-  const limitUp = limitUpResult.status === 'fulfilled' ? limitUpResult.value : { count: 0, stocks: [] }
-  const limitDown = limitDownResult.status === 'fulfilled' ? limitDownResult.value : { count: 0, stocks: [] }
-  const promo = promoResult.status === 'fulfilled' ? promoResult.value : { rate: 0, promoted: 0, total: 0 }
-  const volumeHistory = volumeResult.status === 'fulfilled' ? volumeResult.value : []
+  const limitUp = limitUpResult.status === 'fulfilled' ? limitUpResult.value : null
+  const limitDown = limitDownResult.status === 'fulfilled' ? limitDownResult.value : null
+  const promo = promoResult.status === 'fulfilled' ? promoResult.value : null
+  const volume = volumeResult.status === 'fulfilled' ? volumeResult.value : null
+  const limitUpError = limitUpResult.status === 'rejected' ? errorMessage(limitUpResult.reason) : 'limit-up pool unavailable'
+  const limitDownError = limitDownResult.status === 'rejected' ? errorMessage(limitDownResult.reason) : 'limit-down pool unavailable'
+  const promotionError = promoResult.status === 'rejected' ? errorMessage(promoResult.reason) : 'promotion data unavailable'
+  const volumeError = volumeResult.status === 'rejected' ? errorMessage(volumeResult.reason) : 'volume history unavailable'
+  const receivedAt = new Date().toISOString()
+  const asOf = todayShanghai()
+  const component = (
+    name: keyof AShareData['quality'],
+    source: string,
+    status: 'full' | 'degraded',
+    warnings: string[] = [],
+    derived = false,
+  ) => createComponentQuality(name, { source, status, asOf, receivedAt, warnings, derived })
+  const quality: AShareData['quality'] = {
+    indices: component(
+      'indices',
+      breadth.source,
+      breadth.source === 'eastmoney' ? 'full' : 'degraded',
+      breadth.warnings,
+    ),
+    breadth: breadth.advance != null && breadth.decline != null && breadth.flat != null
+      ? component('breadth', breadth.source, 'full')
+      : unavailableComponent('breadth', breadth.source, '市场涨跌家数未由当前指数源提供', {
+        asOf,
+        receivedAt,
+        warnings: breadth.warnings,
+      }),
+    limitUp: limitUp
+      ? component('limitUp', limitUp.source, limitUp.source === 'eastmoney' ? 'full' : 'degraded', limitUp.warnings)
+      : unavailableComponent('limitUp', 'eastmoney+sina', limitUpError, { asOf, receivedAt }),
+    limitDown: limitDown
+      ? component('limitDown', limitDown.source, limitDown.source === 'eastmoney' ? 'full' : 'degraded', limitDown.warnings)
+      : unavailableComponent('limitDown', 'eastmoney+sina', limitDownError, { asOf, receivedAt }),
+    promotion: promo
+      ? component('promotion', 'eastmoney', 'full')
+      : unavailableComponent('promotion', 'eastmoney', promotionError, { asOf, receivedAt }),
+    volume: volume
+      ? component(
+        'volume',
+        volume.source,
+        volume.source === 'eastmoney' ? 'full' : 'degraded',
+        volume.warnings,
+        volume.derived,
+      )
+      : unavailableComponent('volume', 'eastmoney+sina', volumeError, { asOf, receivedAt }),
+  }
+  const totalTurnoverParts = ['000001', '399001'].map((code) => breadth.indices.find((index) => index.code === code)?.turnover)
+  const totalTurnover = totalTurnoverParts.every((value): value is number => typeof value === 'number' && Number.isFinite(value))
+    ? totalTurnoverParts.reduce((sum, value) => sum + value, 0)
+    : null
 
   const data: AShareData = {
     indices: breadth.indices,
-    limitUpCount: limitUp.count,
-    limitDownCount: limitDown.count,
-    limitUpStocks: limitUp.stocks,
-    limitDownStocks: limitDown.stocks,
+    limitUpCount: limitUp?.data.count ?? null,
+    limitDownCount: limitDown?.data.count ?? null,
+    limitUpStocks: limitUp?.data.stocks ?? null,
+    limitDownStocks: limitDown?.data.stocks ?? null,
     advance: breadth.advance,
     decline: breadth.decline,
     flat: breadth.flat,
-    promotionRate: promo.rate,
-    promotedCount: promo.promoted,
-    promotionTotal: promo.total,
-    volumeHistory,
+    promotionRate: promo?.rate ?? null,
+    promotedCount: promo?.promoted ?? null,
+    promotionTotal: promo?.total ?? null,
+    volumeHistory: volume?.rows ?? null,
     // Two-market total = Shanghai Composite (000001) + Shenzhen Component (399001).
     // ChiNext (399006) is a subset of Shenzhen, so it is excluded to avoid double counting.
-    totalTurnover: breadth.indices
-      .filter((i) => i.code === '000001' || i.code === '399001')
-      .reduce((sum, i) => sum + (i.turnover || 0), 0),
+    totalTurnover,
+    quality,
   }
 
   return data

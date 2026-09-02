@@ -6,6 +6,7 @@
 // scratch caches (.bars-*, .lhb-*, .stock-boards-*, .board-closes-*). The
 // strict ^YYYY-MM-DD.json$ regex is what keeps those out of the latest pick.
 import type { ScreenerResult } from './screener'
+import { evaluateScreenerQuality } from './screenerScan'
 
 export interface ScreenerArchiveRef {
   filename: string
@@ -34,16 +35,96 @@ export function pickLatestArchiveName(filenames: string[]): ScreenerArchiveRef |
   return latest
 }
 
+/**
+ * Walk snapshot names from newest to oldest and return the newest entry that
+ * the loader accepts. A malformed or degraded newest file must not shadow an
+ * older last-good snapshot.
+ */
+export function pickLatestValidArchive<T>(filenames: string[], load: (ref: ScreenerArchiveRef) => T | null): T | null {
+  const refs = filenames
+    .map(parseScreenerArchiveName)
+    .filter((x): x is ScreenerArchiveRef => x != null)
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+  for (const ref of refs) {
+    const result = load(ref)
+    if (result != null) return result
+  }
+  return null
+}
+
 /** Minimal shape guard so a corrupt/foreign JSON can't be served as a result. */
 export function isScreenerResult(v: unknown): v is ScreenerResult {
   if (typeof v !== 'object' || v === null) return false
-  const r = v as Record<string, unknown>
+  const r = v as unknown as Record<string, unknown>
   return (
     typeof r.asof === 'string' &&
     Array.isArray(r.breakout) &&
     Array.isArray(r.trigger) &&
     Array.isArray(r.pullback)
   )
+}
+
+const REQUIRED_ARCHIVE_ARRAYS = [
+  'breakout',
+  'trigger',
+  'watch',
+  'pullback',
+  'highdiv',
+  'volbreak',
+  'fundres',
+  'bhold',
+  'bholdWatch',
+  'trendnew',
+  'trendwatch',
+  'accum',
+  'bigbreak',
+  'bigbreakWatch',
+  'huishou',
+  'yuncong',
+] as const
+
+const isFiniteRatio = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1
+
+/**
+ * Validate and normalize a formal close snapshot before it is used as a
+ * cache/fallback result. Legacy, provisional, degraded, and under-covered
+ * snapshots return null so callers can continue to an older last-good file.
+ */
+export function normalizeConfirmedScreenerArchive(v: unknown): ScreenerResult | null {
+  if (!isScreenerResult(v)) return null
+  const r = v as unknown as Record<string, unknown>
+  if (r.scanMode !== 'close' || r.signalState !== 'confirmed' || r.closed !== true || r.marketDataDegraded === true) {
+    return null
+  }
+  if (typeof r.regime !== 'object' || r.regime === null) return null
+  if (!REQUIRED_ARCHIVE_ARRAYS.every((key) => Array.isArray(r[key]))) return null
+
+  const quality = r.dataQuality
+  if (typeof quality !== 'object' || quality === null) return null
+  const dq = quality as Record<string, unknown>
+  if (
+    !Array.isArray(dq.sources) ||
+    !dq.sources.every((source) => typeof source === 'string' && source.length > 0) ||
+    !isFiniteRatio(dq.universeCoverage) ||
+    !isFiniteRatio(dq.quoteCoverage) ||
+    !isFiniteRatio(dq.historyCoverage) ||
+    !isFiniteRatio(dq.crossSourceAgreement) ||
+    !isFiniteRatio(dq.freshQuoteCoverage)
+  ) {
+    return null
+  }
+
+  const normalizedQuality = evaluateScreenerQuality({
+    sources: dq.sources as string[],
+    universeCoverage: dq.universeCoverage,
+    quoteCoverage: dq.quoteCoverage,
+    historyCoverage: dq.historyCoverage,
+    crossSourceAgreement: dq.crossSourceAgreement,
+    freshQuoteCoverage: dq.freshQuoteCoverage,
+  })
+  if (!normalizedQuality.passed) return null
+  return { ...(v as ScreenerResult), dataQuality: normalizedQuality }
 }
 
 /** 同日快照择优:新扫描结果是否允许覆盖已存档的同日快照。
@@ -57,6 +138,7 @@ export function isScreenerResult(v: unknown): v is ScreenerResult {
  *  已知可接受边界:开盘前扫描会存成 closed=true,同日盘中(closed=false)不覆盖它——
  *  实际不发生(盘前命中前一晚的 12h 缓存,不触发重扫)。 */
 export function shouldReplaceArchive(prev: ScreenerResult | null, next: ScreenerResult): boolean {
+  if (next.marketDataDegraded || (next.marketDataAsOf != null && next.marketDataAsOf < next.asof)) return false
   if (!prev || prev.asof !== next.asof) return true
   const prevClosed = prev.closed === true
   const nextClosed = next.closed === true

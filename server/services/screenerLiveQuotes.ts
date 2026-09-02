@@ -1,9 +1,13 @@
 import { SINA_HEADERS } from '../lib/emHeaders'
+import { fetchWithProxy } from '../lib/llm'
 import { marketPhaseForClockTime } from './auctionL1'
 import type { ScreenerLiveQuote } from './screenerScan'
 
 const CHUNK_SIZE = 80
-const CONCURRENCY = 3
+// 公共批量报价是盘中 fallback 的关键路径；80 只/批、3 并发在代理环境下
+// 会让 5552 只股票池仅取价就接近前端超时。限制为 8 并发，仍低于单次请求
+// 的全市场压力，失败批次继续由调用方的质量门控拦截。
+const CONCURRENCY = 8
 
 function createGbkDecoder() {
   return new TextDecoder('gbk')
@@ -72,6 +76,8 @@ function auctionBook(input: {
     bid1Volume,
     ask1Price,
     ask1Volume,
+    bid2Volume,
+    ask2Volume,
     marketPhase,
     sourceTier: 'shadow',
   }
@@ -213,7 +219,7 @@ export function fetchSinaBatchQuotes(codes: string[]): Promise<ScreenerLiveQuote
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 6_000)
     try {
-      const res = await fetch(`https://hq.sinajs.cn/list=${chunk.map(symbol).join(',')}`, {
+      const res = await fetchWithProxy(`https://hq.sinajs.cn/list=${chunk.map(symbol).join(',')}`, {
         headers: { ...SINA_HEADERS, Referer: 'https://finance.sina.com.cn/' }, signal: controller.signal,
       })
       if (!res.ok) throw new Error(`Sina quote HTTP ${res.status}`)
@@ -226,7 +232,7 @@ export function fetchSinaBatchQuotes(codes: string[]): Promise<ScreenerLiveQuote
 
 export function fetchTencentBatchQuotes(codes: string[]): Promise<ScreenerLiveQuote[]> {
   return mapChunks(codes, async (chunk) => {
-    const res = await fetch(`https://qt.gtimg.cn/q=${chunk.map(symbol).join(',')}`, {
+    const res = await fetchWithProxy(`https://qt.gtimg.cn/q=${chunk.map(symbol).join(',')}`, {
       headers: { ...SINA_HEADERS, Referer: 'https://gu.qq.com/' }, signal: AbortSignal.timeout(6_000),
     })
     if (!res.ok) throw new Error(`Tencent quote HTTP ${res.status}`)
