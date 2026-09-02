@@ -97,7 +97,7 @@ function tempStyle(temp: number, s: Translation['sentiment']): { color: string; 
 }
 
 export default function AShareBanner({ t, date }: AShareBannerProps) {
-  const { data, loading, error, lastUpdated, refresh } = useAShareData(date)
+  const { data, loading, error, lastUpdated, status, refresh } = useAShareData(date)
   const { data: sentiment, refresh: refreshSentiment } = useSentiment(date)
   const { data: highs, refresh: refreshHighs } = useHighs(date)
   const hasData = !!data
@@ -114,8 +114,10 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
 
   const score = data
     ? calcProfitabilityScore(data.limitUpCount, data.limitDownCount, data.advance, data.decline)
-    : 0
-  const adRatio = data && data.decline > 0 ? (data.advance / data.decline).toFixed(2) : '--'
+    : null
+  const adRatio = data && data.advance != null && data.decline != null && data.decline > 0
+    ? (data.advance / data.decline).toFixed(2)
+    : '--'
 
   return (
     <>
@@ -138,6 +140,8 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
             </span>
           )}
           {error && hasData && <span style={{ color: 'var(--red)' }}>{t.ashare.error}</span>}
+          {status === 'stale' && hasData && <span style={{ color: 'var(--orange)' }}>Stale</span>}
+          {status === 'degraded' && hasData && <span style={{ color: 'var(--orange)' }}>Partial data</span>}
         </div>
         {/* Index cards */}
         {loading && !hasData ? (
@@ -195,7 +199,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               <ArrowUp size={14} aria-hidden="true" className="ashare-stat-icon up" />
               <div>
                 <div className="ashare-stat-label">{t.ashare.limitUp}</div>
-                <div className="ashare-stat-value up">{data.limitUpCount}</div>
+                <div className="ashare-stat-value up">{data.limitUpCount ?? '—'}</div>
               </div>
             </div>
 
@@ -203,7 +207,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               <ArrowDown size={14} aria-hidden="true" className="ashare-stat-icon down" />
               <div>
                 <div className="ashare-stat-label">{t.ashare.limitDown}</div>
-                <div className="ashare-stat-value down">{data.limitDownCount}</div>
+                <div className="ashare-stat-value down">{data.limitDownCount ?? '—'}</div>
               </div>
             </div>
 
@@ -214,7 +218,7 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                   {t.ashare.advance}/{t.ashare.decline}
                 </div>
                 <div className="ashare-stat-value">
-                  <span className="up">{data.advance}</span>/<span className="down">{data.decline}</span>
+                  <span className="up">{data.advance ?? '—'}</span>/<span className="down">{data.decline ?? '—'}</span>
                 </div>
               </div>
             </div>
@@ -232,9 +236,9 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               <div>
                 <div className="ashare-stat-label">{t.ashare.promotionRate}</div>
                 <div className="ashare-stat-value">
-                  {data.promotedCount}/{data.promotionTotal}{' '}
+                  {data.promotedCount ?? '—'}/{data.promotionTotal ?? '—'}{' '}
                   <span style={{ fontSize: '0.78rem', color: 'var(--muted)' }}>
-                    {data.promotionRate}%
+                    {data.promotionRate == null ? '—' : `${data.promotionRate}%`}
                   </span>
                 </div>
               </div>
@@ -292,15 +296,15 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
               </div>
             </div>
 
-            <div className={`ashare-score ${getProfitabilityClass(score)}`}>
+            <div className={`ashare-score ${score == null ? '' : getProfitabilityClass(score)}`}>
               <Gauge size={14} aria-hidden="true" />
               <div>
                 <div className="ashare-stat-label">{t.ashare.profitability}</div>
                 <div className="ashare-score-value">
-                  {score}
+                  {score ?? '—'}
                   <span className="ashare-score-unit">/100</span>
                 </div>
-                <div className="ashare-score-label">{getProfitabilityLabel(t, score)}</div>
+                <div className="ashare-score-label">{score == null ? 'Unavailable' : getProfitabilityLabel(t, score)}</div>
               </div>
             </div>
 
@@ -311,23 +315,26 @@ export default function AShareBanner({ t, date }: AShareBannerProps) {
                   <Fire size={14} aria-hidden="true" className="ashare-stat-icon up" />
                   <div>
                     <div className="ashare-stat-label">{t.sentiment.yestLimitPerf}</div>
-                    <div className={`ashare-stat-value ${sentiment.yestLimitPerf >= 0 ? 'up' : 'down'}`}>
-                      {sentiment.yestLimitPerf >= 0 ? '+' : ''}
-                      {sentiment.yestLimitPerf.toFixed(2)}%
+                    <div className={`ashare-stat-value ${sentiment.yestLimitPerf != null && sentiment.yestLimitPerf >= 0 ? 'up' : 'down'}`}>
+                      {sentiment.yestLimitPerf == null ? '—' : <>
+                        {sentiment.yestLimitPerf >= 0 ? '+' : ''}
+                        {sentiment.yestLimitPerf.toFixed(2)}%
+                      </>}
                     </div>
                   </div>
                 </div>
 
                 {(() => {
-                  const { color, label } = tempStyle(sentiment.temperature, t.sentiment)
+                  const temp = sentiment.temperature
+                  const style = temp == null ? { color: 'var(--muted)', label: 'Unavailable' } : tempStyle(temp, t.sentiment)
                   return (
                     <div className="ashare-stat" title={t.sentiment.source}>
-                      <Thermometer size={14} aria-hidden="true" className="ashare-stat-icon" style={{ color }} />
+                      <Thermometer size={14} aria-hidden="true" className="ashare-stat-icon" style={{ color: style.color }} />
                       <div>
                         <div className="ashare-stat-label">{t.sentiment.temperature}</div>
-                        <div className="ashare-stat-value" style={{ color }}>
-                          {sentiment.temperature}
-                          <span style={{ marginLeft: 4, fontSize: '0.78rem' }}>{label}</span>
+                        <div className="ashare-stat-value" style={{ color: style.color }}>
+                          {temp ?? '—'}
+                          <span style={{ marginLeft: 4, fontSize: '0.78rem' }}>{style.label}</span>
                         </div>
                       </div>
                     </div>

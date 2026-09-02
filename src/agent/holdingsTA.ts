@@ -63,6 +63,25 @@ export interface NPatternResult {
   nTarget: number | null
   anomaly: NAnomaly | null
   note: string
+  pivots?: Array<{
+    idx: number
+    extremeIdx: number
+    extremeDate: string
+    confirmedAtIdx: number
+    confirmedAtDate: string
+    thresholdAtConfirm: number
+    kind: 'H' | 'L'
+    price: number
+  }>
+  nTargets?: { arithmetic: number | null; logReturn: number | null; none: null }
+  nTargetMethod?: 'arithmetic-equal-leg-research'
+  timing?: {
+    extremeAt: { idx: number; date: string }
+    confirmedAt: { idx: number; date: string }
+    signalAt: { idx: number; date: string }
+    knownAt: { idx: number; date: string }
+    tradableAt: { idx: number; date: string } | null
+  }
 }
 
 export interface HoldingTAItem {

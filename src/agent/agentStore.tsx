@@ -1,12 +1,49 @@
-import React, { createContext, useContext, useReducer, useRef, type ReactNode } from 'react'
+import React, { createContext, useContext, useEffect, useReducer, useRef, type ReactNode } from 'react'
 import type { AgentState, AgentAction, AgentMessage, ConversationMessage } from './types'
 
-const initialState: AgentState = {
+const AGENT_STATE_STORAGE_KEY = 'trade-review-agent-state'
+
+const defaultState: AgentState = {
   conversations: [],
   activeConversationId: null,
   isProcessing: false,
   memory: { facts: [], lastUpdated: '' },
   isOpen: false,
+}
+
+function loadInitialState(): AgentState {
+  if (typeof window === 'undefined') return defaultState
+
+  try {
+    const raw = window.localStorage.getItem(AGENT_STATE_STORAGE_KEY)
+    if (!raw) return defaultState
+
+    const saved = JSON.parse(raw) as Partial<AgentState>
+    if (!Array.isArray(saved.conversations)) return defaultState
+
+    const conversations = saved.conversations.filter(
+      (conversation): conversation is AgentState['conversations'][number] =>
+        Boolean(conversation) &&
+        typeof conversation === 'object' &&
+        typeof conversation.id === 'string' &&
+        typeof conversation.createdAt === 'string' &&
+        Array.isArray(conversation.messages),
+    )
+    const activeConversationId =
+      typeof saved.activeConversationId === 'string' &&
+      conversations.some((conversation) => conversation.id === saved.activeConversationId)
+        ? saved.activeConversationId
+        : (conversations[conversations.length - 1]?.id ?? null)
+
+    return {
+      ...defaultState,
+      conversations,
+      activeConversationId,
+    }
+  } catch {
+    // Corrupt or unavailable browser storage must not prevent chat from opening.
+    return defaultState
+  }
 }
 
 function reducer(state: AgentState, action: AgentAction): AgentState {
@@ -116,14 +153,45 @@ function reducer(state: AgentState, action: AgentAction): AgentState {
 }
 
 // Context
-const StateContext = createContext<AgentState>(initialState)
+const StateContext = createContext<AgentState>(defaultState)
 const DispatchContext = createContext<React.Dispatch<AgentAction>>(() => {})
 const defaultHistoryRef = { current: new Map<string, AgentMessage[]>() }
 const HistoryContext = createContext<React.MutableRefObject<Map<string, AgentMessage[]>>>(defaultHistoryRef)
 
 export function AgentProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, undefined, loadInitialState)
   const historyRef = useRef(new Map<string, AgentMessage[]>())
+
+  useEffect(() => {
+    try {
+      // Processing is transient and should never be restored as "stuck" after a refresh.
+      window.localStorage.setItem(
+        AGENT_STATE_STORAGE_KEY,
+        JSON.stringify({
+          conversations: state.conversations,
+          activeConversationId: state.activeConversationId,
+        }),
+      )
+    } catch {
+      // Large pasted images can exceed the browser quota. Keep the conversation text
+      // archived even when the optional image payload cannot be persisted.
+      try {
+        const conversationsWithoutImages = state.conversations.map((conversation) => ({
+          ...conversation,
+          messages: conversation.messages.map(({ images: _images, ...message }) => message),
+        }))
+        window.localStorage.setItem(
+          AGENT_STATE_STORAGE_KEY,
+          JSON.stringify({
+            conversations: conversationsWithoutImages,
+            activeConversationId: state.activeConversationId,
+          }),
+        )
+      } catch {
+        // A disabled/full localStorage is non-fatal; the current session still works.
+      }
+    }
+  }, [state.conversations, state.activeConversationId])
 
   return (
     <StateContext.Provider value={state}>

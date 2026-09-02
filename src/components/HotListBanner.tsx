@@ -67,11 +67,12 @@ function DragonTigerRow({ stock }: { stock: DragonTigerStock }) {
 }
 
 export default function HotListBanner({ t, date }: HotListBannerProps) {
-  const { data, loading, error, lastUpdated, refresh } = useHotList(date)
-  const hasData = !!data && (
-    data.eastmoney.length > 0 || data.ths.length > 0 ||
-    data.dragonTiger.length > 0
-  )
+  const { data, loading, error, lastUpdated, status, refresh } = useHotList(date)
+  const hasData = !!data
+  const unavailable = (source: 'eastmoney' | 'ths' | 'dragonTiger') =>
+    data?.sourceStatus?.[source]?.status === 'unavailable'
+  const unavailableReason = (source: 'eastmoney' | 'ths' | 'dragonTiger') =>
+    data?.sourceStatus?.[source]?.missingReasons[0] ?? '数据不可用'
 
   return (
     <div className="hotlist-section">
@@ -82,6 +83,8 @@ export default function HotListBanner({ t, date }: HotListBannerProps) {
         </div>
         <div className="hotlist-meta">
           {lastUpdated && <span>{lastUpdated.toLocaleTimeString()}</span>}
+          {status === 'stale' && <span style={{ color: 'var(--orange)' }}>Stale</span>}
+          {status === 'degraded' && <span style={{ color: 'var(--orange)' }}>Partial data</span>}
           <button className="macro-refresh-btn" type="button" onClick={refresh} disabled={loading}>
             <ArrowClockwise size={12} className={loading ? 'spin' : ''} />
           </button>
@@ -103,7 +106,9 @@ export default function HotListBanner({ t, date }: HotListBannerProps) {
               东方财富 热搜榜
             </div>
             <div className="hotlist-list">
-              {data!.eastmoney.map((stock) => (
+              {unavailable('eastmoney') ? (
+                <div className="hotlist-row" title={unavailableReason('eastmoney')}>数据不可用</div>
+              ) : data!.eastmoney.map((stock) => (
                 <StockRow key={`em-${stock.code}`} stock={stock} source="em" />
               ))}
             </div>
@@ -116,7 +121,9 @@ export default function HotListBanner({ t, date }: HotListBannerProps) {
               同花顺 热榜
             </div>
             <div className="hotlist-list">
-              {data!.ths.map((stock) => (
+              {unavailable('ths') ? (
+                <div className="hotlist-row" title={unavailableReason('ths')}>数据不可用</div>
+              ) : data!.ths.map((stock) => (
                 <StockRow key={`ths-${stock.code}`} stock={stock} source="ths" />
               ))}
             </div>
@@ -136,7 +143,9 @@ export default function HotListBanner({ t, date }: HotListBannerProps) {
                 <span className="hotlist-net">净买入</span>
                 <span className="hotlist-explain">席位</span>
               </div>
-              {(data!.dragonTiger ?? []).map((stock) => (
+              {unavailable('dragonTiger') ? (
+                <div className="hotlist-row" title={unavailableReason('dragonTiger')}>数据不可用</div>
+              ) : (data!.dragonTiger ?? []).map((stock) => (
                 <DragonTigerRow key={`dt-${stock.code}`} stock={stock} />
               ))}
             </div>

@@ -122,7 +122,7 @@ export function HoldingTaSection({ ta, t }: Props) {
   )
 }
 
-/** N字运动行(角度强弱/时间窗/结构分级/异动/对称目标);无 nPattern(次新或波动过小)整行不渲染。 */
+/** N字运动行(角度强弱/时间窗/异动/研究投射);无 nPattern(次新或波动过小)整行不渲染。 */
 function NziRow({ np, t }: { np: NPatternResult | null; t: Translation }) {
   if (!np) return null
   const nz = t.holdings.ta.nzi

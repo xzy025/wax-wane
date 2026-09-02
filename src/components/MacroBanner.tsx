@@ -58,7 +58,8 @@ const indicatorConfig: Record<
   },
 }
 
-function formatValue(value: number, unit: string, id: string): string {
+function formatValue(value: number | null, unit: string, id: string): string {
+  if (value == null) return '—'
   if (unit === '%') return `${value.toFixed(2)}%`
   if (unit === 'USD/oz') return `$${value.toFixed(0)}`
   if (unit === 'USD/桶') return `$${value.toFixed(2)}`
@@ -69,7 +70,7 @@ function formatValue(value: number, unit: string, id: string): string {
 }
 
 export default function MacroBanner({ t, date }: MacroBannerProps) {
-  const { data, loading, error, lastUpdated, refresh } = useMacroData(date)
+  const { data, loading, error, lastUpdated, status, refresh } = useMacroData(date)
   const hasData = data.length > 0
 
   return (
@@ -92,6 +93,8 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
             </span>
           )}
           {error && hasData && <span style={{ color: 'var(--red)' }}>{t.macro.error}</span>}
+          {status === 'stale' && hasData && <span style={{ color: 'var(--orange)' }}>Stale</span>}
+          {status === 'degraded' && hasData && <span style={{ color: 'var(--orange)' }}>Partial data</span>}
         </div>
         {!hasData && !loading ? (
           <div className="macro-banner-empty">
@@ -120,9 +123,10 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
             const config = indicatorConfig[item.id]
             if (!config) return null
             const Icon = config.icon
-            const change = item.value - item.previousClose
-            const changePct = (change / item.previousClose) * 100
-            const isUp = change >= 0
+            const hasChange = item.value != null && item.previousClose != null && item.previousClose !== 0
+            const change = hasChange ? item.value - item.previousClose : null
+            const changePct = hasChange && change != null ? (change / item.previousClose!) * 100 : null
+            const isUp = change != null && change >= 0
             const ChangeIcon = isUp ? TrendUp : TrendDown
 
             return (
@@ -142,11 +146,17 @@ export default function MacroBanner({ t, date }: MacroBannerProps) {
                     <span className="macro-item-value">
                       {formatValue(item.value, item.unit, item.id)}
                     </span>
-                    <span className={`macro-item-change ${isUp ? 'up' : 'down'}`}>
-                      <ChangeIcon size={12} aria-hidden="true" />
-                      {isUp ? '+' : ''}
-                      {changePct.toFixed(2)}%
-                    </span>
+                    {changePct == null ? (
+                      <span className="macro-item-change" style={{ color: 'var(--muted)' }} title={item.missingReasons?.join('；')}>
+                        {item.status === 'unavailable' ? 'Unavailable' : '—'}
+                      </span>
+                    ) : (
+                      <span className={`macro-item-change ${isUp ? 'up' : 'down'}`}>
+                        <ChangeIcon size={12} aria-hidden="true" />
+                        {isUp ? '+' : ''}
+                        {changePct.toFixed(2)}%
+                      </span>
+                    )}
                   </div>
                 </div>
               </a>
