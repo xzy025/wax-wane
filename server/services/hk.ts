@@ -62,7 +62,7 @@ export function mapTencentHKRows(rows: unknown[][]): KlineBar[] {
       low,
       volume,
       // Tencent's public HK history omits turnover. Keep it unknown rather than fabricating.
-      turnover: 0,
+      turnover: null,
       amplitude: prevClose > 0 ? ((high - low) / prevClose) * 100 : 0,
       changePct: prevClose > 0 ? (close / prevClose - 1) * 100 : 0,
     })

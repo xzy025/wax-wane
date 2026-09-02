@@ -8,7 +8,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl, isArchiveWindow } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
-import { fetchSentiment } from './kaipanla'
+import { fetchSentiment, type SentimentData } from './kaipanla'
 import { fetchRotation, type RotationBoard } from './rotation'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -30,11 +30,12 @@ export interface MarketStructureBoard {
 export interface MarketStructureSummary {
   asof: string
   generatedAt: string
-  limitUp: number // 涨停家数
-  limitDown: number // 跌停家数
-  advanceCount: number // 上涨家数
-  declineCount: number // 下跌家数
-  breakRate: number // 破板率%
+  limitUp: number | null // 涨停家数
+  limitDown: number | null // 跌停家数
+  advanceCount: number | null // 上涨家数
+  declineCount: number | null // 下跌家数
+  breakRate: number | null // 破板率%
+  sentimentStatus: SentimentData['status']
   boardTotal: number // 参与轮动统计的板块总数
   hsCount: number // 强势延续(抱团/龙头)
   lsCount: number // 底部反转
@@ -48,7 +49,7 @@ export interface MarketStructureSummary {
 
 async function computeMarketStructure(): Promise<MarketStructureSummary> {
   const [sentiment, rotation] = await Promise.all([
-    fetchSentiment().catch(() => null), // 情绪源独立,取不到就整体因子中性(0),不拖垮板块结构
+    fetchSentiment().catch(() => null),
     fetchRotation('industry', 60, 5),
   ])
   // 板块象限是本卡主源:东财限流时 120 板块可能全部取不到日线(rows=0),此时的
@@ -70,11 +71,12 @@ async function computeMarketStructure(): Promise<MarketStructureSummary> {
   const result: MarketStructureSummary = {
     asof: todayShanghai(),
     generatedAt: new Date().toISOString(),
-    limitUp: sentiment?.limitUp ?? 0,
-    limitDown: sentiment?.limitDown ?? 0,
-    advanceCount: sentiment?.riseCount ?? 0,
-    declineCount: sentiment?.fallCount ?? 0,
-    breakRate: sentiment?.breakRate ?? 0,
+    limitUp: sentiment?.limitUp ?? null,
+    limitDown: sentiment?.limitDown ?? null,
+    advanceCount: sentiment?.riseCount ?? null,
+    declineCount: sentiment?.fallCount ?? null,
+    breakRate: sentiment?.breakRate ?? null,
+    sentimentStatus: sentiment?.status ?? 'unavailable',
     boardTotal: rotation.summary.total,
     hsCount: rotation.summary.hs,
     lsCount: rotation.summary.ls,

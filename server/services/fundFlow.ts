@@ -24,10 +24,11 @@ export interface FundFlowInfo {
   resonance: boolean // 净流入∩成交量 双 top200(图里「资金共振」)
 }
 
-const num = (v: unknown): number => {
+const finite = (v: unknown): number | undefined => {
   const n = typeof v === 'string' ? parseFloat(v) : (v as number)
-  return Number.isFinite(n) ? n : 0
+  return Number.isFinite(n) ? n : undefined
 }
+const num = (v: unknown): number => finite(v) ?? 0
 
 /** env 门控:默认开;FUNDRES_FUNDFLOW=0 关闭(主力净流入为未回测的实盘探索因子)。 */
 export function isFundFlowEnabled(): boolean {
@@ -51,7 +52,13 @@ async function fetchRankPage(
       const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`fundflow HTTP ${res.status}`)
       const json = (await res.json()) as any
-      return (json?.data?.diff ?? []) as Record<string, unknown>[]
+      const rows = (json?.data?.diff ?? []) as Record<string, unknown>[]
+      // 东财风控偶尔返回只有代码/名称、排序字段全缺的“软成功”。这种响应不能
+      // 按数组位置伪造成排名，继续换镜像；截图中的全0榜即源于旧逻辑吞掉缺失值。
+      if (rows.length > 0 && !rows.some((row) => finite(row[fid]) != null)) {
+        throw new Error(`fundflow 缺失排序字段 ${fid}`)
+      }
+      return rows
     } catch {
       /* 试下一个镜像 */
     }
@@ -85,7 +92,8 @@ export async function fetchInflowRankTop(topN = 200): Promise<Map<string, number
       if (rows.length === 0) break
       for (const row of rows) {
         const code = String(row.f12 ?? '')
-        if (!code) continue
+        const inflow = finite(row.f62)
+        if (!code || inflow == null || inflow <= 0) continue
         out.set(code, out.size + 1)
         if (out.size >= topN) break
       }
@@ -101,8 +109,22 @@ export async function fetchInflowRankTop(topN = 200): Promise<Map<string, number
 }
 
 /** 按候选代码批量取主力净流入「值」(f62/f184)。ulist 一次多只,分块。失败/门控关 → 空 Map。 */
-export async function fetchFundFlowForCodes(codes: string[]): Promise<Map<string, { netInflow: number; netInflowPct: number }>> {
-  const out = new Map<string, { netInflow: number; netInflowPct: number }>()
+export interface StockFundFlow {
+  netInflow: number
+  netInflowPct: number
+  name?: string
+  price?: number
+  changePct?: number
+  amount?: number
+  marketCap?: number
+  superLargeNet?: number
+  largeNet?: number
+  mediumNet?: number
+  smallNet?: number
+}
+
+export async function fetchFundFlowForCodes(codes: string[]): Promise<Map<string, StockFundFlow>> {
+  const out = new Map<string, StockFundFlow>()
   if (!isFundFlowEnabled() || codes.length === 0) return out
   const secidByCode = new Map<string, string>()
   for (const c of codes) {
@@ -116,7 +138,7 @@ export async function fetchFundFlowForCodes(codes: string[]): Promise<Map<string
     for (let h = 0; h < FF_HOSTS.length && !ok; h++) {
       const url =
         `https://${FF_HOSTS[h]}/api/qt/ulist.np/get?secids=${chunk.join(',')}` +
-        `&fields=f12,f62,f184&fltt=2&invt=2&ut=${FF_UT}`
+        `&fields=f12,f14,f2,f3,f6,f20,f62,f184,f66,f72,f78,f84&fltt=2&invt=2&ut=${FF_UT}`
       try {
         const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
         if (!res.ok) throw new Error(`ulist HTTP ${res.status}`)
@@ -124,8 +146,22 @@ export async function fetchFundFlowForCodes(codes: string[]): Promise<Map<string
         const diff = (json?.data?.diff ?? []) as Record<string, unknown>[]
         for (const d of diff) {
           const code = String(d.f12 ?? '')
-          if (!code) continue
-          out.set(code, { netInflow: num(d.f62), netInflowPct: num(d.f184) })
+          const netInflow = finite(d.f62)
+          const netInflowPct = finite(d.f184)
+          if (!code || netInflow == null || netInflowPct == null) continue
+          out.set(code, {
+            netInflow,
+            netInflowPct,
+            name: String(d.f14 ?? ''),
+            price: finite(d.f2),
+            changePct: finite(d.f3),
+            amount: finite(d.f6),
+            marketCap: finite(d.f20),
+            superLargeNet: finite(d.f66),
+            largeNet: finite(d.f72),
+            mediumNet: finite(d.f78),
+            smallNet: finite(d.f84),
+          })
         }
         ok = true
       } catch {
@@ -143,8 +179,13 @@ export interface TurnoverRankEntry {
   price: number
   changePct: number
   amount: number // 成交额(元,f6)
+  marketCap: number // 总市值(元,f20)
   netInflow: number // 主力净流入额(元,f62)
   netInflowPct: number // 主力净流入占比(%,f184)
+  superLargeNet?: number
+  largeNet?: number
+  mediumNet?: number
+  smallNet?: number
 }
 
 const turnoverCache = new Map<string, { data: Map<string, TurnoverRankEntry>; expires: number }>()
@@ -159,19 +200,29 @@ export async function fetchTurnoverRankTop(topN = 200): Promise<Map<string, Turn
   try {
     const pages = Math.ceil(topN / FF_PZ)
     for (let pn = 1; pn <= pages; pn++) {
-      const rows = await fetchRankPage('f6', pn, 0, 'f12,f14,f2,f3,f6,f62,f184')
+      const rows = await fetchRankPage('f6', pn, 0, 'f12,f14,f2,f3,f6,f20,f62,f184,f66,f72,f78,f84')
       if (rows.length === 0) break
       for (const row of rows) {
         const code = String(row.f12 ?? '')
-        if (!code) continue
+        const price = finite(row.f2)
+        const amount = finite(row.f6)
+        const marketCap = finite(row.f20)
+        const netInflow = finite(row.f62)
+        const netInflowPct = finite(row.f184)
+        if (!code || price == null || price <= 0 || amount == null || amount <= 0 || marketCap == null || marketCap <= 0 || netInflow == null || netInflowPct == null) continue
         out.set(code, {
           rank: out.size + 1,
           name: String(row.f14 ?? ''),
-          price: num(row.f2),
+          price,
           changePct: num(row.f3),
-          amount: num(row.f6),
-          netInflow: num(row.f62),
-          netInflowPct: num(row.f184),
+          amount,
+          marketCap,
+          netInflow,
+          netInflowPct,
+          superLargeNet: finite(row.f66),
+          largeNet: finite(row.f72),
+          mediumNet: finite(row.f78),
+          smallNet: finite(row.f84),
         })
         if (out.size >= topN) break
       }
@@ -183,6 +234,59 @@ export async function fetchTurnoverRankTop(topN = 200): Promise<Map<string, Turn
     return out
   }
   turnoverCache.set(key, { data: out, expires: Date.now() + TTL })
+  return out
+}
+
+export type FundBoardCategory = 'industry' | 'concept'
+export interface BoardFundFlowEntry {
+  code: string
+  name: string
+  category: FundBoardCategory
+  netInflow: number
+  netInflowPct: number
+  superLargeNet?: number
+  largeNet?: number
+  mediumNet?: number
+  smallNet?: number
+}
+
+const boardRankCache = new Map<string, { data: BoardFundFlowEntry[]; expires: number }>()
+
+/** 当日板块资金全截面。返回全体有效板块，调用方在完整截面上算百分位后再取Top。 */
+export async function fetchBoardFundFlow(category: FundBoardCategory): Promise<BoardFundFlowEntry[]> {
+  if (!isFundFlowEnabled()) return []
+  const hit = boardRankCache.get(category)
+  if (hit && hit.expires > Date.now()) return hit.data
+  const fs = category === 'industry' ? 'm:90+t:2' : 'm:90+t:3'
+  const out: BoardFundFlowEntry[] = []
+  for (let pn = 1; pn <= 6; pn++) {
+    let page: Record<string, unknown>[] = []
+    for (let h = 0; h < FF_HOSTS.length; h++) {
+      const url = `https://${FF_HOSTS[h]}/api/qt/clist/get?pn=${pn}&pz=${FF_PZ}&po=1&np=1&fltt=2&invt=2&ut=${FF_UT}&fid=f62&fs=${encodeURIComponent(fs)}&fields=f12,f14,f62,f184,f66,f72,f78,f84`
+      try {
+        const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
+        if (!res.ok) continue
+        const json = (await res.json()) as any
+        const rows = (json?.data?.diff ?? []) as Record<string, unknown>[]
+        if (rows.length && rows.some((r) => finite(r.f62) != null && finite(r.f184) != null)) {
+          page = rows
+          break
+        }
+      } catch { /* 换镜像 */ }
+    }
+    if (!page.length) break
+    for (const row of page) {
+      const code = String(row.f12 ?? '')
+      const name = String(row.f14 ?? '')
+      const netInflow = finite(row.f62)
+      const netInflowPct = finite(row.f184)
+      if (!code || !name || netInflow == null || netInflowPct == null) continue
+      out.push({ code, name, category, netInflow, netInflowPct, superLargeNet: finite(row.f66), largeNet: finite(row.f72), mediumNet: finite(row.f78), smallNet: finite(row.f84) })
+    }
+    if (page.length < FF_PZ) break
+  }
+  if (!out.length) throw new Error(`[FundFlow] ${category} 板块资金无有效字段`)
+  boardRankCache.set(category, { data: out, expires: Date.now() + TTL })
   return out
 }
 
@@ -229,6 +333,7 @@ export async function fetchBoardInflow(bkCodes: string[]): Promise<Map<string, n
 export function clearFundFlowCache(): void {
   rankCache.clear()
   turnoverCache.clear()
+  boardRankCache.clear()
   boardInflowCache.data = new Map()
   boardInflowCache.expires = 0
 }
