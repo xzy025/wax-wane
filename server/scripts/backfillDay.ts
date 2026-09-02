@@ -143,6 +143,13 @@ async function main() {
       key: 'forward',
       file: `forward-${target}.json`,
       run: async () => {
+        const screenerPath = join(SCREENER_DIR, `${target}.json`)
+        const screenerAsof = existsSync(screenerPath)
+          ? (JSON.parse(readFileSync(screenerPath, 'utf8')) as { asof?: string }).asof
+          : undefined
+        if (screenerAsof !== target) {
+          throw new Error(`选股正式归档缺失或日期不符(asof=${screenerAsof ?? '缺失'})，禁止生成错标 forward`)
+        }
         const m = await import('../services/screenerForward')
         m.clearScreenerForwardCache()
         return m.fetchScreenerForward()
