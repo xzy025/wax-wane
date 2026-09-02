@@ -1,0 +1,146 @@
+{
+  "signalDate": "2026-08-21",
+  "tradeDate": "2026-08-24",
+  "generatedAt": "2026-08-24T07:09:12.694Z",
+  "ruleVersion": "limit-ladder-v6",
+  "auction": {
+    "capturedAt": "2026-08-24T01:25:18.171Z",
+    "phase": "auction",
+    "score": 58.51,
+    "state": "divergence",
+    "confidence": 28.57,
+    "metrics": {
+      "sampleSize": 2,
+      "positiveRate": 100,
+      "nuclearRate": 0,
+      "onePriceRetentionRate": 0,
+      "weightedGapPct": 5.27,
+      "processStrength": 52.2,
+      "vwapHoldRate": null,
+      "waterfallRate": null,
+      "resealRate": null
+    },
+    "members": [
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "theme": "医药",
+        "boards": 3,
+        "marketRole": "space-leader",
+        "heightTier": "high",
+        "gapPct": 6.97,
+        "changePct": 6.97,
+        "processScore": 4.4,
+        "aboveVwap": null,
+        "priorOnePrice": true,
+        "onePriceRetained": false,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "600613",
+        "name": "神奇制药",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 3.56,
+        "changePct": 3.56,
+        "processScore": 100,
+        "aboveVwap": null,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      }
+    ],
+    "themes": [
+      {
+        "theme": "医药",
+        "score": 58.51,
+        "state": "divergence",
+        "confidence": 28.57,
+        "sampleSize": 2,
+        "highLowSwitch": false
+      }
+    ],
+    "warnings": [
+      "高标篮子少于3只，风偏按低置信度收缩"
+    ]
+  },
+  "open": {
+    "capturedAt": "2026-08-24T01:35:12.920Z",
+    "phase": "open",
+    "score": 58.67,
+    "state": "divergence",
+    "confidence": 28.57,
+    "metrics": {
+      "sampleSize": 2,
+      "positiveRate": 100,
+      "nuclearRate": 0,
+      "onePriceRetentionRate": 0,
+      "weightedGapPct": 5.27,
+      "processStrength": 52.2,
+      "vwapHoldRate": 100,
+      "waterfallRate": 0,
+      "resealRate": 50
+    },
+    "members": [
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "theme": "医药",
+        "boards": 3,
+        "marketRole": "space-leader",
+        "heightTier": "high",
+        "gapPct": 6.97,
+        "changePct": 10.01,
+        "processScore": 4.4,
+        "aboveVwap": true,
+        "priorOnePrice": true,
+        "onePriceRetained": false,
+        "resealed": true,
+        "nuclear": false
+      },
+      {
+        "code": "600613",
+        "name": "神奇制药",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 3.56,
+        "changePct": 5.33,
+        "processScore": 100,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      }
+    ],
+    "themes": [
+      {
+        "theme": "医药",
+        "score": 58.67,
+        "state": "divergence",
+        "confidence": 28.57,
+        "sampleSize": 2,
+        "highLowSwitch": false
+      }
+    ],
+    "warnings": [
+      "高标篮子少于3只，风偏按低置信度收缩"
+    ]
+  },
+  "eventReaction": {
+    "state": "neutral",
+    "score": 50,
+    "affectedCodes": [],
+    "positiveCodes": [],
+    "negativeCodes": [],
+    "evidence": [
+      "无直接监管事件"
+    ]
+  }
+}

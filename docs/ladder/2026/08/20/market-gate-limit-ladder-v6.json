@@ -1,0 +1,438 @@
+{
+  "signalDate": "2026-08-20",
+  "tradeDate": "2026-08-21",
+  "generatedAt": "2026-08-21T01:35:06.585Z",
+  "ruleVersion": "limit-ladder-v6",
+  "premarket": {
+    "signalDate": "2026-08-20",
+    "tradeDate": "2026-08-21",
+    "capturedAt": "2026-08-21T00:50:04.106Z",
+    "frozenAt": "2026-08-21T00:50:04.106Z",
+    "late": false,
+    "state": "mixed",
+    "riskScore": 46.87,
+    "coverage": 75,
+    "us": [
+      {
+        "code": "DJI",
+        "name": "道琼斯",
+        "changePct": -1.32,
+        "price": 52759.21
+      },
+      {
+        "code": "IXIC",
+        "name": "纳斯达克",
+        "changePct": -1,
+        "price": 26067.17
+      },
+      {
+        "code": "SPX",
+        "name": "标普500",
+        "changePct": -0.87,
+        "price": 7641.16
+      }
+    ],
+    "asia": [
+      {
+        "code": "N225",
+        "name": "日经225",
+        "changePct": -0.68,
+        "price": 65769.67
+      },
+      {
+        "code": "KS11",
+        "name": "韩国KOSPI",
+        "changePct": 0.73,
+        "price": 6902.53
+      }
+    ],
+    "macro": [
+      {
+        "id": "usdcny",
+        "value": 6.739393,
+        "previousClose": 7.238,
+        "changePct": -6.89,
+        "deltaBps": null
+      }
+    ],
+    "headlines": [
+      {
+        "time": "2026-08-21T08:40:48+08:00",
+        "source": "eastmoney",
+        "title": "贝森特救市效果“一日游”？华尔街辣评：充其量只是债市暴跌“熔断机制”！",
+        "severity": 90,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-21T08:08:00+08:00",
+        "source": "cls",
+        "title": "财联社8月21日早间新闻精选",
+        "severity": 70,
+        "direction": "risk"
+      }
+    ],
+    "sources": [
+      "eastmoney-us",
+      "eastmoney-asia",
+      "macro-live",
+      "news-flash"
+    ],
+    "reasons": [
+      "纳指-1.00%",
+      "隔夜宏观快讯存在风险事件"
+    ],
+    "warnings": []
+  },
+  "auction": {
+    "signalDate": "2026-08-20",
+    "tradeDate": "2026-08-21",
+    "generatedAt": "2026-08-21T01:25:08.868Z",
+    "phase": "auction",
+    "state": "restricted",
+    "riskScore": 58.17,
+    "externalRiskScore": 46.87,
+    "domesticRiskScore": 64.25,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-20",
+      "tradeDate": "2026-08-21",
+      "capturedAt": "2026-08-21T00:50:04.106Z",
+      "frozenAt": "2026-08-21T00:50:04.106Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 46.87,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": -1.32,
+          "price": 52759.21
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": -1,
+          "price": 26067.17
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": -0.87,
+          "price": 7641.16
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.68,
+          "price": 65769.67
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 0.73,
+          "price": 6902.53
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.739393,
+          "previousClose": 7.238,
+          "changePct": -6.89,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-21T08:40:48+08:00",
+          "source": "eastmoney",
+          "title": "贝森特救市效果“一日游”？华尔街辣评：充其量只是债市暴跌“熔断机制”！",
+          "severity": 90,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-21T08:08:00+08:00",
+          "source": "cls",
+          "title": "财联社8月21日早间新闻精选",
+          "severity": 70,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "纳指-1.00%",
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-21T01:25:08.867Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": -0.32,
+          "price": 3891.18
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": -0.27,
+          "price": 13935.64
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": -0.01,
+          "price": 3495.11
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.2,
+          "price": 2875.65
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.16,
+          "price": 4585.44
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": -0.45,
+          "price": 7555.55
+        }
+      ],
+      "advance": 870,
+      "decline": 3814,
+      "flat": 576,
+      "limitUp": 7,
+      "limitDown": 2,
+      "indexRiskScore": 45,
+      "breadthRiskScore": 100,
+      "highBoardRiskScore": 45,
+      "riskScore": 64.25,
+      "coverage": 100,
+      "reasons": [
+        "竞价下跌家数占81.4%"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-21T01:25:08.867Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": -0.18,
+      "smallCapChangePct": -0.45,
+      "sizeSpreadPct": 0.27,
+      "advanceRate": 18.57,
+      "largeCapAuctionAmountSharePct": 57.72,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数-0.18%",
+        "小盘指数-0.45%",
+        "大盘相对小盘+0.27pct",
+        "上涨家数占比18.6%",
+        "大市值竞价成交占比57.7%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [],
+    "reasons": [
+      "纳指-1.00%",
+      "隔夜宏观快讯存在风险事件",
+      "竞价下跌家数占81.4%"
+    ],
+    "warnings": []
+  },
+  "open": {
+    "signalDate": "2026-08-20",
+    "tradeDate": "2026-08-21",
+    "generatedAt": "2026-08-21T01:35:06.585Z",
+    "phase": "open",
+    "state": "restricted",
+    "riskScore": 58.17,
+    "externalRiskScore": 46.87,
+    "domesticRiskScore": 64.25,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-20",
+      "tradeDate": "2026-08-21",
+      "capturedAt": "2026-08-21T00:50:04.106Z",
+      "frozenAt": "2026-08-21T00:50:04.106Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 46.87,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": -1.32,
+          "price": 52759.21
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": -1,
+          "price": 26067.17
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": -0.87,
+          "price": 7641.16
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.68,
+          "price": 65769.67
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 0.73,
+          "price": 6902.53
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.739393,
+          "previousClose": 7.238,
+          "changePct": -6.89,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-21T08:40:48+08:00",
+          "source": "eastmoney",
+          "title": "贝森特救市效果“一日游”？华尔街辣评：充其量只是债市暴跌“熔断机制”！",
+          "severity": 90,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-21T08:08:00+08:00",
+          "source": "cls",
+          "title": "财联社8月21日早间新闻精选",
+          "severity": 70,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "纳指-1.00%",
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-21T01:35:06.584Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": -0.28,
+          "price": 3892.63
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": -0.44,
+          "price": 13911.67
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": -0.23,
+          "price": 3487.46
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.11,
+          "price": 2878.17
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.12,
+          "price": 4587.21
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": -0.92,
+          "price": 7520.26
+        }
+      ],
+      "advance": 662,
+      "decline": 4500,
+      "flat": 121,
+      "limitUp": 20,
+      "limitDown": 5,
+      "indexRiskScore": 45,
+      "breadthRiskScore": 100,
+      "highBoardRiskScore": 45,
+      "riskScore": 64.25,
+      "coverage": 100,
+      "reasons": [
+        "竞价下跌家数占87.2%"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-21T01:25:08.867Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": -0.18,
+      "smallCapChangePct": -0.45,
+      "sizeSpreadPct": 0.27,
+      "advanceRate": 18.57,
+      "largeCapAuctionAmountSharePct": 57.72,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数-0.18%",
+        "小盘指数-0.45%",
+        "大盘相对小盘+0.27pct",
+        "上涨家数占比18.6%",
+        "大市值竞价成交占比57.7%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [],
+    "reasons": [
+      "纳指-1.00%",
+      "隔夜宏观快讯存在风险事件",
+      "竞价下跌家数占87.2%"
+    ],
+    "warnings": []
+  }
+}

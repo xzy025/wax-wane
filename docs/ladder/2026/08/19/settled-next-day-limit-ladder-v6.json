@@ -1,0 +1,1395 @@
+{
+  "signalDate": "2026-08-19",
+  "tradeDate": "2026-08-20",
+  "generatedAt": "2026-08-20T10:39:47.228Z",
+  "ruleVersion": "limit-ladder-v6",
+  "stage": "settled",
+  "auctionSnapshotAvailable": true,
+  "confirmationSnapshotAvailable": true,
+  "auctionContext": {
+    "capturedAt": "2026-08-20T01:25:06.218Z",
+    "snapshotCount": 41,
+    "coverage": 100,
+    "lowConfidence": false,
+    "sources": [
+      "kaipanla-analysis",
+      "tencent"
+    ],
+    "marketStyle": {
+      "style": "mixed",
+      "label": "竞价方向分散",
+      "score": 50,
+      "confidence": 100,
+      "topFiveConcentrationPct": 40,
+      "weightedSharePct": 80,
+      "largeCapAmountSharePct": 64.57,
+      "evidence": [
+        "成交额前五分散占2只",
+        "权重股占4只",
+        "成交额前20大市值占64.6%",
+        "该信号只作市场风格证据，不单独确认题材主线"
+      ]
+    },
+    "topAmount": [
+      {
+        "code": "688825",
+        "name": "长鑫科技",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 57.58,
+        "changePct": 0.05,
+        "amount": 340404496,
+        "marketCap": 3851001420314,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600127",
+        "name": "金健米业",
+        "industry": "农产品加工",
+        "style": "small-cap",
+        "price": 8.14,
+        "changePct": 4.09,
+        "amount": 315289729,
+        "marketCap": 5224115395,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "601899",
+        "name": "紫金矿业",
+        "industry": "工业金属",
+        "style": "mixed",
+        "price": 34,
+        "changePct": 3.79,
+        "amount": 292546200,
+        "marketCap": 904084297148,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:04",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688836",
+        "name": "C宇树-W",
+        "industry": "自动化设备",
+        "style": "mixed",
+        "price": 790,
+        "changePct": -6.51,
+        "amount": 253953400,
+        "marketCap": 319526828600,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603259",
+        "name": "药明康德",
+        "industry": "医疗服务",
+        "style": "medicine",
+        "price": 171,
+        "changePct": 4.27,
+        "amount": 236578500,
+        "marketCap": 510222473505,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300308",
+        "name": "中际旭创",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 904.99,
+        "changePct": 1.05,
+        "amount": 236564386,
+        "marketCap": 1058598152759,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603986",
+        "name": "兆易创新",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 410,
+        "changePct": 1.56,
+        "amount": 235852090,
+        "marketCap": 287715463940,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600276",
+        "name": "恒瑞医药",
+        "industry": "化学制药",
+        "style": "medicine",
+        "price": 51,
+        "changePct": -3.15,
+        "amount": 209181600,
+        "marketCap": 338497193574,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603221",
+        "name": "爱丽家居",
+        "industry": "家居用品",
+        "style": "small-cap",
+        "price": 24.3,
+        "changePct": -10,
+        "amount": 202297500,
+        "marketCap": 5887161000,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300142",
+        "name": "沃森生物",
+        "industry": "生物制品",
+        "style": "medicine",
+        "price": 15.12,
+        "changePct": 20,
+        "amount": 199590168.96,
+        "marketCap": 24182149940,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600613",
+        "name": "神奇制药",
+        "industry": "化学制药",
+        "style": "medicine",
+        "price": 8.56,
+        "changePct": 10.03,
+        "amount": 187251712,
+        "marketCap": 4571653136,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:01",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300394",
+        "name": "天孚通信",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 282.5,
+        "changePct": 1.84,
+        "amount": 174296850,
+        "marketCap": 308158088773,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002428",
+        "name": "云南锗业",
+        "industry": "小金属",
+        "style": "mixed",
+        "price": 102.91,
+        "changePct": -1.71,
+        "amount": 139813526,
+        "marketCap": 67212579200,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300750",
+        "name": "宁德时代",
+        "industry": "电池",
+        "style": "mixed",
+        "price": 391.51,
+        "changePct": 0.65,
+        "amount": 139729919,
+        "marketCap": 1811381667338,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688766",
+        "name": "普冉股份",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 450,
+        "changePct": 0.63,
+        "amount": 139357350,
+        "marketCap": 66916598850,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:04",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300122",
+        "name": "智飞生物",
+        "industry": "生物制品",
+        "style": "medicine",
+        "price": 14.47,
+        "changePct": 19.88,
+        "amount": 132872164.12,
+        "marketCap": 34638137639,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300139",
+        "name": "晓程科技",
+        "industry": "贵金属",
+        "style": "technology",
+        "price": 50.77,
+        "changePct": 8.76,
+        "amount": 119124646.43,
+        "marketCap": 13910980000,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603629",
+        "name": "利通电子",
+        "industry": "消费电子",
+        "style": "technology",
+        "price": 132,
+        "changePct": -2.19,
+        "amount": 111008700,
+        "marketCap": 48408096000,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300502",
+        "name": "新易盛",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 418,
+        "changePct": 1.58,
+        "amount": 110520872,
+        "marketCap": 582799293912,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600206",
+        "name": "有研新材",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 57.82,
+        "changePct": -1.78,
+        "amount": 109285582,
+        "marketCap": 48947713656,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002156",
+        "name": "通富微电",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 63.7,
+        "changePct": 0.17,
+        "amount": 104487110,
+        "marketCap": 96670923294,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300418",
+        "name": "昆仑万维",
+        "industry": "数字媒体",
+        "style": "mixed",
+        "price": 45.2,
+        "changePct": 6.3,
+        "amount": 103205250.4,
+        "marketCap": 58083569118,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002821",
+        "name": "凯莱英",
+        "industry": "医疗服务",
+        "style": "medicine",
+        "price": 180.12,
+        "changePct": 5.59,
+        "amount": 101065332,
+        "marketCap": 64962704216,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603186",
+        "name": "华正新材",
+        "industry": "元件",
+        "style": "mixed",
+        "price": 173.47,
+        "changePct": -0.87,
+        "amount": 101028928,
+        "marketCap": 27198451157,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002437",
+        "name": "誉衡药业",
+        "industry": "化学制药",
+        "style": "medicine",
+        "price": 4.62,
+        "changePct": 7.44,
+        "amount": 96341931.84,
+        "marketCap": 10301990742,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600584",
+        "name": "长电科技",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 79.8,
+        "changePct": 2.65,
+        "amount": 95815860,
+        "marketCap": 142795282686,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:01",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002384",
+        "name": "东山精密",
+        "industry": "元件",
+        "style": "mixed",
+        "price": 200,
+        "changePct": 1.47,
+        "amount": 91340000,
+        "marketCap": 366321506400,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "301080",
+        "name": "百普赛斯",
+        "industry": "生物制品",
+        "style": "medicine",
+        "price": 92,
+        "changePct": 7.29,
+        "amount": 90343080,
+        "marketCap": 15426473336,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "000426",
+        "name": "兴业银锡",
+        "industry": "贵金属",
+        "style": "mixed",
+        "price": 38.28,
+        "changePct": 6.45,
+        "amount": 89632620,
+        "marketCap": 67971336089,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600988",
+        "name": "赤峰黄金",
+        "industry": "贵金属",
+        "style": "mixed",
+        "price": 45,
+        "changePct": 5.34,
+        "amount": 86733180,
+        "marketCap": 85518503010,
+        "tradeDate": "2026-08-20",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      }
+    ],
+    "themes": [
+      {
+        "theme": "农业",
+        "score": 50.74,
+        "state": "weak",
+        "positiveRate": 20,
+        "weightedGapPct": 0.73,
+        "amountSharePct": 69.86,
+        "coreCode": "600127",
+        "coreName": "金健米业",
+        "coreOnePrice": false,
+        "assistantCodes": [],
+        "assistantCount": 0,
+        "coverage": 100
+      },
+      {
+        "theme": "地产链",
+        "score": 28.22,
+        "state": "weak",
+        "positiveRate": 16.67,
+        "weightedGapPct": -3.11,
+        "amountSharePct": 20.13,
+        "coreCode": "000020",
+        "coreName": "深华发Ａ",
+        "coreOnePrice": false,
+        "assistantCodes": [
+          "603801"
+        ],
+        "assistantCount": 1,
+        "coverage": 100
+      }
+    ],
+    "candidateProcesses": [
+      {
+        "code": "603395",
+        "sampleCount": 40,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 9.66,
+        "finalGapPct": -6.9,
+        "finalUnmatchedSide": "balanced"
+      },
+      {
+        "code": "000505",
+        "sampleCount": 40,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 7.23,
+        "finalGapPct": -7.9,
+        "finalUnmatchedSide": "buy"
+      },
+      {
+        "code": "000020",
+        "sampleCount": 40,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 1.75,
+        "finalGapPct": -9.02,
+        "finalUnmatchedSide": "buy"
+      },
+      {
+        "code": "600127",
+        "sampleCount": 40,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 9.97,
+        "finalGapPct": 2.05,
+        "finalUnmatchedSide": "buy"
+      }
+    ],
+    "warnings": []
+  },
+  "highBoardContext": {
+    "capturedAt": "2026-08-20T01:35:03.836Z",
+    "phase": "open",
+    "score": 53.91,
+    "state": "divergence",
+    "confidence": 58.33,
+    "metrics": {
+      "sampleSize": 7,
+      "positiveRate": 71.43,
+      "nuclearRate": 14.29,
+      "onePriceRetentionRate": 0,
+      "weightedGapPct": 0.84,
+      "processStrength": 47.79,
+      "vwapHoldRate": 57.14,
+      "waterfallRate": 28.57,
+      "resealRate": 14.29
+    },
+    "members": [
+      {
+        "code": "603395",
+        "name": "红四方",
+        "theme": "农业",
+        "boards": 3,
+        "marketRole": "co-space-leader",
+        "heightTier": "high",
+        "gapPct": -6.9,
+        "changePct": -6.9,
+        "processScore": 0,
+        "aboveVwap": false,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "000505",
+        "name": "京粮控股",
+        "theme": "农业",
+        "boards": 3,
+        "marketRole": "co-space-leader",
+        "heightTier": "high",
+        "gapPct": -7.9,
+        "changePct": -6.69,
+        "processScore": 0,
+        "aboveVwap": false,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": true
+      },
+      {
+        "code": "600127",
+        "name": "金健米业",
+        "theme": "农业",
+        "boards": 3,
+        "marketRole": "co-space-leader",
+        "heightTier": "high",
+        "gapPct": 2.05,
+        "changePct": 9.97,
+        "processScore": 0,
+        "aboveVwap": true,
+        "priorOnePrice": true,
+        "onePriceRetained": false,
+        "resealed": true,
+        "nuclear": false
+      },
+      {
+        "code": "600272",
+        "name": "开开实业",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 4.87,
+        "changePct": 2.56,
+        "processScore": 99.95,
+        "aboveVwap": false,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "600664",
+        "name": "哈药股份",
+        "theme": "医药",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 0.22,
+        "changePct": 0.44,
+        "processScore": 61.65,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "600721",
+        "name": "百花医药",
+        "theme": "医药",
+        "boards": 7,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 3.5,
+        "changePct": 3.79,
+        "processScore": 72.95,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "600613",
+        "name": "神奇制药",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 10.03,
+        "changePct": 10.03,
+        "processScore": 100,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      }
+    ],
+    "themes": [
+      {
+        "theme": "医药",
+        "score": 66.97,
+        "state": "divergence",
+        "confidence": 44.44,
+        "sampleSize": 4,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "农业",
+        "score": 41.19,
+        "state": "contraction",
+        "confidence": 37.5,
+        "sampleSize": 3,
+        "highLowSwitch": false
+      }
+    ],
+    "warnings": []
+  },
+  "themeRiskAppetite": [
+    {
+      "theme": "医药",
+      "score": 66.97,
+      "state": "divergence",
+      "confidence": 44.44,
+      "sampleSize": 4,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "农业",
+      "score": 41.19,
+      "state": "contraction",
+      "confidence": 37.5,
+      "sampleSize": 3,
+      "highLowSwitch": false
+    }
+  ],
+  "eventReaction": {
+    "state": "neutral",
+    "score": 50,
+    "affectedCodes": [],
+    "positiveCodes": [],
+    "negativeCodes": [],
+    "evidence": [
+      "无直接监管事件"
+    ]
+  },
+  "marketGate": {
+    "signalDate": "2026-08-19",
+    "tradeDate": "2026-08-20",
+    "generatedAt": "2026-08-20T01:35:05.727Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 21.63,
+    "externalRiskScore": 22.33,
+    "domesticRiskScore": 21.25,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-19",
+      "tradeDate": "2026-08-20",
+      "capturedAt": "2026-08-20T00:50:05.371Z",
+      "frozenAt": "2026-08-20T00:50:05.371Z",
+      "late": false,
+      "state": "risk-on",
+      "riskScore": 22.33,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.22,
+          "price": 53463.05
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.16,
+          "price": 26331.09
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.21,
+          "price": 7707.98
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": 1.12,
+          "price": 66055.25
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 4.28,
+          "price": 6748.17
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.746073,
+          "previousClose": 7.238,
+          "changePct": -6.8,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-20T08:36:03+08:00",
+          "source": "sina",
+          "title": "投资者认为10年期美债收益率触及5%将损害亚洲新兴市场债券",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-20T01:35:05.726Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.5,
+          "price": 3914
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.79,
+          "price": 13999.77
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0.67,
+          "price": 3496.78
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0.28,
+          "price": 2903.77
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0.59,
+          "price": 4615.57
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.84,
+          "price": 7580.72
+        }
+      ],
+      "advance": 4336,
+      "decline": 820,
+      "flat": 126,
+      "limitUp": 39,
+      "limitDown": 9,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 0,
+      "highBoardRiskScore": 45,
+      "riskScore": 21.25,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "broad-repair",
+      "capturedAt": "2026-08-20T01:25:08.067Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0.4,
+      "smallCapChangePct": 1.13,
+      "sizeSpreadPct": -0.73,
+      "advanceRate": 79.89,
+      "largeCapAuctionAmountSharePct": 64.57,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.40%",
+        "小盘指数+1.13%",
+        "大盘相对小盘-0.73pct",
+        "上涨家数占比79.9%",
+        "大市值竞价成交占比64.6%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 50.74,
+        "independentStrength": false,
+        "directionScore": 50.74,
+        "positiveRate": 20,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "化肥",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "转基因",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "地产链",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 28.22,
+        "independentStrength": false,
+        "directionScore": 28.22,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": []
+      },
+      {
+        "theme": "物业服务",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  },
+  "themePermissions": [
+    {
+      "theme": "农业",
+      "riskClass": "defensive",
+      "state": "allowed",
+      "score": 50.74,
+      "independentStrength": false,
+      "directionScore": 50.74,
+      "positiveRate": 20,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    },
+    {
+      "theme": "化肥",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "转基因",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "地产链",
+      "riskClass": "neutral",
+      "state": "conditional",
+      "score": 28.22,
+      "independentStrength": false,
+      "directionScore": 28.22,
+      "positiveRate": 16.67,
+      "assistantCount": 1,
+      "environmentAdjustment": -1,
+      "reasons": []
+    },
+    {
+      "theme": "物业服务",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    }
+  ],
+  "outcome": {
+    "signalDate": "2026-08-19",
+    "tradeDate": "2026-08-20",
+    "generatedAt": "2026-08-20T10:32:51.493Z",
+    "ruleVersion": "limit-ladder-v6",
+    "summary": {
+      "formal": {
+        "total": 3,
+        "valid": 3,
+        "promoted": 0,
+        "failed": 3,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      },
+      "byLane": [
+        {
+          "promotionLane": "2进3",
+          "fromBoards": 2,
+          "total": 1,
+          "valid": 1,
+          "promoted": 0,
+          "failed": 1,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        },
+        {
+          "promotionLane": "3进4",
+          "fromBoards": 3,
+          "total": 2,
+          "valid": 2,
+          "promoted": 0,
+          "failed": 2,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ],
+      "waitOpen": {
+        "total": 1,
+        "valid": 1,
+        "promoted": 1,
+        "failed": 0,
+        "unresolved": 0,
+        "promotionRate": 100,
+        "coverage": 100
+      },
+      "byRepairState": [
+        {
+          "repairState": "broad-repair",
+          "total": 3,
+          "valid": 3,
+          "promoted": 0,
+          "failed": 3,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ],
+      "bySizeBucket": [
+        {
+          "sizeBucket": "small",
+          "total": 3,
+          "valid": 3,
+          "promoted": 0,
+          "failed": 3,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ],
+      "byHeightTier": [
+        {
+          "heightTier": "high",
+          "total": 2,
+          "valid": 2,
+          "promoted": 0,
+          "failed": 2,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        },
+        {
+          "heightTier": "middle",
+          "total": 1,
+          "valid": 1,
+          "promoted": 0,
+          "failed": 1,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ]
+    },
+    "rows": [
+      {
+        "code": "603395",
+        "name": "红四方",
+        "candidateRank": 1,
+        "population": "formal",
+        "promotionLane": "3进4",
+        "fromBoards": 3,
+        "targetBoards": 4,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": 12.65,
+        "mfePct": 14.63,
+        "maePct": -3.93,
+        "marketCycle": "ice",
+        "marketRole": "co-space-leader",
+        "themeState": "B",
+        "riskAppetiteState": null,
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 22.33,
+        "domesticRiskScore": 21.25,
+        "repairState": "broad-repair",
+        "sizeBucket": "small",
+        "heightTier": "high",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "code": "000505",
+        "name": "京粮控股",
+        "candidateRank": 2,
+        "population": "formal",
+        "promotionLane": "3进4",
+        "fromBoards": 3,
+        "targetBoards": 4,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": 8.87,
+        "mfePct": 17.73,
+        "maePct": -2.33,
+        "marketCycle": "ice",
+        "marketRole": "co-space-leader",
+        "themeState": "B",
+        "riskAppetiteState": null,
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 22.33,
+        "domesticRiskScore": 21.25,
+        "repairState": "broad-repair",
+        "sizeBucket": "small",
+        "heightTier": "high",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "code": "000020",
+        "name": "深华发Ａ",
+        "candidateRank": 3,
+        "population": "formal",
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": -1.04,
+        "mfePct": 2.24,
+        "maePct": -1.04,
+        "marketCycle": "ice",
+        "marketRole": "normal",
+        "themeState": "B",
+        "riskAppetiteState": null,
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "conditional",
+        "externalRiskScore": 22.33,
+        "domesticRiskScore": 21.25,
+        "repairState": "broad-repair",
+        "sizeBucket": "small",
+        "heightTier": "middle",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": []
+      },
+      {
+        "code": "600127",
+        "name": "金健米业",
+        "candidateRank": null,
+        "population": "wait-open",
+        "promotionLane": "3进4",
+        "fromBoards": 3,
+        "targetBoards": 4,
+        "resultStatus": "promoted",
+        "promoted": true,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": 5.65,
+        "mfePct": 5.65,
+        "maePct": -0.49,
+        "marketCycle": "ice",
+        "marketRole": "co-space-leader",
+        "themeState": "B",
+        "riskAppetiteState": null,
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 22.33,
+        "domesticRiskScore": 21.25,
+        "repairState": "broad-repair",
+        "sizeBucket": "small",
+        "heightTier": "high",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "code": "603395",
+      "name": "红四方",
+      "baseState": "candidate",
+      "promotionLane": "3进4",
+      "baseScore": 82.41,
+      "promotionScore": 77.68,
+      "tradabilityScore": 89.5,
+      "auctionScore": 33.5,
+      "finalAuctionScore": 33.33,
+      "processScore": 0,
+      "themeDirectionScore": 50.74,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 65.44,
+      "liveScore": 71.68,
+      "environmentAdjustment": 0,
+      "decisionScore": 71.68,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 50.74,
+        "independentStrength": false,
+        "directionScore": 50.74,
+        "positiveRate": 20,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      "state": "confirmed",
+      "tradeDate": "2026-08-20",
+      "quoteTime": "09:34:59",
+      "openGapPct": -6.9,
+      "auctionAmount": 0,
+      "currentAmount": 168470000,
+      "currentPrice": 27,
+      "vwap": 27.32462898386181,
+      "inaccessible": false,
+      "warnings": [
+        "同层竞价样本少于5只，分位按中性分处理"
+      ],
+      "gateReasons": []
+    },
+    {
+      "code": "000505",
+      "name": "京粮控股",
+      "baseState": "candidate",
+      "promotionLane": "3进4",
+      "baseScore": 76.49,
+      "promotionScore": 68.49,
+      "tradabilityScore": 88.5,
+      "auctionScore": 33.5,
+      "finalAuctionScore": 33.33,
+      "processScore": 0,
+      "themeDirectionScore": 50.74,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 67.56,
+      "liveScore": 68.26,
+      "environmentAdjustment": 0,
+      "decisionScore": 68.26,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 50.74,
+        "independentStrength": false,
+        "directionScore": 50.74,
+        "positiveRate": 20,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-20",
+      "quoteTime": "09:35:00",
+      "openGapPct": -7.9,
+      "auctionAmount": 44400000,
+      "currentAmount": 184410000,
+      "currentPrice": 6.97,
+      "vwap": 7.062865284299382,
+      "inaccessible": false,
+      "warnings": [
+        "同层竞价样本少于5只，分位按中性分处理"
+      ],
+      "gateReasons": []
+    },
+    {
+      "code": "000020",
+      "name": "深华发Ａ",
+      "baseState": "candidate",
+      "promotionLane": "2进3",
+      "baseScore": 76.36,
+      "promotionScore": 67.26,
+      "tradabilityScore": 90,
+      "auctionScore": 28.49,
+      "finalAuctionScore": 33.33,
+      "processScore": 0,
+      "themeDirectionScore": 28.22,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 58.6,
+      "liveScore": 65.63,
+      "environmentAdjustment": -1,
+      "decisionScore": 64.63,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "地产链",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 28.22,
+        "independentStrength": false,
+        "directionScore": 28.22,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": []
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-20",
+      "quoteTime": "09:35:00",
+      "openGapPct": -9.02,
+      "auctionAmount": 21180000,
+      "currentAmount": 63760000,
+      "currentPrice": 12.37,
+      "vwap": 12.46261800981216,
+      "inaccessible": false,
+      "warnings": [
+        "同层竞价样本少于5只，分位按中性分处理"
+      ],
+      "gateReasons": []
+    },
+    {
+      "code": "600127",
+      "name": "金健米业",
+      "baseState": "waiting",
+      "promotionLane": "3进4",
+      "baseScore": 60.33,
+      "promotionScore": 78.1,
+      "tradabilityScore": 33.68,
+      "auctionScore": 55.72,
+      "finalAuctionScore": 77.78,
+      "processScore": 0,
+      "themeDirectionScore": 50.74,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 76.5,
+      "liveScore": 62.87,
+      "environmentAdjustment": 0,
+      "decisionScore": 62.87,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 50.74,
+        "independentStrength": false,
+        "directionScore": 50.74,
+        "positiveRate": 20,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-20",
+      "quoteTime": "09:35:00",
+      "openGapPct": 2.05,
+      "auctionAmount": 315289729,
+      "currentAmount": 1104220000,
+      "currentPrice": 8.6,
+      "vwap": 8.410547955326344,
+      "inaccessible": false,
+      "warnings": [
+        "同层竞价样本少于5只，分位按中性分处理"
+      ],
+      "gateReasons": []
+    }
+  ],
+  "warnings": []
+}

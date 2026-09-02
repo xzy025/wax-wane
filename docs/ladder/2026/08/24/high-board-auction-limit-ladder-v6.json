@@ -1,0 +1,350 @@
+{
+  "signalDate": "2026-08-24",
+  "tradeDate": "2026-08-25",
+  "generatedAt": "2026-08-25T09:30:57.738Z",
+  "ruleVersion": "limit-ladder-v6",
+  "auction": {
+    "capturedAt": "2026-08-25T01:25:04.134Z",
+    "phase": "auction",
+    "score": 61.31,
+    "state": "divergence",
+    "confidence": 54.55,
+    "metrics": {
+      "sampleSize": 6,
+      "positiveRate": 50,
+      "nuclearRate": 0,
+      "onePriceRetentionRate": 100,
+      "weightedGapPct": 1.59,
+      "processStrength": 46.34,
+      "vwapHoldRate": null,
+      "waterfallRate": null,
+      "resealRate": null
+    },
+    "members": [
+      {
+        "code": "603958",
+        "name": "哈森股份",
+        "theme": "并购重组",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -1.37,
+        "changePct": -1.37,
+        "processScore": 100,
+        "aboveVwap": null,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "000931",
+        "name": "中关村",
+        "theme": "创投",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -1.96,
+        "changePct": -1.96,
+        "processScore": 0,
+        "aboveVwap": null,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "space-leader",
+        "heightTier": "high",
+        "gapPct": 6.33,
+        "changePct": 6.33,
+        "processScore": 0,
+        "aboveVwap": null,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "000017",
+        "name": "深中华A",
+        "theme": "锂电池",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 9.97,
+        "changePct": 9.97,
+        "processScore": 50,
+        "aboveVwap": null,
+        "priorOnePrice": true,
+        "onePriceRetained": true,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "600353",
+        "name": "旭光电子",
+        "theme": "非金属材料",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -4.21,
+        "changePct": -4.21,
+        "processScore": 68.75,
+        "aboveVwap": null,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "002667",
+        "name": "*ST威领",
+        "theme": "其他",
+        "boards": 1,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 0.77,
+        "changePct": 0.77,
+        "processScore": 59.3,
+        "aboveVwap": null,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      }
+    ],
+    "themes": [
+      {
+        "theme": "锂电池",
+        "score": 56.86,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "其他",
+        "score": 55.1,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "医药",
+        "score": 55,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "并购重组",
+        "score": 51.06,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "非金属材料",
+        "score": 48.75,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "创投",
+        "score": 47.46,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      }
+    ],
+    "warnings": []
+  },
+  "open": {
+    "capturedAt": "2026-08-25T01:35:01.942Z",
+    "phase": "open",
+    "score": 58.25,
+    "state": "divergence",
+    "confidence": 54.55,
+    "metrics": {
+      "sampleSize": 6,
+      "positiveRate": 50,
+      "nuclearRate": 0,
+      "onePriceRetentionRate": 100,
+      "weightedGapPct": 1.59,
+      "processStrength": 46.34,
+      "vwapHoldRate": 50,
+      "waterfallRate": 16.67,
+      "resealRate": 0
+    },
+    "members": [
+      {
+        "code": "603958",
+        "name": "哈森股份",
+        "theme": "并购重组",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -1.37,
+        "changePct": 2.26,
+        "processScore": 100,
+        "aboveVwap": false,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "000931",
+        "name": "中关村",
+        "theme": "创投",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -1.96,
+        "changePct": -8.39,
+        "processScore": 0,
+        "aboveVwap": false,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "space-leader",
+        "heightTier": "high",
+        "gapPct": 6.33,
+        "changePct": -2.23,
+        "processScore": 0,
+        "aboveVwap": false,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "000017",
+        "name": "深中华A",
+        "theme": "锂电池",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 9.97,
+        "changePct": 9.97,
+        "processScore": 50,
+        "aboveVwap": true,
+        "priorOnePrice": true,
+        "onePriceRetained": true,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "600353",
+        "name": "旭光电子",
+        "theme": "非金属材料",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -4.21,
+        "changePct": -0.78,
+        "processScore": 68.75,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "002667",
+        "name": "*ST威领",
+        "theme": "其他",
+        "boards": 1,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 0.77,
+        "changePct": 3.29,
+        "processScore": 59.3,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      }
+    ],
+    "themes": [
+      {
+        "theme": "锂电池",
+        "score": 56.25,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "其他",
+        "score": 54.71,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "医药",
+        "score": 52.78,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "并购重组",
+        "score": 49.49,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "非金属材料",
+        "score": 49.42,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "创投",
+        "score": 46.5,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      }
+    ],
+    "warnings": []
+  },
+  "eventReaction": {
+    "state": "neutral",
+    "score": 50,
+    "affectedCodes": [],
+    "positiveCodes": [],
+    "negativeCodes": [],
+    "evidence": [
+      "无直接监管事件"
+    ]
+  }
+}

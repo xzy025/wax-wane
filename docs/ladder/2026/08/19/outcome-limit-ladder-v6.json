@@ -1,0 +1,224 @@
+{
+  "signalDate": "2026-08-19",
+  "tradeDate": "2026-08-20",
+  "generatedAt": "2026-08-20T10:32:51.493Z",
+  "ruleVersion": "limit-ladder-v6",
+  "summary": {
+    "formal": {
+      "total": 3,
+      "valid": 3,
+      "promoted": 0,
+      "failed": 3,
+      "unresolved": 0,
+      "promotionRate": 0,
+      "coverage": 100
+    },
+    "byLane": [
+      {
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "total": 1,
+        "valid": 1,
+        "promoted": 0,
+        "failed": 1,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      },
+      {
+        "promotionLane": "3进4",
+        "fromBoards": 3,
+        "total": 2,
+        "valid": 2,
+        "promoted": 0,
+        "failed": 2,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ],
+    "waitOpen": {
+      "total": 1,
+      "valid": 1,
+      "promoted": 1,
+      "failed": 0,
+      "unresolved": 0,
+      "promotionRate": 100,
+      "coverage": 100
+    },
+    "byRepairState": [
+      {
+        "repairState": "broad-repair",
+        "total": 3,
+        "valid": 3,
+        "promoted": 0,
+        "failed": 3,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ],
+    "bySizeBucket": [
+      {
+        "sizeBucket": "small",
+        "total": 3,
+        "valid": 3,
+        "promoted": 0,
+        "failed": 3,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ],
+    "byHeightTier": [
+      {
+        "heightTier": "high",
+        "total": 2,
+        "valid": 2,
+        "promoted": 0,
+        "failed": 2,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      },
+      {
+        "heightTier": "middle",
+        "total": 1,
+        "valid": 1,
+        "promoted": 0,
+        "failed": 1,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ]
+  },
+  "rows": [
+    {
+      "code": "603395",
+      "name": "红四方",
+      "candidateRank": 1,
+      "population": "formal",
+      "promotionLane": "3进4",
+      "fromBoards": 3,
+      "targetBoards": 4,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 12.65,
+      "mfePct": 14.63,
+      "maePct": -3.93,
+      "marketCycle": "ice",
+      "marketRole": "co-space-leader",
+      "themeState": "B",
+      "riskAppetiteState": null,
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 22.33,
+      "domesticRiskScore": 21.25,
+      "repairState": "broad-repair",
+      "sizeBucket": "small",
+      "heightTier": "high",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    },
+    {
+      "code": "000505",
+      "name": "京粮控股",
+      "candidateRank": 2,
+      "population": "formal",
+      "promotionLane": "3进4",
+      "fromBoards": 3,
+      "targetBoards": 4,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 8.87,
+      "mfePct": 17.73,
+      "maePct": -2.33,
+      "marketCycle": "ice",
+      "marketRole": "co-space-leader",
+      "themeState": "B",
+      "riskAppetiteState": null,
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 22.33,
+      "domesticRiskScore": 21.25,
+      "repairState": "broad-repair",
+      "sizeBucket": "small",
+      "heightTier": "high",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    },
+    {
+      "code": "000020",
+      "name": "深华发Ａ",
+      "candidateRank": 3,
+      "population": "formal",
+      "promotionLane": "2进3",
+      "fromBoards": 2,
+      "targetBoards": 3,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": -1.04,
+      "mfePct": 2.24,
+      "maePct": -1.04,
+      "marketCycle": "ice",
+      "marketRole": "normal",
+      "themeState": "B",
+      "riskAppetiteState": null,
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "conditional",
+      "externalRiskScore": 22.33,
+      "domesticRiskScore": 21.25,
+      "repairState": "broad-repair",
+      "sizeBucket": "small",
+      "heightTier": "middle",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": []
+    },
+    {
+      "code": "600127",
+      "name": "金健米业",
+      "candidateRank": null,
+      "population": "wait-open",
+      "promotionLane": "3进4",
+      "fromBoards": 3,
+      "targetBoards": 4,
+      "resultStatus": "promoted",
+      "promoted": true,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 5.65,
+      "mfePct": 5.65,
+      "maePct": -0.49,
+      "marketCycle": "ice",
+      "marketRole": "co-space-leader",
+      "themeState": "B",
+      "riskAppetiteState": null,
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 22.33,
+      "domesticRiskScore": 21.25,
+      "repairState": "broad-repair",
+      "sizeBucket": "small",
+      "heightTier": "high",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    }
+  ]
+}

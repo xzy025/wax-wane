@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-08-24T07:10:15.376Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5054725",
+      "publishedAt": "2026-08-24T15:09:52+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkzxr0032130.d.html",
+      "title": "三部门要求有序推进家庭医生签约服务",
+      "summary": "各省、自治区、直辖市及新疆生产建设兵团卫生健康委、中医药局、疾控局：为加快建设分级诊疗体系，推动医保支持基层医疗卫生服务发展相关政策落地，到2030年实现家庭医生签约服务供给更加充分，服务内涵更加丰富，签约居民更有感受，现就进一步深化“六个拓展”，做实家庭医生签约服务提出以下措施。（新华社）",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-27T07:09:52.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "sina-5054711",
+      "publishedAt": "2026-08-24T15:01:43+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkzxu6115827.d.html",
+      "title": "收评：双创指数均跌超3%，贵金属、煤炭板块逆势走强",
+      "summary": "市场全天震荡调整，双创指数均跌超3%。贵金属板块逆势走强，深中华A3连板，四川黄金、湖南白银涨停。煤炭板块集体拉升，大有能源、上海能源、美锦能源涨停。下跌方面，生物医药板块下挫，双鹭药业、丽珠集团跌停；CPO等算力硬件股下挫，共进股份跌停。个股跌多涨少，沪深京三市超3900股飘绿，今日成交2.02万亿。截止收盘沪指跌0.59%，深成指跌2.13%，创业板指跌3.21%。",
+      "codes": [
+        "000017",
+        "001337",
+        "002716",
+        "600403",
+        "600508",
+        "000723"
+      ],
+      "themes": [
+        "黄金",
+        "锂电池",
+        "其他",
+        "有色金属",
+        "煤炭",
+        "并购重组",
+        "电力",
+        "氢燃料电池",
+        "白银",
+        "医药",
+        "算力",
+        "科技",
+        "周期"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-27T07:01:43.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5054678",
+      "publishedAt": "2026-08-24T14:35:24+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkzxs1954376.d.html",
+      "title": "方正证券：维持牧原股份“推荐”评级，看好公司明年业绩弹性",
+      "summary": "方正证券研报指出，低迷猪价拖累短期业绩，看好牧原股份明年业绩弹性。2026年上半年公司实现归母净利润亏损60.78亿元（去年同期盈利105.30亿元），同比由盈转亏。其中，二季度单季亏损约48.63亿元。长期来看，看好公司生猪养殖模式的持续优化，成本优势进一步巩固，屠宰业务有望持续贡献增量，生产经营长期稳健。另一方面，认为猪价经历持续低迷后，行业去产能持续推进，明年猪价有望明显上行，公司利润有望明显改善。因此预计公司2026-2028年实现营收分别为1202.14、1534.39、1503.14亿元，实现归母净利分别为-44.74、288.37、284.63亿元，对应2027-2028PE为7.82、7.92x，维持“推荐”评级。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-27T06:35:24.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-08-27T07:55:05.076Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "cls-2466184",
+      "publishedAt": "2026-08-27T15:54:29+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2466184?os=web&sv=7.7.5&app=",
+      "title": "三连板青山纸业：恒宝通800G光模块还处于样品试制阶段",
+      "summary": "财联社8月27日电，青山纸业在互动平台表示，恒宝通800G光模块还处于样品试制阶段。",
+      "codes": [
+        "600103"
+      ],
+      "themes": [
+        "通信",
+        "光模块",
+        "科技"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-30T07:54:29.000Z",
+      "evidence": []
+    },
+    {
+      "id": "em-202608273856315247",
+      "publishedAt": "2026-08-27T15:36:40+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "青山纸业：800G光模块初步完成设计并进入样品试制阶段",
+      "summary": "针对投资者关于“公司光模块CPO，400G已经开始量产，800G已经完成设计，进入试产阶段是否属实？”的提问，青山纸业8月27日在互动平台回应称，恒宝通400G产品还未大规模量产，800G光模块初步完成设计并进入样品试制阶段。",
+      "codes": [
+        "600103"
+      ],
+      "themes": [
+        "通信",
+        "光模块",
+        "CPO",
+        "科技"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-30T07:36:40.000Z",
+      "evidence": []
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

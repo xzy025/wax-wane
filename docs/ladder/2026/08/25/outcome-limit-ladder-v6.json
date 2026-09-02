@@ -1,0 +1,212 @@
+{
+  "signalDate": "2026-08-25",
+  "tradeDate": "2026-08-26",
+  "generatedAt": "2026-08-26T07:10:06.440Z",
+  "ruleVersion": "limit-ladder-v6",
+  "summary": {
+    "formal": {
+      "total": 4,
+      "valid": 4,
+      "promoted": 0,
+      "failed": 4,
+      "unresolved": 0,
+      "promotionRate": 0,
+      "coverage": 100
+    },
+    "byLane": [
+      {
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "total": 3,
+        "valid": 3,
+        "promoted": 0,
+        "failed": 3,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      },
+      {
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "total": 1,
+        "valid": 1,
+        "promoted": 0,
+        "failed": 1,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ],
+    "waitOpen": {
+      "total": 0,
+      "valid": 0,
+      "promoted": 0,
+      "failed": 0,
+      "unresolved": 0,
+      "promotionRate": null,
+      "coverage": 0
+    },
+    "byRepairState": [
+      {
+        "repairState": "risk-continuation",
+        "total": 4,
+        "valid": 4,
+        "promoted": 0,
+        "failed": 4,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ],
+    "bySizeBucket": [
+      {
+        "sizeBucket": "small",
+        "total": 4,
+        "valid": 4,
+        "promoted": 0,
+        "failed": 4,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ],
+    "byHeightTier": [
+      {
+        "heightTier": "low",
+        "total": 4,
+        "valid": 4,
+        "promoted": 0,
+        "failed": 4,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ]
+  },
+  "rows": [
+    {
+      "code": "600470",
+      "name": "六国化工",
+      "candidateRank": 1,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 6.32,
+      "mfePct": 10,
+      "maePct": -0.18,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "divergence",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "conditional",
+      "externalRiskScore": 31,
+      "domesticRiskScore": 21.25,
+      "repairState": "risk-continuation",
+      "sizeBucket": "small",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    },
+    {
+      "code": "002041",
+      "name": "登海种业",
+      "candidateRank": 2,
+      "population": "formal",
+      "promotionLane": "2进3",
+      "fromBoards": 2,
+      "targetBoards": 3,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": -0.92,
+      "mfePct": 2.48,
+      "maePct": -3.68,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "divergence",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "conditional",
+      "externalRiskScore": 31,
+      "domesticRiskScore": 21.25,
+      "repairState": "risk-continuation",
+      "sizeBucket": "small",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    },
+    {
+      "code": "000695",
+      "name": "滨海能源",
+      "candidateRank": 3,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 1.83,
+      "mfePct": 8.3,
+      "maePct": -0.39,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "B",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 31,
+      "domesticRiskScore": 21.25,
+      "repairState": "risk-continuation",
+      "sizeBucket": "small",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": []
+    },
+    {
+      "code": "600698",
+      "name": "湖南天雁",
+      "candidateRank": 4,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 0.56,
+      "mfePct": 1.96,
+      "maePct": -1.96,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "B",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 31,
+      "domesticRiskScore": 21.25,
+      "repairState": "risk-continuation",
+      "sizeBucket": "small",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": []
+    }
+  ]
+}

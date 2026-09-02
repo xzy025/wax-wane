@@ -1,0 +1,6367 @@
+{
+  "signalDate": "2026-08-25",
+  "tradeDate": "2026-08-26",
+  "generatedAt": "2026-08-26T07:10:07.408Z",
+  "ruleVersion": "limit-ladder-v6",
+  "stage": "settled",
+  "auctionSnapshotAvailable": true,
+  "confirmationSnapshotAvailable": true,
+  "auctionContext": {
+    "capturedAt": "2026-08-26T01:25:04.837Z",
+    "snapshotCount": 50,
+    "coverage": 100,
+    "lowConfidence": false,
+    "sources": [
+      "tencent",
+      "kaipanla-analysis"
+    ],
+    "marketStyle": {
+      "style": "mixed",
+      "label": "竞价方向分散",
+      "score": 50,
+      "confidence": 100,
+      "topFiveConcentrationPct": 40,
+      "weightedSharePct": 60,
+      "largeCapAmountSharePct": 55.78,
+      "evidence": [
+        "成交额前五科技占2只",
+        "权重股占3只",
+        "成交额前20大市值占55.8%",
+        "该信号只作市场风格证据，不单独确认题材主线"
+      ]
+    },
+    "topAmount": [
+      {
+        "code": "300308",
+        "name": "中际旭创",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 855,
+        "changePct": 1.06,
+        "amount": 275737500,
+        "marketCap": 1000123118055,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002837",
+        "name": "英维克",
+        "industry": "专用设备",
+        "style": "mixed",
+        "price": 63.05,
+        "changePct": 4.68,
+        "amount": 214515015,
+        "marketCap": 80523149713,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600984",
+        "name": "建设机械",
+        "industry": "工程机械",
+        "style": "small-cap",
+        "price": 5.43,
+        "changePct": 9.92,
+        "amount": 167387352,
+        "marketCap": 6825748513,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:01",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600487",
+        "name": "亨通光电",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 64.7,
+        "changePct": 0.15,
+        "amount": 160494820,
+        "marketCap": 159575579028,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "industry": "中药Ⅱ",
+        "style": "medicine",
+        "price": 13.45,
+        "changePct": 9.08,
+        "amount": 153001820,
+        "marketCap": 6768040000,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688825",
+        "name": "长鑫科技",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 56.6,
+        "changePct": 0.18,
+        "amount": 145041179,
+        "marketCap": 3785458151958,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603986",
+        "name": "兆易创新",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 399,
+        "changePct": 0.88,
+        "amount": 131749800,
+        "marketCap": 279996268566,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603618",
+        "name": "杭电股份",
+        "industry": "电网设备",
+        "style": "mixed",
+        "price": 31,
+        "changePct": 6.82,
+        "amount": 129127400,
+        "marketCap": 21432644096,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300750",
+        "name": "宁德时代",
+        "industry": "电池",
+        "style": "mixed",
+        "price": 379.9,
+        "changePct": 0.84,
+        "amount": 113970000,
+        "marketCap": 1757666203728,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600127",
+        "name": "金健米业",
+        "industry": "农产品加工",
+        "style": "small-cap",
+        "price": 9.16,
+        "changePct": -1.61,
+        "amount": 111933331,
+        "marketCap": 5878734277,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300142",
+        "name": "沃森生物",
+        "industry": "生物制品",
+        "style": "medicine",
+        "price": 14.99,
+        "changePct": 3.95,
+        "amount": 102011447,
+        "marketCap": 23974234630,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688185",
+        "name": "康希诺",
+        "industry": "生物制品",
+        "style": "medicine",
+        "price": 82.15,
+        "changePct": 15.14,
+        "amount": 92800008,
+        "marketCap": 20294648252,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300502",
+        "name": "新易盛",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 402.36,
+        "changePct": 0.37,
+        "amount": 91577136,
+        "marketCap": 560993119374,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688169",
+        "name": "石头科技",
+        "industry": "小家电",
+        "style": "technology",
+        "price": 137,
+        "changePct": 1.48,
+        "amount": 88310063,
+        "marketCap": 35558503166,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600330",
+        "name": "天通股份",
+        "industry": "电子化学品Ⅱ",
+        "style": "technology",
+        "price": 26.88,
+        "changePct": -1.93,
+        "amount": 81035136,
+        "marketCap": 33154717102,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600722",
+        "name": "金牛化工",
+        "industry": "化学原料",
+        "style": "cyclical",
+        "price": 12.87,
+        "changePct": -8.2,
+        "amount": 80715338,
+        "marketCap": 8755714230,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300394",
+        "name": "天孚通信",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 256.97,
+        "changePct": -0.05,
+        "amount": 80046155,
+        "marketCap": 280309324148,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002371",
+        "name": "北方华创",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 671.3,
+        "changePct": -4.15,
+        "amount": 77199500,
+        "marketCap": 487155159960,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002716",
+        "name": "湖南白银",
+        "industry": "贵金属",
+        "style": "mixed",
+        "price": 10.99,
+        "changePct": 2.04,
+        "amount": 76425548.01,
+        "marketCap": 31025744220,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "000568",
+        "name": "泸州老窖",
+        "industry": "白酒Ⅱ",
+        "style": "consumer",
+        "price": 81,
+        "changePct": -4.4,
+        "amount": 75427200,
+        "marketCap": 119224018503,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002418",
+        "name": "康盛股份",
+        "industry": "家电零部件Ⅱ",
+        "style": "consumer",
+        "price": 4.46,
+        "changePct": 10.12,
+        "amount": 73672064,
+        "marketCap": 5068344000,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002437",
+        "name": "誉衡药业",
+        "industry": "化学制药",
+        "style": "medicine",
+        "price": 4.26,
+        "changePct": -0.93,
+        "amount": 73322694,
+        "marketCap": 9499238217,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002081",
+        "name": "金 螳 螂",
+        "industry": "装修装饰Ⅱ",
+        "style": "mixed",
+        "price": 5.45,
+        "changePct": -0.91,
+        "amount": 72719350,
+        "marketCap": 14471514105,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300757",
+        "name": "罗博特科",
+        "industry": "自动化设备",
+        "style": "mixed",
+        "price": 515,
+        "changePct": 4.65,
+        "amount": 72718000,
+        "marketCap": 86318177165,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300489",
+        "name": "光智科技",
+        "industry": "光学光电子",
+        "style": "technology",
+        "price": 217.33,
+        "changePct": 0,
+        "amount": 68958809,
+        "marketCap": 30243172281,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002491",
+        "name": "通鼎互联",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 21.72,
+        "changePct": 1.5,
+        "amount": 68664522,
+        "marketCap": 26715480540,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603259",
+        "name": "药明康德",
+        "industry": "医疗服务",
+        "style": "medicine",
+        "price": 161,
+        "changePct": 0,
+        "amount": 68650400,
+        "marketCap": 480384901955,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "601212",
+        "name": "白银有色",
+        "industry": "工业金属",
+        "style": "cyclical",
+        "price": 6.56,
+        "changePct": -0.3,
+        "amount": 64569070,
+        "marketCap": 48575320792,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300139",
+        "name": "晓程科技",
+        "industry": "贵金属",
+        "style": "technology",
+        "price": 55.55,
+        "changePct": 0.96,
+        "amount": 63944993.75,
+        "marketCap": 15220700000,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300189",
+        "name": "神农种业",
+        "industry": "种植业",
+        "style": "small-cap",
+        "price": 6.1,
+        "changePct": -2.09,
+        "amount": 62437587,
+        "marketCap": 6246400000,
+        "tradeDate": "2026-08-26",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      }
+    ],
+    "themes": [
+      {
+        "theme": "并购重组",
+        "score": 60,
+        "state": "isolated-one-price",
+        "positiveRate": 50,
+        "weightedGapPct": 8.98,
+        "amountSharePct": 28,
+        "coreCode": "600984",
+        "coreName": "建设机械",
+        "coreOnePrice": true,
+        "assistantCodes": [
+          "002445"
+        ],
+        "assistantCount": 1,
+        "coverage": 100
+      },
+      {
+        "theme": "农业",
+        "score": 37.4,
+        "state": "weak",
+        "positiveRate": 16.67,
+        "weightedGapPct": -2.21,
+        "amountSharePct": 26.18,
+        "coreCode": "600785",
+        "coreName": "新华百货",
+        "coreOnePrice": false,
+        "assistantCodes": [
+          "600371"
+        ],
+        "assistantCount": 1,
+        "coverage": 100
+      }
+    ],
+    "candidateProcesses": [
+      {
+        "code": "600470",
+        "sampleCount": 50,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 0,
+        "finalGapPct": -3.88,
+        "finalUnmatchedSide": "sell"
+      },
+      {
+        "code": "002041",
+        "sampleCount": 50,
+        "strengtheningScore": 5.9,
+        "cancellationStabilityScore": null,
+        "processScore": 5.9,
+        "startGapPct": 0,
+        "finalGapPct": -2.94,
+        "finalUnmatchedSide": null
+      },
+      {
+        "code": "000695",
+        "sampleCount": 50,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 4.23,
+        "finalGapPct": -0.33,
+        "finalUnmatchedSide": null
+      },
+      {
+        "code": "600698",
+        "sampleCount": 50,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 3.02,
+        "finalGapPct": -1.92,
+        "finalUnmatchedSide": null
+      }
+    ],
+    "warnings": []
+  },
+  "highBoardContext": {
+    "capturedAt": "2026-08-26T01:35:02.000Z",
+    "phase": "open",
+    "score": 59.55,
+    "state": "divergence",
+    "confidence": 64.29,
+    "metrics": {
+      "sampleSize": 9,
+      "positiveRate": 44.44,
+      "nuclearRate": 0,
+      "onePriceRetentionRate": null,
+      "weightedGapPct": 1.19,
+      "processStrength": 47.29,
+      "vwapHoldRate": 88.89,
+      "waterfallRate": 11.11,
+      "resealRate": 22.22
+    },
+    "members": [
+      {
+        "code": "003040",
+        "name": "楚天龙",
+        "theme": "数字货币",
+        "boards": 3,
+        "marketRole": "normal",
+        "heightTier": "middle",
+        "gapPct": 0,
+        "changePct": 1.81,
+        "processScore": 0,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "600785",
+        "name": "新华百货",
+        "theme": "农业",
+        "boards": 3,
+        "marketRole": "normal",
+        "heightTier": "middle",
+        "gapPct": -4.07,
+        "changePct": -3.14,
+        "processScore": 0,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "000017",
+        "name": "深中华A",
+        "theme": "锂电池",
+        "boards": 4,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 2.79,
+        "changePct": 3.49,
+        "processScore": 0,
+        "aboveVwap": false,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "theme": "医药",
+        "boards": 5,
+        "marketRole": "space-leader",
+        "heightTier": "high",
+        "gapPct": 9.08,
+        "changePct": 9.98,
+        "processScore": 36.5,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": true,
+        "nuclear": false
+      },
+      {
+        "code": "600613",
+        "name": "神奇制药",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -1.56,
+        "changePct": -0.58,
+        "processScore": 93.6,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "603089",
+        "name": "正裕工业",
+        "theme": "机器人概念",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -4.42,
+        "changePct": -5.05,
+        "processScore": 52.7,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "603958",
+        "name": "哈森股份",
+        "theme": "消费电子",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 2.52,
+        "changePct": 3.5,
+        "processScore": 100,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "002667",
+        "name": "*ST威领",
+        "theme": "其他",
+        "boards": 1,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": -2.42,
+        "changePct": -0.97,
+        "processScore": 42.8,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      },
+      {
+        "code": "000931",
+        "name": "中关村",
+        "theme": "疫苗概念",
+        "boards": 3,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 8.81,
+        "changePct": 9.96,
+        "processScore": 100,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": true,
+        "nuclear": false
+      }
+    ],
+    "themes": [
+      {
+        "theme": "疫苗概念",
+        "score": 58.33,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "医药",
+        "score": 57.87,
+        "state": "divergence",
+        "confidence": 28.57,
+        "sampleSize": 2,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "消费电子",
+        "score": 56.49,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "锂电池",
+        "score": 51.96,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "其他",
+        "score": 49.37,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "数字货币",
+        "score": 49.07,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "机器人概念",
+        "score": 48.9,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": false
+      },
+      {
+        "theme": "农业",
+        "score": 47.57,
+        "state": "divergence",
+        "confidence": 16.67,
+        "sampleSize": 1,
+        "highLowSwitch": true
+      }
+    ],
+    "warnings": []
+  },
+  "themeRiskAppetite": [
+    {
+      "theme": "疫苗概念",
+      "score": 58.33,
+      "state": "divergence",
+      "confidence": 16.67,
+      "sampleSize": 1,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "医药",
+      "score": 57.87,
+      "state": "divergence",
+      "confidence": 28.57,
+      "sampleSize": 2,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "消费电子",
+      "score": 56.49,
+      "state": "divergence",
+      "confidence": 16.67,
+      "sampleSize": 1,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "锂电池",
+      "score": 51.96,
+      "state": "divergence",
+      "confidence": 16.67,
+      "sampleSize": 1,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "其他",
+      "score": 49.37,
+      "state": "divergence",
+      "confidence": 16.67,
+      "sampleSize": 1,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "数字货币",
+      "score": 49.07,
+      "state": "divergence",
+      "confidence": 16.67,
+      "sampleSize": 1,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "机器人概念",
+      "score": 48.9,
+      "state": "divergence",
+      "confidence": 16.67,
+      "sampleSize": 1,
+      "highLowSwitch": false
+    },
+    {
+      "theme": "农业",
+      "score": 47.57,
+      "state": "divergence",
+      "confidence": 16.67,
+      "sampleSize": 1,
+      "highLowSwitch": true
+    }
+  ],
+  "eventReaction": {
+    "state": "neutral",
+    "score": 50,
+    "affectedCodes": [],
+    "positiveCodes": [],
+    "negativeCodes": [],
+    "evidence": [
+      "无直接监管事件"
+    ]
+  },
+  "marketGate": {
+    "signalDate": "2026-08-25",
+    "tradeDate": "2026-08-26",
+    "generatedAt": "2026-08-26T01:35:03.330Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 24.66,
+    "externalRiskScore": 31,
+    "domesticRiskScore": 21.25,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-25",
+      "tradeDate": "2026-08-26",
+      "capturedAt": "2026-08-26T00:50:07.264Z",
+      "frozenAt": "2026-08-26T00:50:07.264Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 31,
+      "usRiskScore": 25,
+      "asiaRiskScore": 36,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.3,
+          "price": 53577.4
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.66,
+          "price": 26151.3
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.32,
+          "price": 7677.28
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.34,
+          "price": 65631.61
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 0.18,
+          "price": 6754.92
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.737012,
+          "previousClose": 7.238,
+          "changePct": -6.92,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-26T08:44:47+08:00",
+          "source": "sina",
+          "title": "齐翔腾达：三、四季度是传统旺季 刚需补货有望对化工品价格形成支撑",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-26T08:26:01+08:00",
+          "source": "sina",
+          "title": "加拿大回应特朗普又想给湖改名",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-26T01:35:03.329Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.18,
+          "price": 3896.44
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.45,
+          "price": 13807.64
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0.47,
+          "price": 3413.57
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0.14,
+          "price": 2879.57
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0.22,
+          "price": 4562.2
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.42,
+          "price": 7558.97
+        }
+      ],
+      "advance": 3644,
+      "decline": 1419,
+      "flat": 223,
+      "limitUp": 22,
+      "limitDown": 0,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 0,
+      "highBoardRiskScore": 45,
+      "riskScore": 21.25,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-26T01:25:05.175Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0,
+      "smallCapChangePct": 0,
+      "sizeSpreadPct": 0,
+      "advanceRate": 34.63,
+      "largeCapAuctionAmountSharePct": 55.78,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.00%",
+        "小盘指数+0.00%",
+        "大盘相对小盘+0.00pct",
+        "上涨家数占比34.6%",
+        "大市值竞价成交占比55.8%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "conditional",
+        "score": 37.4,
+        "independentStrength": false,
+        "directionScore": 37.4,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "化肥",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "转基因",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "并购重组",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 50,
+        "assistantCount": 1,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "锂电池",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "负极",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "汽车零部件",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  },
+  "themePermissions": [
+    {
+      "theme": "农业",
+      "riskClass": "defensive",
+      "state": "conditional",
+      "score": 37.4,
+      "independentStrength": false,
+      "directionScore": 37.4,
+      "positiveRate": 16.67,
+      "assistantCount": 1,
+      "environmentAdjustment": -1,
+      "reasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    },
+    {
+      "theme": "化肥",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "转基因",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "并购重组",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 60,
+      "independentStrength": false,
+      "directionScore": 60,
+      "positiveRate": 50,
+      "assistantCount": 1,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "锂电池",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "负极",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "中报增长",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "汽车零部件",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    }
+  ],
+  "outcome": {
+    "signalDate": "2026-08-25",
+    "tradeDate": "2026-08-26",
+    "generatedAt": "2026-08-26T07:10:06.440Z",
+    "ruleVersion": "limit-ladder-v6",
+    "summary": {
+      "formal": {
+        "total": 4,
+        "valid": 4,
+        "promoted": 0,
+        "failed": 4,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      },
+      "byLane": [
+        {
+          "promotionLane": "1进2",
+          "fromBoards": 1,
+          "total": 3,
+          "valid": 3,
+          "promoted": 0,
+          "failed": 3,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        },
+        {
+          "promotionLane": "2进3",
+          "fromBoards": 2,
+          "total": 1,
+          "valid": 1,
+          "promoted": 0,
+          "failed": 1,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ],
+      "waitOpen": {
+        "total": 0,
+        "valid": 0,
+        "promoted": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "promotionRate": null,
+        "coverage": 0
+      },
+      "byRepairState": [
+        {
+          "repairState": "risk-continuation",
+          "total": 4,
+          "valid": 4,
+          "promoted": 0,
+          "failed": 4,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ],
+      "bySizeBucket": [
+        {
+          "sizeBucket": "small",
+          "total": 4,
+          "valid": 4,
+          "promoted": 0,
+          "failed": 4,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ],
+      "byHeightTier": [
+        {
+          "heightTier": "low",
+          "total": 4,
+          "valid": 4,
+          "promoted": 0,
+          "failed": 4,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ]
+    },
+    "rows": [
+      {
+        "code": "600470",
+        "name": "六国化工",
+        "candidateRank": 1,
+        "population": "formal",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": 6.32,
+        "mfePct": 10,
+        "maePct": -0.18,
+        "marketCycle": "repair",
+        "marketRole": "normal",
+        "themeState": "divergence",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "conditional",
+        "externalRiskScore": 31,
+        "domesticRiskScore": 21.25,
+        "repairState": "risk-continuation",
+        "sizeBucket": "small",
+        "heightTier": "low",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "code": "002041",
+        "name": "登海种业",
+        "candidateRank": 2,
+        "population": "formal",
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": -0.92,
+        "mfePct": 2.48,
+        "maePct": -3.68,
+        "marketCycle": "repair",
+        "marketRole": "normal",
+        "themeState": "divergence",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "conditional",
+        "externalRiskScore": 31,
+        "domesticRiskScore": 21.25,
+        "repairState": "risk-continuation",
+        "sizeBucket": "small",
+        "heightTier": "low",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "code": "000695",
+        "name": "滨海能源",
+        "candidateRank": 3,
+        "population": "formal",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": 1.83,
+        "mfePct": 8.3,
+        "maePct": -0.39,
+        "marketCycle": "repair",
+        "marketRole": "normal",
+        "themeState": "B",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 31,
+        "domesticRiskScore": 21.25,
+        "repairState": "risk-continuation",
+        "sizeBucket": "small",
+        "heightTier": "low",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": []
+      },
+      {
+        "code": "600698",
+        "name": "湖南天雁",
+        "candidateRank": 4,
+        "population": "formal",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": 0.56,
+        "mfePct": 1.96,
+        "maePct": -1.96,
+        "marketCycle": "repair",
+        "marketRole": "normal",
+        "themeState": "B",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 31,
+        "domesticRiskScore": 21.25,
+        "repairState": "risk-continuation",
+        "sizeBucket": "small",
+        "heightTier": "low",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": []
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "code": "000695",
+      "name": "滨海能源",
+      "baseState": "candidate",
+      "promotionLane": "1进2",
+      "baseScore": 79.83,
+      "promotionScore": 72.71,
+      "tradabilityScore": 90.5,
+      "auctionScore": 47.42,
+      "finalAuctionScore": 57.07,
+      "processScore": 0,
+      "themeDirectionScore": 60,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 73.25,
+      "liveScore": 73.65,
+      "environmentAdjustment": 0,
+      "decisionScore": 73.65,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "并购重组",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 50,
+        "assistantCount": 1,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      "state": "confirmed",
+      "tradeDate": "2026-08-26",
+      "quoteTime": "09:34:57",
+      "openGapPct": -0.33,
+      "auctionAmount": 8510000,
+      "currentAmount": 110080000,
+      "currentPrice": 16.37,
+      "vwap": 15.963571501080384,
+      "inaccessible": false,
+      "warnings": [],
+      "gateReasons": []
+    },
+    {
+      "code": "002041",
+      "name": "登海种业",
+      "baseState": "candidate",
+      "promotionLane": "2进3",
+      "baseScore": 81.55,
+      "promotionScore": 72.92,
+      "tradabilityScore": 94.5,
+      "auctionScore": 36.23,
+      "finalAuctionScore": 42.76,
+      "processScore": 5.9,
+      "themeDirectionScore": 37.4,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 66.67,
+      "liveScore": 71.78,
+      "environmentAdjustment": -1,
+      "decisionScore": 70.78,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "conditional",
+        "score": 37.4,
+        "independentStrength": false,
+        "directionScore": 37.4,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-26",
+      "quoteTime": "09:34:57",
+      "openGapPct": -2.94,
+      "auctionAmount": 34870000,
+      "currentAmount": 241150000,
+      "currentPrice": 10.96,
+      "vwap": 10.91813773650683,
+      "inaccessible": false,
+      "warnings": [
+        "同层竞价样本少于5只，分位按中性分处理"
+      ],
+      "gateReasons": [
+        "板块尚未获得独立行情许可"
+      ]
+    },
+    {
+      "code": "600698",
+      "name": "湖南天雁",
+      "baseState": "candidate",
+      "promotionLane": "1进2",
+      "baseScore": 79.3,
+      "promotionScore": 73.66,
+      "tradabilityScore": 87.75,
+      "auctionScore": 38.13,
+      "finalAuctionScore": 38.49,
+      "processScore": 0,
+      "themeDirectionScore": 60,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 60.08,
+      "liveScore": 69.28,
+      "environmentAdjustment": 0,
+      "decisionScore": 69.28,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "并购重组",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 50,
+        "assistantCount": 1,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-26",
+      "quoteTime": "09:34:57",
+      "openGapPct": -1.92,
+      "auctionAmount": 11070000,
+      "currentAmount": 70980000,
+      "currentPrice": 7.19,
+      "vwap": 7.13761375634773,
+      "inaccessible": false,
+      "warnings": [],
+      "gateReasons": []
+    },
+    {
+      "code": "600470",
+      "name": "六国化工",
+      "baseState": "candidate",
+      "promotionLane": "1进2",
+      "baseScore": 82.12,
+      "promotionScore": 76.87,
+      "tradabilityScore": 90,
+      "auctionScore": 22.18,
+      "finalAuctionScore": 16.62,
+      "processScore": 0,
+      "themeDirectionScore": 37.4,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 52.67,
+      "liveScore": 67.24,
+      "environmentAdjustment": -1,
+      "decisionScore": 66.24,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "conditional",
+        "score": 37.4,
+        "independentStrength": false,
+        "directionScore": 37.4,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-26",
+      "quoteTime": "09:34:56",
+      "openGapPct": -3.88,
+      "auctionAmount": 5970000,
+      "currentAmount": 42900000,
+      "currentPrice": 5.89,
+      "vwap": 5.805142083897159,
+      "inaccessible": false,
+      "warnings": [],
+      "gateReasons": []
+    }
+  ],
+  "relayPlan": {
+    "status": "research-score",
+    "signalDate": "2026-08-25",
+    "tradeDate": "2026-08-26",
+    "generatedAt": "2026-08-26T07:10:07.408Z",
+    "stage": "settled",
+    "items": [
+      {
+        "code": "002041",
+        "name": "登海种业",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "农业",
+        "researchTheme": "农业",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 10,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "原始确认状态未达到本阶段门槛",
+          "题材许可为conditional",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：candidate，正式分数：81.5",
+          "研究定位：relay-candidate",
+          "研究父主题：农业"
+        ],
+        "confirmationConditions": [
+          "农业板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认",
+          "农业板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "原始确认状态未达到本阶段门槛",
+          "题材许可为conditional",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "同身位反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600785",
+              "name": "新华百货",
+              "boards": 3,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -3.14,
+              "gapPct": -4.074702886247872,
+              "onePrice": false,
+              "vwapPct": 11.30703475921474,
+              "vwapHold": true
+            },
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "农业",
+            "primaryTheme": "农业",
+            "maxBoards": 3,
+            "twoBoardCount": 2,
+            "firstBoardCount": 3,
+            "positiveRate": 20,
+            "sampleCount": 5,
+            "themeDirectionScore": 37.4,
+            "assistantCount": 1,
+            "coreCode": "600785",
+            "coreName": "新华百货",
+            "coreChangePct": -3.14,
+            "coreVwapHold": true,
+            "coreOnePrice": false,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：农业，核心：登海种业（2板）",
+            "竞价方向：weak",
+            "板块有效样本：5只，覆盖率：100.0%",
+            "板块关联标的5只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600508",
+              "name": "上海能源",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "002084",
+              "name": "海鸥住工",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 3,
+            "totalCount": 5,
+            "positiveRate": 66.66666666666666,
+            "strongestCode": "002084",
+            "strongestName": "海鸥住工",
+            "candidateRelativeRank": 5,
+            "candidateChangePct": -2.23,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：海鸥住工",
+            "候选相对强弱：第5"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "000695",
+        "name": "滨海能源",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "并购重组",
+        "researchTheme": "并购重组",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 20,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块核心未站上VWAP",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：candidate，正式分数：79.8",
+          "研究定位：relay-candidate",
+          "研究父主题：并购重组"
+        ],
+        "confirmationConditions": [
+          "并购重组板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认"
+        ],
+        "noChaseReasons": [
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块核心未站上VWAP",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "并购重组",
+            "primaryTheme": "并购重组",
+            "maxBoards": 2,
+            "twoBoardCount": 2,
+            "firstBoardCount": 2,
+            "positiveRate": 75,
+            "sampleCount": 4,
+            "themeDirectionScore": 60,
+            "assistantCount": 2,
+            "coreCode": "600984",
+            "coreName": "建设机械",
+            "coreChangePct": 1.82,
+            "coreVwapHold": false,
+            "coreOnePrice": true,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：并购重组，核心：滨海能源（1板）",
+            "竞价方向：isolated-one-price",
+            "板块有效样本：4只，覆盖率：100.0%",
+            "板块关联标的4只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 12,
+            "candidateChangePct": 6.64,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第12"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600470",
+        "name": "六国化工",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "农业",
+        "researchTheme": "农业",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 20,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "原始确认状态未达到本阶段门槛",
+          "题材许可为conditional",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：candidate，正式分数：82.1",
+          "研究定位：relay-candidate",
+          "研究父主题：农业"
+        ],
+        "confirmationConditions": [
+          "农业板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认",
+          "农业板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "原始确认状态未达到本阶段门槛",
+          "题材许可为conditional",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "同身位反馈为mixed，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600785",
+              "name": "新华百货",
+              "boards": 3,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -3.14,
+              "gapPct": -4.074702886247872,
+              "onePrice": false,
+              "vwapPct": 11.30703475921474,
+              "vwapHold": true
+            },
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "农业",
+            "primaryTheme": "农业",
+            "maxBoards": 3,
+            "twoBoardCount": 2,
+            "firstBoardCount": 3,
+            "positiveRate": 20,
+            "sampleCount": 5,
+            "themeDirectionScore": 37.4,
+            "assistantCount": 1,
+            "coreCode": "600785",
+            "coreName": "新华百货",
+            "coreChangePct": -3.14,
+            "coreVwapHold": true,
+            "coreOnePrice": false,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：农业，核心：六国化工（1板）",
+            "竞价方向：weak",
+            "板块有效样本：5只，覆盖率：100.0%",
+            "板块关联标的5只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 13,
+            "candidateChangePct": -0.67,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第13"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600698",
+        "name": "湖南天雁",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "并购重组",
+        "researchTheme": "并购重组",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 20,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "原始确认状态未达到本阶段门槛",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块核心未站上VWAP",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：candidate，正式分数：79.3",
+          "研究定位：relay-candidate",
+          "研究父主题：并购重组"
+        ],
+        "confirmationConditions": [
+          "并购重组板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "原始确认状态未达到本阶段门槛",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块核心未站上VWAP",
+          "同身位反馈为mixed，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "并购重组",
+            "primaryTheme": "并购重组",
+            "maxBoards": 2,
+            "twoBoardCount": 2,
+            "firstBoardCount": 2,
+            "positiveRate": 75,
+            "sampleCount": 4,
+            "themeDirectionScore": 60,
+            "assistantCount": 2,
+            "coreCode": "600984",
+            "coreName": "建设机械",
+            "coreChangePct": 1.82,
+            "coreVwapHold": false,
+            "coreOnePrice": true,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：并购重组，核心：湖南天雁（1板）",
+            "竞价方向：isolated-one-price",
+            "板块有效样本：4只，覆盖率：100.0%",
+            "板块关联标的4只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 14,
+            "candidateChangePct": -1.24,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第14"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "000017",
+        "name": "深中华A",
+        "boards": 4,
+        "promotionLane": "4进5",
+        "primaryTheme": "锂电池",
+        "researchTheme": "锂电池",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选价格弱于VWAP",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：43.1",
+          "研究定位：theme-core-observer",
+          "研究父主题：锂电池"
+        ],
+        "confirmationConditions": [
+          "锂电池板块出现核心与至少一只同题材标的同步增强",
+          "同身位4进5相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选价格弱于VWAP",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 4,
+              "theme": "锂电池",
+              "relation": "同板块反馈",
+              "changePct": 3.49,
+              "gapPct": 2.7906976744185963,
+              "onePrice": false,
+              "vwapPct": 9.000041044262616,
+              "vwapHold": false
+            }
+          ],
+          "metrics": {
+            "theme": "锂电池",
+            "primaryTheme": "锂电池",
+            "maxBoards": 4,
+            "twoBoardCount": 1,
+            "firstBoardCount": 0,
+            "positiveRate": 100,
+            "sampleCount": 1,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "000017",
+            "coreName": "深中华A",
+            "coreChangePct": 3.49,
+            "coreVwapHold": false,
+            "coreOnePrice": null,
+            "coverage": 1,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：锂电池，核心：深中华A（4板）",
+            "板块有效样本：1只，覆盖率：100.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 4,
+              "theme": "锂电池",
+              "relation": "同身位反馈",
+              "changePct": 3.49,
+              "gapPct": 2.7906976744185963,
+              "onePrice": false,
+              "vwapPct": 9.000041044262616,
+              "vwapHold": false
+            }
+          ],
+          "metrics": {
+            "lane": "4进5",
+            "sampleCount": 1,
+            "totalCount": 1,
+            "positiveRate": 100,
+            "strongestCode": "000017",
+            "strongestName": "深中华A",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": 3.49,
+            "strongestChangePct": 3.49,
+            "gapToStrongestPct": 0,
+            "ladderGap": true
+          },
+          "evidence": [
+            "同身位最强：深中华A",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "003040",
+        "name": "楚天龙",
+        "boards": 3,
+        "promotionLane": "3进4",
+        "primaryTheme": "数字货币",
+        "researchTheme": "数字货币",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块缺少同步走强助攻",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：74.4",
+          "研究定位：theme-core-observer",
+          "研究父主题：数字货币"
+        ],
+        "confirmationConditions": [
+          "数字货币板块出现核心与至少一只同题材标的同步增强",
+          "同身位3进4相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "003040",
+              "name": "楚天龙",
+              "boards": 3,
+              "theme": "数字货币",
+              "relation": "同板块反馈",
+              "changePct": 1.81,
+              "gapPct": 0,
+              "onePrice": false,
+              "vwapPct": 15.632808519929162,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "数字货币",
+            "primaryTheme": "数字货币",
+            "maxBoards": 3,
+            "twoBoardCount": 1,
+            "firstBoardCount": 0,
+            "positiveRate": 100,
+            "sampleCount": 1,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "003040",
+            "coreName": "楚天龙",
+            "coreChangePct": 1.81,
+            "coreVwapHold": true,
+            "coreOnePrice": null,
+            "coverage": 1,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：数字货币，核心：楚天龙（3板）",
+            "板块有效样本：1只，覆盖率：100.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600785",
+              "name": "新华百货",
+              "boards": 3,
+              "theme": "数字货币",
+              "relation": "同身位反馈",
+              "changePct": -3.14,
+              "gapPct": -4.074702886247872,
+              "onePrice": false,
+              "vwapPct": 11.30703475921474,
+              "vwapHold": true
+            },
+            {
+              "code": "003040",
+              "name": "楚天龙",
+              "boards": 3,
+              "theme": "数字货币",
+              "relation": "同身位反馈",
+              "changePct": 1.81,
+              "gapPct": 0,
+              "onePrice": false,
+              "vwapPct": 15.632808519929162,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "3进4",
+            "sampleCount": 2,
+            "totalCount": 2,
+            "positiveRate": 50,
+            "strongestCode": "003040",
+            "strongestName": "楚天龙",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": 1.81,
+            "strongestChangePct": 1.81,
+            "gapToStrongestPct": 0,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：楚天龙",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600785",
+        "name": "新华百货",
+        "boards": 3,
+        "promotionLane": "3进4",
+        "primaryTheme": "农业",
+        "researchTheme": "农业",
+        "baseState": "waiting",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：waiting，正式分数：75.3",
+          "研究定位：theme-core-observer",
+          "研究父主题：农业"
+        ],
+        "confirmationConditions": [
+          "农业板块出现核心与至少一只同题材标的同步增强",
+          "同身位3进4相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%",
+          "农业板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600785",
+              "name": "新华百货",
+              "boards": 3,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -3.14,
+              "gapPct": -4.074702886247872,
+              "onePrice": false,
+              "vwapPct": 11.30703475921474,
+              "vwapHold": true
+            },
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "农业",
+            "primaryTheme": "农业",
+            "maxBoards": 3,
+            "twoBoardCount": 2,
+            "firstBoardCount": 3,
+            "positiveRate": 20,
+            "sampleCount": 5,
+            "themeDirectionScore": 37.4,
+            "assistantCount": 1,
+            "coreCode": "600785",
+            "coreName": "新华百货",
+            "coreChangePct": -3.14,
+            "coreVwapHold": true,
+            "coreOnePrice": false,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：农业，核心：新华百货（3板）",
+            "竞价方向：weak",
+            "板块有效样本：5只，覆盖率：100.0%",
+            "板块关联标的5只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600785",
+              "name": "新华百货",
+              "boards": 3,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -3.14,
+              "gapPct": -4.074702886247872,
+              "onePrice": false,
+              "vwapPct": 11.30703475921474,
+              "vwapHold": true
+            },
+            {
+              "code": "003040",
+              "name": "楚天龙",
+              "boards": 3,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 1.81,
+              "gapPct": 0,
+              "onePrice": false,
+              "vwapPct": 15.632808519929162,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "3进4",
+            "sampleCount": 2,
+            "totalCount": 2,
+            "positiveRate": 50,
+            "strongestCode": "003040",
+            "strongestName": "楚天龙",
+            "candidateRelativeRank": 2,
+            "candidateChangePct": -3.14,
+            "strongestChangePct": 1.81,
+            "gapToStrongestPct": -4.95,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：楚天龙",
+            "候选相对强弱：第2"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600508",
+        "name": "上海能源",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "电力",
+        "researchTheme": "电力",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：60.7",
+          "研究定位：theme-core-observer",
+          "研究父主题：电力"
+        ],
+        "confirmationConditions": [
+          "电力板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "孤立题材 -15"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600508",
+              "name": "上海能源",
+              "boards": 2,
+              "theme": "电力",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "电力",
+            "primaryTheme": "电力",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 0,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "600508",
+            "coreName": "上海能源",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：电力，核心：上海能源（2板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "电力",
+              "relation": "同身位反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600508",
+              "name": "上海能源",
+              "boards": 2,
+              "theme": "电力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "电力",
+              "relation": "同身位反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "电力",
+              "relation": "同身位反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "002084",
+              "name": "海鸥住工",
+              "boards": 2,
+              "theme": "电力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 3,
+            "totalCount": 5,
+            "positiveRate": 66.66666666666666,
+            "strongestCode": "002084",
+            "strongestName": "海鸥住工",
+            "candidateRelativeRank": 2,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：海鸥住工",
+            "候选相对强弱：第2"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "000779",
+        "name": "甘咨询",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "地产链",
+        "researchTheme": "地产链",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：74.9",
+          "研究定位：theme-core-observer",
+          "研究父主题：地产链"
+        ],
+        "confirmationConditions": [
+          "地产链板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002949",
+              "name": "华阳国际",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "000779",
+              "name": "甘咨询",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "地产链",
+            "primaryTheme": "地产链",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 2,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "002949",
+            "coreName": "华阳国际",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：地产链，核心：甘咨询（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 4,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第4"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "000796",
+        "name": "凯撒旅业",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "旅游",
+        "researchTheme": "旅游",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：73.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：旅游"
+        ],
+        "confirmationConditions": [
+          "旅游板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000796",
+              "name": "凯撒旅业",
+              "boards": 1,
+              "theme": "旅游",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "旅游",
+            "primaryTheme": "旅游",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 1,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "000796",
+            "coreName": "凯撒旅业",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：旅游，核心：凯撒旅业（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "旅游",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "旅游",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "旅游",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "旅游",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "旅游",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "旅游",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 6,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第6"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002418",
+        "name": "康盛股份",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "液冷",
+        "researchTheme": "液冷",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：77.3",
+          "研究定位：theme-core-observer",
+          "研究父主题：液冷"
+        ],
+        "confirmationConditions": [
+          "液冷板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002418",
+              "name": "康盛股份",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "002837",
+              "name": "英维克",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "液冷",
+            "primaryTheme": "液冷",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 2,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "002418",
+            "coreName": "康盛股份",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：液冷，核心：康盛股份（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002837",
+        "name": "英维克",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "液冷",
+        "researchTheme": "液冷",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：77.1",
+          "研究定位：theme-core-observer",
+          "研究父主题：液冷"
+        ],
+        "confirmationConditions": [
+          "液冷板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002418",
+              "name": "康盛股份",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "002837",
+              "name": "英维克",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "液冷",
+            "primaryTheme": "液冷",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 2,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "002418",
+            "coreName": "康盛股份",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：液冷，核心：英维克（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "液冷",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 2,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第2"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002949",
+        "name": "华阳国际",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "地产链",
+        "researchTheme": "地产链",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：77.4",
+          "研究定位：theme-core-observer",
+          "研究父主题：地产链"
+        ],
+        "confirmationConditions": [
+          "地产链板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002949",
+              "name": "华阳国际",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "000779",
+              "name": "甘咨询",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "地产链",
+            "primaryTheme": "地产链",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 2,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "002949",
+            "coreName": "华阳国际",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：地产链，核心：华阳国际（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "地产链",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 8,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第8"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600714",
+        "name": "金瑞矿业",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "芯片",
+        "researchTheme": "芯片",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：74.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：芯片"
+        ],
+        "confirmationConditions": [
+          "芯片板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600714",
+              "name": "金瑞矿业",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603360",
+              "name": "百傲化学",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "芯片",
+            "primaryTheme": "芯片",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 3,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "603318",
+            "coreName": "水发燃气",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：芯片，核心：金瑞矿业（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块关联标的3只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 3,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第3"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600745",
+        "name": "*ST闻泰",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "其他",
+        "researchTheme": "其他",
+        "baseState": "exclude",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：exclude，正式分数：74.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：其他"
+        ],
+        "confirmationConditions": [
+          "其他板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "封板时间缺失"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600745",
+              "name": "*ST闻泰",
+              "boards": 1,
+              "theme": "其他",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "其他",
+            "primaryTheme": "其他",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 1,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "600745",
+            "coreName": "*ST闻泰",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：其他，核心：*ST闻泰（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "其他",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "其他",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "其他",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "其他",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "其他",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "其他",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 5,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第5"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603318",
+        "name": "水发燃气",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "芯片",
+        "researchTheme": "芯片",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：78.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：芯片"
+        ],
+        "confirmationConditions": [
+          "芯片板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600714",
+              "name": "金瑞矿业",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603360",
+              "name": "百傲化学",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "芯片",
+            "primaryTheme": "芯片",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 3,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "603318",
+            "coreName": "水发燃气",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：芯片，核心：水发燃气（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块关联标的3只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 7,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第7"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603360",
+        "name": "百傲化学",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "芯片",
+        "researchTheme": "芯片",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：72.6",
+          "研究定位：theme-core-observer",
+          "研究父主题：芯片"
+        ],
+        "confirmationConditions": [
+          "芯片板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600714",
+              "name": "金瑞矿业",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603360",
+              "name": "百傲化学",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "芯片",
+            "primaryTheme": "芯片",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 3,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "603318",
+            "coreName": "水发燃气",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：芯片，核心：百傲化学（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块关联标的3只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 9,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第9"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603758",
+        "name": "秦安股份",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "汽车零部件",
+        "researchTheme": "汽车零部件",
+        "baseState": "waiting",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：waiting，正式分数：72.6",
+          "研究定位：theme-core-observer",
+          "研究父主题：汽车零部件"
+        ],
+        "confirmationConditions": [
+          "汽车零部件板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603758",
+              "name": "秦安股份",
+              "boards": 1,
+              "theme": "汽车零部件",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "汽车零部件",
+            "primaryTheme": "汽车零部件",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 1,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "603758",
+            "coreName": "秦安股份",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：汽车零部件，核心：秦安股份（1板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "汽车零部件",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "汽车零部件",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "汽车零部件",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "汽车零部件",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "汽车零部件",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "汽车零部件",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 10,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第10"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600371",
+        "name": "万向德农",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "农业",
+        "researchTheme": "农业",
+        "baseState": "waiting",
+        "relayRole": "fallback-observer",
+        "researchPriority": 60,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：waiting，正式分数：80.1",
+          "研究定位：fallback-observer",
+          "研究父主题：农业"
+        ],
+        "confirmationConditions": [
+          "农业板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认",
+          "农业板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600785",
+              "name": "新华百货",
+              "boards": 3,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -3.14,
+              "gapPct": -4.074702886247872,
+              "onePrice": false,
+              "vwapPct": 11.30703475921474,
+              "vwapHold": true
+            },
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "农业",
+            "primaryTheme": "农业",
+            "maxBoards": 3,
+            "twoBoardCount": 2,
+            "firstBoardCount": 3,
+            "positiveRate": 20,
+            "sampleCount": 5,
+            "themeDirectionScore": 37.4,
+            "assistantCount": 1,
+            "coreCode": "600785",
+            "coreName": "新华百货",
+            "coreChangePct": -3.14,
+            "coreVwapHold": true,
+            "coreOnePrice": false,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：农业，核心：万向德农（1板）",
+            "竞价方向：weak",
+            "板块有效样本：5只，覆盖率：100.0%",
+            "板块关联标的5只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 11,
+            "candidateChangePct": 8.77,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第11"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603395",
+        "name": "红四方",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "农业",
+        "researchTheme": "农业",
+        "baseState": "waiting",
+        "relayRole": "fallback-observer",
+        "researchPriority": 60,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "同身位反馈为mixed，需supportive",
+          "同身位正反馈率不足60%",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：waiting，正式分数：77.5",
+          "研究定位：fallback-observer",
+          "研究父主题：农业"
+        ],
+        "confirmationConditions": [
+          "农业板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "次日不确认",
+          "农业板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为negative，需supportive",
+          "板块正反馈率不足70%",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600785",
+              "name": "新华百货",
+              "boards": 3,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -3.14,
+              "gapPct": -4.074702886247872,
+              "onePrice": false,
+              "vwapPct": 11.30703475921474,
+              "vwapHold": true
+            },
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同板块反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "农业",
+            "primaryTheme": "农业",
+            "maxBoards": 3,
+            "twoBoardCount": 2,
+            "firstBoardCount": 3,
+            "positiveRate": 20,
+            "sampleCount": 5,
+            "themeDirectionScore": 37.4,
+            "assistantCount": 1,
+            "coreCode": "600785",
+            "coreName": "新华百货",
+            "coreChangePct": -3.14,
+            "coreVwapHold": true,
+            "coreOnePrice": false,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：农业，核心：红四方（1板）",
+            "竞价方向：weak",
+            "板块有效样本：5只，覆盖率：100.0%",
+            "板块关联标的5只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600470",
+              "name": "六国化工",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -0.67,
+              "gapPct": -3.8785834738617075,
+              "onePrice": false,
+              "vwapPct": 5.805142083897159,
+              "vwapHold": true
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 8.77,
+              "gapPct": 3.806228373702414,
+              "onePrice": false,
+              "vwapPct": 9.07102418939784,
+              "vwapHold": true
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "603395",
+              "name": "红四方",
+              "boards": 1,
+              "theme": "农业",
+              "relation": "同身位反馈",
+              "changePct": -1.33,
+              "gapPct": -5.183887915936958,
+              "onePrice": false,
+              "vwapPct": 27.696521500958642,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 5,
+            "totalCount": 15,
+            "positiveRate": 40,
+            "strongestCode": "002418",
+            "strongestName": "康盛股份",
+            "candidateRelativeRank": 15,
+            "candidateChangePct": -1.33,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：康盛股份",
+            "候选相对强弱：第15"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "boards": 5,
+        "promotionLane": "5进6",
+        "primaryTheme": "医药",
+        "researchTheme": "医药",
+        "baseState": "waiting",
+        "relayRole": "emotion-anchor",
+        "researchPriority": 90,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块缺少同步走强助攻",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只"
+        ],
+        "researchReasons": [
+          "原始状态：waiting，正式分数：43.9",
+          "研究定位：emotion-anchor",
+          "研究父主题：医药",
+          "一字/空间高标仅作为情绪或空间锚，不得直接接力"
+        ],
+        "confirmationConditions": [
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位5进6相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "一字高标只做情绪观察，缺少可执行换手",
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "缺少正式确认记录",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 5,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 9.98,
+              "gapPct": 9.083536090835365,
+              "onePrice": false,
+              "vwapPct": 13.487035485121766,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "医药",
+            "maxBoards": 5,
+            "twoBoardCount": 1,
+            "firstBoardCount": 0,
+            "positiveRate": 100,
+            "sampleCount": 1,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "002412",
+            "coreName": "汉森制药",
+            "coreChangePct": 9.98,
+            "coreVwapHold": true,
+            "coreOnePrice": null,
+            "coverage": 1,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：医药，核心：汉森制药（5板）",
+            "板块有效样本：1只，覆盖率：100.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 5,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 9.98,
+              "gapPct": 9.083536090835365,
+              "onePrice": false,
+              "vwapPct": 13.487035485121766,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "lane": "5进6",
+            "sampleCount": 1,
+            "totalCount": 1,
+            "positiveRate": 100,
+            "strongestCode": "002412",
+            "strongestName": "汉森制药",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": 9.98,
+            "strongestChangePct": 9.98,
+            "gapToStrongestPct": 0,
+            "ladderGap": true
+          },
+          "evidence": [
+            "同身位最强：汉森制药",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002084",
+        "name": "海鸥住工",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "装修家具",
+        "researchTheme": "装修家具",
+        "baseState": "observe",
+        "relayRole": "emotion-anchor",
+        "researchPriority": 90,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "一字锚点不可达，不进入实战接力",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块覆盖率不足80%",
+          "板块正反馈率不足70%",
+          "板块核心未站上VWAP",
+          "板块缺少同步走强助攻",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：47.2",
+          "研究定位：emotion-anchor",
+          "研究父主题：装修家具",
+          "一字/空间高标仅作为情绪或空间锚，不得直接接力"
+        ],
+        "confirmationConditions": [
+          "装修家具板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "一字涨停，当日不可执行"
+        ],
+        "noChaseReasons": [
+          "一字高标只做情绪观察，缺少可执行换手",
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "一字锚点不可达，不进入实战接力",
+          "缺少正式确认记录",
+          "候选VWAP不可用",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002084",
+              "name": "海鸥住工",
+              "boards": 2,
+              "theme": "装修家具",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "theme": "装修家具",
+            "primaryTheme": "装修家具",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 0,
+            "positiveRate": null,
+            "sampleCount": 0,
+            "themeDirectionScore": null,
+            "assistantCount": 0,
+            "coreCode": "002084",
+            "coreName": "海鸥住工",
+            "coreChangePct": null,
+            "coreVwapHold": null,
+            "coreOnePrice": null,
+            "coverage": null,
+            "coveragePct": 0
+          },
+          "evidence": [
+            "研究父主题：装修家具，核心：海鸥住工（2板）",
+            "板块有效样本：0只，覆盖率：0.0%",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "装修家具",
+              "relation": "同身位反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600508",
+              "name": "上海能源",
+              "boards": 2,
+              "theme": "装修家具",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "装修家具",
+              "relation": "同身位反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "装修家具",
+              "relation": "同身位反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "002084",
+              "name": "海鸥住工",
+              "boards": 2,
+              "theme": "装修家具",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 3,
+            "totalCount": 5,
+            "positiveRate": 66.66666666666666,
+            "strongestCode": "002084",
+            "strongestName": "海鸥住工",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：海鸥住工",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002445",
+        "name": "中南文化",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "并购重组",
+        "researchTheme": "并购重组",
+        "baseState": "observe",
+        "relayRole": "emotion-anchor",
+        "researchPriority": 90,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "一字锚点不可达，不进入实战接力",
+          "缺少正式确认记录",
+          "候选价格弱于VWAP",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块核心未站上VWAP",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：48.8",
+          "研究定位：emotion-anchor",
+          "研究父主题：并购重组",
+          "一字/空间高标仅作为情绪或空间锚，不得直接接力"
+        ],
+        "confirmationConditions": [
+          "并购重组板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "一字涨停，当日不可执行"
+        ],
+        "noChaseReasons": [
+          "一字高标只做情绪观察，缺少可执行换手",
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "一字锚点不可达，不进入实战接力",
+          "缺少正式确认记录",
+          "候选价格弱于VWAP",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "并购重组",
+            "primaryTheme": "并购重组",
+            "maxBoards": 2,
+            "twoBoardCount": 2,
+            "firstBoardCount": 2,
+            "positiveRate": 75,
+            "sampleCount": 4,
+            "themeDirectionScore": 60,
+            "assistantCount": 2,
+            "coreCode": "600984",
+            "coreName": "建设机械",
+            "coreChangePct": 1.82,
+            "coreVwapHold": false,
+            "coreOnePrice": true,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：并购重组，核心：中南文化（2板）",
+            "竞价方向：isolated-one-price",
+            "板块有效样本：4只，覆盖率：100.0%",
+            "板块关联标的4只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600508",
+              "name": "上海能源",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "002084",
+              "name": "海鸥住工",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 3,
+            "totalCount": 5,
+            "positiveRate": 66.66666666666666,
+            "strongestCode": "002084",
+            "strongestName": "海鸥住工",
+            "candidateRelativeRank": 3,
+            "candidateChangePct": 2.96,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：海鸥住工",
+            "候选相对强弱：第3"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600984",
+        "name": "建设机械",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "并购重组",
+        "researchTheme": "并购重组",
+        "baseState": "observe",
+        "relayRole": "emotion-anchor",
+        "researchPriority": 90,
+        "executionEligible": false,
+        "executionGateReasons": [
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "一字锚点不可达，不进入实战接力",
+          "缺少正式确认记录",
+          "候选价格弱于VWAP",
+          "板块反馈为unavailable，需supportive",
+          "板块有效样本不足5只",
+          "板块核心未站上VWAP",
+          "同身位反馈为unavailable，需supportive",
+          "同身位有效样本不足5只",
+          "候选同身位排名未进入前50%"
+        ],
+        "researchReasons": [
+          "原始状态：observe，正式分数：56.5",
+          "研究定位：emotion-anchor",
+          "研究父主题：并购重组",
+          "一字/空间高标仅作为情绪或空间锚，不得直接接力"
+        ],
+        "confirmationConditions": [
+          "并购重组板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "一字涨停，当日不可执行"
+        ],
+        "noChaseReasons": [
+          "一字高标只做情绪观察，缺少可执行换手",
+          "缺少目标交易日有效快照或确认记录",
+          "当前定位不是可接力候选",
+          "一字锚点不可达，不进入实战接力",
+          "缺少正式确认记录",
+          "候选价格弱于VWAP",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "000695",
+              "name": "滨海能源",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": 6.64,
+              "gapPct": -0.32573289902279035,
+              "onePrice": false,
+              "vwapPct": 15.963571501080384,
+              "vwapHold": true
+            },
+            {
+              "code": "600698",
+              "name": "湖南天雁",
+              "boards": 1,
+              "theme": "并购重组",
+              "relation": "同板块反馈",
+              "changePct": -1.24,
+              "gapPct": -1.9230769230769273,
+              "onePrice": false,
+              "vwapPct": 7.13761375634773,
+              "vwapHold": true
+            }
+          ],
+          "metrics": {
+            "theme": "并购重组",
+            "primaryTheme": "并购重组",
+            "maxBoards": 2,
+            "twoBoardCount": 2,
+            "firstBoardCount": 2,
+            "positiveRate": 75,
+            "sampleCount": 4,
+            "themeDirectionScore": 60,
+            "assistantCount": 2,
+            "coreCode": "600984",
+            "coreName": "建设机械",
+            "coreChangePct": 1.82,
+            "coreVwapHold": false,
+            "coreOnePrice": true,
+            "coverage": 100,
+            "coveragePct": 100
+          },
+          "evidence": [
+            "研究父主题：并购重组，核心：建设机械（2板）",
+            "竞价方向：isolated-one-price",
+            "板块有效样本：4只，覆盖率：100.0%",
+            "板块关联标的4只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-25",
+          "tradeDate": "2026-08-26",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002041",
+              "name": "登海种业",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": -2.23,
+              "gapPct": -2.943800178412137,
+              "onePrice": false,
+              "vwapPct": 10.91813773650683,
+              "vwapHold": true
+            },
+            {
+              "code": "600508",
+              "name": "上海能源",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false,
+              "vwapPct": null,
+              "vwapHold": null
+            },
+            {
+              "code": "600984",
+              "name": "建设机械",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 1.82,
+              "gapPct": 9.91902834008096,
+              "onePrice": true,
+              "vwapPct": 5.285196351336529,
+              "vwapHold": false
+            },
+            {
+              "code": "002445",
+              "name": "中南文化",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": 2.96,
+              "gapPct": 9.973045822102433,
+              "onePrice": true,
+              "vwapPct": 4.061304794260945,
+              "vwapHold": false
+            },
+            {
+              "code": "002084",
+              "name": "海鸥住工",
+              "boards": 2,
+              "theme": "并购重组",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true,
+              "vwapPct": null,
+              "vwapHold": null
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 3,
+            "totalCount": 5,
+            "positiveRate": 66.66666666666666,
+            "strongestCode": "002084",
+            "strongestName": "海鸥住工",
+            "candidateRelativeRank": 4,
+            "candidateChangePct": 1.82,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：海鸥住工",
+            "候选相对强弱：第4"
+          ],
+          "warnings": []
+        }
+      }
+    ],
+    "warnings": []
+  },
+  "warnings": []
+}

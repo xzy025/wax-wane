@@ -1,0 +1,6865 @@
+{
+  "signalDate": "2026-08-21",
+  "tradeDate": "2026-08-24",
+  "generatedAt": "2026-08-24T07:10:20.031Z",
+  "ruleVersion": "limit-ladder-v6",
+  "stage": "settled",
+  "auctionSnapshotAvailable": true,
+  "confirmationSnapshotAvailable": true,
+  "auctionContext": {
+    "capturedAt": "2026-08-24T01:25:18.171Z",
+    "snapshotCount": 41,
+    "coverage": 100,
+    "lowConfidence": false,
+    "sources": [
+      "tencent",
+      "kaipanla-analysis"
+    ],
+    "marketStyle": {
+      "style": "mixed",
+      "label": "竞价方向分散",
+      "score": 60,
+      "confidence": 100,
+      "topFiveConcentrationPct": 60,
+      "weightedSharePct": 80,
+      "largeCapAmountSharePct": 62.73,
+      "evidence": [
+        "成交额前五分散占3只",
+        "权重股占4只",
+        "成交额前20大市值占62.7%",
+        "该信号只作市场风格证据，不单独确认题材主线"
+      ]
+    },
+    "topAmount": [
+      {
+        "code": "300308",
+        "name": "中际旭创",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 945,
+        "changePct": 0.21,
+        "amount": 674352000,
+        "marketCap": 1105399235745,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002428",
+        "name": "云南锗业",
+        "industry": "小金属",
+        "style": "mixed",
+        "price": 103.6,
+        "changePct": 2.7,
+        "amount": 375114362,
+        "marketCap": 67663232000,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002384",
+        "name": "东山精密",
+        "industry": "元件",
+        "style": "mixed",
+        "price": 205.13,
+        "changePct": 2.01,
+        "amount": 172024684.69,
+        "marketCap": 375717653039,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688825",
+        "name": "长鑫科技",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 57.6,
+        "changePct": -0.69,
+        "amount": 160935149,
+        "marketCap": 3852339038035,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:07",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002716",
+        "name": "湖南白银",
+        "industry": "贵金属",
+        "style": "mixed",
+        "price": 11.04,
+        "changePct": 5.95,
+        "amount": 159086400,
+        "marketCap": 31166898652,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002491",
+        "name": "通鼎互联",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 22,
+        "changePct": 3.77,
+        "amount": 155658800,
+        "marketCap": 27059879000,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300502",
+        "name": "新易盛",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 445.01,
+        "changePct": 0.68,
+        "amount": 153475048.8,
+        "marketCap": 620458166947,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600460",
+        "name": "士兰微",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 36.25,
+        "changePct": 1,
+        "amount": 151329250,
+        "marketCap": 60322604381,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:07",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300142",
+        "name": "沃森生物",
+        "industry": "生物制品",
+        "style": "medicine",
+        "price": 16.17,
+        "changePct": 0.43,
+        "amount": 151012939.77,
+        "marketCap": 25861465908,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688836",
+        "name": "C宇树-W",
+        "industry": "自动化设备",
+        "style": "mixed",
+        "price": 640.26,
+        "changePct": -4.78,
+        "amount": 143504675,
+        "marketCap": 258962338328,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "industry": "中药Ⅱ",
+        "style": "medicine",
+        "price": 10.9,
+        "changePct": 6.97,
+        "amount": 143452720,
+        "marketCap": 5484880000,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688356",
+        "name": "键凯科技",
+        "industry": "化学制药",
+        "style": "technology",
+        "price": 116.32,
+        "changePct": 8.37,
+        "amount": 142877136,
+        "marketCap": 7054889424,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:12",
+        "source": "eastmoney"
+      },
+      {
+        "code": "601899",
+        "name": "紫金矿业",
+        "industry": "工业金属",
+        "style": "mixed",
+        "price": 35.4,
+        "changePct": 1.9,
+        "amount": 134549453,
+        "marketCap": 941311297619,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:09",
+        "source": "eastmoney"
+      },
+      {
+        "code": "601212",
+        "name": "白银有色",
+        "industry": "工业金属",
+        "style": "cyclical",
+        "price": 6.53,
+        "changePct": 7.22,
+        "amount": 126247748,
+        "marketCap": 48353177557,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002536",
+        "name": "飞龙股份",
+        "industry": "汽车零部件",
+        "style": "mixed",
+        "price": 50.73,
+        "changePct": 8.01,
+        "amount": 105843072,
+        "marketCap": 29158888098,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600353",
+        "name": "旭光电子",
+        "industry": "其他电子Ⅱ",
+        "style": "technology",
+        "price": 39.28,
+        "changePct": 2.61,
+        "amount": 105623920,
+        "marketCap": 32555702326,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:06",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600547",
+        "name": "山东黄金",
+        "industry": "贵金属",
+        "style": "mixed",
+        "price": 37.8,
+        "changePct": 2.02,
+        "amount": 105548940,
+        "marketCap": 174255336045,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:03",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002015",
+        "name": "协鑫能科",
+        "industry": "电力",
+        "style": "mixed",
+        "price": 15.57,
+        "changePct": 10.04,
+        "amount": 102608246.25,
+        "marketCap": 25275164240,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002241",
+        "name": "歌尔股份",
+        "industry": "消费电子",
+        "style": "technology",
+        "price": 24.38,
+        "changePct": 4.19,
+        "amount": 94733366,
+        "marketCap": 86604371320,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002192",
+        "name": "融捷股份",
+        "industry": "能源金属",
+        "style": "mixed",
+        "price": 77.02,
+        "changePct": 6.22,
+        "amount": 93966479.54,
+        "marketCap": 19998643735,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300862",
+        "name": "蓝盾光电",
+        "industry": "通用设备",
+        "style": "mixed",
+        "price": 55.34,
+        "changePct": -2.05,
+        "amount": 93746292.04,
+        "marketCap": 10216754697,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "002975",
+        "name": "博杰股份",
+        "industry": "自动化设备",
+        "style": "mixed",
+        "price": 110.61,
+        "changePct": 10,
+        "amount": 92182374,
+        "marketCap": 23021340709,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600176",
+        "name": "中国巨石",
+        "industry": "玻璃玻纤",
+        "style": "mixed",
+        "price": 42.95,
+        "changePct": 2.16,
+        "amount": 90027495,
+        "marketCap": 171934722468,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:08",
+        "source": "eastmoney"
+      },
+      {
+        "code": "603823",
+        "name": "百合花",
+        "industry": "化学制品",
+        "style": "mixed",
+        "price": 69.98,
+        "changePct": -9.99,
+        "amount": 87048122,
+        "marketCap": 29137411926,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300394",
+        "name": "天孚通信",
+        "industry": "通信设备",
+        "style": "technology",
+        "price": 268.88,
+        "changePct": -1.54,
+        "amount": 86955792,
+        "marketCap": 293301051006,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600988",
+        "name": "赤峰黄金",
+        "industry": "贵金属",
+        "style": "mixed",
+        "price": 49.6,
+        "changePct": 0.34,
+        "amount": 83580960,
+        "marketCap": 94260394429,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:02",
+        "source": "eastmoney"
+      },
+      {
+        "code": "300285",
+        "name": "国瓷材料",
+        "industry": "电子化学品Ⅱ",
+        "style": "technology",
+        "price": 67.79,
+        "changePct": -0.1,
+        "amount": 83483385,
+        "marketCap": 67589904189,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "000426",
+        "name": "兴业银锡",
+        "industry": "贵金属",
+        "style": "mixed",
+        "price": 40.89,
+        "changePct": 0.02,
+        "amount": 82961966.34,
+        "marketCap": 72605745368,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:00",
+        "source": "eastmoney"
+      },
+      {
+        "code": "600127",
+        "name": "金健米业",
+        "industry": "农产品加工",
+        "style": "small-cap",
+        "price": 8.35,
+        "changePct": 1.83,
+        "amount": 82931991,
+        "marketCap": 5358889870,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:05",
+        "source": "eastmoney"
+      },
+      {
+        "code": "688110",
+        "name": "东芯股份",
+        "industry": "半导体",
+        "style": "technology",
+        "price": 122.51,
+        "changePct": 1.5,
+        "amount": 77034411,
+        "marketCap": 54195654171,
+        "tradeDate": "2026-08-24",
+        "quoteTime": "09:25:07",
+        "source": "eastmoney"
+      }
+    ],
+    "themes": [
+      {
+        "theme": "黄金",
+        "score": 100,
+        "state": "leading",
+        "positiveRate": 100,
+        "weightedGapPct": 5.59,
+        "amountSharePct": 35.35,
+        "coreCode": "000017",
+        "coreName": "深中华A",
+        "coreOnePrice": true,
+        "assistantCodes": [
+          "601212",
+          "002716",
+          "000603"
+        ],
+        "assistantCount": 3,
+        "coverage": 100
+      },
+      {
+        "theme": "通信",
+        "score": 77.85,
+        "state": "resonant",
+        "positiveRate": 60,
+        "weightedGapPct": 1.91,
+        "amountSharePct": 38.1,
+        "coreCode": "002491",
+        "coreName": "通鼎互联",
+        "coreOnePrice": false,
+        "assistantCodes": [
+          "603803",
+          "600577",
+          "002396"
+        ],
+        "assistantCount": 3,
+        "coverage": 90.91
+      },
+      {
+        "theme": "医药",
+        "score": 62.55,
+        "state": "weak",
+        "positiveRate": 33.33,
+        "weightedGapPct": 4.76,
+        "amountSharePct": 16.29,
+        "coreCode": "002412",
+        "coreName": "汉森制药",
+        "coreOnePrice": false,
+        "assistantCodes": [],
+        "assistantCount": 0,
+        "coverage": 60
+      },
+      {
+        "theme": "新型工业化",
+        "score": 34.64,
+        "state": "weak",
+        "positiveRate": 25,
+        "weightedGapPct": -0.12,
+        "amountSharePct": 6.27,
+        "coreCode": "002903",
+        "coreName": "宇环数控",
+        "coreOnePrice": false,
+        "assistantCodes": [],
+        "assistantCount": 0,
+        "coverage": 100
+      }
+    ],
+    "candidateProcesses": [
+      {
+        "code": "000017",
+        "sampleCount": 41,
+        "strengtheningScore": 50,
+        "cancellationStabilityScore": null,
+        "processScore": 50,
+        "startGapPct": 9.99,
+        "finalGapPct": 9.99,
+        "finalUnmatchedSide": null
+      },
+      {
+        "code": "603803",
+        "sampleCount": 41,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 9.98,
+        "finalGapPct": 5.12,
+        "finalUnmatchedSide": null
+      },
+      {
+        "code": "000710",
+        "sampleCount": 41,
+        "strengtheningScore": 41.3,
+        "cancellationStabilityScore": null,
+        "processScore": 41.3,
+        "startGapPct": -6.69,
+        "finalGapPct": -7.27,
+        "finalUnmatchedSide": null
+      },
+      {
+        "code": "603079",
+        "sampleCount": 41,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 9.05,
+        "finalGapPct": -1.92,
+        "finalUnmatchedSide": null
+      },
+      {
+        "code": "002209",
+        "sampleCount": 41,
+        "strengtheningScore": 0,
+        "cancellationStabilityScore": null,
+        "processScore": 0,
+        "startGapPct": 4.64,
+        "finalGapPct": -1.9,
+        "finalUnmatchedSide": null
+      }
+    ],
+    "warnings": []
+  },
+  "highBoardContext": {
+    "capturedAt": "2026-08-24T01:35:12.920Z",
+    "phase": "open",
+    "score": 58.67,
+    "state": "divergence",
+    "confidence": 28.57,
+    "metrics": {
+      "sampleSize": 2,
+      "positiveRate": 100,
+      "nuclearRate": 0,
+      "onePriceRetentionRate": 0,
+      "weightedGapPct": 5.27,
+      "processStrength": 52.2,
+      "vwapHoldRate": 100,
+      "waterfallRate": 0,
+      "resealRate": 50
+    },
+    "members": [
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "theme": "医药",
+        "boards": 3,
+        "marketRole": "space-leader",
+        "heightTier": "high",
+        "gapPct": 6.97,
+        "changePct": 10.01,
+        "processScore": 4.4,
+        "aboveVwap": true,
+        "priorOnePrice": true,
+        "onePriceRetained": false,
+        "resealed": true,
+        "nuclear": false
+      },
+      {
+        "code": "600613",
+        "name": "神奇制药",
+        "theme": "医药",
+        "boards": 4,
+        "marketRole": "high-anchor",
+        "heightTier": "high",
+        "gapPct": 3.56,
+        "changePct": 5.33,
+        "processScore": 100,
+        "aboveVwap": true,
+        "priorOnePrice": false,
+        "onePriceRetained": null,
+        "resealed": false,
+        "nuclear": false
+      }
+    ],
+    "themes": [
+      {
+        "theme": "医药",
+        "score": 58.67,
+        "state": "divergence",
+        "confidence": 28.57,
+        "sampleSize": 2,
+        "highLowSwitch": false
+      }
+    ],
+    "warnings": [
+      "高标篮子少于3只，风偏按低置信度收缩"
+    ]
+  },
+  "themeRiskAppetite": [
+    {
+      "theme": "医药",
+      "score": 58.67,
+      "state": "divergence",
+      "confidence": 28.57,
+      "sampleSize": 2,
+      "highLowSwitch": false
+    }
+  ],
+  "eventReaction": {
+    "state": "neutral",
+    "score": 50,
+    "affectedCodes": [],
+    "positiveCodes": [],
+    "negativeCodes": [],
+    "evidence": [
+      "无直接监管事件"
+    ]
+  },
+  "marketGate": {
+    "signalDate": "2026-08-21",
+    "tradeDate": "2026-08-24",
+    "generatedAt": "2026-08-24T01:35:15.261Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 33.14,
+    "externalRiskScore": 37,
+    "domesticRiskScore": 31.06,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-21",
+      "tradeDate": "2026-08-24",
+      "capturedAt": "2026-08-24T00:50:07.103Z",
+      "frozenAt": "2026-08-24T00:50:07.103Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 37,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.98,
+          "price": 53277.01
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.43,
+          "price": 26180.45
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.43,
+          "price": 7674.37
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.27,
+          "price": 65838.43
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": -1.08,
+          "price": 6837.96
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.729114,
+          "previousClose": 7.238,
+          "changePct": -7.03,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-24T08:48:46+08:00",
+          "source": "sina",
+          "title": "招商证券：短期A股波动可能加大",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:45:55+08:00",
+          "source": "sina",
+          "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:21:27+08:00",
+          "source": "sina",
+          "title": "受多因素提振 国际金价涨至三个月来新高",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:15:04+08:00",
+          "source": "sina",
+          "title": "中信证券：A股短期内的资金结构决定了市场博弈的复杂性还在提升",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "韩国KOSPI-1.08%",
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-24T01:35:15.248Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.09,
+          "price": 3908.74
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.03,
+          "price": 14099.01
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": -0.2,
+          "price": 3538.39
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.05,
+          "price": 2881.98
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.04,
+          "price": 4616.94
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.41,
+          "price": 7633.34
+        }
+      ],
+      "advance": 3002,
+      "decline": 2003,
+      "flat": 279,
+      "limitUp": 28,
+      "limitDown": 3,
+      "indexRiskScore": 32,
+      "breadthRiskScore": 20.04,
+      "highBoardRiskScore": 45,
+      "riskScore": 31.06,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "mixed",
+      "capturedAt": "2026-08-24T01:25:17.789Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0.01,
+      "smallCapChangePct": 0.17,
+      "sizeSpreadPct": -0.16,
+      "advanceRate": 47.97,
+      "largeCapAuctionAmountSharePct": 62.73,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.01%",
+        "小盘指数+0.17%",
+        "大盘相对小盘-0.16pct",
+        "上涨家数占比48.0%",
+        "大市值竞价成交占比62.7%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "黄金",
+        "riskClass": "cyclical",
+        "state": "allowed",
+        "score": 100,
+        "independentStrength": true,
+        "directionScore": 100,
+        "positiveRate": 100,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "锂电池",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 77.85,
+        "independentStrength": true,
+        "directionScore": 77.85,
+        "positiveRate": 60,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "交换机",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "CPO",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "MPO",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "医药",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 62.55,
+        "independentStrength": false,
+        "directionScore": 62.55,
+        "positiveRate": 33.33,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "基因疗法",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "AI应用",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "维生素",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "新型工业化",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 34.64,
+        "independentStrength": false,
+        "directionScore": 34.64,
+        "positiveRate": 25,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": []
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "机器人概念",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      }
+    ],
+    "reasons": [
+      "韩国KOSPI-1.08%",
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  },
+  "themePermissions": [
+    {
+      "theme": "黄金",
+      "riskClass": "cyclical",
+      "state": "allowed",
+      "score": 100,
+      "independentStrength": true,
+      "directionScore": 100,
+      "positiveRate": 100,
+      "assistantCount": 3,
+      "environmentAdjustment": 2,
+      "reasons": [
+        "竞价形成核心、助攻与题材广度共振"
+      ]
+    },
+    {
+      "theme": "锂电池",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "通信",
+      "riskClass": "high-beta",
+      "state": "allowed",
+      "score": 77.85,
+      "independentStrength": true,
+      "directionScore": 77.85,
+      "positiveRate": 60,
+      "assistantCount": 3,
+      "environmentAdjustment": 2,
+      "reasons": [
+        "高Beta/利率敏感题材",
+        "竞价形成核心、助攻与题材广度共振"
+      ]
+    },
+    {
+      "theme": "交换机",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "CPO",
+      "riskClass": "high-beta",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": [
+        "高Beta/利率敏感题材"
+      ]
+    },
+    {
+      "theme": "MPO",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "医药",
+      "riskClass": "defensive",
+      "state": "allowed",
+      "score": 62.55,
+      "independentStrength": false,
+      "directionScore": 62.55,
+      "positiveRate": 33.33,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": [
+        "低Beta题材，仅在竞价独立走强后放行"
+      ]
+    },
+    {
+      "theme": "基因疗法",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "AI应用",
+      "riskClass": "high-beta",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": [
+        "高Beta/利率敏感题材"
+      ]
+    },
+    {
+      "theme": "维生素",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "新型工业化",
+      "riskClass": "neutral",
+      "state": "conditional",
+      "score": 34.64,
+      "independentStrength": false,
+      "directionScore": 34.64,
+      "positiveRate": 25,
+      "assistantCount": 0,
+      "environmentAdjustment": -1,
+      "reasons": []
+    },
+    {
+      "theme": "中报增长",
+      "riskClass": "neutral",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": []
+    },
+    {
+      "theme": "机器人概念",
+      "riskClass": "high-beta",
+      "state": "allowed",
+      "score": 50,
+      "independentStrength": false,
+      "directionScore": null,
+      "positiveRate": null,
+      "assistantCount": 0,
+      "environmentAdjustment": 0,
+      "reasons": [
+        "高Beta/利率敏感题材"
+      ]
+    }
+  ],
+  "outcome": {
+    "signalDate": "2026-08-21",
+    "tradeDate": "2026-08-24",
+    "generatedAt": "2026-08-24T07:10:19.751Z",
+    "ruleVersion": "limit-ladder-v6",
+    "summary": {
+      "formal": {
+        "total": 5,
+        "valid": 5,
+        "promoted": 1,
+        "failed": 4,
+        "unresolved": 0,
+        "promotionRate": 20,
+        "coverage": 100
+      },
+      "byLane": [
+        {
+          "promotionLane": "1进2",
+          "fromBoards": 1,
+          "total": 3,
+          "valid": 3,
+          "promoted": 0,
+          "failed": 3,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        },
+        {
+          "promotionLane": "2进3",
+          "fromBoards": 2,
+          "total": 2,
+          "valid": 2,
+          "promoted": 1,
+          "failed": 1,
+          "unresolved": 0,
+          "promotionRate": 50,
+          "coverage": 100
+        }
+      ],
+      "waitOpen": {
+        "total": 0,
+        "valid": 0,
+        "promoted": 0,
+        "failed": 0,
+        "unresolved": 0,
+        "promotionRate": null,
+        "coverage": 0
+      },
+      "byRepairState": [
+        {
+          "repairState": "mixed",
+          "total": 5,
+          "valid": 5,
+          "promoted": 1,
+          "failed": 4,
+          "unresolved": 0,
+          "promotionRate": 20,
+          "coverage": 100
+        }
+      ],
+      "bySizeBucket": [
+        {
+          "sizeBucket": "small",
+          "total": 5,
+          "valid": 5,
+          "promoted": 1,
+          "failed": 4,
+          "unresolved": 0,
+          "promotionRate": 20,
+          "coverage": 100
+        }
+      ],
+      "byHeightTier": [
+        {
+          "heightTier": "middle",
+          "total": 2,
+          "valid": 2,
+          "promoted": 1,
+          "failed": 1,
+          "unresolved": 0,
+          "promotionRate": 50,
+          "coverage": 100
+        },
+        {
+          "heightTier": "low",
+          "total": 3,
+          "valid": 3,
+          "promoted": 0,
+          "failed": 3,
+          "unresolved": 0,
+          "promotionRate": 0,
+          "coverage": 100
+        }
+      ]
+    },
+    "rows": [
+      {
+        "code": "000017",
+        "name": "深中华A",
+        "candidateRank": 1,
+        "population": "formal",
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "resultStatus": "promoted",
+        "promoted": true,
+        "tradable": false,
+        "unresolvedReason": "",
+        "openToClosePct": null,
+        "mfePct": null,
+        "maePct": null,
+        "marketCycle": "ebb",
+        "marketRole": "normal",
+        "themeState": "B",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 37,
+        "domesticRiskScore": 31.06,
+        "repairState": "mixed",
+        "sizeBucket": "small",
+        "heightTier": "middle",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "code": "603803",
+        "name": "瑞斯康达",
+        "candidateRank": 2,
+        "population": "formal",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": -6.47,
+        "mfePct": 0.92,
+        "maePct": -7.73,
+        "marketCycle": "ebb",
+        "marketRole": "normal",
+        "themeState": "B",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 37,
+        "domesticRiskScore": 31.06,
+        "repairState": "mixed",
+        "sizeBucket": "small",
+        "heightTier": "low",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "code": "000710",
+        "name": "贝瑞基因",
+        "candidateRank": 3,
+        "population": "formal",
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": 1.46,
+        "mfePct": 9.83,
+        "maePct": -1.99,
+        "marketCycle": "ebb",
+        "marketRole": "normal",
+        "themeState": "divergence",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 37,
+        "domesticRiskScore": 31.06,
+        "repairState": "mixed",
+        "sizeBucket": "small",
+        "heightTier": "middle",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "code": "603079",
+        "name": "圣达生物",
+        "candidateRank": 4,
+        "population": "formal",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": -8.21,
+        "mfePct": 0,
+        "maePct": -8.21,
+        "marketCycle": "ebb",
+        "marketRole": "normal",
+        "themeState": "divergence",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "allowed",
+        "externalRiskScore": 37,
+        "domesticRiskScore": 31.06,
+        "repairState": "mixed",
+        "sizeBucket": "small",
+        "heightTier": "low",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "code": "002209",
+        "name": "达意隆",
+        "candidateRank": 5,
+        "population": "formal",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true,
+        "unresolvedReason": "",
+        "openToClosePct": -0.08,
+        "mfePct": 1.24,
+        "maePct": -4.03,
+        "marketCycle": "ebb",
+        "marketRole": "normal",
+        "themeState": "B",
+        "riskAppetiteState": "divergence",
+        "eventStatus": "none",
+        "marketGateState": "normal",
+        "themePermissionState": "conditional",
+        "externalRiskScore": 37,
+        "domesticRiskScore": 31.06,
+        "repairState": "mixed",
+        "sizeBucket": "small",
+        "heightTier": "low",
+        "liquidityStyleAdjustment": 0,
+        "gateReasons": []
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "code": "603803",
+      "name": "瑞斯康达",
+      "baseState": "candidate",
+      "promotionLane": "1进2",
+      "baseScore": 78.46,
+      "promotionScore": 70.77,
+      "tradabilityScore": 90,
+      "auctionScore": 64.65,
+      "finalAuctionScore": 83.59,
+      "processScore": 0,
+      "themeDirectionScore": 77.85,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 67.57,
+      "liveScore": 74.21,
+      "environmentAdjustment": 2,
+      "decisionScore": 76.21,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 77.85,
+        "independentStrength": true,
+        "directionScore": 77.85,
+        "positiveRate": 60,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      "state": "confirmed",
+      "tradeDate": "2026-08-24",
+      "quoteTime": "09:35:08",
+      "openGapPct": 5.12,
+      "auctionAmount": 20060000,
+      "currentAmount": 196940000,
+      "currentPrice": 11.48,
+      "vwap": 11.622444643784524,
+      "inaccessible": false,
+      "warnings": [],
+      "gateReasons": []
+    },
+    {
+      "code": "000017",
+      "name": "深中华A",
+      "baseState": "candidate",
+      "promotionLane": "2进3",
+      "baseScore": 78.55,
+      "promotionScore": 71.25,
+      "tradabilityScore": 89.5,
+      "auctionScore": 47.22,
+      "finalAuctionScore": 22.22,
+      "processScore": 50,
+      "themeDirectionScore": 100,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 57.48,
+      "liveScore": 69.64,
+      "environmentAdjustment": 2,
+      "decisionScore": 71.64,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "黄金",
+        "riskClass": "cyclical",
+        "state": "allowed",
+        "score": 100,
+        "independentStrength": true,
+        "directionScore": 100,
+        "positiveRate": 100,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      "state": "rejected",
+      "tradeDate": "2026-08-24",
+      "quoteTime": "09:35:09",
+      "openGapPct": 9.99,
+      "auctionAmount": 15320000,
+      "currentAmount": 30860000,
+      "currentPrice": 7.82,
+      "vwap": 7.820577800304106,
+      "inaccessible": true,
+      "warnings": [
+        "次日继续一字，不可达",
+        "开盘涨幅超过8%，拒绝追价",
+        "同层竞价样本少于5只，分位按中性分处理"
+      ],
+      "gateReasons": []
+    },
+    {
+      "code": "000710",
+      "name": "贝瑞基因",
+      "baseState": "candidate",
+      "promotionLane": "2进3",
+      "baseScore": 76.82,
+      "promotionScore": 69.03,
+      "tradabilityScore": 88.5,
+      "auctionScore": 43.01,
+      "finalAuctionScore": 33.33,
+      "processScore": 41.3,
+      "themeDirectionScore": 62.55,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 64.17,
+      "liveScore": 69.22,
+      "environmentAdjustment": 0,
+      "decisionScore": 69.22,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "医药",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 62.55,
+        "independentStrength": false,
+        "directionScore": 62.55,
+        "positiveRate": 33.33,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-24",
+      "quoteTime": "09:35:09",
+      "openGapPct": -7.27,
+      "auctionAmount": 23220000,
+      "currentAmount": 141850000,
+      "currentPrice": 10.05,
+      "vwap": 9.787956363034162,
+      "inaccessible": false,
+      "warnings": [
+        "同层竞价样本少于5只，分位按中性分处理"
+      ],
+      "gateReasons": []
+    },
+    {
+      "code": "002209",
+      "name": "达意隆",
+      "baseState": "candidate",
+      "promotionLane": "1进2",
+      "baseScore": 74.71,
+      "promotionScore": 66.85,
+      "tradabilityScore": 86.5,
+      "auctionScore": 39.25,
+      "finalAuctionScore": 52,
+      "processScore": 0,
+      "themeDirectionScore": 34.64,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 51.75,
+      "liveScore": 64.8,
+      "environmentAdjustment": -1,
+      "decisionScore": 63.8,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "新型工业化",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 34.64,
+        "independentStrength": false,
+        "directionScore": 34.64,
+        "positiveRate": 25,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": []
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-24",
+      "quoteTime": "09:35:09",
+      "openGapPct": -1.9,
+      "auctionAmount": 8410000,
+      "currentAmount": 60460000,
+      "currentPrice": 12.76,
+      "vwap": 12.712630627220925,
+      "inaccessible": false,
+      "warnings": [],
+      "gateReasons": []
+    },
+    {
+      "code": "603079",
+      "name": "圣达生物",
+      "baseState": "candidate",
+      "promotionLane": "1进2",
+      "baseScore": 75.53,
+      "promotionScore": 67.39,
+      "tradabilityScore": 87.75,
+      "auctionScore": 37.22,
+      "finalAuctionScore": 35.53,
+      "processScore": 0,
+      "themeDirectionScore": 62.55,
+      "marketStyleScore": 50,
+      "sizeBucket": "small",
+      "liquidityStyleAdjustment": 0,
+      "styleGateReasons": [],
+      "openScore": 45.29,
+      "liveScore": 63.74,
+      "environmentAdjustment": 0,
+      "decisionScore": 63.74,
+      "marketGateState": "normal",
+      "themePermission": {
+        "theme": "医药",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 62.55,
+        "independentStrength": false,
+        "directionScore": 62.55,
+        "positiveRate": 33.33,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      "state": "waiting",
+      "tradeDate": "2026-08-24",
+      "quoteTime": "09:35:09",
+      "openGapPct": -1.92,
+      "auctionAmount": 5620000,
+      "currentAmount": 51170000,
+      "currentPrice": 13.2,
+      "vwap": 13.372883127744094,
+      "inaccessible": false,
+      "warnings": [],
+      "gateReasons": []
+    }
+  ],
+  "relayPlan": {
+    "status": "research-score",
+    "signalDate": "2026-08-21",
+    "tradeDate": "2026-08-24",
+    "generatedAt": "2026-08-24T07:10:20.031Z",
+    "stage": "settled",
+    "items": [
+      {
+        "code": "000017",
+        "name": "深中华A",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "黄金",
+        "researchTheme": "黄金",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 10,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：candidate，正式分数：78.5",
+          "研究定位：relay-candidate",
+          "研究父主题：黄金"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "黄金板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "黄金",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选深中华A受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同板块反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "601212",
+              "name": "白银有色",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同板块反馈",
+              "changePct": 10.02,
+              "gapPct": 7.2249589490968935,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "黄金",
+            "primaryTheme": "黄金",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 1,
+            "positiveRate": 100,
+            "themeDirectionScore": 100,
+            "assistantCount": 3,
+            "coreOnePrice": true,
+            "coverage": 100
+          },
+          "evidence": [
+            "研究父主题：黄金，核心：深中华A（2板）",
+            "竞价方向：leading",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 5,
+            "candidateChangePct": 9.99,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第5"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "000710",
+        "name": "贝瑞基因",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "医药",
+        "researchTheme": "医药",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 10,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：candidate，正式分数：76.8",
+          "研究定位：relay-candidate",
+          "研究父主题：医药"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段",
+          "医药板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选贝瑞基因受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "688356",
+              "name": "键凯科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true
+            },
+            {
+              "code": "688137",
+              "name": "近岸蛋白",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "医药",
+            "maxBoards": 3,
+            "twoBoardCount": 6,
+            "firstBoardCount": 1,
+            "positiveRate": 33.33,
+            "themeDirectionScore": 62.55,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 60
+          },
+          "evidence": [
+            "研究父主题：医药，核心：贝瑞基因（2板）",
+            "竞价方向：weak",
+            "板块关联标的7只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 10,
+            "candidateChangePct": -2.52,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第10"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002209",
+        "name": "达意隆",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "新型工业化",
+        "researchTheme": "新型工业化",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 20,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：candidate，正式分数：74.7",
+          "研究定位：relay-candidate",
+          "研究父主题：新型工业化"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "新型工业化板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段",
+          "新型工业化板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "新型工业化",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选达意隆受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同板块反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同板块反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "新型工业化",
+            "primaryTheme": "新型工业化",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 1,
+            "positiveRate": 25,
+            "themeDirectionScore": 34.64,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 100
+          },
+          "evidence": [
+            "研究父主题：新型工业化，核心：达意隆（1板）",
+            "竞价方向：weak",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 11,
+            "candidateChangePct": -3.04,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第11"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603079",
+        "name": "圣达生物",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "医药",
+        "researchTheme": "医药",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 20,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：candidate，正式分数：75.5",
+          "研究定位：relay-candidate",
+          "研究父主题：医药"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段",
+          "医药板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选圣达生物受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "688356",
+              "name": "键凯科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true
+            },
+            {
+              "code": "688137",
+              "name": "近岸蛋白",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "医药",
+            "maxBoards": 3,
+            "twoBoardCount": 6,
+            "firstBoardCount": 1,
+            "positiveRate": 33.33,
+            "themeDirectionScore": 62.55,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 60
+          },
+          "evidence": [
+            "研究父主题：医药，核心：圣达生物（1板）",
+            "竞价方向：weak",
+            "板块关联标的7只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 13,
+            "candidateChangePct": -5.92,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第13"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603803",
+        "name": "瑞斯康达",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "通信",
+        "researchTheme": "通信",
+        "baseState": "candidate",
+        "relayRole": "relay-candidate",
+        "researchPriority": 20,
+        "executionEligible": true,
+        "researchReasons": [
+          "原始状态：candidate，正式分数：78.5",
+          "研究定位：relay-candidate",
+          "研究父主题：通信"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "通信板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "通信",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选瑞斯康达受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002491",
+              "name": "通鼎互联",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.89,
+              "gapPct": 3.7735849056603765,
+              "onePrice": false
+            },
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600110",
+              "name": "诺德股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.58,
+              "gapPct": 0.5586592178770999,
+              "onePrice": false
+            },
+            {
+              "code": "600577",
+              "name": "精达股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 2.31,
+              "gapPct": 1.0392609699769073,
+              "onePrice": false
+            },
+            {
+              "code": "002449",
+              "name": "国星光电",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": -5.23,
+              "gapPct": -4.526166902404527,
+              "onePrice": false
+            },
+            {
+              "code": "002988",
+              "name": "豪美新材",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "通信",
+            "primaryTheme": "通信",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 5,
+            "positiveRate": 60,
+            "themeDirectionScore": 77.85,
+            "assistantCount": 3,
+            "coreOnePrice": false,
+            "coverage": 90.91
+          },
+          "evidence": [
+            "研究父主题：通信，核心：瑞斯康达（1板）",
+            "竞价方向：resonant",
+            "板块关联标的6只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 10,
+            "candidateChangePct": 1.41,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第10"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "000931",
+        "name": "中关村",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "疫苗概念",
+        "researchTheme": "医药",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：73.1",
+          "研究定位：theme-core-observer",
+          "研究父主题：医药",
+          "保留原始题材疫苗概念，研究层归入医药"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%",
+          "医药板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选中关村受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "688356",
+              "name": "键凯科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true
+            },
+            {
+              "code": "688137",
+              "name": "近岸蛋白",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "疫苗概念",
+            "maxBoards": 3,
+            "twoBoardCount": 6,
+            "firstBoardCount": 1,
+            "positiveRate": 33.33,
+            "themeDirectionScore": 62.55,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 60
+          },
+          "evidence": [
+            "研究父主题：医药，核心：中关村（2板）",
+            "竞价方向：weak",
+            "板块关联标的7只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 7,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第7"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002038",
+        "name": "双鹭药业",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "疫苗概念",
+        "researchTheme": "医药",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：76.1",
+          "研究定位：theme-core-observer",
+          "研究父主题：医药",
+          "保留原始题材疫苗概念，研究层归入医药"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段",
+          "医药板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选双鹭药业受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "688356",
+              "name": "键凯科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true
+            },
+            {
+              "code": "688137",
+              "name": "近岸蛋白",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "疫苗概念",
+            "maxBoards": 3,
+            "twoBoardCount": 6,
+            "firstBoardCount": 1,
+            "positiveRate": 33.33,
+            "themeDirectionScore": 62.55,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 60
+          },
+          "evidence": [
+            "研究父主题：医药，核心：双鹭药业（2板）",
+            "竞价方向：weak",
+            "板块关联标的7只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 6,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第6"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002491",
+        "name": "通鼎互联",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "通信",
+        "researchTheme": "通信",
+        "baseState": "waiting",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：waiting，正式分数：72.6",
+          "研究定位：theme-core-observer",
+          "研究父主题：通信"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "通信板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "通信",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选通鼎互联受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002491",
+              "name": "通鼎互联",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.89,
+              "gapPct": 3.7735849056603765,
+              "onePrice": false
+            },
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600110",
+              "name": "诺德股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.58,
+              "gapPct": 0.5586592178770999,
+              "onePrice": false
+            },
+            {
+              "code": "600577",
+              "name": "精达股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 2.31,
+              "gapPct": 1.0392609699769073,
+              "onePrice": false
+            },
+            {
+              "code": "002449",
+              "name": "国星光电",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": -5.23,
+              "gapPct": -4.526166902404527,
+              "onePrice": false
+            },
+            {
+              "code": "002988",
+              "name": "豪美新材",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "通信",
+            "primaryTheme": "通信",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 5,
+            "positiveRate": 60,
+            "themeDirectionScore": 77.85,
+            "assistantCount": 3,
+            "coreOnePrice": false,
+            "coverage": 90.91
+          },
+          "evidence": [
+            "研究父主题：通信，核心：通鼎互联（2板）",
+            "竞价方向：resonant",
+            "板块关联标的6只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 8,
+            "candidateChangePct": 1.89,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第8"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002903",
+        "name": "宇环数控",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "新型工业化",
+        "researchTheme": "新型工业化",
+        "baseState": "waiting",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：waiting，正式分数：73.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：新型工业化"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "新型工业化板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段",
+          "新型工业化板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "新型工业化",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选宇环数控受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同板块反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "新型工业化",
+              "relation": "同板块反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "新型工业化",
+            "primaryTheme": "新型工业化",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 1,
+            "positiveRate": 25,
+            "themeDirectionScore": 34.64,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 100
+          },
+          "evidence": [
+            "研究父主题：新型工业化，核心：宇环数控（2板）",
+            "竞价方向：weak",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "新型工业化",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 9,
+            "candidateChangePct": -0.41,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第9"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603626",
+        "name": "科森科技",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "端侧AI",
+        "researchTheme": "端侧AI",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：78.1",
+          "研究定位：theme-core-observer",
+          "研究父主题：端侧AI"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "端侧AI板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "端侧AI",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选科森科技受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "端侧AI",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "端侧AI",
+            "primaryTheme": "端侧AI",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 0,
+            "positiveRate": null,
+            "themeDirectionScore": null,
+            "assistantCount": null,
+            "coreOnePrice": null,
+            "coverage": null
+          },
+          "evidence": [
+            "研究父主题：端侧AI，核心：科森科技（2板）",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "端侧AI",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "端侧AI",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "端侧AI",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "端侧AI",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "端侧AI",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "端侧AI",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 3,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第3"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603958",
+        "name": "哈森股份",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "消费电子",
+        "researchTheme": "消费电子",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：72.1",
+          "研究定位：theme-core-observer",
+          "研究父主题：消费电子"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "消费电子板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "消费电子",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选哈森股份受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603958",
+              "name": "哈森股份",
+              "boards": 2,
+              "theme": "消费电子",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "消费电子",
+            "primaryTheme": "消费电子",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 0,
+            "positiveRate": null,
+            "themeDirectionScore": null,
+            "assistantCount": null,
+            "coreOnePrice": null,
+            "coverage": null
+          },
+          "evidence": [
+            "研究父主题：消费电子，核心：哈森股份（2板）",
+            "板块暂未形成充分扩散"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "消费电子",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "消费电子",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "消费电子",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "消费电子",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "消费电子",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "消费电子",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 4,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第4"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "688137",
+        "name": "近岸蛋白",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "疫苗概念",
+        "researchTheme": "医药",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：42.4",
+          "研究定位：theme-core-observer",
+          "研究父主题：医药",
+          "保留原始题材疫苗概念，研究层归入医药"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "非主板10cm，仅列观察",
+          "医药板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选近岸蛋白受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "688356",
+              "name": "键凯科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true
+            },
+            {
+              "code": "688137",
+              "name": "近岸蛋白",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "疫苗概念",
+            "maxBoards": 3,
+            "twoBoardCount": 6,
+            "firstBoardCount": 1,
+            "positiveRate": 33.33,
+            "themeDirectionScore": 62.55,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 60
+          },
+          "evidence": [
+            "研究父主题：医药，核心：近岸蛋白（2板）",
+            "竞价方向：weak",
+            "板块关联标的7只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002536",
+        "name": "飞龙股份",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "算力",
+        "researchTheme": "算力",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：73.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：算力"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "算力板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "算力",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选飞龙股份受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002536",
+              "name": "飞龙股份",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002686",
+              "name": "亿利达",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "算力",
+            "primaryTheme": "算力",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 2,
+            "positiveRate": null,
+            "themeDirectionScore": null,
+            "assistantCount": null,
+            "coreOnePrice": null,
+            "coverage": null
+          },
+          "evidence": [
+            "研究父主题：算力，核心：飞龙股份（1板）",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 4,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第4"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002686",
+        "name": "亿利达",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "算力",
+        "researchTheme": "算力",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：72.7",
+          "研究定位：theme-core-observer",
+          "研究父主题：算力"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "算力板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "算力",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选亿利达受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002536",
+              "name": "飞龙股份",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002686",
+              "name": "亿利达",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "算力",
+            "primaryTheme": "算力",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 2,
+            "positiveRate": null,
+            "themeDirectionScore": null,
+            "assistantCount": null,
+            "coreOnePrice": null,
+            "coverage": null
+          },
+          "evidence": [
+            "研究父主题：算力，核心：亿利达（1板）",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "算力",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 7,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第7"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002971",
+        "name": "和远气体",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "芯片",
+        "researchTheme": "芯片",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：74.5",
+          "研究定位：theme-core-observer",
+          "研究父主题：芯片"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "芯片板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "芯片",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选和远气体受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "芯片",
+            "primaryTheme": "芯片",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 3,
+            "positiveRate": null,
+            "themeDirectionScore": null,
+            "assistantCount": null,
+            "coreOnePrice": null,
+            "coverage": null
+          },
+          "evidence": [
+            "研究父主题：芯片，核心：和远气体（1板）",
+            "板块关联标的3只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 3,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第3"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002988",
+        "name": "豪美新材",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "机器人概念",
+        "researchTheme": "通信",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：73.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：通信",
+          "保留原始题材机器人概念，研究层归入通信"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "通信板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "通信",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选豪美新材受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002491",
+              "name": "通鼎互联",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.89,
+              "gapPct": 3.7735849056603765,
+              "onePrice": false
+            },
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600110",
+              "name": "诺德股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.58,
+              "gapPct": 0.5586592178770999,
+              "onePrice": false
+            },
+            {
+              "code": "600577",
+              "name": "精达股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 2.31,
+              "gapPct": 1.0392609699769073,
+              "onePrice": false
+            },
+            {
+              "code": "002449",
+              "name": "国星光电",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": -5.23,
+              "gapPct": -4.526166902404527,
+              "onePrice": false
+            },
+            {
+              "code": "002988",
+              "name": "豪美新材",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "通信",
+            "primaryTheme": "机器人概念",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 5,
+            "positiveRate": 60,
+            "themeDirectionScore": 77.85,
+            "assistantCount": 3,
+            "coreOnePrice": false,
+            "coverage": 90.91
+          },
+          "evidence": [
+            "研究父主题：通信，核心：豪美新材（1板）",
+            "竞价方向：resonant",
+            "板块关联标的6只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 6,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第6"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600460",
+        "name": "士兰微",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "芯片",
+        "researchTheme": "芯片",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：76.0",
+          "研究定位：theme-core-observer",
+          "研究父主题：芯片"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "芯片板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "芯片",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选士兰微受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "芯片",
+            "primaryTheme": "芯片",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 3,
+            "positiveRate": null,
+            "themeDirectionScore": null,
+            "assistantCount": null,
+            "coreOnePrice": null,
+            "coverage": null
+          },
+          "evidence": [
+            "研究父主题：芯片，核心：士兰微（1板）",
+            "板块关联标的3只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 5,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第5"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "603318",
+        "name": "水发燃气",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "芯片",
+        "researchTheme": "芯片",
+        "baseState": "observe",
+        "relayRole": "theme-core-observer",
+        "researchPriority": 30,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：74.6",
+          "研究定位：theme-core-observer",
+          "研究父主题：芯片"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "芯片板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "芯片",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选水发燃气受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "unavailable",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "芯片",
+            "primaryTheme": "芯片",
+            "maxBoards": 1,
+            "twoBoardCount": 0,
+            "firstBoardCount": 3,
+            "positiveRate": null,
+            "themeDirectionScore": null,
+            "assistantCount": null,
+            "coreOnePrice": null,
+            "coverage": null
+          },
+          "evidence": [
+            "研究父主题：芯片，核心：水发燃气（1板）",
+            "板块关联标的3只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "芯片",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002449",
+        "name": "国星光电",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "通信",
+        "researchTheme": "通信",
+        "baseState": "waiting",
+        "relayRole": "fallback-observer",
+        "researchPriority": 60,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：waiting，正式分数：73.3",
+          "研究定位：fallback-observer",
+          "研究父主题：通信"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "通信板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "通信",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选国星光电受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002491",
+              "name": "通鼎互联",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.89,
+              "gapPct": 3.7735849056603765,
+              "onePrice": false
+            },
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600110",
+              "name": "诺德股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.58,
+              "gapPct": 0.5586592178770999,
+              "onePrice": false
+            },
+            {
+              "code": "600577",
+              "name": "精达股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 2.31,
+              "gapPct": 1.0392609699769073,
+              "onePrice": false
+            },
+            {
+              "code": "002449",
+              "name": "国星光电",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": -5.23,
+              "gapPct": -4.526166902404527,
+              "onePrice": false
+            },
+            {
+              "code": "002988",
+              "name": "豪美新材",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "通信",
+            "primaryTheme": "通信",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 5,
+            "positiveRate": 60,
+            "themeDirectionScore": 77.85,
+            "assistantCount": 3,
+            "coreOnePrice": false,
+            "coverage": 90.91
+          },
+          "evidence": [
+            "研究父主题：通信，核心：国星光电（1板）",
+            "竞价方向：resonant",
+            "板块关联标的6只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 12,
+            "candidateChangePct": -5.23,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第12"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600110",
+        "name": "诺德股份",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "通信",
+        "researchTheme": "通信",
+        "baseState": "waiting",
+        "relayRole": "fallback-observer",
+        "researchPriority": 60,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：waiting，正式分数：74.3",
+          "研究定位：fallback-observer",
+          "研究父主题：通信"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "通信板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "通信",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选诺德股份受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002491",
+              "name": "通鼎互联",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.89,
+              "gapPct": 3.7735849056603765,
+              "onePrice": false
+            },
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600110",
+              "name": "诺德股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.58,
+              "gapPct": 0.5586592178770999,
+              "onePrice": false
+            },
+            {
+              "code": "600577",
+              "name": "精达股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 2.31,
+              "gapPct": 1.0392609699769073,
+              "onePrice": false
+            },
+            {
+              "code": "002449",
+              "name": "国星光电",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": -5.23,
+              "gapPct": -4.526166902404527,
+              "onePrice": false
+            },
+            {
+              "code": "002988",
+              "name": "豪美新材",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "通信",
+            "primaryTheme": "通信",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 5,
+            "positiveRate": 60,
+            "themeDirectionScore": 77.85,
+            "assistantCount": 3,
+            "coreOnePrice": false,
+            "coverage": 90.91
+          },
+          "evidence": [
+            "研究父主题：通信，核心：诺德股份（1板）",
+            "竞价方向：resonant",
+            "板块关联标的6只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 9,
+            "candidateChangePct": 1.58,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第9"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "600577",
+        "name": "精达股份",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "通信",
+        "researchTheme": "通信",
+        "baseState": "waiting",
+        "relayRole": "fallback-observer",
+        "researchPriority": 60,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：waiting，正式分数：73.6",
+          "研究定位：fallback-observer",
+          "研究父主题：通信"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "通信板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "市场处于退潮阶段"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "通信",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选精达股份受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002491",
+              "name": "通鼎互联",
+              "boards": 2,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.89,
+              "gapPct": 3.7735849056603765,
+              "onePrice": false
+            },
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600110",
+              "name": "诺德股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 1.58,
+              "gapPct": 0.5586592178770999,
+              "onePrice": false
+            },
+            {
+              "code": "600577",
+              "name": "精达股份",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": 2.31,
+              "gapPct": 1.0392609699769073,
+              "onePrice": false
+            },
+            {
+              "code": "002449",
+              "name": "国星光电",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": -5.23,
+              "gapPct": -4.526166902404527,
+              "onePrice": false
+            },
+            {
+              "code": "002988",
+              "name": "豪美新材",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "通信",
+            "primaryTheme": "通信",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 5,
+            "positiveRate": 60,
+            "themeDirectionScore": 77.85,
+            "assistantCount": 3,
+            "coreOnePrice": false,
+            "coverage": 90.91
+          },
+          "evidence": [
+            "研究父主题：通信，核心：精达股份（1板）",
+            "竞价方向：resonant",
+            "板块关联标的6只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "通信",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 8,
+            "candidateChangePct": 2.31,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第8"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "601212",
+        "name": "白银有色",
+        "boards": 1,
+        "promotionLane": "1进2",
+        "primaryTheme": "黄金",
+        "researchTheme": "黄金",
+        "baseState": "waiting",
+        "relayRole": "fallback-observer",
+        "researchPriority": 60,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：waiting，正式分数：74.5",
+          "研究定位：fallback-observer",
+          "研究父主题：黄金"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "黄金板块出现核心与至少一只同题材标的同步增强",
+          "同身位1进2相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "换手率与成交流通比偏差超过30%"
+        ],
+        "noChaseReasons": [
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "黄金",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选白银有色受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "黄金",
+              "relation": "同板块反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "601212",
+              "name": "白银有色",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同板块反馈",
+              "changePct": 10.02,
+              "gapPct": 7.2249589490968935,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "黄金",
+            "primaryTheme": "黄金",
+            "maxBoards": 2,
+            "twoBoardCount": 1,
+            "firstBoardCount": 1,
+            "positiveRate": 100,
+            "themeDirectionScore": 100,
+            "assistantCount": 3,
+            "coreOnePrice": true,
+            "coverage": 100
+          },
+          "evidence": [
+            "研究父主题：黄金，核心：白银有色（1板）",
+            "竞价方向：leading",
+            "板块关联标的2只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "603803",
+              "name": "瑞斯康达",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": 1.41,
+              "gapPct": 5.123674911660769,
+              "onePrice": false
+            },
+            {
+              "code": "600460",
+              "name": "士兰微",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "603079",
+              "name": "圣达生物",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": -5.92,
+              "gapPct": -1.924447612259439,
+              "onePrice": false
+            },
+            {
+              "code": "002209",
+              "name": "达意隆",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": -3.04,
+              "gapPct": -1.8996960486322156,
+              "onePrice": false
+            },
+            {
+              "code": "603318",
+              "name": "水发燃气",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002971",
+              "name": "和远气体",
+              "boards": 1,
+              "theme": "黄金",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "1进2",
+            "sampleCount": 7,
+            "totalCount": 13,
+            "positiveRate": 57.14285714285714,
+            "strongestCode": "603318",
+            "strongestName": "水发燃气",
+            "candidateRelativeRank": 2,
+            "candidateChangePct": 10.02,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：水发燃气",
+            "候选相对强弱：第2"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "002412",
+        "name": "汉森制药",
+        "boards": 3,
+        "promotionLane": "3进4",
+        "primaryTheme": "医药",
+        "researchTheme": "医药",
+        "baseState": "exclude",
+        "relayRole": "emotion-anchor",
+        "researchPriority": 90,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：exclude，正式分数：30.3",
+          "研究定位：emotion-anchor",
+          "研究父主题：医药",
+          "一字/空间高标仅作为情绪或空间锚，不得直接接力"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位3进4相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "一字涨停，当日不可执行",
+          "医药板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "一字高标只做情绪观察，缺少可执行换手",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选汉森制药受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "688356",
+              "name": "键凯科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true
+            },
+            {
+              "code": "688137",
+              "name": "近岸蛋白",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "医药",
+            "maxBoards": 3,
+            "twoBoardCount": 6,
+            "firstBoardCount": 1,
+            "positiveRate": 33.33,
+            "themeDirectionScore": 62.55,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 60
+          },
+          "evidence": [
+            "研究父主题：医药，核心：汉森制药（3板）",
+            "竞价方向：weak",
+            "板块关联标的7只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "supportive",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "lane": "3进4",
+            "sampleCount": 1,
+            "totalCount": 1,
+            "positiveRate": 100,
+            "strongestCode": "002412",
+            "strongestName": "汉森制药",
+            "candidateRelativeRank": 1,
+            "candidateChangePct": 10.01,
+            "strongestChangePct": 10.01,
+            "gapToStrongestPct": 0,
+            "ladderGap": true
+          },
+          "evidence": [
+            "同身位最强：汉森制药",
+            "候选相对强弱：第1"
+          ],
+          "warnings": []
+        }
+      },
+      {
+        "code": "688356",
+        "name": "键凯科技",
+        "boards": 2,
+        "promotionLane": "2进3",
+        "primaryTheme": "医药",
+        "researchTheme": "医药",
+        "baseState": "observe",
+        "relayRole": "emotion-anchor",
+        "researchPriority": 90,
+        "executionEligible": false,
+        "researchReasons": [
+          "原始状态：observe，正式分数：54.2",
+          "研究定位：emotion-anchor",
+          "研究父主题：医药",
+          "一字/空间高标仅作为情绪或空间锚，不得直接接力"
+        ],
+        "confirmationConditions": [
+          "情绪高标不收缩，至少保持核心标的有效承接",
+          "医药板块出现核心与至少一只同题材标的同步增强",
+          "同身位2进3相对强度不落后"
+        ],
+        "invalidationReasons": [
+          "一字涨停，当日不可执行",
+          "医药板块反馈转弱"
+        ],
+        "noChaseReasons": [
+          "一字高标只做情绪观察，缺少可执行换手",
+          "研究层不等同于交易许可，需满足正式数据门控"
+        ],
+        "emotionFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "情绪高标反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            }
+          ],
+          "metrics": {
+            "currentHighestBoards": 4,
+            "sampleSize": 2,
+            "positiveRate": 100,
+            "onePriceRetentionRate": 0,
+            "vwapHoldRate": 100,
+            "resealRate": 50,
+            "waterfallRate": 0,
+            "candidateSupported": false
+          },
+          "evidence": [
+            "高标状态：divergence",
+            "候选键凯科技受高标情绪分化"
+          ],
+          "warnings": []
+        },
+        "themeFeedback": {
+          "status": "negative",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "002412",
+              "name": "汉森制药",
+              "boards": 3,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": 10.01,
+              "gapPct": 6.967615309126596,
+              "onePrice": true
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "688356",
+              "name": "键凯科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": true
+            },
+            {
+              "code": "688137",
+              "name": "近岸蛋白",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同板块反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "theme": "医药",
+            "primaryTheme": "医药",
+            "maxBoards": 3,
+            "twoBoardCount": 6,
+            "firstBoardCount": 1,
+            "positiveRate": 33.33,
+            "themeDirectionScore": 62.55,
+            "assistantCount": 0,
+            "coreOnePrice": false,
+            "coverage": 60
+          },
+          "evidence": [
+            "研究父主题：医药，核心：键凯科技（2板）",
+            "竞价方向：weak",
+            "板块关联标的7只，存在低位扩散样本"
+          ],
+          "warnings": []
+        },
+        "sameLevelFeedback": {
+          "status": "mixed",
+          "stage": "settled",
+          "signalDate": "2026-08-21",
+          "tradeDate": "2026-08-24",
+          "source": "settled-analysis",
+          "related": [
+            {
+              "code": "000017",
+              "name": "深中华A",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": 9.99,
+              "gapPct": 9.985935302391002,
+              "onePrice": false
+            },
+            {
+              "code": "603626",
+              "name": "科森科技",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000710",
+              "name": "贝瑞基因",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -2.52,
+              "gapPct": -7.274490785645005,
+              "onePrice": false
+            },
+            {
+              "code": "002038",
+              "name": "双鹭药业",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "000931",
+              "name": "中关村",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": null,
+              "gapPct": null,
+              "onePrice": false
+            },
+            {
+              "code": "002903",
+              "name": "宇环数控",
+              "boards": 2,
+              "theme": "医药",
+              "relation": "同身位反馈",
+              "changePct": -0.41,
+              "gapPct": 1.4819205690574933,
+              "onePrice": false
+            }
+          ],
+          "metrics": {
+            "lane": "2进3",
+            "sampleCount": 4,
+            "totalCount": 10,
+            "positiveRate": 50,
+            "strongestCode": "688137",
+            "strongestName": "近岸蛋白",
+            "candidateRelativeRank": 2,
+            "candidateChangePct": null,
+            "strongestChangePct": null,
+            "gapToStrongestPct": null,
+            "ladderGap": false
+          },
+          "evidence": [
+            "同身位最强：近岸蛋白",
+            "候选相对强弱：第2"
+          ],
+          "warnings": []
+        }
+      }
+    ],
+    "warnings": [
+      "高标篮子少于3只，风偏按低置信度收缩"
+    ]
+  },
+  "warnings": []
+}

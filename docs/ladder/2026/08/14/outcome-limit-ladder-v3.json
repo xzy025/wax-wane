@@ -1,0 +1,132 @@
+{
+  "signalDate": "2026-08-14",
+  "tradeDate": "2026-08-17",
+  "generatedAt": "2026-08-17T15:33:52.718Z",
+  "ruleVersion": "limit-ladder-v3",
+  "summary": {
+    "formal": {
+      "total": 3,
+      "valid": 3,
+      "promoted": 0,
+      "failed": 3,
+      "unresolved": 0,
+      "promotionRate": 0,
+      "coverage": 100
+    },
+    "byLane": [
+      {
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "total": 2,
+        "valid": 2,
+        "promoted": 0,
+        "failed": 2,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      },
+      {
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "total": 1,
+        "valid": 1,
+        "promoted": 0,
+        "failed": 1,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      }
+    ],
+    "waitOpen": {
+      "total": 2,
+      "valid": 2,
+      "promoted": 2,
+      "failed": 0,
+      "unresolved": 0,
+      "promotionRate": 100,
+      "coverage": 100
+    }
+  },
+  "rows": [
+    {
+      "code": "002322",
+      "name": "理工能科",
+      "candidateRank": null,
+      "population": "formal",
+      "promotionLane": "2进3",
+      "fromBoards": 2,
+      "targetBoards": 3,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": -4.9,
+      "mfePct": 3.29,
+      "maePct": -7.39
+    },
+    {
+      "code": "600645",
+      "name": "中源协和",
+      "candidateRank": null,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": -4.25,
+      "mfePct": 0.31,
+      "maePct": -5.82
+    },
+    {
+      "code": "600198",
+      "name": "大唐电信",
+      "candidateRank": null,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "failed",
+      "promoted": false,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 1.76,
+      "mfePct": 2.76,
+      "maePct": -4.02
+    },
+    {
+      "code": "002907",
+      "name": "华森制药",
+      "candidateRank": null,
+      "population": "wait-open",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "promoted",
+      "promoted": true,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 0.66,
+      "mfePct": 0.66,
+      "maePct": -5.22
+    },
+    {
+      "code": "600613",
+      "name": "神奇制药",
+      "candidateRank": null,
+      "population": "wait-open",
+      "promotionLane": "2进3",
+      "fromBoards": 2,
+      "targetBoards": 3,
+      "resultStatus": "promoted",
+      "promoted": true,
+      "tradable": true,
+      "unresolvedReason": "",
+      "openToClosePct": 2.17,
+      "mfePct": 2.17,
+      "maePct": -1.74
+    }
+  ]
+}

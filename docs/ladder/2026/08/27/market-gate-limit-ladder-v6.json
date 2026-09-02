@@ -1,0 +1,892 @@
+{
+  "signalDate": "2026-08-27",
+  "tradeDate": "2026-08-28",
+  "generatedAt": "2026-08-28T01:35:04.687Z",
+  "ruleVersion": "limit-ladder-v6",
+  "premarket": {
+    "signalDate": "2026-08-27",
+    "tradeDate": "2026-08-28",
+    "capturedAt": "2026-08-28T00:50:00.940Z",
+    "frozenAt": "2026-08-28T00:50:00.940Z",
+    "late": false,
+    "state": "risk-on",
+    "riskScore": 28.83,
+    "usRiskScore": 17.5,
+    "asiaRiskScore": 34,
+    "coverage": 75,
+    "us": [
+      {
+        "code": "DJI",
+        "name": "道琼斯",
+        "changePct": 0.2,
+        "price": 53569.44
+      },
+      {
+        "code": "IXIC",
+        "name": "纳斯达克",
+        "changePct": 1.57,
+        "price": 26541.35
+      },
+      {
+        "code": "SPX",
+        "name": "标普500",
+        "changePct": 0.72,
+        "price": 7730.99
+      }
+    ],
+    "asia": [
+      {
+        "code": "N225",
+        "name": "日经225",
+        "changePct": 0.52,
+        "price": 66473.95
+      },
+      {
+        "code": "KS11",
+        "name": "韩国KOSPI",
+        "changePct": -0.17,
+        "price": 6900.81
+      }
+    ],
+    "macro": [
+      {
+        "id": "usdcny",
+        "value": 6.737174,
+        "previousClose": 7.238,
+        "changePct": -6.92,
+        "deltaBps": null
+      }
+    ],
+    "headlines": [
+      {
+        "time": "2026-08-28T08:48:16+08:00",
+        "source": "eastmoney",
+        "title": "海尔、苏泊尔、老板电器上半年量利双降 家电业何时走出低谷？",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-28T08:43:57+08:00",
+        "source": "sina",
+        "title": "高盛估计海湾地区的石油出口量为每日1,500万至1,600万桶",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-28T08:17:29+08:00",
+        "source": "sina",
+        "title": "沃什在杰克逊霍尔年会讲话前夕 美联储官员就通胀前景释放矛盾信号",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-28T08:11:59+08:00",
+        "source": "cls",
+        "title": "财联社8月28日早间新闻精选",
+        "severity": 70,
+        "direction": "risk"
+      }
+    ],
+    "sources": [
+      "eastmoney-us",
+      "eastmoney-asia",
+      "macro-live",
+      "news-flash"
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件"
+    ],
+    "warnings": []
+  },
+  "auction": {
+    "signalDate": "2026-08-27",
+    "tradeDate": "2026-08-28",
+    "generatedAt": "2026-08-28T01:25:23.040Z",
+    "phase": "auction",
+    "state": "cautious",
+    "riskScore": 36.57,
+    "externalRiskScore": 28.83,
+    "domesticRiskScore": 40.73,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-27",
+      "tradeDate": "2026-08-28",
+      "capturedAt": "2026-08-28T00:50:00.940Z",
+      "frozenAt": "2026-08-28T00:50:00.940Z",
+      "late": false,
+      "state": "risk-on",
+      "riskScore": 28.83,
+      "usRiskScore": 17.5,
+      "asiaRiskScore": 34,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.2,
+          "price": 53569.44
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 1.57,
+          "price": 26541.35
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.72,
+          "price": 7730.99
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": 0.52,
+          "price": 66473.95
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": -0.17,
+          "price": 6900.81
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.737174,
+          "previousClose": 7.238,
+          "changePct": -6.92,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-28T08:48:16+08:00",
+          "source": "eastmoney",
+          "title": "海尔、苏泊尔、老板电器上半年量利双降 家电业何时走出低谷？",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-28T08:43:57+08:00",
+          "source": "sina",
+          "title": "高盛估计海湾地区的石油出口量为每日1,500万至1,600万桶",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-28T08:17:29+08:00",
+          "source": "sina",
+          "title": "沃什在杰克逊霍尔年会讲话前夕 美联储官员就通胀前景释放矛盾信号",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-28T08:11:59+08:00",
+          "source": "cls",
+          "title": "财联社8月28日早间新闻精选",
+          "severity": 70,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-28T01:25:23.037Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0,
+          "price": 3956.53
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0,
+          "price": 14048.88
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0,
+          "price": 3473.35
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0,
+          "price": 2930.31
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.01,
+          "price": 4629.65
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0,
+          "price": 7732.8
+        }
+      ],
+      "advance": 1499,
+      "decline": 3011,
+      "flat": 683,
+      "limitUp": 8,
+      "limitDown": 0,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 73.53,
+      "highBoardRiskScore": 20,
+      "riskScore": 40.73,
+      "coverage": 100,
+      "reasons": [
+        "竞价下跌家数占66.8%"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-28T01:25:23.037Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0,
+      "smallCapChangePct": 0,
+      "sizeSpreadPct": 0,
+      "advanceRate": 33.24,
+      "largeCapAuctionAmountSharePct": 79.24,
+      "highBoardState": "expansion",
+      "reasons": [
+        "大盘指数+0.00%",
+        "小盘指数+0.00%",
+        "大盘相对小盘+0.00pct",
+        "上涨家数占比33.2%",
+        "大市值竞价成交占比79.2%",
+        "高标风偏expansion"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 86.37,
+        "independentStrength": true,
+        "directionScore": 86.37,
+        "positiveRate": 100,
+        "assistantCount": 8,
+        "environmentAdjustment": 5,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "种植业",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "算力",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 78.17,
+        "independentStrength": true,
+        "directionScore": 78.17,
+        "positiveRate": 71.43,
+        "assistantCount": 4,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 86.71,
+        "independentStrength": true,
+        "directionScore": 86.71,
+        "positiveRate": 85.71,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "华为概念",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "光纤概念",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 66.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "复合集流体",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "液冷",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "军工",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "有色金属",
+        "riskClass": "cyclical",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "黄金",
+        "riskClass": "cyclical",
+        "state": "allowed",
+        "score": 80.28,
+        "independentStrength": true,
+        "directionScore": 80.28,
+        "positiveRate": 75,
+        "assistantCount": 2,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "存储",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 89.72,
+        "independentStrength": true,
+        "directionScore": 89.72,
+        "positiveRate": 76.47,
+        "assistantCount": 9,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "光模块",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "证券",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "竞价下跌家数占66.8%"
+    ],
+    "warnings": []
+  },
+  "open": {
+    "signalDate": "2026-08-27",
+    "tradeDate": "2026-08-28",
+    "generatedAt": "2026-08-28T01:35:04.687Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 30.01,
+    "externalRiskScore": 28.83,
+    "domesticRiskScore": 30.65,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-27",
+      "tradeDate": "2026-08-28",
+      "capturedAt": "2026-08-28T00:50:00.940Z",
+      "frozenAt": "2026-08-28T00:50:00.940Z",
+      "late": false,
+      "state": "risk-on",
+      "riskScore": 28.83,
+      "usRiskScore": 17.5,
+      "asiaRiskScore": 34,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.2,
+          "price": 53569.44
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 1.57,
+          "price": 26541.35
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.72,
+          "price": 7730.99
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": 0.52,
+          "price": 66473.95
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": -0.17,
+          "price": 6900.81
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.737174,
+          "previousClose": 7.238,
+          "changePct": -6.92,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-28T08:48:16+08:00",
+          "source": "eastmoney",
+          "title": "海尔、苏泊尔、老板电器上半年量利双降 家电业何时走出低谷？",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-28T08:43:57+08:00",
+          "source": "sina",
+          "title": "高盛估计海湾地区的石油出口量为每日1,500万至1,600万桶",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-28T08:17:29+08:00",
+          "source": "sina",
+          "title": "沃什在杰克逊霍尔年会讲话前夕 美联储官员就通胀前景释放矛盾信号",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-28T08:11:59+08:00",
+          "source": "cls",
+          "title": "财联社8月28日早间新闻精选",
+          "severity": 70,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-28T01:35:04.675Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.12,
+          "price": 3961.44
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.12,
+          "price": 14065.71
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0.16,
+          "price": 3478.91
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.15,
+          "price": 2926
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.07,
+          "price": 4627.26
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.57,
+          "price": 7776.74
+        }
+      ],
+      "advance": 2790,
+      "decline": 2142,
+      "flat": 354,
+      "limitUp": 21,
+      "limitDown": 0,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 26.86,
+      "highBoardRiskScore": 45,
+      "riskScore": 30.65,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-28T01:25:23.037Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0,
+      "smallCapChangePct": 0,
+      "sizeSpreadPct": 0,
+      "advanceRate": 33.24,
+      "largeCapAuctionAmountSharePct": 79.24,
+      "highBoardState": "expansion",
+      "reasons": [
+        "大盘指数+0.00%",
+        "小盘指数+0.00%",
+        "大盘相对小盘+0.00pct",
+        "上涨家数占比33.2%",
+        "大市值竞价成交占比79.2%",
+        "高标风偏expansion"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 86.37,
+        "independentStrength": true,
+        "directionScore": 86.37,
+        "positiveRate": 100,
+        "assistantCount": 8,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "种植业",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "算力",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 78.17,
+        "independentStrength": true,
+        "directionScore": 78.17,
+        "positiveRate": 71.43,
+        "assistantCount": 4,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 86.71,
+        "independentStrength": true,
+        "directionScore": 86.71,
+        "positiveRate": 85.71,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "华为概念",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "光纤概念",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 66.67,
+        "assistantCount": 1,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "复合集流体",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "液冷",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "军工",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "有色金属",
+        "riskClass": "cyclical",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "黄金",
+        "riskClass": "cyclical",
+        "state": "allowed",
+        "score": 80.28,
+        "independentStrength": true,
+        "directionScore": 80.28,
+        "positiveRate": 75,
+        "assistantCount": 2,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "存储",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 89.72,
+        "independentStrength": true,
+        "directionScore": 89.72,
+        "positiveRate": 76.47,
+        "assistantCount": 9,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "光模块",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "证券",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  }
+}

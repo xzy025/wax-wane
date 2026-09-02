@@ -1,0 +1,501 @@
+{
+  "signalDate": "2026-08-24",
+  "tradeDate": "2026-08-25",
+  "generatedAt": "2026-08-25T01:35:10.314Z",
+  "ruleVersion": "limit-ladder-v6",
+  "premarket": {
+    "signalDate": "2026-08-24",
+    "tradeDate": "2026-08-25",
+    "capturedAt": "2026-08-25T00:50:08.766Z",
+    "frozenAt": "2026-08-25T00:50:08.766Z",
+    "late": false,
+    "state": "mixed",
+    "riskScore": 47.47,
+    "coverage": 75,
+    "us": [
+      {
+        "code": "DJI",
+        "name": "道琼斯",
+        "changePct": 0.26,
+        "price": 53417.16
+      },
+      {
+        "code": "IXIC",
+        "name": "纳斯达克",
+        "changePct": -0.76,
+        "price": 25980.19
+      },
+      {
+        "code": "SPX",
+        "name": "标普500",
+        "changePct": -0.28,
+        "price": 7652.86
+      }
+    ],
+    "asia": [
+      {
+        "code": "N225",
+        "name": "日经225",
+        "changePct": -0.82,
+        "price": 64991.01
+      },
+      {
+        "code": "KS11",
+        "name": "韩国KOSPI",
+        "changePct": -2.68,
+        "price": 6517.36
+      }
+    ],
+    "macro": [
+      {
+        "id": "usdcny",
+        "value": 6.738712,
+        "previousClose": 7.238,
+        "changePct": -6.9,
+        "deltaBps": null
+      }
+    ],
+    "headlines": [
+      {
+        "time": "2026-08-25T08:41:58+08:00",
+        "source": "eastmoney",
+        "title": "美国加码对伊朗制裁暗藏风险 这场“豪赌”恐反噬自身",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-25T08:41:40+08:00",
+        "source": "sina",
+        "title": "韩股下挫超4% 科技股领跌",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-25T08:28:10+08:00",
+        "source": "eastmoney",
+        "title": "巴内政部长：与伊朗总统的会晤“富有成效”",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-25T08:27:50+08:00",
+        "source": "sina",
+        "title": "胡塞武装警告警告地区各国不要参与对伊制裁",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-25T08:23:19+08:00",
+        "source": "sina",
+        "title": "金融时报：资产安全+科技创新仍是市场内在稳定性的有力支撑",
+        "severity": 55,
+        "direction": "risk"
+      }
+    ],
+    "sources": [
+      "eastmoney-us",
+      "eastmoney-asia",
+      "macro-live",
+      "news-flash"
+    ],
+    "reasons": [
+      "韩国KOSPI-2.68%",
+      "隔夜宏观快讯存在风险事件"
+    ],
+    "warnings": []
+  },
+  "auction": {
+    "signalDate": "2026-08-24",
+    "tradeDate": "2026-08-25",
+    "generatedAt": "2026-08-25T01:25:04.428Z",
+    "phase": "auction",
+    "state": "cautious",
+    "riskScore": 53.18,
+    "externalRiskScore": 47.47,
+    "domesticRiskScore": 56.25,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-24",
+      "tradeDate": "2026-08-25",
+      "capturedAt": "2026-08-25T00:50:08.766Z",
+      "frozenAt": "2026-08-25T00:50:08.766Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 47.47,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.26,
+          "price": 53417.16
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": -0.76,
+          "price": 25980.19
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": -0.28,
+          "price": 7652.86
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.82,
+          "price": 64991.01
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": -2.68,
+          "price": 6517.36
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.738712,
+          "previousClose": 7.238,
+          "changePct": -6.9,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-25T08:41:58+08:00",
+          "source": "eastmoney",
+          "title": "美国加码对伊朗制裁暗藏风险 这场“豪赌”恐反噬自身",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:41:40+08:00",
+          "source": "sina",
+          "title": "韩股下挫超4% 科技股领跌",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:28:10+08:00",
+          "source": "eastmoney",
+          "title": "巴内政部长：与伊朗总统的会晤“富有成效”",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:27:50+08:00",
+          "source": "sina",
+          "title": "胡塞武装警告警告地区各国不要参与对伊制裁",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:23:19+08:00",
+          "source": "sina",
+          "title": "金融时报：资产安全+科技创新仍是市场内在稳定性的有力支撑",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "韩国KOSPI-2.68%",
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-25T01:25:04.427Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0,
+          "price": 3882
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0,
+          "price": 13794.29
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0,
+          "price": 3431.89
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.22,
+          "price": 2864.46
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.46,
+          "price": 4542.24
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": -0.94,
+          "price": 7420.77
+        }
+      ],
+      "advance": 917,
+      "decline": 3713,
+      "flat": 524,
+      "limitUp": 4,
+      "limitDown": 0,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 100,
+      "highBoardRiskScore": 45,
+      "riskScore": 56.25,
+      "coverage": 100,
+      "reasons": [
+        "竞价下跌家数占80.2%"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-25T01:25:04.427Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": -0.34,
+      "smallCapChangePct": -0.94,
+      "sizeSpreadPct": 0.6,
+      "advanceRate": 19.81,
+      "largeCapAuctionAmountSharePct": 62.47,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数-0.34%",
+        "小盘指数-0.94%",
+        "大盘相对小盘+0.60pct",
+        "上涨家数占比19.8%",
+        "大市值竞价成交占比62.5%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [],
+    "reasons": [
+      "韩国KOSPI-2.68%",
+      "隔夜宏观快讯存在风险事件",
+      "竞价下跌家数占80.2%"
+    ],
+    "warnings": []
+  },
+  "open": {
+    "signalDate": "2026-08-24",
+    "tradeDate": "2026-08-25",
+    "generatedAt": "2026-08-25T01:35:10.314Z",
+    "phase": "open",
+    "state": "cautious",
+    "riskScore": 49.7,
+    "externalRiskScore": 47.47,
+    "domesticRiskScore": 50.9,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-24",
+      "tradeDate": "2026-08-25",
+      "capturedAt": "2026-08-25T00:50:08.766Z",
+      "frozenAt": "2026-08-25T00:50:08.766Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 47.47,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.26,
+          "price": 53417.16
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": -0.76,
+          "price": 25980.19
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": -0.28,
+          "price": 7652.86
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.82,
+          "price": 64991.01
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": -2.68,
+          "price": 6517.36
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.738712,
+          "previousClose": 7.238,
+          "changePct": -6.9,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-25T08:41:58+08:00",
+          "source": "eastmoney",
+          "title": "美国加码对伊朗制裁暗藏风险 这场“豪赌”恐反噬自身",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:41:40+08:00",
+          "source": "sina",
+          "title": "韩股下挫超4% 科技股领跌",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:28:10+08:00",
+          "source": "eastmoney",
+          "title": "巴内政部长：与伊朗总统的会晤“富有成效”",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:27:50+08:00",
+          "source": "sina",
+          "title": "胡塞武装警告警告地区各国不要参与对伊制裁",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-25T08:23:19+08:00",
+          "source": "sina",
+          "title": "金融时报：资产安全+科技创新仍是市场内在稳定性的有力支撑",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "韩国KOSPI-2.68%",
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-25T01:35:10.312Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": -0.36,
+          "price": 3868.02
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": -0.91,
+          "price": 13668.99
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": -1.21,
+          "price": 3390.27
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.23,
+          "price": 2864.34
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.57,
+          "price": 4537
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": -0.62,
+          "price": 7444.76
+        }
+      ],
+      "advance": 2154,
+      "decline": 2847,
+      "flat": 284,
+      "limitUp": 21,
+      "limitDown": 1,
+      "indexRiskScore": 52,
+      "breadthRiskScore": 53.86,
+      "highBoardRiskScore": 45,
+      "riskScore": 50.9,
+      "coverage": 100,
+      "reasons": [
+        "创业板指-1.21%"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-25T01:25:04.427Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": -0.34,
+      "smallCapChangePct": -0.94,
+      "sizeSpreadPct": 0.6,
+      "advanceRate": 19.81,
+      "largeCapAuctionAmountSharePct": 62.47,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数-0.34%",
+        "小盘指数-0.94%",
+        "大盘相对小盘+0.60pct",
+        "上涨家数占比19.8%",
+        "大市值竞价成交占比62.5%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [],
+    "reasons": [
+      "韩国KOSPI-2.68%",
+      "隔夜宏观快讯存在风险事件",
+      "创业板指-1.21%"
+    ],
+    "warnings": []
+  }
+}

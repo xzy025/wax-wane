@@ -1,0 +1,630 @@
+{
+  "signalDate": "2026-08-26",
+  "tradeDate": "2026-08-27",
+  "generatedAt": "2026-08-27T01:35:03.615Z",
+  "ruleVersion": "limit-ladder-v6",
+  "premarket": {
+    "signalDate": "2026-08-26",
+    "tradeDate": "2026-08-27",
+    "capturedAt": "2026-08-27T00:50:03.879Z",
+    "frozenAt": "2026-08-27T00:50:03.879Z",
+    "late": false,
+    "state": "mixed",
+    "riskScore": 35.48,
+    "usRiskScore": 45,
+    "asiaRiskScore": 29.250000000000004,
+    "coverage": 65,
+    "us": [
+      {
+        "code": "DJI",
+        "name": "道琼斯",
+        "changePct": -0.21,
+        "price": 53463.88
+      },
+      {
+        "code": "IXIC",
+        "name": "纳斯达克",
+        "changePct": -0.08,
+        "price": 26130.2
+      },
+      {
+        "code": "SPX",
+        "name": "标普500",
+        "changePct": -0.02,
+        "price": 7675.7
+      }
+    ],
+    "asia": [
+      {
+        "code": "N225",
+        "name": "日经225",
+        "changePct": -0.32,
+        "price": 66052.63
+      },
+      {
+        "code": "KS11",
+        "name": "韩国KOSPI",
+        "changePct": 1.4,
+        "price": 6903.36
+      }
+    ],
+    "macro": [
+      {
+        "id": "usdcny",
+        "value": 6.737816,
+        "previousClose": 7.238,
+        "changePct": -6.91,
+        "deltaBps": null
+      }
+    ],
+    "headlines": [],
+    "sources": [
+      "eastmoney-us",
+      "eastmoney-asia",
+      "macro-live"
+    ],
+    "reasons": [
+      "外盘未形成明确系统性风险共振"
+    ],
+    "warnings": [
+      "盘前外部数据覆盖率仅65.0%"
+    ]
+  },
+  "auction": {
+    "signalDate": "2026-08-26",
+    "tradeDate": "2026-08-27",
+    "generatedAt": "2026-08-27T01:25:12.757Z",
+    "phase": "auction",
+    "state": "cautious",
+    "riskScore": 43.94,
+    "externalRiskScore": 35.48,
+    "domesticRiskScore": 48.49,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-26",
+      "tradeDate": "2026-08-27",
+      "capturedAt": "2026-08-27T00:50:03.879Z",
+      "frozenAt": "2026-08-27T00:50:03.879Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 35.48,
+      "usRiskScore": 45,
+      "asiaRiskScore": 29.250000000000004,
+      "coverage": 65,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": -0.21,
+          "price": 53463.88
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": -0.08,
+          "price": 26130.2
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": -0.02,
+          "price": 7675.7
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.32,
+          "price": 66052.63
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 1.4,
+          "price": 6903.36
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.737816,
+          "previousClose": 7.238,
+          "changePct": -6.91,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live"
+      ],
+      "reasons": [
+        "外盘未形成明确系统性风险共振"
+      ],
+      "warnings": [
+        "盘前外部数据覆盖率仅65.0%"
+      ]
+    },
+    "domestic": {
+      "capturedAt": "2026-08-27T01:25:12.757Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0,
+          "price": 3912.49
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0,
+          "price": 13841.33
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0,
+          "price": 3414.88
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0,
+          "price": 2905.08
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.03,
+          "price": 4589.22
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0,
+          "price": 7544.55
+        }
+      ],
+      "advance": 1419,
+      "decline": 3146,
+      "flat": 618,
+      "limitUp": 6,
+      "limitDown": 0,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 77.83,
+      "highBoardRiskScore": 45,
+      "riskScore": 48.49,
+      "coverage": 100,
+      "reasons": [
+        "竞价下跌家数占68.9%"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-27T01:25:12.757Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": -0.01,
+      "smallCapChangePct": 0,
+      "sizeSpreadPct": -0.01,
+      "advanceRate": 31.08,
+      "largeCapAuctionAmountSharePct": 80.87,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数-0.01%",
+        "小盘指数+0.00%",
+        "大盘相对小盘-0.01pct",
+        "上涨家数占比31.1%",
+        "大市值竞价成交占比80.9%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "金融概念",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 33.33,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "金融科技",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "物理AI",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 77.01,
+        "independentStrength": false,
+        "directionScore": 77.01,
+        "positiveRate": 50,
+        "assistantCount": 2,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "光模块",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "医药",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 95.38,
+        "independentStrength": true,
+        "directionScore": 95.38,
+        "positiveRate": 100,
+        "assistantCount": 3,
+        "environmentAdjustment": 5,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "中药",
+        "riskClass": "defensive",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "证券",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      }
+    ],
+    "reasons": [
+      "外盘未形成明确系统性风险共振",
+      "竞价下跌家数占68.9%"
+    ],
+    "warnings": [
+      "盘前外部数据覆盖率仅65.0%"
+    ]
+  },
+  "open": {
+    "signalDate": "2026-08-26",
+    "tradeDate": "2026-08-27",
+    "generatedAt": "2026-08-27T01:35:03.615Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 34.41,
+    "externalRiskScore": 35.48,
+    "domesticRiskScore": 33.83,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-26",
+      "tradeDate": "2026-08-27",
+      "capturedAt": "2026-08-27T00:50:03.879Z",
+      "frozenAt": "2026-08-27T00:50:03.879Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 35.48,
+      "usRiskScore": 45,
+      "asiaRiskScore": 29.250000000000004,
+      "coverage": 65,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": -0.21,
+          "price": 53463.88
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": -0.08,
+          "price": 26130.2
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": -0.02,
+          "price": 7675.7
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.32,
+          "price": 66052.63
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 1.4,
+          "price": 6903.36
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.737816,
+          "previousClose": 7.238,
+          "changePct": -6.91,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live"
+      ],
+      "reasons": [
+        "外盘未形成明确系统性风险共振"
+      ],
+      "warnings": [
+        "盘前外部数据覆盖率仅65.0%"
+      ]
+    },
+    "domestic": {
+      "capturedAt": "2026-08-27T01:35:03.614Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.16,
+          "price": 3918.87
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.01,
+          "price": 13843.34
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0.17,
+          "price": 3420.7
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0.33,
+          "price": 2914.66
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0.06,
+          "price": 4593.48
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.3,
+          "price": 7567.63
+        }
+      ],
+      "advance": 2576,
+      "decline": 2375,
+      "flat": 335,
+      "limitUp": 25,
+      "limitDown": 1,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 35.94,
+      "highBoardRiskScore": 45,
+      "riskScore": 33.83,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-27T01:25:12.757Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": -0.01,
+      "smallCapChangePct": 0,
+      "sizeSpreadPct": -0.01,
+      "advanceRate": 31.08,
+      "largeCapAuctionAmountSharePct": 80.87,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数-0.01%",
+        "小盘指数+0.00%",
+        "大盘相对小盘-0.01pct",
+        "上涨家数占比31.1%",
+        "大市值竞价成交占比80.9%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "金融概念",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 33.33,
+        "assistantCount": 1,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "金融科技",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "物理AI",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 77.01,
+        "independentStrength": false,
+        "directionScore": 77.01,
+        "positiveRate": 50,
+        "assistantCount": 2,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "光模块",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "医药",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 95.38,
+        "independentStrength": true,
+        "directionScore": 95.38,
+        "positiveRate": 100,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "中药",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "证券",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      }
+    ],
+    "reasons": [
+      "外盘未形成明确系统性风险共振",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": [
+      "盘前外部数据覆盖率仅65.0%"
+    ]
+  }
+}

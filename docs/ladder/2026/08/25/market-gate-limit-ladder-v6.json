@@ -1,0 +1,652 @@
+{
+  "signalDate": "2026-08-25",
+  "tradeDate": "2026-08-26",
+  "generatedAt": "2026-08-26T01:35:03.330Z",
+  "ruleVersion": "limit-ladder-v6",
+  "premarket": {
+    "signalDate": "2026-08-25",
+    "tradeDate": "2026-08-26",
+    "capturedAt": "2026-08-26T00:50:07.264Z",
+    "frozenAt": "2026-08-26T00:50:07.264Z",
+    "late": false,
+    "state": "mixed",
+    "riskScore": 31,
+    "usRiskScore": 25,
+    "asiaRiskScore": 36,
+    "coverage": 75,
+    "us": [
+      {
+        "code": "DJI",
+        "name": "道琼斯",
+        "changePct": 0.3,
+        "price": 53577.4
+      },
+      {
+        "code": "IXIC",
+        "name": "纳斯达克",
+        "changePct": 0.66,
+        "price": 26151.3
+      },
+      {
+        "code": "SPX",
+        "name": "标普500",
+        "changePct": 0.32,
+        "price": 7677.28
+      }
+    ],
+    "asia": [
+      {
+        "code": "N225",
+        "name": "日经225",
+        "changePct": -0.34,
+        "price": 65631.61
+      },
+      {
+        "code": "KS11",
+        "name": "韩国KOSPI",
+        "changePct": 0.18,
+        "price": 6754.92
+      }
+    ],
+    "macro": [
+      {
+        "id": "usdcny",
+        "value": 6.737012,
+        "previousClose": 7.238,
+        "changePct": -6.92,
+        "deltaBps": null
+      }
+    ],
+    "headlines": [
+      {
+        "time": "2026-08-26T08:44:47+08:00",
+        "source": "sina",
+        "title": "齐翔腾达：三、四季度是传统旺季 刚需补货有望对化工品价格形成支撑",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-26T08:26:01+08:00",
+        "source": "sina",
+        "title": "加拿大回应特朗普又想给湖改名",
+        "severity": 55,
+        "direction": "risk"
+      }
+    ],
+    "sources": [
+      "eastmoney-us",
+      "eastmoney-asia",
+      "macro-live",
+      "news-flash"
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件"
+    ],
+    "warnings": []
+  },
+  "auction": {
+    "signalDate": "2026-08-25",
+    "tradeDate": "2026-08-26",
+    "generatedAt": "2026-08-26T01:25:05.176Z",
+    "phase": "auction",
+    "state": "cautious",
+    "riskScore": 42.32,
+    "externalRiskScore": 31,
+    "domesticRiskScore": 48.41,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-25",
+      "tradeDate": "2026-08-26",
+      "capturedAt": "2026-08-26T00:50:07.264Z",
+      "frozenAt": "2026-08-26T00:50:07.264Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 31,
+      "usRiskScore": 25,
+      "asiaRiskScore": 36,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.3,
+          "price": 53577.4
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.66,
+          "price": 26151.3
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.32,
+          "price": 7677.28
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.34,
+          "price": 65631.61
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 0.18,
+          "price": 6754.92
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.737012,
+          "previousClose": 7.238,
+          "changePct": -6.92,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-26T08:44:47+08:00",
+          "source": "sina",
+          "title": "齐翔腾达：三、四季度是传统旺季 刚需补货有望对化工品价格形成支撑",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-26T08:26:01+08:00",
+          "source": "sina",
+          "title": "加拿大回应特朗普又想给湖改名",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-26T01:25:05.175Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": -0.01,
+          "price": 3889.24
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0,
+          "price": 13745.87
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0,
+          "price": 3397.52
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0,
+          "price": 2875.51
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0,
+          "price": 4551.96
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0,
+          "price": 7527.42
+        }
+      ],
+      "advance": 1559,
+      "decline": 2943,
+      "flat": 686,
+      "limitUp": 6,
+      "limitDown": 0,
+      "indexRiskScore": 31,
+      "breadthRiskScore": 70.74,
+      "highBoardRiskScore": 45,
+      "riskScore": 48.41,
+      "coverage": 100,
+      "reasons": [
+        "竞价下跌家数占65.4%"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-26T01:25:05.175Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0,
+      "smallCapChangePct": 0,
+      "sizeSpreadPct": 0,
+      "advanceRate": 34.63,
+      "largeCapAuctionAmountSharePct": 55.78,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.00%",
+        "小盘指数+0.00%",
+        "大盘相对小盘+0.00pct",
+        "上涨家数占比34.6%",
+        "大市值竞价成交占比55.8%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "conditional",
+        "score": 37.4,
+        "independentStrength": false,
+        "directionScore": 37.4,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "化肥",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "转基因",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "并购重组",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 50,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "锂电池",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "负极",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "汽车零部件",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "竞价下跌家数占65.4%"
+    ],
+    "warnings": []
+  },
+  "open": {
+    "signalDate": "2026-08-25",
+    "tradeDate": "2026-08-26",
+    "generatedAt": "2026-08-26T01:35:03.330Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 24.66,
+    "externalRiskScore": 31,
+    "domesticRiskScore": 21.25,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-25",
+      "tradeDate": "2026-08-26",
+      "capturedAt": "2026-08-26T00:50:07.264Z",
+      "frozenAt": "2026-08-26T00:50:07.264Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 31,
+      "usRiskScore": 25,
+      "asiaRiskScore": 36,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.3,
+          "price": 53577.4
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.66,
+          "price": 26151.3
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.32,
+          "price": 7677.28
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.34,
+          "price": 65631.61
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 0.18,
+          "price": 6754.92
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.737012,
+          "previousClose": 7.238,
+          "changePct": -6.92,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-26T08:44:47+08:00",
+          "source": "sina",
+          "title": "齐翔腾达：三、四季度是传统旺季 刚需补货有望对化工品价格形成支撑",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-26T08:26:01+08:00",
+          "source": "sina",
+          "title": "加拿大回应特朗普又想给湖改名",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-26T01:35:03.329Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.18,
+          "price": 3896.44
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.45,
+          "price": 13807.64
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0.47,
+          "price": 3413.57
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0.14,
+          "price": 2879.57
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0.22,
+          "price": 4562.2
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.42,
+          "price": 7558.97
+        }
+      ],
+      "advance": 3644,
+      "decline": 1419,
+      "flat": 223,
+      "limitUp": 22,
+      "limitDown": 0,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 0,
+      "highBoardRiskScore": 45,
+      "riskScore": 21.25,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "risk-continuation",
+      "capturedAt": "2026-08-26T01:25:05.175Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0,
+      "smallCapChangePct": 0,
+      "sizeSpreadPct": 0,
+      "advanceRate": 34.63,
+      "largeCapAuctionAmountSharePct": 55.78,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.00%",
+        "小盘指数+0.00%",
+        "大盘相对小盘+0.00pct",
+        "上涨家数占比34.6%",
+        "大市值竞价成交占比55.8%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "conditional",
+        "score": 37.4,
+        "independentStrength": false,
+        "directionScore": 37.4,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "化肥",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "转基因",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "并购重组",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 60,
+        "independentStrength": false,
+        "directionScore": 60,
+        "positiveRate": 50,
+        "assistantCount": 1,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "锂电池",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "负极",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "汽车零部件",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  }
+}

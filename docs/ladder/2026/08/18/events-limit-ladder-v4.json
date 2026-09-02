@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-08-18T14:42:31.789Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5046231",
+      "publishedAt": "2026-08-18T22:07:39+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-18/detail-ininuefi7274846.d.html",
+      "title": "8月18日增减持汇总",
+      "summary": "8月18日盘后，据不完全统计，包括海看股份、洁雅股份、多浦乐、汇通能源、克来机电、格尔软件、康美特在内的7家A股上市公司披露拟减持情况。当日暂无A股上市公司披露拟增持情况。",
+      "codes": [],
+      "themes": [
+        "科技"
+      ],
+      "scope": "theme",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-21T14:07:39.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5046223",
+      "publishedAt": "2026-08-18T22:02:25+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-18/detail-ininuefe8541640.d.html",
+      "title": "东兴证券：披露中金公司换股吸收合并申请问询函回复",
+      "summary": "东兴证券公告称，2026年6月17日公司收到上交所出具的关于中金公司换股吸收合并东兴证券、信达证券申请的审核问询函，目前中金公司、东兴证券、信达证券及相关中介机构已完成问询函相关问题回复，同步修订补充完善了本次交易的申请文件，相关回复文件已在上交所网站披露。本次交易尚需获得相应批准、核准、注册或同意后方可正式实施，能否实施以及最终实施的时间尚存在不确定性。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "inquiry",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-21T14:02:25.000Z",
+      "evidence": [
+        "命中问询或调查规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

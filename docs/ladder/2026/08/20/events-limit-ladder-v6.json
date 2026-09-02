@@ -1,0 +1,821 @@
+{
+  "generatedAt": "2026-08-20T10:32:47.592Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5049869",
+      "publishedAt": "2026-08-20T18:32:38+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6743710.d.html",
+      "title": "迪哲医药：2026年上半年净亏损2.1亿元，亏损同比收窄",
+      "summary": "迪哲医药公告，2026年上半年营业收入5.23亿元，同比增长47.24%。归属于上市公司股东的净利润为-2.1亿元，上年同期为-3.77亿元，亏损同比收窄。",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:32:38.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049867",
+      "publishedAt": "2026-08-20T18:30:29+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvh8013918.d.html",
+      "title": "鹿山新材：2026年上半年净利润4455万元，同比增179.55%",
+      "summary": "鹿山新材公告，2026年上半年营业收入7.39亿元，同比下降0.22%。归属于上市公司股东的净利润4455万元，上年同期净利润1593.61万元，同比增长179.55%。扣非净利润3228.75万元，上年同期为180.42万元，同比增长1689.60%。本报告期未进行利润分配或公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:30:29.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "cls-2459730",
+      "publishedAt": "2026-08-20T18:30:08+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2459730?os=web&sv=7.7.5&app=",
+      "title": "拓荆科技：2026年半年度净利润同比增长1324%",
+      "summary": "财联社8月20日电，拓荆科技(688072.SH)公告称，公司发布2026年半年度报告，实现营业收入29.13亿元，同比增长49.06%；归属于上市公司股东的净利润13.43亿元，同比增长1324.1%。公司拟向全体股东每10股派发现金红利3.5元(含税)，不进行资本公积转增股本，不送红股。小财注：公司Q2净利润7.72亿，Q1净利润5.71亿，据此计算，Q2净利润环比增长35%。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:30:08.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049866",
+      "publishedAt": "2026-08-20T18:29:55+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvh8013466.d.html",
+      "title": "天溯计量：2026年上半年净利润5053.65万元，同比下降9.07%",
+      "summary": "天溯计量公告，2026年上半年营业收入4.21亿元，同比增长2.88%。归属于上市公司股东的净利润5053.65万元，同比下降9.07%。归属于上市公司股东的扣除非经常性损益的净利润4769.64万元，同比下降13.62%。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:29:55.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049861",
+      "publishedAt": "2026-08-20T18:28:40+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvr8761853.d.html",
+      "title": "拓荆科技：2026年上半年营收29.13亿元 净利同比增1324.10%",
+      "summary": "拓荆科技公告称，2026年上半年实现营业收入29.13亿元，同比增长49.06%；归属于上市公司股东的净利润13.43亿元，同比增长1324.10%；归属于上市公司股东的扣除非经常性损益的净利润3.67亿元，同比增长861.92%。公司拟以实施权益分派股权登记日的总股本扣除回购专用证券账户股份后的股本为基数，向全体股东每10股派发现金红利3.50元（含税），不送红股、不进行资本公积转增股本，该方案尚需公司股东会审议通过。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:28:40.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049859",
+      "publishedAt": "2026-08-20T18:27:17+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6739103.d.html",
+      "title": "益佰制药：2026年上半年营收6.89亿元 净亏损扩大",
+      "summary": "益佰制药公告称，2026年上半年实现营业收入6.89亿元，同比下降30.58%；归属于上市公司股东的净亏损8033.78万元，上年同期净亏损1990.21万元；归属于上市公司股东的扣除非经常性损益的净亏损8745.43万元。基本每股收益-0.102元，加权平均净资产收益率为-3.741%。经营活动产生的现金流量净额6414.15万元，同比下降62.39%。本报告期无利润分配预案。",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:27:17.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847916756",
+      "publishedAt": "2026-08-20T18:27:01+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "菲利华：上半年归母净利润2.95亿元 同比增长32.95%",
+      "summary": "菲利华8月20日披露半年报，公司上半年实现营业收入13.08亿元，同比增长44.06%；归属于上市公司股东的净利润2.95亿元，同比增长32.95%；基本每股收益0.5656元/股。公司拟向全体股东每10股派发现金红利1.7元（含税）。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:27:01.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847916874",
+      "publishedAt": "2026-08-20T18:27:00+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "道明光学：上半年归母净利润8784.74万元 同比下降22.97%",
+      "summary": "道明光学8月20日披露半年报，公司上半年实现营业收入6.37亿元，同比下降13.20%；归属于上市公司股东的净利润8784.74万元，同比下降22.97%；基本每股收益0.1406元/股。报告期内，公司业绩主要受到中东地缘政治因素影响，中东市场需求受到较大冲击，导致海外营业收入同比下滑。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:27:00.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049856",
+      "publishedAt": "2026-08-20T18:26:39+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6738666.d.html",
+      "title": "南钢股份：上半年营收311.31亿元 拟每股派0.1072元",
+      "summary": "南钢股份公告称，2026年上半年实现营业收入311.31亿元，同比增长7.55%；归属于上市公司股东的净利润13.22亿元，同比减少9.64%；扣非净利润11.27亿元，同比下降1.97%。公司拟以权益分派股权登记日总股本为基数，向全体股东每股派发现金红利0.1072元（含税），以截至2026年6月30日总股本测算，合计拟派发现金红利6.61亿元，占上半年归母净利润的50%，不实施资本公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:26:39.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847916432",
+      "publishedAt": "2026-08-20T18:26:28+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "金盘科技：2026年半年度净利润同比增长14.23%",
+      "summary": "金盘科技(688676.SH)公告称，公司发布2026年半年度报告，实现营业收入35.56亿元，同比增长12.73%；归属于上市公司股东的净利润3.03亿元，同比增长14.23%。公司拟向全体股东每10股派发现金红利2.20元(含税)。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:26:28.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049854",
+      "publishedAt": "2026-08-20T18:25:16+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6737279.d.html",
+      "title": "益方生物：2026年上半年营收同比增178.23%",
+      "summary": "益方生物公告称，2026年上半年实现营业收入5331.92万元，同比增长178.23%；归属于上市公司股东的净亏损1.37亿元，上年同期净亏损1.19亿元；归属于上市公司股东的扣除非经常性损益的净亏损1.44亿元。研发投入占营业收入的比例为346.43%，同比减少256.05个百分点。基本每股收益-0.24元。截至本报告期末，公司总资产15.22亿元，归属于上市公司股东的净资产14.11亿元。",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:25:16.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "cls-2459714",
+      "publishedAt": "2026-08-20T18:25:06+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2459714?os=web&sv=7.7.5&app=",
+      "title": "中国稀土：股东广晟控股集团拟减持不超1%股份",
+      "summary": "财联社8月20日电，中国稀土(000831.SZ)公告称，持股5%以上股东广晟控股集团计划自公告披露之日起15个交易日后的三个月内，以集中竞价方式减持公司股份不超过1061.22万股，即不超过公司总股本的1%。广晟控股集团目前持有公司股份1.01亿股，占总股本的9.48%。减持原因为股东经营发展和资金安排需要，股份来源为行政划转取得。",
+      "codes": [],
+      "themes": [
+        "周期"
+      ],
+      "scope": "theme",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:25:06.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5049852",
+      "publishedAt": "2026-08-20T18:24:28+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvh8008749.d.html",
+      "title": "德力佳：2026年上半年营收25.96亿元 净利同比增4.58%",
+      "summary": "德力佳公告称，2026年上半年实现营业收入25.96亿元，同比增长4.49%；归属于上市公司股东的净利润4.12亿元，同比增长4.58%；归属于上市公司股东的扣除非经常性损益的净利润3.77亿元，同比下降0.08%。基本每股收益1.0294元/股，同比下降5.88%。本报告期无利润分配预案或公积金转增股本预案。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:24:28.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049850",
+      "publishedAt": "2026-08-20T18:23:41+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6736109.d.html",
+      "title": "中国稀土：持股5%以上股东广晟控股集团拟减持不超过1%股份",
+      "summary": "中国稀土公告，持股5%以上股东广东省广晟控股集团有限公司持有公司股份1.01亿股（占公司总股本的9.48%），计划自本次减持计划预披露公告之日起15个交易日后的三个月内，以集中竞价方式累计减持公司股份不超过1061.22万股，即不超过公司总股本的1%。减持原因为股东经营发展和资金安排需要，股份来源为行政划转取得。",
+      "codes": [],
+      "themes": [
+        "周期"
+      ],
+      "scope": "theme",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:23:41.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5049849",
+      "publishedAt": "2026-08-20T18:23:22+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvr8758628.d.html",
+      "title": "中信金属：2026年上半年营收869.11亿元 净利同比增84.55%",
+      "summary": "中信金属公告称，2026年上半年实现营业收入869.11亿元，同比增长36.53%；归属于上市公司股东的净利润26.73亿元，同比增长84.55%；归属于上市公司股东的扣除非经常性损益的净利润27.05亿元，同比增长95.32%。报告期内经营活动产生的现金流量净额为99.72亿元，同比增长468.89%；加权平均净资产收益率11.02%，同比增加4.59个百分点。公司不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:23:22.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049848",
+      "publishedAt": "2026-08-20T18:23:14+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvh8007754.d.html",
+      "title": "康希诺：吸附破伤风疫苗获国家药监局药品注册证书",
+      "summary": "康希诺公告，公司已获得国家药品监督管理局下发的吸附破伤风疫苗《药品注册证书》，批准文号为国药准字S20260063。该疫苗用于非新生儿破伤风预防，III期临床数据显示免后30天抗体GMC优于对照疫苗。公司已与远大生命科学就该疫苗达成独家商业化合作协议。",
+      "codes": [
+        "688185"
+      ],
+      "themes": [
+        "其他"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:23:14.000Z",
+      "evidence": []
+    },
+    {
+      "id": "em-202608203847916539",
+      "publishedAt": "2026-08-20T18:23:06+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "金城医药：2026年半年度净利润同比增长220.11%",
+      "summary": "金城医药(300233.SZ)公告称，公司发布2026年半年度报告，实现营业收入14.47亿元，同比增长6.4%；归属于上市公司股东的净利润1.39亿元，同比增长220.11%。",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:23:06.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847912937",
+      "publishedAt": "2026-08-20T18:21:41+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "中信证券：上半年净利润同比增长69.6% 拟10派4.27元",
+      "summary": "中信证券披露半年报，2026年上半年，公司实现营业收入496.92亿元，同比增长50%；归母净利润233.43亿元，同比增长69.6%；基本每股收益1.53元。公司拟每10股派发现金红利4.27元(含税)。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:21:41.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049840",
+      "publishedAt": "2026-08-20T18:19:34+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6731898.d.html",
+      "title": "文灿股份：2026年上半年净利润亏损2.16亿元，由盈转亏",
+      "summary": "文灿股份公告，2026年上半年营业收入27.99亿元，同比下降0.11%。归属于上市公司股东的净利润亏损2.16亿元，上年同期净利润1311万元。扣非净利润亏损2.24亿元，上年同期扣非净利润1184.47万元。本报告期未进行利润分配。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:19:34.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847910175",
+      "publishedAt": "2026-08-20T18:19:02+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "恒邦股份：上半年归母净利润6.72亿元 同比增长112.60%",
+      "summary": "恒邦股份8月20日披露半年报，公司上半年实现营业收入621.78亿元，同比增长44.43%；归属于上市公司股东的净利润6.72亿元，同比增长112.60%；基本每股收益0.47元/股。报告期内，公司业绩主要受到产品销售价格上涨、销售量增加，以及减持参股公司万国黄金4312万股股份以变现投资收益的影响。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:19:02.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "em-202608203847910453",
+      "publishedAt": "2026-08-20T18:19:01+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "登康口腔：上半年归母净利润1.01亿元 同比增长19.05%",
+      "summary": "登康口腔8月20日披露半年报，公司上半年实现营业收入9.61亿元，同比增长14.16%；归属于上市公司股东的净利润1.01亿元，同比增长19.05%；基本每股收益0.59元/股。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:19:01.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847908788",
+      "publishedAt": "2026-08-20T18:19:00+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "金凯生科：上半年归母净利润3027.25万元 同比下降57.81%",
+      "summary": "金凯生科8月20日披露半年报，公司上半年实现营业收入3.09亿元，同比下降11.22%；归属于上市公司股东的净利润3027.25万元，上年同期7176.06万元，同比下降57.81%；基本每股收益0.25元/股。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:19:00.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049836",
+      "publishedAt": "2026-08-20T18:18:24+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvh8002760.d.html",
+      "title": "金盘科技：2026年上半年净利润3.03亿元同比增14.23%",
+      "summary": "金盘科技公告，2026年上半年营业收入35.56亿元，同比增长12.73%；归属于上市公司股东的净利润3.03亿元，同比增长14.23%；扣非净利润2.87亿元，同比增长16.42%。公司拟每10股派发现金红利2.2元（含税）。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:18:24.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049835",
+      "publishedAt": "2026-08-20T18:17:45+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvr8754907.d.html",
+      "title": "海南发展：2026年上半年净利润亏损6694.34万元",
+      "summary": "海南发展公告，2026年上半年营业收入15.56亿元，同比下降0.49%。归属于上市公司股东的净利润亏损6694.34万元，上年同期亏损2.13亿元。扣非净利润亏损1.18亿元。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:17:45.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847909086",
+      "publishedAt": "2026-08-20T18:17:01+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "高盟新材：上半年归母净利润5231.03万元 同比下降31.73%",
+      "summary": "高盟新材8月20日披露半年报，公司上半年实现营业收入6.95亿元，同比增长16.48%；归属于上市公司股东的净利润5231.03万元，同比下降31.73%；基本每股收益0.13元/股。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:17:01.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847908695",
+      "publishedAt": "2026-08-20T18:17:00+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "方正电机：上半年归母净利润2437.65万元 扭亏为盈",
+      "summary": "方正电机8月20日披露半年报，公司上半年实现营业收入17.17亿元，同比增长35.77%；归属于上市公司股东的净利润2437.65万元，上年同期亏损719.62万元；基本每股收益0.0492元/股。报告期内，公司业绩主要受到驱动电机和汽车电子销售收入增长的推动。",
+      "codes": [],
+      "themes": [
+        "科技"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:17:00.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049830",
+      "publishedAt": "2026-08-20T18:16:28+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvq1981609.d.html",
+      "title": "*ST亚士：实控人800万股被司法拍卖完成过户",
+      "summary": "*ST亚士公告称，公司实际控制人李金钟所持800万股公司股份已解除质押及司法冻结，完成过户登记。本次股份由卢闯竞得600万股、严佳炫竞得200万股，受让方受让后6个月内不得减持。过户完成后，李金钟持股从2029.5万股降至1229.5万股，占总股本比例从4.74%降至2.87%；李金钟及其一致行动人合计持股从1.95亿股降至1.87亿股，占总股本比例从45.55%降至43.69%。本次权益变动不触及要约收购，不会导致公司控股股东及实控人变化。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:16:28.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5049828",
+      "publishedAt": "2026-08-20T18:16:21+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6728862.d.html",
+      "title": "浩物股份：2026年上半年净利润1870.07万元，同比下降38.55%",
+      "summary": "浩物股份公告，2026年上半年营业收入10.08亿元，同比下降30.81%。归属于上市公司股东的净利润1870.07万元，同比下降38.55%，上年同期净利润3043.17万元。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:16:21.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049827",
+      "publishedAt": "2026-08-20T18:16:18+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvh8000875.d.html",
+      "title": "和远气体：2026年上半年净利润3598.66万元，同比降26.82%",
+      "summary": "和远气体公告，2026年上半年营业收入8.55亿元，同比增长6.12%。归属于上市公司股东的净利润3598.66万元，同比下降26.82%。扣除非经常性损益的净利润3333.31万元，同比下降1.26%。上年同期净利润4917.29万元。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:16:18.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049826",
+      "publishedAt": "2026-08-20T18:16:14+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvq1981435.d.html",
+      "title": "通达股份：2026年上半年净利润2610.08万元，同比降57.82%",
+      "summary": "通达股份公告，2026年上半年营业收入39.21亿元，同比增长8.38%。归属于上市公司股东的净利润2610.08万元，同比下降57.82%。归属于上市公司股东的扣除非经常性损益的净利润1990.45万元，同比下降67.08%。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:16:14.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049825",
+      "publishedAt": "2026-08-20T18:15:40+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvr8753752.d.html",
+      "title": "新疆众和：2026年上半年净利润5.23亿元，同比增33.55%",
+      "summary": "新疆众和公告，2026年上半年营业收入40.85亿元，同比增长2.05%；归属于上市公司股东的净利润5.23亿元，同比增长33.55%；归属于上市公司股东的扣除非经常性损益的净利润4.6亿元，同比增长24.16%。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:15:40.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049824",
+      "publishedAt": "2026-08-20T18:15:25+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvm6728115.d.html",
+      "title": "金城医药：2026年上半年净利润1.39亿元，同比增长220.11%",
+      "summary": "金城医药公告，2026年上半年营业收入14.47亿元，同比增长6.40%。归属于上市公司股东的净利润1.39亿元，同比增长220.11%。归属于上市公司股东的扣除非经常性损益的净利润6619.99万元，同比增长70.92%。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:15:25.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "cls-2459690",
+      "publishedAt": "2026-08-20T18:14:54+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2459690?os=web&sv=7.7.5&app=",
+      "title": "中信证券：2026年半年度净利润同比增长69.6%",
+      "summary": "财联社8月20日电，中信证券(600030.SH)公告称，公司发布2026年半年度报告，实现营业收入496.92亿元，同比增长50%；归属于母公司股东的净利润233.43亿元，同比增长69.6%。公司拟每10股派发现金红利4.27元(含税)。小财注：公司Q2净利润131.27亿，Q1净利润102.16亿，据此计算，Q2净利润环比增长28%。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:14:54.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049821",
+      "publishedAt": "2026-08-20T18:14:53+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvr8753295.d.html",
+      "title": "新益昌：2026年上半年营收5.47亿元 净利同比增1706.70%",
+      "summary": "新益昌公告称，2026年上半年实现营业收入5.47亿元，同比增长36.05%；归属于上市公司股东的净利润4725.77万元，同比增长1706.70%；归属于上市公司股东的扣除非经常性损益的净利润4479.97万元，同比增长1721.98%。基本每股收益0.47元，加权平均净资产收益率3.76%，较上年同期增加3.57个百分点。本报告期无利润分配预案。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:14:53.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049819",
+      "publishedAt": "2026-08-20T18:14:14+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvq1980424.d.html",
+      "title": "隆平高科：2026年上半年净利润亏损2.73亿元，亏损扩大",
+      "summary": "隆平高科公告，2026年上半年营业收入17.1亿元，同比下降21.05%。归属于上市公司股东的净利润亏损2.73亿元，上年同期亏损1.64亿元，亏损同比扩大66.41%。扣非净利润亏损2.96亿元。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:14:14.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847905344",
+      "publishedAt": "2026-08-20T18:14:10+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "江天化学：上半年净利润同比增长22955.37%",
+      "summary": "江天化学(300927.SZ)公告称，公司发布2026年半年度报告，实现营业收入9.62亿元，同比增长27.76%；归属于上市公司股东的净利润5941.2万元，同比增长22955.37%。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:14:10.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5049818",
+      "publishedAt": "2026-08-20T18:14:09+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-20/detail-ininyfvh7999142.d.html",
+      "title": "宣亚国际：2026年上半年净利润亏损3335.53万元，上年同期亏损886.82万元",
+      "summary": "宣亚国际公告，2026年上半年营业收入1.19亿元，同比下降38.02%。归属于上市公司股东的净利润亏损3335.53万元，上年同期亏损886.82万元。扣非净利润亏损3351.37万元。公司计划不派发现金红利，不送红股，不以公积金转增股本。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:14:09.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847905788",
+      "publishedAt": "2026-08-20T18:13:03+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "新益昌：2026年半年度净利润同比增长1706.7%",
+      "summary": "新益昌(688383.SH)公告称，公司发布2026年半年度报告，实现营业收入5.47亿元，同比增长36.05%；归属于上市公司股东的净利润4725.77万元，同比增长1706.7%。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:13:03.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608203847905585",
+      "publishedAt": "2026-08-20T18:13:00+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "浙江建投：上半年归母净利润2.49亿元 同比增长49.27%",
+      "summary": "浙江建投8月20日披露半年报，公司上半年实现营业收入362.84亿元，同比下降9.60%；归属于上市公司股东的净利润2.49亿元，同比增长49.27%；基本每股收益0.1714元/股。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-23T10:13:00.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

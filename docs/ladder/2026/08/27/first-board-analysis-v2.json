@@ -1,0 +1,4324 @@
+{
+  "schemaVersion": "first-board-scan-v2",
+  "tradeDate": "2026-08-27",
+  "ruleVersion": "first-board-scan-v2",
+  "scoreVersion": "first-board-score-v2",
+  "generatedAt": "2026-08-27T02:35:03.373Z",
+  "dataQuality": "degraded",
+  "dataAsOf": "2026-08-27T02:35:03.373Z",
+  "source": "kaipanla",
+  "evidenceStatus": "live",
+  "candidates": [
+    {
+      "code": "688575",
+      "name": "亚辉龙",
+      "price": 11.4,
+      "changePct": 20,
+      "firstTime": "093502",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 290923318,
+      "turnoverRate": 8.15,
+      "sealAmount": 123166504,
+      "primaryTheme": "中报增长",
+      "boardType": "twenty",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:35:02·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "093502",
+      "lastSealAt": "093502",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 11.4,
+      "initialAmount": 278015383,
+      "initialTurnoverRate": 7.8,
+      "initialSealAmount": 136092064,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 99.99,
+        "finalScore": 84,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.99,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分99.97",
+              "封单/成交额48.95%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "600127",
+      "name": "金健米业",
+      "price": 10.78,
+      "changePct": 10,
+      "firstTime": "093516",
+      "nDayBoards": "3天2板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 1305193031,
+      "turnoverRate": 24.78,
+      "sealAmount": 545554944,
+      "primaryTheme": "农业",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:35:16·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "093516",
+      "lastSealAt": "093516",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 10.78,
+      "initialAmount": 1275251710,
+      "initialTurnoverRate": 24.23,
+      "initialSealAmount": 531943968,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 94.64,
+        "finalScore": 79,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 94.64,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分99.78",
+              "封单/成交额41.71%",
+              "换手容量分83.08"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603261",
+      "name": "立航科技",
+      "price": 58.73,
+      "changePct": 10,
+      "firstTime": "093542",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 93321357,
+      "turnoverRate": 6.19,
+      "sealAmount": 81070888,
+      "primaryTheme": "股权转让",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:35:42·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "093542",
+      "lastSealAt": "093542",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 58.73,
+      "initialAmount": 90519936,
+      "initialTurnoverRate": 6.01,
+      "initialSealAmount": 86697224,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 99.82,
+        "finalScore": 84,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.82,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分99.43",
+              "封单/成交额95.78%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "600488",
+      "name": "津药药业",
+      "price": 5.92,
+      "changePct": 10.04,
+      "firstTime": "093621",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 331410829,
+      "turnoverRate": 11.91,
+      "sealAmount": 124033920,
+      "primaryTheme": "医药",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:36:21·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "093621",
+      "lastSealAt": "093621",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 5.92,
+      "initialAmount": 306837501,
+      "initialTurnoverRate": 11.04,
+      "initialSealAmount": 179993904,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 99.65,
+        "finalScore": 84,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.65,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分98.89",
+              "封单/成交额58.66%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "600654",
+      "name": "中安科",
+      "price": 3.3,
+      "changePct": 10,
+      "firstTime": "093837",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 303687445,
+      "turnoverRate": 5.31,
+      "sealAmount": 287122976,
+      "primaryTheme": "中报增长",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:38:37·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "093837",
+      "lastSealAt": "093837",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 3.3,
+      "initialAmount": 294957955,
+      "initialTurnoverRate": 5.17,
+      "initialSealAmount": 323372128,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 99.07,
+        "finalScore": 83,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.07,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分97.03",
+              "封单/成交额109.63%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "300368",
+      "name": "汇金股份",
+      "price": 9.62,
+      "changePct": 19.95,
+      "firstTime": "093921",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 551843582,
+      "turnoverRate": 16.09,
+      "sealAmount": 343255072,
+      "primaryTheme": "金融概念",
+      "boardType": "twenty",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:39:21·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "093921",
+      "lastSealAt": "093921",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 9.62,
+      "initialAmount": 520914320,
+      "initialTurnoverRate": 15.22,
+      "initialSealAmount": 485899456,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 98.89,
+        "finalScore": 83,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 98.89,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分96.43",
+              "封单/成交额93.28%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603900",
+      "name": "莱绅通灵",
+      "price": 7.14,
+      "changePct": 10.02,
+      "firstTime": "093959",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 182011910,
+      "turnoverRate": 12.85,
+      "sealAmount": 128309656,
+      "primaryTheme": "黄金",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:39:59·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "093959",
+      "lastSealAt": "093959",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 7.14,
+      "initialAmount": 176058150,
+      "initialTurnoverRate": 12.44,
+      "initialSealAmount": 134456912,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 98.72,
+        "finalScore": 83,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 98.72,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分95.91",
+              "封单/成交额76.37%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603938",
+      "name": "三孚股份",
+      "price": 44.96,
+      "changePct": 10.01,
+      "firstTime": "094120",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 551613947,
+      "turnoverRate": 9.56,
+      "sealAmount": 338957920,
+      "primaryTheme": "芯片",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:41:20·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "094120",
+      "lastSealAt": "094120",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 44.96,
+      "initialAmount": 535963371,
+      "initialTurnoverRate": 9.29,
+      "initialSealAmount": 382327776,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 98.38,
+        "finalScore": 83,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 98.38,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分94.81",
+              "封单/成交额71.33%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "601869",
+      "name": "长飞光纤",
+      "price": 426.82,
+      "changePct": 10,
+      "firstTime": "094919",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 5588722340,
+      "turnoverRate": 12.38,
+      "sealAmount": 1557939968,
+      "primaryTheme": "通信",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:49:19·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "094919",
+      "lastSealAt": "094919",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 426.82,
+      "initialAmount": 4921227586,
+      "initialTurnoverRate": 10.94,
+      "initialSealAmount": 1995734016,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 96.33,
+        "finalScore": 81,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 96.33,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分88.26",
+              "封单/成交额40.55%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "002953",
+      "name": "日丰股份",
+      "price": 11.88,
+      "changePct": 10,
+      "firstTime": "095042",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 198153365,
+      "turnoverRate": 8.67,
+      "sealAmount": 175776640,
+      "primaryTheme": "通信",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:50:42·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "095042",
+      "lastSealAt": "095042",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 11.88,
+      "initialAmount": 181327044,
+      "initialTurnoverRate": 7.96,
+      "initialSealAmount": 288423488,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 95.98,
+        "finalScore": 81,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 95.98,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分87.13",
+              "封单/成交额159.06%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603002",
+      "name": "宏昌电子",
+      "price": 16.91,
+      "changePct": 10.02,
+      "firstTime": "095201",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 928016332,
+      "turnoverRate": 10.61,
+      "sealAmount": 560651072,
+      "primaryTheme": "通信",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:52:01·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "095201",
+      "lastSealAt": "095201",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 16.91,
+      "initialAmount": 906924489,
+      "initialTurnoverRate": 10.38,
+      "initialSealAmount": 568470208,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 95.64,
+        "finalScore": 80,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 95.64,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分86.05",
+              "封单/成交额62.68%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "600683",
+      "name": "京投发展",
+      "price": 11.04,
+      "changePct": 9.96,
+      "firstTime": "095429",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 440417881,
+      "turnoverRate": 12.49,
+      "sealAmount": 168395328,
+      "primaryTheme": "股权转让",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:54:29·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "095429",
+      "lastSealAt": "095429",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 11.04,
+      "initialAmount": 415312921,
+      "initialTurnoverRate": 11.8,
+      "initialSealAmount": 299071392,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 95.01,
+        "finalScore": 80,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 95.01,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分84.03",
+              "封单/成交额72.01%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603580",
+      "name": "艾艾精工",
+      "price": 80.52,
+      "changePct": 10,
+      "firstTime": "095533",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 619486398,
+      "turnoverRate": 18.7,
+      "sealAmount": 148988400,
+      "primaryTheme": "实控人变更",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:55:33·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "095533",
+      "lastSealAt": "095533",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 80.52,
+      "initialAmount": 599533542,
+      "initialTurnoverRate": 18.12,
+      "initialSealAmount": 176920784,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 94.73,
+        "finalScore": 80,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 94.73,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分83.15",
+              "封单/成交额29.51%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "000586",
+      "name": "汇源通信",
+      "price": 14.41,
+      "changePct": 10,
+      "firstTime": "095542",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 133697682,
+      "turnoverRate": 5.83,
+      "sealAmount": 52819856,
+      "primaryTheme": "通信",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:55:42·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "095542",
+      "lastSealAt": "095542",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 14.41,
+      "initialAmount": 118447579,
+      "initialTurnoverRate": 5.18,
+      "initialSealAmount": 90592784,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 94.7,
+        "finalScore": 80,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 94.7,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分83.03",
+              "封单/成交额76.48%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "002536",
+      "name": "飞龙股份",
+      "price": 54.23,
+      "changePct": 10,
+      "firstTime": "095951",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 2470843423,
+      "turnoverRate": 13.18,
+      "sealAmount": 620756800,
+      "primaryTheme": "算力",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:59:51·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "sealed",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:12:12.919Z",
+          "lifecycle": "opened",
+          "reason": "后续完整快照中离开一板池，记录为炸板/离开"
+        },
+        {
+          "at": "2026-08-27T02:14:03.099Z",
+          "lifecycle": "resealed",
+          "reason": "完整快照中再次出现并满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:15:02.844Z",
+          "lifecycle": "sealed",
+          "reason": "最新完整快照仍在首板池"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "095951",
+      "lastSealAt": "095951",
+      "firstSeenSequence": 29,
+      "latestSequence": 61,
+      "openCount": 1,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 54.23,
+      "initialAmount": 1898564757,
+      "initialTurnoverRate": 10.21,
+      "initialSealAmount": 883791744,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 93.63,
+        "finalScore": 79,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 93.63,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分79.63",
+              "封单/成交额46.55%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "301399",
+      "name": "英特科技",
+      "price": 21.24,
+      "changePct": 20,
+      "firstTime": "100015",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:03:18.850Z",
+      "amount": 259846459,
+      "turnoverRate": 27.84,
+      "sealAmount": 72029576,
+      "primaryTheme": "算力",
+      "boardType": "twenty",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:00:15·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "opened",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:03:18.850Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:33:03.185Z",
+          "lifecycle": "opened",
+          "reason": "后续完整快照中离开一板池，记录为炸板/离开"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:03:18.850Z",
+      "lastObservedAt": "2026-08-27T02:33:03.185Z",
+      "providerFirstSealAt": "100015",
+      "lastSealAt": "100015",
+      "firstSeenSequence": 29,
+      "latestSequence": 59,
+      "openCount": 1,
+      "everDetected": true,
+      "currentlySealed": false,
+      "finalSealed": null,
+      "initialPrice": 21.24,
+      "initialAmount": 201564897,
+      "initialTurnoverRate": 21.91,
+      "initialSealAmount": 226183760,
+      "source": "kaipanla",
+      "fromCache": true,
+      "dataAsOf": "2026-08-27T02:32:03.624Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 91.14,
+        "finalScore": 77,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 91.14,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [
+              "首封时点分79.3",
+              "封单/成交额112.21%",
+              "换手容量分92.36"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:03:18.850Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "600162",
+      "name": "香江控股",
+      "price": 4.87,
+      "changePct": 9.93,
+      "firstTime": "100621",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:07:03.783Z",
+      "amount": 603857788,
+      "turnoverRate": 11.73,
+      "sealAmount": 306935168,
+      "primaryTheme": "算力",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:06:21·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:07:03.783Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:07:03.783Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "100621",
+      "lastSealAt": "100621",
+      "firstSeenSequence": 33,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 4.87,
+      "initialAmount": 575474332,
+      "initialTurnoverRate": 11.2,
+      "initialSealAmount": 359914080,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 91.97,
+        "finalScore": 77,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:07:03.783Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:07:03.783Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 91.97,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:07:03.783Z",
+            "evidence": [
+              "首封时点分74.3",
+              "封单/成交额62.54%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:07:03.783Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:07:03.783Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:07:03.783Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "000506",
+      "name": "招金黄金",
+      "price": 22.23,
+      "changePct": 10,
+      "firstTime": "100539",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:09:03.990Z",
+      "amount": 2294561223,
+      "turnoverRate": 14.89,
+      "sealAmount": 253630960,
+      "primaryTheme": "黄金",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:05:39·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "opened",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:09:03.990Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:33:03.185Z",
+          "lifecycle": "opened",
+          "reason": "后续完整快照中离开一板池，记录为炸板/离开"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:09:03.990Z",
+      "lastObservedAt": "2026-08-27T02:33:03.185Z",
+      "providerFirstSealAt": "100539",
+      "lastSealAt": "100539",
+      "firstSeenSequence": 35,
+      "latestSequence": 59,
+      "openCount": 1,
+      "everDetected": true,
+      "currentlySealed": false,
+      "finalSealed": null,
+      "initialPrice": 22.23,
+      "initialAmount": 1782184989,
+      "initialTurnoverRate": 11.67,
+      "initialSealAmount": 651961408,
+      "source": "kaipanla",
+      "fromCache": true,
+      "dataAsOf": "2026-08-27T02:32:03.624Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 92.15,
+        "finalScore": 77,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 92.15,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [
+              "首封时点分74.87",
+              "封单/成交额36.58%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "600108",
+      "name": "亚盛集团",
+      "price": 3.78,
+      "changePct": 9.88,
+      "firstTime": "100835",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:09:03.990Z",
+      "amount": 514198972,
+      "turnoverRate": 10.04,
+      "sealAmount": 249201376,
+      "primaryTheme": "农业",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:08:35·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:09:03.990Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:09:03.990Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "100835",
+      "lastSealAt": "100835",
+      "firstSeenSequence": 35,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 3.78,
+      "initialAmount": 471214404,
+      "initialTurnoverRate": 9.23,
+      "initialSealAmount": 324824000,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 91.4,
+        "finalScore": 77,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 91.4,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [
+              "首封时点分72.47",
+              "封单/成交额68.93%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:09:03.990Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603137",
+      "name": "恒尚节能",
+      "price": 24.44,
+      "changePct": 9.99,
+      "firstTime": "101110",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:12:12.919Z",
+      "amount": 423024632,
+      "turnoverRate": 21.51,
+      "sealAmount": 135877872,
+      "primaryTheme": "并购重组",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:11:10·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:12:12.919Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:12:12.919Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "101110",
+      "lastSealAt": "101110",
+      "firstSeenSequence": 38,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 24.44,
+      "initialAmount": 336521022,
+      "initialTurnoverRate": 17.26,
+      "initialSealAmount": 136487744,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 90.73,
+        "finalScore": 76,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:12:12.919Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:12:12.919Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 90.73,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:12:12.919Z",
+            "evidence": [
+              "首封时点分70.35",
+              "封单/成交额40.56%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:12:12.919Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:12:12.919Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:12:12.919Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "300456",
+      "name": "赛微电子",
+      "price": 37.06,
+      "changePct": 20.01,
+      "firstTime": "101324",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:14:03.099Z",
+      "amount": 2753968645,
+      "turnoverRate": 13.63,
+      "sealAmount": 323930368,
+      "primaryTheme": "中报增长",
+      "boardType": "twenty",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:13:24·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "sealed",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:14:03.099Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:26:03.599Z",
+          "lifecycle": "opened",
+          "reason": "后续完整快照中离开一板池，记录为炸板/离开"
+        },
+        {
+          "at": "2026-08-27T02:28:03.804Z",
+          "lifecycle": "resealed",
+          "reason": "完整快照中再次出现并满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:29:03.344Z",
+          "lifecycle": "sealed",
+          "reason": "最新完整快照仍在首板池"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:14:03.099Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "101324",
+      "lastSealAt": "101324",
+      "firstSeenSequence": 40,
+      "latestSequence": 61,
+      "openCount": 1,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 37.06,
+      "initialAmount": 2344429184,
+      "initialTurnoverRate": 11.72,
+      "initialSealAmount": 215459440,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 75.64,
+        "finalScore": 64,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:14:03.099Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:14:03.099Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 75.64,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:14:03.099Z",
+            "evidence": [
+              "首封时点分68.52",
+              "封单/成交额9.19%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:14:03.099Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:14:03.099Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:14:03.099Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603435",
+      "name": "嘉德利",
+      "price": 53.3,
+      "changePct": 10.01,
+      "firstTime": "101801",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:18:09.098Z",
+      "amount": 170719554,
+      "turnoverRate": 9.25,
+      "sealAmount": 114328496,
+      "primaryTheme": "元器件",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:18:01·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:18:09.098Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:18:09.098Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "101801",
+      "lastSealAt": "101801",
+      "firstSeenSequence": 44,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 53.3,
+      "initialAmount": 133610519,
+      "initialTurnoverRate": 7.29,
+      "initialSealAmount": 804830,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 52.98,
+        "finalScore": 45,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:18:09.098Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:18:09.098Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 52.98,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:18:09.098Z",
+            "evidence": [
+              "首封时点分64.73",
+              "封单/成交额0.6%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:18:09.098Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:18:09.098Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:18:09.098Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "688790",
+      "name": "昂瑞微",
+      "price": 114.1,
+      "changePct": 20,
+      "firstTime": "101856",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:20:04.427Z",
+      "amount": 184169129,
+      "turnoverRate": 13.23,
+      "sealAmount": 177671952,
+      "primaryTheme": "中报增长",
+      "boardType": "twenty",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:18:56·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:20:04.427Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:20:04.427Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "101856",
+      "lastSealAt": "101856",
+      "firstSeenSequence": 46,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 114.1,
+      "initialAmount": 174012745,
+      "initialTurnoverRate": 12.53,
+      "initialSealAmount": 227430272,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 88.74,
+        "finalScore": 75,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 88.74,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [
+              "首封时点分63.98",
+              "封单/成交额130.7%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "301591",
+      "name": "肯特股份",
+      "price": 50.4,
+      "changePct": 20,
+      "firstTime": "101948",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:20:04.427Z",
+      "amount": 726089922,
+      "turnoverRate": 34.35,
+      "sealAmount": 166866096,
+      "primaryTheme": "化工",
+      "boardType": "twenty",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:19:48·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:20:04.427Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:20:04.427Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "101948",
+      "lastSealAt": "101948",
+      "firstSeenSequence": 46,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 50.4,
+      "initialAmount": 641173129,
+      "initialTurnoverRate": 30.58,
+      "initialSealAmount": 246305712,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 75.3,
+        "finalScore": 63,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 75.3,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [
+              "首封时点分63.27",
+              "封单/成交额38.41%",
+              "换手容量分57.68"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:20:04.427Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "301533",
+      "name": "威马农机",
+      "price": 32.9,
+      "changePct": 19.99,
+      "firstTime": "102251",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:24:03.025Z",
+      "amount": 176167898,
+      "turnoverRate": 20.12,
+      "sealAmount": 136296048,
+      "primaryTheme": "农业",
+      "boardType": "twenty",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:22:51·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "opened",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:24:03.025Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:31:03.525Z",
+          "lifecycle": "opened",
+          "reason": "后续完整快照中离开一板池，记录为炸板/离开"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:24:03.025Z",
+      "lastObservedAt": "2026-08-27T02:31:03.525Z",
+      "providerFirstSealAt": "102251",
+      "lastSealAt": "102251",
+      "firstSeenSequence": 50,
+      "latestSequence": 57,
+      "openCount": 1,
+      "everDetected": true,
+      "currentlySealed": false,
+      "finalSealed": null,
+      "initialPrice": 32.9,
+      "initialAmount": 160532864,
+      "initialTurnoverRate": 18.44,
+      "initialSealAmount": 178089872,
+      "source": "kaipanla",
+      "fromCache": true,
+      "dataAsOf": "2026-08-27T02:30:03.443Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 87.74,
+        "finalScore": 74,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 87.74,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [
+              "首封时点分60.77",
+              "封单/成交额110.94%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "000816",
+      "name": "智慧农业",
+      "price": 3.14,
+      "changePct": 10.18,
+      "firstTime": "102254",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:24:03.025Z",
+      "amount": 140062617,
+      "turnoverRate": 4.32,
+      "sealAmount": 140959040,
+      "primaryTheme": "农业",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:22:54·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "opened",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:24:03.025Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        },
+        {
+          "at": "2026-08-27T02:35:03.373Z",
+          "lifecycle": "opened",
+          "reason": "后续完整快照中离开一板池，记录为炸板/离开"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:24:03.025Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "102254",
+      "lastSealAt": "102254",
+      "firstSeenSequence": 50,
+      "latestSequence": 61,
+      "openCount": 1,
+      "everDetected": true,
+      "currentlySealed": false,
+      "finalSealed": null,
+      "initialPrice": 3.14,
+      "initialAmount": 93627076,
+      "initialTurnoverRate": 2.94,
+      "initialSealAmount": 214201712,
+      "source": "kaipanla",
+      "fromCache": true,
+      "dataAsOf": "2026-08-27T02:34:03.282Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 74.85,
+        "finalScore": 63,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 74.85,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [
+              "首封时点分60.73",
+              "封单/成交额228.78%",
+              "换手容量分58.8"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "600397",
+      "name": "江钨装备",
+      "price": 19.03,
+      "changePct": 10,
+      "firstTime": "102342",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:24:03.025Z",
+      "amount": 1680153818,
+      "turnoverRate": 15.32,
+      "sealAmount": 576087616,
+      "primaryTheme": "有色金属",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:23:42·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:24:03.025Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:24:03.025Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "102342",
+      "lastSealAt": "102342",
+      "firstSeenSequence": 50,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 19.03,
+      "initialAmount": 1480091428,
+      "initialTurnoverRate": 13.57,
+      "initialSealAmount": 923919872,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 87.52,
+        "finalScore": 74,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 87.52,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [
+              "首封时点分60.07",
+              "封单/成交额62.42%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "920895",
+      "name": "花溪科技",
+      "price": 16.25,
+      "changePct": 30,
+      "firstTime": "102348",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:24:03.025Z",
+      "amount": 71898703,
+      "turnoverRate": 24.77,
+      "sealAmount": 47173668,
+      "primaryTheme": "农业",
+      "boardType": "beijing",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:23:48·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:24:03.025Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:24:03.025Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "102348",
+      "lastSealAt": "102348",
+      "firstSeenSequence": 50,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 16.25,
+      "initialAmount": 57765590,
+      "initialTurnoverRate": 20.37,
+      "initialSealAmount": 52766724,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 87.03,
+        "finalScore": 73,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 87.03,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [
+              "首封时点分59.99",
+              "封单/成交额91.35%",
+              "换手容量分98.52"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:24:03.025Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "002134",
+      "name": "天津普林",
+      "price": 22.63,
+      "changePct": 10.01,
+      "firstTime": "102642",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:28:03.804Z",
+      "amount": 242488200,
+      "turnoverRate": 6.33,
+      "sealAmount": 160442176,
+      "primaryTheme": "通信",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:26:42·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:28:03.804Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:28:03.804Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "102642",
+      "lastSealAt": "102642",
+      "firstSeenSequence": 54,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 22.63,
+      "initialAmount": 234239565,
+      "initialTurnoverRate": 6.12,
+      "initialSealAmount": 222771968,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 86.75,
+        "finalScore": 73,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 86.75,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [
+              "首封时点分57.61",
+              "封单/成交额95.1%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "002190",
+      "name": "成飞集成",
+      "price": 25.52,
+      "changePct": 10,
+      "firstTime": "102745",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:28:03.804Z",
+      "amount": 342441042,
+      "turnoverRate": 7.93,
+      "sealAmount": 180309856,
+      "primaryTheme": "军工",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:27:45·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:28:03.804Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:28:03.804Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "102745",
+      "lastSealAt": "102745",
+      "firstSeenSequence": 54,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 25.52,
+      "initialAmount": 244618620,
+      "initialTurnoverRate": 5.74,
+      "initialSealAmount": 341531616,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 86.48,
+        "finalScore": 73,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 86.48,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [
+              "首封时点分56.75",
+              "封单/成交额139.62%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:28:03.804Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "001232",
+      "name": "嘉立创",
+      "price": 162.03,
+      "changePct": 10,
+      "firstTime": "103006",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:31:03.525Z",
+      "amount": 1190712449,
+      "turnoverRate": 17,
+      "sealAmount": 233655840,
+      "primaryTheme": "通信",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:30:06·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:31:03.525Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:31:03.525Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "103006",
+      "lastSealAt": "103006",
+      "firstSeenSequence": 57,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 162.03,
+      "initialAmount": 1151879367,
+      "initialTurnoverRate": 16.46,
+      "initialSealAmount": 151711760,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 81.31,
+        "finalScore": 68,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:31:03.525Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:31:03.525Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 81.31,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:31:03.525Z",
+            "evidence": [
+              "首封时点分54.82",
+              "封单/成交额13.17%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:31:03.525Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:31:03.525Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:31:03.525Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "605258",
+      "name": "协和电子",
+      "price": 31.9,
+      "changePct": 10,
+      "firstTime": "103318",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-08-27T02:35:03.373Z",
+      "amount": 99218642,
+      "turnoverRate": 9,
+      "sealAmount": 122218472,
+      "primaryTheme": "通信",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封10:33:18·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-08-27T02:35:03.373Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-08-27T02:35:03.373Z",
+      "lastObservedAt": "2026-08-27T02:35:03.373Z",
+      "providerFirstSealAt": "103318",
+      "lastSealAt": "103318",
+      "firstSeenSequence": 61,
+      "latestSequence": 61,
+      "openCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "initialPrice": 31.9,
+      "initialAmount": 99218642,
+      "initialTurnoverRate": 9,
+      "initialSealAmount": 122218472,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-08-27T02:35:03.373Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v2",
+        "rawScore": 85.06,
+        "finalScore": 71,
+        "coverage": 0.2,
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:35:03.373Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:35:03.373Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 85.06,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-08-27T02:35:03.373Z",
+            "evidence": [
+              "首封时点分52.2",
+              "封单/成交额123.18%",
+              "换手容量分100"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:35:03.373Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:35:03.373Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-08-27T02:35:03.373Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    }
+  ],
+  "summary": {
+    "allDiscovered": 32,
+    "finalSealed": 0,
+    "tradableNextOpen": 0
+  }
+}

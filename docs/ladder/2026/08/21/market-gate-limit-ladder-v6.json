@@ -1,0 +1,838 @@
+{
+  "signalDate": "2026-08-21",
+  "tradeDate": "2026-08-24",
+  "generatedAt": "2026-08-24T01:35:15.261Z",
+  "ruleVersion": "limit-ladder-v6",
+  "premarket": {
+    "signalDate": "2026-08-21",
+    "tradeDate": "2026-08-24",
+    "capturedAt": "2026-08-24T00:50:07.103Z",
+    "frozenAt": "2026-08-24T00:50:07.103Z",
+    "late": false,
+    "state": "mixed",
+    "riskScore": 37,
+    "coverage": 75,
+    "us": [
+      {
+        "code": "DJI",
+        "name": "道琼斯",
+        "changePct": 0.98,
+        "price": 53277.01
+      },
+      {
+        "code": "IXIC",
+        "name": "纳斯达克",
+        "changePct": 0.43,
+        "price": 26180.45
+      },
+      {
+        "code": "SPX",
+        "name": "标普500",
+        "changePct": 0.43,
+        "price": 7674.37
+      }
+    ],
+    "asia": [
+      {
+        "code": "N225",
+        "name": "日经225",
+        "changePct": -0.27,
+        "price": 65838.43
+      },
+      {
+        "code": "KS11",
+        "name": "韩国KOSPI",
+        "changePct": -1.08,
+        "price": 6837.96
+      }
+    ],
+    "macro": [
+      {
+        "id": "usdcny",
+        "value": 6.729114,
+        "previousClose": 7.238,
+        "changePct": -7.03,
+        "deltaBps": null
+      }
+    ],
+    "headlines": [
+      {
+        "time": "2026-08-24T08:48:46+08:00",
+        "source": "sina",
+        "title": "招商证券：短期A股波动可能加大",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-24T08:45:55+08:00",
+        "source": "sina",
+        "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-24T08:21:27+08:00",
+        "source": "sina",
+        "title": "受多因素提振 国际金价涨至三个月来新高",
+        "severity": 55,
+        "direction": "risk"
+      },
+      {
+        "time": "2026-08-24T08:15:04+08:00",
+        "source": "sina",
+        "title": "中信证券：A股短期内的资金结构决定了市场博弈的复杂性还在提升",
+        "severity": 55,
+        "direction": "risk"
+      }
+    ],
+    "sources": [
+      "eastmoney-us",
+      "eastmoney-asia",
+      "macro-live",
+      "news-flash"
+    ],
+    "reasons": [
+      "韩国KOSPI-1.08%",
+      "隔夜宏观快讯存在风险事件"
+    ],
+    "warnings": []
+  },
+  "auction": {
+    "signalDate": "2026-08-21",
+    "tradeDate": "2026-08-24",
+    "generatedAt": "2026-08-24T01:25:17.794Z",
+    "phase": "auction",
+    "state": "cautious",
+    "riskScore": 38.35,
+    "externalRiskScore": 37,
+    "domesticRiskScore": 39.07,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-21",
+      "tradeDate": "2026-08-24",
+      "capturedAt": "2026-08-24T00:50:07.103Z",
+      "frozenAt": "2026-08-24T00:50:07.103Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 37,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.98,
+          "price": 53277.01
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.43,
+          "price": 26180.45
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.43,
+          "price": 7674.37
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.27,
+          "price": 65838.43
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": -1.08,
+          "price": 6837.96
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.729114,
+          "previousClose": 7.238,
+          "changePct": -7.03,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-24T08:48:46+08:00",
+          "source": "sina",
+          "title": "招商证券：短期A股波动可能加大",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:45:55+08:00",
+          "source": "sina",
+          "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:21:27+08:00",
+          "source": "sina",
+          "title": "受多因素提振 国际金价涨至三个月来新高",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:15:04+08:00",
+          "source": "sina",
+          "title": "中信证券：A股短期内的资金结构决定了市场博弈的复杂性还在提升",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "韩国KOSPI-1.08%",
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-24T01:25:17.789Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": -0.06,
+          "price": 3902.7
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.17,
+          "price": 14118.02
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0.13,
+          "price": 3550.25
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.03,
+          "price": 2882.64
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0.04,
+          "price": 4620.95
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.17,
+          "price": 7614.89
+        }
+      ],
+      "advance": 2102,
+      "decline": 2280,
+      "flat": 890,
+      "limitUp": 11,
+      "limitDown": 1,
+      "indexRiskScore": 31,
+      "breadthRiskScore": 44.06,
+      "highBoardRiskScore": 45,
+      "riskScore": 39.07,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "mixed",
+      "capturedAt": "2026-08-24T01:25:17.789Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0.01,
+      "smallCapChangePct": 0.17,
+      "sizeSpreadPct": -0.16,
+      "advanceRate": 47.97,
+      "largeCapAuctionAmountSharePct": 62.73,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.01%",
+        "小盘指数+0.17%",
+        "大盘相对小盘-0.16pct",
+        "上涨家数占比48.0%",
+        "大市值竞价成交占比62.7%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "黄金",
+        "riskClass": "cyclical",
+        "state": "allowed",
+        "score": 100,
+        "independentStrength": true,
+        "directionScore": 100,
+        "positiveRate": 100,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "锂电池",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 77.85,
+        "independentStrength": true,
+        "directionScore": 77.85,
+        "positiveRate": 60,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "交换机",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "CPO",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "MPO",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "医药",
+        "riskClass": "defensive",
+        "state": "conditional",
+        "score": 62.55,
+        "independentStrength": false,
+        "directionScore": 62.55,
+        "positiveRate": 33.33,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "基因疗法",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "AI应用",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "维生素",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "新型工业化",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 34.64,
+        "independentStrength": false,
+        "directionScore": 34.64,
+        "positiveRate": 25,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": [
+          "尚未形成逆势独立强度"
+        ]
+      },
+      {
+        "theme": "机器人概念",
+        "riskClass": "high-beta",
+        "state": "conditional",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": -4,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "尚未形成逆势独立强度"
+        ]
+      }
+    ],
+    "reasons": [
+      "韩国KOSPI-1.08%",
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  },
+  "open": {
+    "signalDate": "2026-08-21",
+    "tradeDate": "2026-08-24",
+    "generatedAt": "2026-08-24T01:35:15.261Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 33.14,
+    "externalRiskScore": 37,
+    "domesticRiskScore": 31.06,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-21",
+      "tradeDate": "2026-08-24",
+      "capturedAt": "2026-08-24T00:50:07.103Z",
+      "frozenAt": "2026-08-24T00:50:07.103Z",
+      "late": false,
+      "state": "mixed",
+      "riskScore": 37,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.98,
+          "price": 53277.01
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.43,
+          "price": 26180.45
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.43,
+          "price": 7674.37
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": -0.27,
+          "price": 65838.43
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": -1.08,
+          "price": 6837.96
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.729114,
+          "previousClose": 7.238,
+          "changePct": -7.03,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-24T08:48:46+08:00",
+          "source": "sina",
+          "title": "招商证券：短期A股波动可能加大",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:45:55+08:00",
+          "source": "sina",
+          "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:21:27+08:00",
+          "source": "sina",
+          "title": "受多因素提振 国际金价涨至三个月来新高",
+          "severity": 55,
+          "direction": "risk"
+        },
+        {
+          "time": "2026-08-24T08:15:04+08:00",
+          "source": "sina",
+          "title": "中信证券：A股短期内的资金结构决定了市场博弈的复杂性还在提升",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "韩国KOSPI-1.08%",
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-24T01:35:15.248Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.09,
+          "price": 3908.74
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.03,
+          "price": 14099.01
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": -0.2,
+          "price": 3538.39
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": -0.05,
+          "price": 2881.98
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": -0.04,
+          "price": 4616.94
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.41,
+          "price": 7633.34
+        }
+      ],
+      "advance": 3002,
+      "decline": 2003,
+      "flat": 279,
+      "limitUp": 28,
+      "limitDown": 3,
+      "indexRiskScore": 32,
+      "breadthRiskScore": 20.04,
+      "highBoardRiskScore": 45,
+      "riskScore": 31.06,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "mixed",
+      "capturedAt": "2026-08-24T01:25:17.789Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0.01,
+      "smallCapChangePct": 0.17,
+      "sizeSpreadPct": -0.16,
+      "advanceRate": 47.97,
+      "largeCapAuctionAmountSharePct": 62.73,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.01%",
+        "小盘指数+0.17%",
+        "大盘相对小盘-0.16pct",
+        "上涨家数占比48.0%",
+        "大市值竞价成交占比62.7%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "黄金",
+        "riskClass": "cyclical",
+        "state": "allowed",
+        "score": 100,
+        "independentStrength": true,
+        "directionScore": 100,
+        "positiveRate": 100,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "锂电池",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "通信",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 77.85,
+        "independentStrength": true,
+        "directionScore": 77.85,
+        "positiveRate": 60,
+        "assistantCount": 3,
+        "environmentAdjustment": 2,
+        "reasons": [
+          "高Beta/利率敏感题材",
+          "竞价形成核心、助攻与题材广度共振"
+        ]
+      },
+      {
+        "theme": "交换机",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "CPO",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "MPO",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "医药",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 62.55,
+        "independentStrength": false,
+        "directionScore": 62.55,
+        "positiveRate": 33.33,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "基因疗法",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "AI应用",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      },
+      {
+        "theme": "维生素",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "新型工业化",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 34.64,
+        "independentStrength": false,
+        "directionScore": 34.64,
+        "positiveRate": 25,
+        "assistantCount": 0,
+        "environmentAdjustment": -1,
+        "reasons": []
+      },
+      {
+        "theme": "中报增长",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "机器人概念",
+        "riskClass": "high-beta",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "高Beta/利率敏感题材"
+        ]
+      }
+    ],
+    "reasons": [
+      "韩国KOSPI-1.08%",
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  }
+}

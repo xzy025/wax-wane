@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-08-25T07:10:06.302Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5056913",
+      "publishedAt": "2026-08-25T15:02:09+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "",
+      "title": "A股收评：创业板指缩量下跌1% 全市场超4200只个股上涨",
+      "summary": "截至收盘，上证指数涨0.19%报3889.44点，深证成指跌0.35%报13745.87点，创业板指跌1.00%报3397.52点，北证50涨0.91%报1063.20点。三市成交额18442亿元，较上日缩量1769亿元。全市场超4200只个股上涨。板块题材上，粮食概念、小家电、CRO概念板块涨幅居前；贵金属、能源金属板块跌幅居前。盘面上，粮食概念大幅走强，新华百货3连板，登海种业2连板，万向德农、金健米业涨停，神农种业、华资实业、秋乐种业、天禾股份、康农种业跟涨。小家电板块震荡走高，石头科技涨停，欧伦电气、奥佳华、倍益康、荣泰健康、北鼎股份跟涨。CRO概念板块表现强势，凯莱英涨停，近岸蛋白、亨迪药业涨超10%，益诺思、美迪西、诚达药业、和元生物、金石亚药跟涨。贵金属板块大幅走弱，西部黄金、招金黄金跌超7%，湖南白银、兴业银锡、晓程科技跟跌。能源金属震荡走弱，盛新锂能、永兴材料、融捷股份跌超6%，赣锋锂业、永杉锂业跟跌。",
+      "codes": [
+        "600785",
+        "002041",
+        "600371",
+        "600127",
+        "688169",
+        "002821"
+      ],
+      "themes": [
+        "零售",
+        "农业",
+        "转基因",
+        "食品饮料",
+        "中报增长",
+        "机器人概念",
+        "数字经济",
+        "医药",
+        "CDMO",
+        "创新药",
+        "黄金",
+        "消费"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-28T07:02:09.000Z",
+      "evidence": []
+    },
+    {
+      "id": "em-202608253852752843",
+      "publishedAt": "2026-08-25T14:58:54+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "药明合联上半年利润同比增长37.4%，港股通医药ETF鹏华涨超2%",
+      "summary": "消息面上，8月24日，药明合联发布了2026年中期业绩，财报显示，2026年上半年药明合联实现综合收益37.01亿元人民币，按实际汇率（AER）计算同比增长37.0%，按固定汇率（CER）计算同比增长41.5%；毛利同比增长40.6%至13.71亿元，毛利率进一步提升至37.0%；经调整归属母公司净利润同比增长37.4%至10.27亿元，经调整净利润率稳定在27.8%。",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-28T06:58:54.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202608253852750738",
+      "publishedAt": "2026-08-25T14:58:00+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "零跑上半年每卖一辆车只赚589元 下调全年盈利目标 确认布局机器人业务",
+      "summary": "8月24日，零跑汽车（09863.HK）发布2026年上半年业绩公告。报告期内，公司实现收入381.1亿元，同比增长57.2%；净利润2.1亿元，同比增长600%，连续实现半年度盈利。在当晚举行的业绩电话会议上，零跑汽车高管回答了关于机器人业务、盈利预期、新产品规划、辅助驾驶进展、海外市场方面的问题。零跑汽车将今年的盈利目标从约50亿元下调至30亿元，确认布局机器人业务，称将很快发布正式公告。",
+      "codes": [],
+      "themes": [
+        "科技"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-28T06:58:00.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5056895",
+      "publishedAt": "2026-08-25T14:55:40+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-25/detail-inippews1682384.d.html",
+      "title": "北斗规模应用宣传媒体圆桌会在京召开",
+      "summary": "工业和信息化部办公厅、电子信息司8月24日在北京组织召开北斗规模应用宣传媒体圆桌会，明确宣传引导相关要求和工作重点，交流北斗规模应用工作成效，回应媒体关切，加快推动宣传引导工作落地见效。会议强调，要坚持以新时代北斗精神为引领，立足产业发展实际，紧扣规模应用主线，统筹中央媒体、行业媒体、地方宣传力量，既要讲技术突破、产业成就，更要讲落地场景、实际效益，客观务实展现北斗发展成果，凝聚全社会支持北斗规模应用的共识。下一步，工业和信息化部将与各专业媒体深化协同合作，扎实开展北斗宣传推广工作，共同讲好北斗创新发展故事，促进北斗社会影响力持续提升。（工信部）",
+      "codes": [],
+      "themes": [
+        "科技"
+      ],
+      "scope": "theme",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-28T06:55:40.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "sina-5056877",
+      "publishedAt": "2026-08-25T14:39:18+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-08-25/detail-inippews1669349.d.html",
+      "title": "花旗策略师：全球股市多头资金流入正在消退",
+      "summary": "由戴维・丘牵头的策略团队称，美国投资者交易行为转向多头平仓与新开空头头寸。标普 500 以及纳斯达克期货的风险敞口正逐步回归中性水平。团队在研报中写道：“罗素 2000 指数仍是明显例外；其多头敞口仍接近三年高位，若空头势头延续，获利了结风险将处于高位。”欧洲市场尽管市场情绪小幅转弱，但平均持仓水平在发达市场中居于最高。“德国 DAX 指数面临主要战术风险：盈利的多头头寸与深度亏损的空头头寸并存，形成非对称资金流动格局。”",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-08-28T06:39:18.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

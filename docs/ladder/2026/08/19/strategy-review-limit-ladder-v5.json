@@ -1,0 +1,299 @@
+{
+  "reviewDate": "2026-08-19",
+  "generatedAt": "2026-08-19T15:36:23+08:00",
+  "ruleVersion": "limit-ladder-v5",
+  "signalDate": "2026-08-18",
+  "resultTradeDate": "2026-08-19",
+  "sources": {
+    "ladderAnalysis": "analysis-limit-ladder-v5.json",
+    "nextDaySettlement": "../18/settled-next-day-limit-ladder-v5.json",
+    "dailyReview": "../../../../screener/review-2026-08-19.json"
+  },
+  "promotionOutcome": {
+    "formal": {
+      "total": 6,
+      "valid": 6,
+      "promoted": 2,
+      "failed": 4,
+      "unresolved": 0,
+      "promotionRate": 33.33,
+      "coverage": 100
+    },
+    "byLane": [
+      {
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "total": 3,
+        "valid": 3,
+        "promoted": 0,
+        "failed": 3,
+        "unresolved": 0,
+        "promotionRate": 0,
+        "coverage": 100
+      },
+      {
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "total": 3,
+        "valid": 3,
+        "promoted": 2,
+        "failed": 1,
+        "unresolved": 0,
+        "promotionRate": 66.67,
+        "coverage": 100
+      }
+    ],
+    "waitOpen": {
+      "total": 1,
+      "valid": 1,
+      "promoted": 1,
+      "failed": 0,
+      "unresolved": 0,
+      "promotionRate": 100,
+      "coverage": 100,
+      "includedInFormalRate": false
+    },
+    "rows": [
+      {
+        "code": "000735",
+        "name": "罗牛山",
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "theme": "农业/猪肉",
+        "role": "题材身位板",
+        "baseScore": 82.61,
+        "tradabilityScore": 93.25,
+        "themeGrade": "A",
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true
+      },
+      {
+        "code": "603395",
+        "name": "红四方",
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "theme": "农业/化肥",
+        "role": "题材身位板",
+        "baseScore": 82.1,
+        "tradabilityScore": 90.3,
+        "themeGrade": "A",
+        "resultStatus": "promoted",
+        "promoted": true,
+        "tradable": true
+      },
+      {
+        "code": "600127",
+        "name": "金健米业",
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "targetBoards": 3,
+        "theme": "食品饮料/农业",
+        "role": "核心助攻",
+        "baseScore": 81.16,
+        "tradabilityScore": 91.5,
+        "themeGrade": "A",
+        "resultStatus": "promoted",
+        "promoted": true,
+        "tradable": false,
+        "population": "formal",
+        "includedInFormalRate": true
+      },
+      {
+        "code": "002365",
+        "name": "永安药业",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "theme": "医药/宠物经济",
+        "role": "首板先锋",
+        "baseScore": 80.87,
+        "tradabilityScore": 91.5,
+        "themeGrade": "B",
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true
+      },
+      {
+        "code": "002515",
+        "name": "金字火腿",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "theme": "食品饮料/芯片/光芯片",
+        "role": "首板先锋",
+        "baseScore": 80.74,
+        "tradabilityScore": 92.76,
+        "themeGrade": "A",
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true
+      },
+      {
+        "code": "600367",
+        "name": "红星发展",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "theme": "芯片/玻璃基板/金属锰",
+        "role": "首板先锋",
+        "baseScore": 80.6,
+        "tradabilityScore": 95.57,
+        "themeGrade": "A",
+        "resultStatus": "failed",
+        "promoted": false,
+        "tradable": true
+      },
+      {
+        "code": "000526",
+        "name": "学大教育",
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "targetBoards": 2,
+        "theme": "中报增长/AI应用/芯片",
+        "role": "首板先锋",
+        "baseScore": 61.36,
+        "tradabilityScore": 38.87,
+        "themeGrade": "A",
+        "resultStatus": "promoted",
+        "promoted": true,
+        "tradable": true,
+        "population": "wait-open",
+        "includedInFormalRate": false
+      }
+    ]
+  },
+  "marketEnvironment": {
+    "dailyReviewTone": "A股市场今日全线大幅下挫，成交放量，个股普跌，情绪面承压。",
+    "overnight": {
+      "dow": -0.22,
+      "nasdaq": -1.33,
+      "sp500": -0.69
+    },
+    "asia": {
+      "nikkei225": -3.16,
+      "kospi": -5.8,
+      "hangSeng": 0.05
+    },
+    "aShare": {
+      "shanghai": -2.4,
+      "shenzhen": -5.01,
+      "chinext": -6.26,
+      "turnover": 2511042521252.81,
+      "advance": 429,
+      "decline": 4821,
+      "limitUp": 39,
+      "limitDown": 155,
+      "breakRate": 22.55,
+      "marketPromotionRate": 7.95
+    },
+    "ladderCycle": {
+      "phase": "repair",
+      "score": 75,
+      "maxBoards": 3,
+      "directionAvailable": true
+    },
+    "riskInterpretation": "当日外部冲击和A股广度已经形成系统性风险，repair标签不能覆盖盘面事实。接力执行权限应先收缩，再比较题材和个股。"
+  },
+  "themeReview": [
+    {
+      "theme": "农业",
+      "grade": "B",
+      "score": 73.65,
+      "count": 5,
+      "multiBoardCount": 4,
+      "maxBoards": 3,
+      "continuity": 100,
+      "promotionRate": 16,
+      "conclusion": "相对强势和逆指数方向，但当前完整梯队为false，不能仅凭相对抗跌推导次日买入。"
+    },
+    {
+      "theme": "地产链",
+      "grade": "B",
+      "score": 62.33,
+      "count": 6,
+      "multiBoardCount": 1,
+      "maxBoards": 2,
+      "continuity": 100,
+      "promotionRate": 25,
+      "conclusion": "有首板补给但高度和锚点不足，暂属观察方向。"
+    },
+    {
+      "theme": "医药",
+      "grade": "C",
+      "score": 45.67,
+      "count": 2,
+      "multiBoardCount": 0,
+      "maxBoards": 1,
+      "promotionRate": 0,
+      "conclusion": "有高位历史锚但当日梯队深度不足，首板晋级验证失败。"
+    },
+    {
+      "theme": "芯片",
+      "grade": "C",
+      "score": 44.6,
+      "conclusion": "属于高Beta方向，隔夜外盘和当日指数共振走弱，暂不应因个股评分高而提升接力权限。"
+    }
+  ],
+  "todayNextDayCandidates": [
+    {
+      "code": "603395",
+      "name": "红四方",
+      "promotionLane": "3进4",
+      "theme": "农业",
+      "themeGrade": "B",
+      "promotionScore": 77.68,
+      "baseScore": 82.41,
+      "tradabilityScore": 89.5,
+      "state": "待竞价",
+      "note": "仅为盘后研究候选，需经过下一交易日真实盘前环境、9:25竞价和9:35承接确认。"
+    },
+    {
+      "code": "000505",
+      "name": "京粮控股",
+      "promotionLane": "3进4",
+      "theme": "农业",
+      "themeGrade": "B",
+      "promotionScore": 68.49,
+      "baseScore": 76.49,
+      "tradabilityScore": 88.5,
+      "state": "待竞价",
+      "note": "仅为盘后研究候选，需经过下一交易日真实盘前环境、9:25竞价和9:35承接确认。"
+    },
+    {
+      "code": "000020",
+      "name": "深华发A",
+      "promotionLane": "2进3",
+      "theme": "地产链",
+      "themeGrade": "B",
+      "promotionScore": 67.26,
+      "baseScore": 76.36,
+      "tradabilityScore": 90,
+      "state": "待竞价",
+      "note": "仅为盘后研究候选，需经过下一交易日真实盘前环境、9:25竞价和9:35承接确认。"
+    }
+  ],
+  "dataQuality": [
+    "当日4只非正式候选观察标的缺少封板时间。",
+    "当日2只股票K线不完整。",
+    "当日龙虎榜席位尚未发布，资金流维度暂取中性分。",
+    "正式候选晋级结果覆盖率100%，但开收收益、MFE、MAE未形成有效数值，不能评价收益质量和可成交收益。"
+  ],
+  "reviewConclusions": {
+    "marketFirst": "本日属于外部冲击叠加A股内部普跌，市场环境优先级高于板块和个股。正式候选总体晋级率33.33%不代表可交易收益，接力权限应收缩。",
+    "laneFinding": "本样本中2进3为2/3、66.67%，明显优于1进2的0/3；但分层样本各仅3只，属于当日证据，不足以改写长期权重。",
+    "themeFinding": "农业同时具备多板、连续性和逆指数相对强度，是当天最有效的题材解释；它是事后验证，不是对次日买入的反向证明。",
+    "stockFinding": "红四方和金健米业晋级，说明农业中高位/助攻联动有效；罗牛山失败说明同题材内部仍需看竞价核心强度和承接，不能只按题材标签排序。",
+    "modelActions": [
+      "保留市场环境硬闸门，指数、广度和高标反馈恶化时先限制高Beta接力。",
+      "将农业等逆指数题材只作为相对强度加分证据，必须同时满足核心股强度、题材广度和至少两只助攻。",
+      "对1进2在恐慌日提高题材独立性和竞价确认要求，不能因盘后基础分高直接进入执行层。",
+      "继续记录正式候选和一字监控两套口径；收益、MFE、MAE缺失时不宣称策略有效。",
+      "当前正式候选样本仍远低于120个交易日和300只候选的校准门槛。"
+    ]
+  }
+}

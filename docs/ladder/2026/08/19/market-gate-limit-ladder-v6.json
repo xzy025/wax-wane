@@ -1,0 +1,538 @@
+{
+  "signalDate": "2026-08-19",
+  "tradeDate": "2026-08-20",
+  "generatedAt": "2026-08-20T01:35:05.727Z",
+  "ruleVersion": "limit-ladder-v6",
+  "premarket": {
+    "signalDate": "2026-08-19",
+    "tradeDate": "2026-08-20",
+    "capturedAt": "2026-08-20T00:50:05.371Z",
+    "frozenAt": "2026-08-20T00:50:05.371Z",
+    "late": false,
+    "state": "risk-on",
+    "riskScore": 22.33,
+    "coverage": 75,
+    "us": [
+      {
+        "code": "DJI",
+        "name": "道琼斯",
+        "changePct": 0.22,
+        "price": 53463.05
+      },
+      {
+        "code": "IXIC",
+        "name": "纳斯达克",
+        "changePct": 0.16,
+        "price": 26331.09
+      },
+      {
+        "code": "SPX",
+        "name": "标普500",
+        "changePct": 0.21,
+        "price": 7707.98
+      }
+    ],
+    "asia": [
+      {
+        "code": "N225",
+        "name": "日经225",
+        "changePct": 1.12,
+        "price": 66055.25
+      },
+      {
+        "code": "KS11",
+        "name": "韩国KOSPI",
+        "changePct": 4.28,
+        "price": 6748.17
+      }
+    ],
+    "macro": [
+      {
+        "id": "usdcny",
+        "value": 6.746073,
+        "previousClose": 7.238,
+        "changePct": -6.8,
+        "deltaBps": null
+      }
+    ],
+    "headlines": [
+      {
+        "time": "2026-08-20T08:36:03+08:00",
+        "source": "sina",
+        "title": "投资者认为10年期美债收益率触及5%将损害亚洲新兴市场债券",
+        "severity": 55,
+        "direction": "risk"
+      }
+    ],
+    "sources": [
+      "eastmoney-us",
+      "eastmoney-asia",
+      "macro-live",
+      "news-flash"
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件"
+    ],
+    "warnings": []
+  },
+  "auction": {
+    "signalDate": "2026-08-19",
+    "tradeDate": "2026-08-20",
+    "generatedAt": "2026-08-20T01:25:08.068Z",
+    "phase": "auction",
+    "state": "normal",
+    "riskScore": 18.9,
+    "externalRiskScore": 22.33,
+    "domesticRiskScore": 17.05,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-19",
+      "tradeDate": "2026-08-20",
+      "capturedAt": "2026-08-20T00:50:05.371Z",
+      "frozenAt": "2026-08-20T00:50:05.371Z",
+      "late": false,
+      "state": "risk-on",
+      "riskScore": 22.33,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.22,
+          "price": 53463.05
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.16,
+          "price": 26331.09
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.21,
+          "price": 7707.98
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": 1.12,
+          "price": 66055.25
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 4.28,
+          "price": 6748.17
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.746073,
+          "previousClose": 7.238,
+          "changePct": -6.8,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-20T08:36:03+08:00",
+          "source": "sina",
+          "title": "投资者认为10年期美债收益率触及5%将损害亚洲新兴市场债券",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-20T01:25:08.067Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0,
+          "price": 3894.28
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 1.03,
+          "price": 14032.97
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 1.27,
+          "price": 3517.65
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0.26,
+          "price": 2902.96
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0.54,
+          "price": 4613.3
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 1.13,
+          "price": 7602.5
+        }
+      ],
+      "advance": 3774,
+      "decline": 950,
+      "flat": 497,
+      "limitUp": 18,
+      "limitDown": 2,
+      "indexRiskScore": 14.5,
+      "breadthRiskScore": 0,
+      "highBoardRiskScore": 45,
+      "riskScore": 17.05,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "broad-repair",
+      "capturedAt": "2026-08-20T01:25:08.067Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0.4,
+      "smallCapChangePct": 1.13,
+      "sizeSpreadPct": -0.73,
+      "advanceRate": 79.89,
+      "largeCapAuctionAmountSharePct": 64.57,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.40%",
+        "小盘指数+1.13%",
+        "大盘相对小盘-0.73pct",
+        "上涨家数占比79.9%",
+        "大市值竞价成交占比64.6%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 50.74,
+        "independentStrength": false,
+        "directionScore": 50.74,
+        "positiveRate": 20,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "化肥",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "转基因",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "地产链",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 28.22,
+        "independentStrength": false,
+        "directionScore": 28.22,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": []
+      },
+      {
+        "theme": "物业服务",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  },
+  "open": {
+    "signalDate": "2026-08-19",
+    "tradeDate": "2026-08-20",
+    "generatedAt": "2026-08-20T01:35:05.727Z",
+    "phase": "open",
+    "state": "normal",
+    "riskScore": 21.63,
+    "externalRiskScore": 22.33,
+    "domesticRiskScore": 21.25,
+    "domesticConfirmed": false,
+    "premarket": {
+      "signalDate": "2026-08-19",
+      "tradeDate": "2026-08-20",
+      "capturedAt": "2026-08-20T00:50:05.371Z",
+      "frozenAt": "2026-08-20T00:50:05.371Z",
+      "late": false,
+      "state": "risk-on",
+      "riskScore": 22.33,
+      "coverage": 75,
+      "us": [
+        {
+          "code": "DJI",
+          "name": "道琼斯",
+          "changePct": 0.22,
+          "price": 53463.05
+        },
+        {
+          "code": "IXIC",
+          "name": "纳斯达克",
+          "changePct": 0.16,
+          "price": 26331.09
+        },
+        {
+          "code": "SPX",
+          "name": "标普500",
+          "changePct": 0.21,
+          "price": 7707.98
+        }
+      ],
+      "asia": [
+        {
+          "code": "N225",
+          "name": "日经225",
+          "changePct": 1.12,
+          "price": 66055.25
+        },
+        {
+          "code": "KS11",
+          "name": "韩国KOSPI",
+          "changePct": 4.28,
+          "price": 6748.17
+        }
+      ],
+      "macro": [
+        {
+          "id": "usdcny",
+          "value": 6.746073,
+          "previousClose": 7.238,
+          "changePct": -6.8,
+          "deltaBps": null
+        }
+      ],
+      "headlines": [
+        {
+          "time": "2026-08-20T08:36:03+08:00",
+          "source": "sina",
+          "title": "投资者认为10年期美债收益率触及5%将损害亚洲新兴市场债券",
+          "severity": 55,
+          "direction": "risk"
+        }
+      ],
+      "sources": [
+        "eastmoney-us",
+        "eastmoney-asia",
+        "macro-live",
+        "news-flash"
+      ],
+      "reasons": [
+        "隔夜宏观快讯存在风险事件"
+      ],
+      "warnings": []
+    },
+    "domestic": {
+      "capturedAt": "2026-08-20T01:35:05.726Z",
+      "indices": [
+        {
+          "code": "000001",
+          "name": "上证指数",
+          "changePct": 0.5,
+          "price": 3914
+        },
+        {
+          "code": "399001",
+          "name": "深证成指",
+          "changePct": 0.79,
+          "price": 13999.77
+        },
+        {
+          "code": "399006",
+          "name": "创业板指",
+          "changePct": 0.67,
+          "price": 3496.78
+        }
+      ],
+      "styleIndices": [
+        {
+          "code": "SSE50",
+          "name": "上证50",
+          "changePct": 0.28,
+          "price": 2903.77
+        },
+        {
+          "code": "CSI300",
+          "name": "沪深300",
+          "changePct": 0.59,
+          "price": 4615.57
+        },
+        {
+          "code": "CSI1000",
+          "name": "中证1000",
+          "changePct": 0.84,
+          "price": 7580.72
+        }
+      ],
+      "advance": 4336,
+      "decline": 820,
+      "flat": 126,
+      "limitUp": 39,
+      "limitDown": 9,
+      "indexRiskScore": 25,
+      "breadthRiskScore": 0,
+      "highBoardRiskScore": 45,
+      "riskScore": 21.25,
+      "coverage": 100,
+      "reasons": [
+        "A股竞价未确认系统性风险扩散"
+      ],
+      "warnings": []
+    },
+    "repairContext": {
+      "state": "broad-repair",
+      "capturedAt": "2026-08-20T01:25:08.067Z",
+      "applicable": true,
+      "confidence": 100,
+      "largeCapChangePct": 0.4,
+      "smallCapChangePct": 1.13,
+      "sizeSpreadPct": -0.73,
+      "advanceRate": 79.89,
+      "largeCapAuctionAmountSharePct": 64.57,
+      "highBoardState": "divergence",
+      "reasons": [
+        "大盘指数+0.40%",
+        "小盘指数+1.13%",
+        "大盘相对小盘-0.73pct",
+        "上涨家数占比79.9%",
+        "大市值竞价成交占比64.6%",
+        "高标风偏divergence"
+      ],
+      "warnings": []
+    },
+    "themePermissions": [
+      {
+        "theme": "农业",
+        "riskClass": "defensive",
+        "state": "allowed",
+        "score": 50.74,
+        "independentStrength": false,
+        "directionScore": 50.74,
+        "positiveRate": 20,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": [
+          "低Beta题材，仅在竞价独立走强后放行"
+        ]
+      },
+      {
+        "theme": "化肥",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "转基因",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      },
+      {
+        "theme": "地产链",
+        "riskClass": "neutral",
+        "state": "conditional",
+        "score": 28.22,
+        "independentStrength": false,
+        "directionScore": 28.22,
+        "positiveRate": 16.67,
+        "assistantCount": 1,
+        "environmentAdjustment": -1,
+        "reasons": []
+      },
+      {
+        "theme": "物业服务",
+        "riskClass": "neutral",
+        "state": "allowed",
+        "score": 50,
+        "independentStrength": false,
+        "directionScore": null,
+        "positiveRate": null,
+        "assistantCount": 0,
+        "environmentAdjustment": 0,
+        "reasons": []
+      }
+    ],
+    "reasons": [
+      "隔夜宏观快讯存在风险事件",
+      "A股竞价未确认系统性风险扩散"
+    ],
+    "warnings": []
+  }
+}

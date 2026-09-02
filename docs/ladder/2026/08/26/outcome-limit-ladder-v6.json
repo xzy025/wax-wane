@@ -1,0 +1,223 @@
+{
+  "signalDate": "2026-08-26",
+  "tradeDate": "2026-08-27",
+  "generatedAt": "2026-08-27T07:55:09.076Z",
+  "ruleVersion": "limit-ladder-v6",
+  "summary": {
+    "formal": {
+      "total": 4,
+      "valid": 3,
+      "promoted": 3,
+      "failed": 0,
+      "unresolved": 1,
+      "promotionRate": 100,
+      "coverage": 75
+    },
+    "byLane": [
+      {
+        "promotionLane": "1进2",
+        "fromBoards": 1,
+        "total": 3,
+        "valid": 2,
+        "promoted": 2,
+        "failed": 0,
+        "unresolved": 1,
+        "promotionRate": 100,
+        "coverage": 66.67
+      },
+      {
+        "promotionLane": "2进3",
+        "fromBoards": 2,
+        "total": 1,
+        "valid": 1,
+        "promoted": 1,
+        "failed": 0,
+        "unresolved": 0,
+        "promotionRate": 100,
+        "coverage": 100
+      }
+    ],
+    "waitOpen": {
+      "total": 0,
+      "valid": 0,
+      "promoted": 0,
+      "failed": 0,
+      "unresolved": 0,
+      "promotionRate": null,
+      "coverage": 0
+    },
+    "byRepairState": [
+      {
+        "repairState": "risk-continuation",
+        "total": 4,
+        "valid": 3,
+        "promoted": 3,
+        "failed": 0,
+        "unresolved": 1,
+        "promotionRate": 100,
+        "coverage": 75
+      }
+    ],
+    "bySizeBucket": [
+      {
+        "sizeBucket": "mid",
+        "total": 1,
+        "valid": 0,
+        "promoted": 0,
+        "failed": 0,
+        "unresolved": 1,
+        "promotionRate": null,
+        "coverage": 0
+      },
+      {
+        "sizeBucket": "small",
+        "total": 3,
+        "valid": 3,
+        "promoted": 3,
+        "failed": 0,
+        "unresolved": 0,
+        "promotionRate": 100,
+        "coverage": 100
+      }
+    ],
+    "byHeightTier": [
+      {
+        "heightTier": "low",
+        "total": 4,
+        "valid": 3,
+        "promoted": 3,
+        "failed": 0,
+        "unresolved": 1,
+        "promotionRate": 100,
+        "coverage": 75
+      }
+    ]
+  },
+  "rows": [
+    {
+      "code": "000997",
+      "name": "新大陆",
+      "candidateRank": 1,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "unresolved",
+      "promoted": null,
+      "tradable": null,
+      "unresolvedReason": "次日K线与连板结果均缺失",
+      "openToClosePct": null,
+      "mfePct": null,
+      "maePct": null,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "divergence",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 35.48,
+      "domesticRiskScore": 33.83,
+      "repairState": "risk-continuation",
+      "sizeBucket": "mid",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": []
+    },
+    {
+      "code": "600103",
+      "name": "青山纸业",
+      "candidateRank": 2,
+      "population": "formal",
+      "promotionLane": "2进3",
+      "fromBoards": 2,
+      "targetBoards": 3,
+      "resultStatus": "promoted",
+      "promoted": true,
+      "tradable": null,
+      "unresolvedReason": "",
+      "openToClosePct": null,
+      "mfePct": null,
+      "maePct": null,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "B",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 35.48,
+      "domesticRiskScore": 33.83,
+      "repairState": "risk-continuation",
+      "sizeBucket": "small",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": [
+        "高Beta/利率敏感题材"
+      ]
+    },
+    {
+      "code": "600479",
+      "name": "千金药业",
+      "candidateRank": 3,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "promoted",
+      "promoted": true,
+      "tradable": null,
+      "unresolvedReason": "",
+      "openToClosePct": null,
+      "mfePct": null,
+      "maePct": null,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "divergence",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 35.48,
+      "domesticRiskScore": 33.83,
+      "repairState": "risk-continuation",
+      "sizeBucket": "small",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": [
+        "低Beta题材，仅在竞价独立走强后放行",
+        "竞价形成核心、助攻与题材广度共振"
+      ]
+    },
+    {
+      "code": "000712",
+      "name": "锦龙股份",
+      "candidateRank": 4,
+      "population": "formal",
+      "promotionLane": "1进2",
+      "fromBoards": 1,
+      "targetBoards": 2,
+      "resultStatus": "promoted",
+      "promoted": true,
+      "tradable": null,
+      "unresolvedReason": "",
+      "openToClosePct": null,
+      "mfePct": null,
+      "maePct": null,
+      "marketCycle": "repair",
+      "marketRole": "normal",
+      "themeState": "divergence",
+      "riskAppetiteState": "divergence",
+      "eventStatus": "none",
+      "marketGateState": "normal",
+      "themePermissionState": "allowed",
+      "externalRiskScore": 35.48,
+      "domesticRiskScore": 33.83,
+      "repairState": "risk-continuation",
+      "sizeBucket": "small",
+      "heightTier": "low",
+      "liquidityStyleAdjustment": 0,
+      "gateReasons": []
+    }
+  ]
+}
