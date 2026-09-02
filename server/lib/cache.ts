@@ -13,8 +13,12 @@
 //   3. Serve-stale-on-error — if a refresh throws (e.g. provider rate-limited
 //      us), we return the last good value instead of failing the request.
 
+import { isTradingDayAt } from '../services/tradingCalendar'
+
+export interface ShanghaiClock { day: number; minutes: number }
+
 /** Minutes since midnight in the Asia/Shanghai timezone, plus weekday (0=Sun). */
-export function shanghaiClock(): { day: number; minutes: number } {
+export function shanghaiClock(): ShanghaiClock {
   const now = new Date()
   // Shanghai is UTC+8 year-round (no DST), so a fixed offset is exact.
   const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
@@ -24,8 +28,8 @@ export function shanghaiClock(): { day: number; minutes: number } {
 
 /** True during the A-share trading window (Mon–Fri, 09:30–15:00 CST). */
 export function isAShareSession(): boolean {
-  const { day, minutes } = shanghaiClock()
-  if (day === 0 || day === 6) return false
+  const { minutes } = shanghaiClock()
+  if (!isTradingDayAt()) return false
   return minutes >= 9 * 60 + 30 && minutes <= 15 * 60
 }
 
@@ -34,12 +38,13 @@ export function isAShareSession(): boolean {
  * 周末与工作日盘前,上游返回的仍是上一交易日的定盘数据,以 today 为 asof 落盘会错标日期
  * (实例:周五 01:53 刷新把周四数据存成 review-2026-07-10.json;周日扫描把周五名单存成
  * 2026-07-05.json 幻影快照进磁盘+PG,污染 appearStreak/forward)。盘中/盘后照常落盘。
- * 法定节假日落在工作日时无交易日历可判,与 shouldGenerateNarrative 同属已知局限。
- * clock 参数仅供测试注入。
+ * 无参数调用使用统一交易日历;clock 参数仅供测试注入,此时按传入 weekday 判定。
  */
 export function isArchiveWindow(clock: { day: number; minutes: number } = shanghaiClock()): boolean {
-  if (clock.day === 0 || clock.day === 6) return false
-  return clock.minutes >= 9 * 60 + 30
+  const current = clock ?? shanghaiClock()
+  if (current.day === 0 || current.day === 6) return false
+  if (!clock && !isTradingDayAt()) return false
+  return current.minutes >= 9 * 60 + 30
 }
 
 /**
@@ -71,6 +76,10 @@ export interface CacheOptions<T> {
 export interface Cache<T> {
   /** Returns cached data if fresh, otherwise fetches (de-duping concurrent calls). */
   get(): Promise<T>
+  /** Read the current in-memory value without triggering a fetch. */
+  peek(): T | null
+  /** Age of the in-memory value in milliseconds, or null when empty. */
+  ageMs(): number | null
   /** Invalidate the cache so the next get() refetches. */
   clear(): void
   /**
@@ -80,6 +89,8 @@ export interface Cache<T> {
    * when upstream is down).
    */
   expire(): void
+  /** Replace the cached value with a known-good result (used by explicit scan APIs). */
+  set(value: T): void
 }
 
 export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
@@ -91,6 +102,14 @@ export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
   const ttlMs = () => (typeof opts.ttl === 'function' ? opts.ttl() : opts.ttl)
 
   return {
+    peek(): T | null {
+      return value
+    },
+
+    ageMs(): number | null {
+      return value === null || timestamp <= 0 ? null : Math.max(0, Date.now() - timestamp)
+    },
+
     async get(): Promise<T> {
       // Lazy cold-start seed from the durable fallback: lets a cold cache serve
       // the last snapshot without any upstream call. Seeded as "fresh" so the
@@ -160,6 +179,12 @@ export function createCache<T>(opts: CacheOptions<T>): Cache<T> {
 
     expire() {
       timestamp = 0
+      seeded = true
+    },
+
+    set(next: T) {
+      value = next
+      timestamp = Date.now()
       seeded = true
     },
   }

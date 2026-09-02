@@ -13,6 +13,7 @@
 // - 403 = 风控信号,永不重试(SKILL:重试无益反而加重);触发全局冷却,冷却期内直接抛
 //   EmCooldownError,让调用方降级链(腾讯/新浪/serve-stale/镜像)立刻接管。
 // - 非东财域名直通不记账(newsFlash 的 fetchJson 同时抓 cls/sina,误接进来也无害)。
+// - 东财行情请求复用可选 SOCKS_PROXY；未配置时仍使用原生直连。
 // - 节流状态是进程级的:backtest/optimize CLI 是独立进程,各有各的账本,与 dev server
 //   并跑时仍可能叠加——跑重回测前先停服务或调大间隔。
 //
@@ -20,6 +21,8 @@
 // 数周、约每周被掐一次;1s 串行会把 30-60s 扫描拖到 20 分钟。取中:quote 60ms 起点间隔
 // (≈16/s 上限)+并发 8(<风控并发10);report 250ms+并发 2。全部 env 可调,回测等批量
 // 场景可用 EM_QUOTE_GAP_MS/EM_REPORT_GAP_MS 加严。
+
+import { fetchWithProxy } from './llm'
 
 export type EmHostClass = 'quote' | 'report'
 
@@ -100,7 +103,8 @@ export function createEmFetch(cfg?: Partial<EmFetchConfig>, deps?: Partial<EmFet
     now: () => Date.now(),
     sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
     random: () => Math.random(),
-    fetchImpl: fetch,
+    fetchImpl: ((input, init) =>
+      fetchWithProxy(input instanceof Request ? input.url : String(input), init) as unknown as Promise<Response>) as typeof fetch,
     ...deps,
   }
   // 惰性读 env:lib 模块在 index.ts 的 dotenv.config() 之前求值,模块作用域读 env 会漏 .env

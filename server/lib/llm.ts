@@ -5,7 +5,7 @@ import { SocksProxyAgent } from 'socks-proxy-agent'
 import fetch from 'node-fetch'
 
 // ── Proxy ──────────────────────────────────────────────────
-// Only route foreign APIs (Google/Anthropic/OpenAI) through the SOCKS proxy.
+// Route configured external and market-data APIs through the SOCKS proxy.
 // Lazy-initialized so SOCKS_PROXY is read after dotenv config() has run in
 // index.ts (ESM evaluates this module before index.ts's body).
 
@@ -17,8 +17,11 @@ function getProxyAgent(): SocksProxyAgent | undefined {
     proxyResolved = true
     const socksProxy = process.env.SOCKS_PROXY // No default; must be explicitly configured
     if (socksProxy) {
-      proxyAgent = new SocksProxyAgent(socksProxy)
-      console.log(`[Proxy] SOCKS proxy configured: ${socksProxy} (for Google API only)`)
+      // Remote DNS keeps market-domain resolution inside the configured proxy;
+      // this matters on machines where direct DNS is blocked by policy.
+      const proxyUrl = socksProxy.replace(/^socks5:\/\//i, 'socks5h://')
+      proxyAgent = new SocksProxyAgent(proxyUrl)
+      console.log(`[Proxy] SOCKS proxy configured: ${proxyUrl} (external and market-data APIs)`)
     }
   }
   return proxyAgent
@@ -29,14 +32,20 @@ export async function fetchWithProxy(url: string, options: any = {}) {
     url.includes('googleapis.com') ||
     url.includes('google.com') ||
     url.includes('anthropic.com') ||
-    url.includes('openai.com')
+    url.includes('openai.com') ||
+    url.includes('eastmoney.com') ||
+    url.includes('sinajs.cn') ||
+    url.includes('gtimg.cn') ||
+    url.includes('longhuvip.com')
 
   const agent = getProxyAgent()
   if (agent && needsProxy) {
-    console.log(`[Proxy] Using proxy for: ${url}`)
+    // 全市场扫描可能产生数千次行情请求；逐 URL 打日志会淹没真正的
+    // 错误并显著增加终端/DevTools 压力。需要逐请求诊断时显式开启。
+    if (process.env.MARKET_DATA_PROXY_DEBUG === '1') console.log(`[Proxy] Using proxy for: ${url}`)
     return fetch(url, { ...options, agent } as any)
   }
-  // Direct fetch for domestic APIs (eastmoney, etc.)
+  // Without a configured proxy, preserve the existing direct-fetch behavior.
   return fetch(url, options)
 }
 

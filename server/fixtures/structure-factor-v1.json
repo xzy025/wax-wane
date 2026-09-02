@@ -1,0 +1,56 @@
+{
+  "version": "structure-factor-v1",
+  "asOf": "2026-08-30",
+  "asOfIdx": 30,
+  "timeframe": "1d",
+  "keyPosition": {
+    "id": "resistance-1",
+    "label": "前高",
+    "kind": "resistance",
+    "price": 100
+  },
+  "activeLeg": {
+    "id": "active",
+    "dir": "up",
+    "days": 5,
+    "fromDate": "d25",
+    "toDate": "d30",
+    "fromPrice": 95,
+    "toPrice": 105,
+    "pct": 10.52631579,
+    "speed": 2.10526316,
+    "timeframe": "1d",
+    "confirmedAt": {
+      "idx": 30,
+      "date": "d30"
+    }
+  },
+  "comparedLeg": {
+    "id": "previous",
+    "dir": "down",
+    "days": 10,
+    "fromDate": "d10",
+    "toDate": "d20",
+    "fromPrice": 100,
+    "toPrice": 95,
+    "pct": -5,
+    "speed": 0.5,
+    "timeframe": "1d",
+    "confirmedAt": {
+      "idx": 20,
+      "date": "d20"
+    }
+  },
+  "expectation": {
+    "direction": "up",
+    "expectedMovePct": 12,
+    "expectedDays": 6,
+    "deadlineIdx": 36
+  },
+  "expected": {
+    "speedAsymmetry": 3.9,
+    "timeRatio": 0.83,
+    "priceRecovery": 0.88,
+    "shortfall": false
+  }
+}

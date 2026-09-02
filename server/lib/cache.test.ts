@@ -6,6 +6,15 @@ const FRESH = { src: 'fresh' }
 const DISK = { src: 'disk' }
 
 describe('createCache — durable fallback (disk snapshot)', () => {
+  it('supports explicit known-good values without triggering the fetcher', async () => {
+    let calls = 0
+    const c = createCache({ fetcher: async () => { calls++; return FRESH }, ttl: 60_000 })
+    c.set(DISK)
+    expect(c.peek()).toBe(DISK)
+    expect(await c.get()).toBe(DISK)
+    expect(calls).toBe(0)
+  })
+
   it('seeds a cold cache from fallback without calling the fetcher', async () => {
     let calls = 0
     const c = createCache({
