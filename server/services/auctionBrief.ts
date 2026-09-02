@@ -79,7 +79,7 @@ export interface AuctionBrief {
   strengthLabel: string
   confidence: number
   degraded: boolean
-  marketGateState?: 'normal' | 'cautious' | 'restricted' | 'frozen' | null
+  marketGateState?: 'normal' | 'cautious' | 'restricted' | 'frozen' | 'unavailable' | null
   marketRiskScore?: number | null
   marketRepairState?: MarketRepairState | null
   repairConfidence?: number | null
@@ -368,7 +368,7 @@ function mapCandidate(
   population: AuctionBriefPopulation,
   confirmation?: NextDayCandidateConfirmation,
 ): AuctionBriefCandidate {
-  const verdict =
+  const modelVerdict =
     population === 'observation'
       ? 'observe'
       : population === 'wait-open' && confirmation?.state !== 'rejected'
@@ -382,7 +382,7 @@ function mapCandidate(
     promotionLane:
       stock.promotionLane ?? `${stock.consecutiveDays}进${stock.consecutiveDays + 1}`,
     theme: stock.primaryTheme,
-    verdict,
+    verdict: modelVerdict,
     score:
       phase === 'open-confirmation'
         ? (confirmation?.decisionScore ??
@@ -456,8 +456,10 @@ function deterministicSummary(args: {
   const observed = args.candidates.filter((row) => row.verdict === 'observe').length
   const rejected = args.candidates.filter((row) => row.verdict === 'reject').length
   const gate =
-    args.marketGateState === 'frozen'
-      ? '大盘闸门冻结'
+    args.marketGateState === 'unavailable'
+      ? '大盘闸门不可用'
+      : args.marketGateState === 'frozen'
+        ? '大盘闸门冻结'
       : args.marketGateState === 'restricted'
         ? '大盘闸门限制'
         : args.marketGateState === 'cautious'

@@ -64,6 +64,8 @@ export type AuctionBehaviorCheckpoint =
 
 export interface AuctionSupportPoint {
   checkpoint: AuctionBehaviorCheckpoint
+  /** 采集事件对应的交易日；缺失或与分析日期不一致时不得计算行为指标。 */
+  tradeDate?: string
   virtualPrice: number | null
   virtualMatchedQty: number | null
   virtualPriceReturnFromClose: number | null
@@ -144,21 +146,31 @@ export function analyzeAuctionBehavior(args: {
   const points = [...args.points].sort(
     (a, b) => CHECKPOINT_ORDER.indexOf(a.checkpoint) - CHECKPOINT_ORDER.indexOf(b.checkpoint),
   )
-  const matchDateVerified = !!args.tradeDate
+  const matchDateVerified =
+    Boolean(args.tradeDate) &&
+    points.length > 0 &&
+    points.every((point) => point.tradeDate === args.tradeDate)
+  if (!matchDateVerified) {
+    warnings.push('竞价行为点未能逐点验证为同一交易日，指标保持 insufficient-data')
+  }
 
   const enriched = points.map((raw) => {
     const matchedAmount =
       raw.virtualPrice != null && raw.virtualMatchedQty != null
         ? raw.virtualPrice * raw.virtualMatchedQty
         : null
-    const signed = raw.signedUnmatchedAmount ?? 0
+    const signed = raw.signedUnmatchedAmount
     return {
       point: raw,
       matchedAmount,
       effectiveBuySupport:
-        matchedAmount != null ? matchedAmount + Math.max(signed, 0) : null,
+        matchedAmount != null && signed != null
+          ? matchedAmount + Math.max(signed, 0)
+          : null,
       effectiveSellSupply:
-        matchedAmount != null ? matchedAmount + Math.max(-signed, 0) : null,
+        matchedAmount != null && signed != null
+          ? matchedAmount + Math.max(-signed, 0)
+          : null,
     }
   })
   const byCheckpoint = new Map(enriched.map((row) => [row.point.checkpoint, row]))
@@ -201,6 +213,7 @@ export function analyzeAuctionBehavior(args: {
   const evidence: Array<{ label: AuctionBehaviorLabel; detail: string; evidence: string[] }> = []
 
   const missingCritical =
+    !matchDateVerified ||
     preLockPeakEffectiveBuySupport == null ||
     lockEffectiveBuySupport == null ||
     finalEffectiveBuySupport == null ||

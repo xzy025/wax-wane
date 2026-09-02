@@ -21,7 +21,7 @@ import {
 } from './screenerLiveQuotes'
 import type { ScreenerLiveQuote } from './screenerScan'
 
-function exchangeFromCode(code: string): AuctionExchange {
+export function exchangeFromCode(code: string): AuctionExchange {
   if (code.startsWith('4') || code.startsWith('8')) return 'BSE'
   if (code.startsWith('6')) return 'SSE'
   return 'SZSE'

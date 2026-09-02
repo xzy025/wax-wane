@@ -33,6 +33,9 @@ export interface AuctionBehaviorResearch {
   phase: CrossMarketPhase
   snapshotCount: number
   coverage: number
+  /** 外部候选池规模；未知时 coveragePct 必须保持 null。 */
+  eligibleSymbolCount: number | null
+  coveragePct: number | null
   behaviors: AuctionBehaviorSnapshot[]
   labels: Record<string, number>
   warnings: string[]
@@ -45,6 +48,7 @@ export interface AuctionBehaviorResearch {
 export function buildAuctionBehaviorResearch(args: {
   tradeDate: string
   phase: CrossMarketPhase
+  eligibleSymbolCount?: number
   config?: Partial<AuctionBehaviorConfig>
 }): AuctionBehaviorResearch {
   const checkpoints = CHECKPOINT_BY_PHASE[args.phase]
@@ -54,6 +58,8 @@ export function buildAuctionBehaviorResearch(args: {
       phase: args.phase,
       snapshotCount: 0,
       coverage: 0,
+      eligibleSymbolCount: null,
+      coveragePct: null,
       behaviors: [],
       labels: {},
       warnings: [`${args.phase} 阶段不产生竞价行为研究`],
@@ -66,6 +72,8 @@ export function buildAuctionBehaviorResearch(args: {
       phase: args.phase,
       snapshotCount: 0,
       coverage: 0,
+      eligibleSymbolCount: null,
+      coveragePct: null,
       behaviors: [],
       labels: {},
       warnings: [`交易日 ${args.tradeDate} 无 L1 竞价录制事件`],
@@ -85,6 +93,7 @@ export function buildAuctionBehaviorResearch(args: {
   }
 
   const behaviors: AuctionBehaviorSnapshot[] = []
+  let incompleteSymbols = 0
   for (const [symbol, phaseSet] of bySymbol) {
     const points: AuctionSupportPoint[] = []
     let missingKey = false
@@ -108,7 +117,7 @@ export function buildAuctionBehaviorResearch(args: {
         config: args.config,
       }),
     )
-    void missingKey
+    if (missingKey) incompleteSymbols += 1
   }
 
   const labels: Record<string, number> = {}
@@ -119,6 +128,12 @@ export function buildAuctionBehaviorResearch(args: {
   }
   const warnings = [
     ...(day.warnings ?? []),
+    ...(args.eligibleSymbolCount == null
+      ? ['未提供候选池分母，coveragePct 保持 null，不宣称全市场覆盖']
+      : []),
+    ...(incompleteSymbols > 0
+      ? [incompleteSymbols + ' 个标的缺少关键竞价检查点']
+      : []),
     '竞价行为基于公开源 L1 录制事件，sourceTier=shadow，仅作研究展示',
   ]
   return {
@@ -126,6 +141,11 @@ export function buildAuctionBehaviorResearch(args: {
     phase: args.phase,
     snapshotCount: behaviors.length,
     coverage: behaviors.length,
+    eligibleSymbolCount: args.eligibleSymbolCount ?? null,
+    coveragePct:
+      args.eligibleSymbolCount && args.eligibleSymbolCount > 0
+        ? (behaviors.length / args.eligibleSymbolCount) * 100
+        : null,
     behaviors,
     labels,
     warnings,
@@ -150,6 +170,7 @@ function auctionPointFromSnapshot(
 ): AuctionSupportPoint {
   return {
     checkpoint,
+    tradeDate: snapshot.tradeDate,
     virtualPrice: snapshot.virtualPrice,
     virtualMatchedQty: snapshot.virtualMatchedQty,
     virtualPriceReturnFromClose:

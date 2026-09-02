@@ -86,11 +86,11 @@ export interface DailyReviewData {
   calendarSource: MacroCalendarResult['source']
   ashare: {
     indices: ReviewQuote[] // 上证/深成/创业板
-    totalTurnover: number // 元
-    limitUp: number
-    limitDown: number
-    advance: number
-    decline: number
+    totalTurnover: number | null // 元
+    limitUp: number | null
+    limitDown: number | null
+    advance: number | null
+    decline: number | null
   } | null
   structure: {
     hsCount: number
@@ -131,7 +131,7 @@ export function hasReviewContent(d: DailyReviewData): boolean {
     d.asia.length > 0 ||
     d.news.length > 0 ||
     d.dragonTiger.length > 0 ||
-    (d.ashare !== null && (d.ashare.indices.length > 0 || d.ashare.totalTurnover > 0)) ||
+    (d.ashare !== null && (d.ashare.indices.length > 0 || (d.ashare.totalTurnover != null && d.ashare.totalTurnover > 0))) ||
     (d.structure !== null && d.structure.hsCount + d.structure.lsCount + d.structure.hwCount + d.structure.lwCount > 0)
   )
 }

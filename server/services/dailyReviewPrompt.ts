@@ -74,14 +74,19 @@ export function buildReviewFacts(d: DailyReviewData): string {
     secs.push(`【未来一周宏观日历】(来源:${srcLabel})\n${lines.join('\n')}`)
   }
 
-  // 0 是"上游不可用"哨兵(ashare.ts totalTurnover 注释),不能当事实喂给 LLM。
-  if (d.ashare && (d.ashare.indices.length > 0 || d.ashare.totalTurnover > 0)) {
+  if (d.ashare && (d.ashare.indices.length > 0 || (d.ashare.totalTurnover ?? 0) > 0)) {
     const parts: string[] = []
     if (d.ashare.indices.length > 0) {
       parts.push(d.ashare.indices.map((q) => `${q.name} ${pct(q.changePct)} ${q.price}`).join(' / '))
     }
-    if (d.ashare.totalTurnover > 0) parts.push(`两市成交 ${fmtTurnover(d.ashare.totalTurnover)}`)
-    if (d.ashare.advance + d.ashare.decline > 0) {
+    if (d.ashare.totalTurnover != null && d.ashare.totalTurnover > 0) {
+      parts.push(`两市成交 ${fmtTurnover(d.ashare.totalTurnover)}`)
+    }
+    if (
+      d.ashare.advance != null &&
+      d.ashare.decline != null &&
+      d.ashare.advance + d.ashare.decline > 0
+    ) {
       parts.push(`涨停 ${d.ashare.limitUp} 跌停 ${d.ashare.limitDown}`, `上涨 ${d.ashare.advance} / 下跌 ${d.ashare.decline}`)
     }
     secs.push(`【A股】${parts.join(';')}`)

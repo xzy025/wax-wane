@@ -28,12 +28,28 @@ interface AuctionCandidateUniverse {
   source: string
 }
 
-/** 竞价候选池:优先使用日韩/竞价相关的高关注标的(缺实时池时为空)。 */
+export const AUCTION_UNIVERSE_MIN_COVERAGE = 0.97
+
+/** 竞价候选池:优先使用显式注入池,默认只读取已验证的全市场 last-good 池。 */
 export function resolveAuctionUniverse(
   candidates?: AuctionCandidateUniverse,
 ): AuctionCandidateUniverse {
   if (candidates && candidates.codes.length) return candidates
-  return { codes: [], source: 'empty-plan' }
+  const stored = loadScreenerUniverse()
+  if (!stored || stored.legacy) {
+    return { codes: [], source: stored ? 'last-good-legacy' : 'last-good-missing' }
+  }
+  if (stored.coverage < AUCTION_UNIVERSE_MIN_COVERAGE) {
+    return { codes: [], source: 'last-good-coverage-insufficient' }
+  }
+  const codes = [...new Set(
+    stored.rows
+      .map((row) => String(row.f12 ?? '').trim())
+      .filter((code) => /^\d{6}$/.test(code)),
+  )]
+  return codes.length
+    ? { codes, source: `screener-last-good:${stored.tradeDate}` }
+    : { codes: [], source: 'last-good-empty' }
 }
 
 const ASIA_CHECKPOINTS = new Set<SchedulerCheckpoint>([
@@ -84,38 +100,45 @@ function sourceStatusForQuotes(
   return 'full'
 }
 
-/** 竞价快照 → 录制原始事件(Batch 1 回放器),重复 tick 幂等去重。 */
-async function recordAuctionSnapshots(
+export function auctionSnapshotFromQuote(
   tradeDate: string,
-  quotes: ScreenerLiveQuote[],
+  quote: ScreenerLiveQuote,
   checkpoint: SchedulerCheckpoint,
-): Promise<{ recorded: number; snapshots: AuctionL1Snapshot[] }> {
+  receivedAt = new Date().toISOString(),
+): AuctionL1Snapshot {
   const marketPhase =
     checkpoint === 'auction-initial' ||
     checkpoint === 'auction-probe' ||
     checkpoint === 'auction-prelock'
       ? 'auction-cancellable'
       : 'auction-locked'
+  return decodeAuctionLevel1({
+    tradeDate,
+    symbol: quote.code,
+    exchange: exchangeFromCode(quote.code),
+    provider: quote.source,
+    providerTimestamp: quote.quoteTime,
+    receivedAt,
+    previousClose: quote.prevClose,
+    marketPhase,
+    rawBidPrices: [quote.bid1Price ?? null],
+    rawBidQty: [quote.bid1Volume ?? null, quote.bid2Volume ?? null],
+    rawAskPrices: [quote.ask1Price ?? null],
+    rawAskQty: [quote.ask1Volume ?? null, quote.ask2Volume ?? null],
+    sourceTier: 'shadow',
+  })
+}
+
+/** 竞价快照 → 录制原始事件(Batch 1 回放器),重复 tick 幂等去重。 */
+async function recordAuctionSnapshots(
+  tradeDate: string,
+  quotes: ScreenerLiveQuote[],
+  checkpoint: SchedulerCheckpoint,
+): Promise<{ recorded: number; snapshots: AuctionL1Snapshot[] }> {
   const receivedAt = new Date().toISOString()
   const snapshots: AuctionL1Snapshot[] = quotes
     .filter((quote) => quote.tradeDate === tradeDate)
-    .map((quote) =>
-      decodeAuctionLevel1({
-        tradeDate,
-        symbol: quote.code,
-        exchange: exchangeFromCode(quote.code),
-        provider: quote.source,
-        providerTimestamp: quote.quoteTime,
-        receivedAt,
-        previousClose: quote.prevClose,
-        marketPhase,
-        rawBidPrices: [quote.bid1Price ?? null],
-        rawBidQty: [quote.bid1Volume ?? null],
-        rawAskPrices: [quote.ask1Price ?? null],
-        rawAskQty: [quote.ask1Volume ?? null],
-        sourceTier: 'shadow',
-      }),
-    )
+    .map((quote) => auctionSnapshotFromQuote(tradeDate, quote, checkpoint, receivedAt))
   const recorded = await appendAuctionReplayEvents(tradeDate, snapshots)
   return { recorded, snapshots }
 }
@@ -275,9 +298,14 @@ export const defaultCheckpointHandlers: CheckpointHandlers = async (checkpoint, 
   return {
     status: 'degraded',
     sourceStatus: 'unavailable',
-    provider: 'pending',
+    provider: checkpoint === 'settled' ? 'settled-archive-pipeline' : 'pending',
     providerTimestamp: phaseTimestamp(checkpoint),
     dataAsOf: new Date().toISOString(),
-    warnings: [`${checkpoint} 检查点已登记，派生数据将在后续批次接入`],
+    warnings: [
+      checkpoint === 'settled'
+        ? '结算检查点已登记；五类复盘、连板与晋级归档由盘后流水线异步物化'
+        : `${checkpoint} 检查点已登记，派生数据将在后续批次接入`,
+    ],
   }
 }
+import { loadScreenerUniverse } from './screenerUniverseStore'

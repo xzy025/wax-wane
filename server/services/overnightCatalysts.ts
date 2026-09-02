@@ -1,5 +1,6 @@
 import type { NewsFlashItem } from './newsFlashNormalize'
 import { fetchNewsFlashWindow } from './newsFlash'
+import type { StockPrediction, ThemePrediction, ProbabilityStatus } from './crossMarketMapping'
 
 export type OvernightCatalystCategory =
   | 'corporate-action'
@@ -73,6 +74,10 @@ export interface OvernightContext {
   expectedDirections: string[]
   auctionConfirmedDirections: string[]
   openConfirmedDirections: string[]
+  themePredictions?: ThemePrediction[]
+  stockPredictions?: StockPrediction[]
+  modelVersion?: string
+  probabilityStatus?: ProbabilityStatus
   warnings: string[]
 }
 

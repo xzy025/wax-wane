@@ -7,6 +7,7 @@ function point(
 ): AuctionSupportPoint {
   return {
     checkpoint,
+    tradeDate: '2026-08-21',
     virtualPrice: 11,
     virtualMatchedQty: 100_000,
     virtualPriceReturnFromClose: 5,
