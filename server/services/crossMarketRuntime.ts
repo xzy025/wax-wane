@@ -1,5 +1,5 @@
 import { SCREENER } from '../config/screener'
-import { shanghaiClock } from '../lib/cache'
+import { isTradingDayAt } from './tradingCalendar'
 import { emFetch } from '../lib/emFetch'
 import { EM_HEADERS } from '../lib/emHeaders'
 import { todayShanghai } from '../lib/time'
@@ -241,13 +241,23 @@ function themeConfirmation(analysis: LimitLadderAnalysis | null, pattern: RegExp
 
 function marketConfirmation(domestic: DomesticMarketSnapshot | null): Partial<Record<CapitalLaneId, number>> {
   if (!domestic) return {}
-  const total = domestic.advance + domestic.decline
-  const breadth = total ? clamp(((domestic.advance / total) * 100 - 50) / 30) : 0
-  const spread = sizeSpread(domestic) ?? 0
-  return {
-    'small-theme': clamp(breadth - Math.max(0, Math.abs(spread) / 2)),
-    'index-weight': clamp(spread / 1.5),
+  const result: Partial<Record<CapitalLaneId, number>> = {}
+  const total =
+    domestic.advance != null && domestic.decline != null
+      ? domestic.advance + domestic.decline
+      : null
+  const breadth =
+    total != null && total > 0 && domestic.advance != null
+      ? clamp(((domestic.advance / total) * 100 - 50) / 30)
+      : null
+  const spread = sizeSpread(domestic)
+  if (breadth != null) {
+    result['small-theme'] = clamp(
+      breadth - (spread == null ? 0 : Math.max(0, Math.abs(spread) / 2)),
+    )
   }
+  if (spread != null) result['index-weight'] = clamp(spread / 1.5)
+  return result
 }
 
 function dailyReturns(bars: UsDailyBar[]): Array<{ date: string; returnPct: number }> {
@@ -682,38 +692,46 @@ export async function resolveCrossMarketSnapshot(tradeDate: string, phase: Cross
 let scheduler: ReturnType<typeof setInterval> | null = null
 let schedulerBusy = false
 
-export function startCrossMarketScheduler(): void {
-  if (scheduler) return
-  const tick = async () => {
-    if (schedulerBusy) return
-    const clock = shanghaiClock()
-    if (clock.day === 0 || clock.day === 6) return
-    const tradeDate = todayShanghai()
-    if (clock.minutes >= 15 * 60 + 10 && clock.minutes < 15 * 60 + 12) {
-      if (readCrossMarketSettlement(tradeDate)) return
-      schedulerBusy = true
-      try {
-        await buildCrossMarketSettlement(tradeDate)
-      } catch {
-        // A later 15-second tick retries transient free-source failures.
-      } finally {
-        schedulerBusy = false
-      }
-      return
-    }
-    const phase: CrossMarketPhase | null = clock.minutes >= 9 * 60 + 15 && clock.minutes < 9 * 60 + 17 ? 'premarket' : clock.minutes >= 9 * 60 + 25 && clock.minutes < 9 * 60 + 27 ? 'auction' : clock.minutes >= 9 * 60 + 35 && clock.minutes < 9 * 60 + 37 ? 'open' : null
-    if (!phase) return
-    if (readCrossMarketSnapshot(tradeDate, phase)) return
+export async function runCrossMarketSchedulerTick(nowMs = Date.now()): Promise<void> {
+  if (schedulerBusy) return
+  const clock = shanghaiClockAt(nowMs)
+  if (!isTradingDayAt(nowMs)) return
+  const tradeDate = todayShanghai(nowMs)
+  if (clock.minutes >= 15 * 60 + 10 && clock.minutes < 15 * 60 + 12) {
+    if (readCrossMarketSettlement(tradeDate)) return
     schedulerBusy = true
     try {
-      await buildCrossMarketResearchSnapshot({ tradeDate, phase })
+      await buildCrossMarketSettlement(tradeDate)
     } catch {
-      // A later 15-second tick retries transient free-source failures.
+      // A later coordinator tick retries transient free-source failures.
     } finally {
       schedulerBusy = false
     }
+    return
   }
-  scheduler = setInterval(() => void tick(), 15_000)
+  const phase: CrossMarketPhase | null = clock.minutes >= 9 * 60 + 15 && clock.minutes < 9 * 60 + 17
+    ? 'premarket'
+    : clock.minutes >= 9 * 60 + 25 && clock.minutes < 9 * 60 + 27
+      ? 'auction'
+      : clock.minutes >= 9 * 60 + 35 && clock.minutes < 9 * 60 + 37
+        ? 'open'
+        : null
+  if (!phase) return
+  if (readCrossMarketSnapshot(tradeDate, phase)) return
+  schedulerBusy = true
+  try {
+    await buildCrossMarketResearchSnapshot({ tradeDate, phase })
+  } catch {
+    // A later coordinator tick retries transient free-source failures.
+  } finally {
+    schedulerBusy = false
+  }
+}
+
+export function startCrossMarketScheduler(): boolean {
+  if (scheduler) return false
+  scheduler = setInterval(() => void runCrossMarketSchedulerTick(), 15_000)
   scheduler.unref?.()
-  void tick()
+  void runCrossMarketSchedulerTick()
+  return true
 }
