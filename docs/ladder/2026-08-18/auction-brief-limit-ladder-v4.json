@@ -1,0 +1,666 @@
+{
+  "signalDate": "2026-08-18",
+  "tradeDate": "2026-08-19",
+  "ruleVersion": "limit-ladder-v4",
+  "updatedAt": "2026-08-19T01:35:09.303Z",
+  "briefs": [
+    {
+      "id": "2026-08-19:auction-final:limit-ladder-v4",
+      "signalDate": "2026-08-18",
+      "tradeDate": "2026-08-19",
+      "generatedAt": "2026-08-19T01:28:06.783Z",
+      "ruleVersion": "limit-ladder-v4",
+      "phase": "auction-final",
+      "title": "2026-08-19 09:28竞价终局",
+      "summary": "竞价整体偏强，农业题材引领。正式候选0只入围、4只观察、2只拒绝。",
+      "deterministicSummary": "竞价整体偏强，农业题材引领。正式候选0只入围、4只观察、2只拒绝。",
+      "generationMode": "rules",
+      "strengthScore": 61.09,
+      "strengthLabel": "偏强",
+      "confidence": 100,
+      "degraded": false,
+      "marketStyle": {
+        "style": "technology",
+        "label": "权重科技回流",
+        "score": 70,
+        "confidence": 100,
+        "topFiveConcentrationPct": 80,
+        "weightedSharePct": 100,
+        "evidence": [
+          "成交额前五科技占4只",
+          "权重股占5只",
+          "该信号只作市场风格证据，不单独确认题材主线"
+        ]
+      },
+      "primaryDirection": "农业题材引领",
+      "topAmount": [
+        {
+          "code": "688836",
+          "name": "N宇树-W",
+          "industry": "自动化设备",
+          "style": "mixed",
+          "price": 1100,
+          "changePct": 629.44,
+          "amount": 1488324200,
+          "marketCap": 444910774000,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:07",
+          "source": "eastmoney"
+        },
+        {
+          "code": "688825",
+          "name": "长鑫科技",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 57.1,
+          "changePct": -3.53,
+          "amount": 688958665,
+          "marketCap": 3818898594997,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:02",
+          "source": "eastmoney"
+        },
+        {
+          "code": "300308",
+          "name": "中际旭创",
+          "industry": "通信设备",
+          "style": "technology",
+          "price": 943.88,
+          "changePct": -4.48,
+          "amount": 500162012,
+          "marketCap": 1104089132947,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002202",
+          "name": "金风科技",
+          "industry": "风电设备",
+          "style": "technology",
+          "price": 24.21,
+          "changePct": 10,
+          "amount": 495443124,
+          "marketCap": 102257923144,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "603986",
+          "name": "兆易创新",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 417,
+          "changePct": -4.52,
+          "amount": 473142795,
+          "marketCap": 292627679178,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:01",
+          "source": "eastmoney"
+        }
+      ],
+      "themes": [
+        {
+          "theme": "农业",
+          "score": 82.67,
+          "state": "leading",
+          "positiveRate": 52.38,
+          "weightedGapPct": 3.48,
+          "amountSharePct": 39.21,
+          "coreCode": "603395",
+          "coreName": "红四方",
+          "coreOnePrice": true,
+          "assistantCodes": [
+            "600127",
+            "600108",
+            "600313",
+            "000998",
+            "000505",
+            "600737",
+            "600371"
+          ],
+          "assistantCount": 7,
+          "coverage": 84
+        },
+        {
+          "theme": "食品饮料",
+          "score": 50.71,
+          "state": "isolated-one-price",
+          "positiveRate": 33.33,
+          "weightedGapPct": -0.45,
+          "amountSharePct": 10.35,
+          "coreCode": "600127",
+          "coreName": "金健米业",
+          "coreOnePrice": true,
+          "assistantCodes": [
+            "000505"
+          ],
+          "assistantCount": 1,
+          "coverage": 100
+        },
+        {
+          "theme": "医药",
+          "score": 45.69,
+          "state": "weak",
+          "positiveRate": 20,
+          "weightedGapPct": 1.74,
+          "amountSharePct": 9.18,
+          "coreCode": "600613",
+          "coreName": "神奇制药",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 100
+        },
+        {
+          "theme": "芯片",
+          "score": 44.64,
+          "state": "weak",
+          "positiveRate": 30,
+          "weightedGapPct": -1.91,
+          "amountSharePct": 20.54,
+          "coreCode": "001229",
+          "coreName": "魅视科技",
+          "coreOnePrice": false,
+          "assistantCodes": [
+            "002553",
+            "000526",
+            "603823"
+          ],
+          "assistantCount": 3,
+          "coverage": 100
+        }
+      ],
+      "candidates": [
+        {
+          "code": "000735",
+          "name": "罗牛山",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 57.22,
+          "reasons": [
+            "竞价分57.2",
+            "竞价涨幅-0.49%",
+            "过程质量0.0"
+          ]
+        },
+        {
+          "code": "603395",
+          "name": "红四方",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "农业",
+          "verdict": "reject",
+          "score": 53.93,
+          "reasons": [
+            "竞价分53.9",
+            "竞价涨幅10.02%",
+            "过程质量50.0",
+            "次日继续一字，不可达"
+          ]
+        },
+        {
+          "code": "600127",
+          "name": "金健米业",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "食品饮料",
+          "verdict": "reject",
+          "score": 37.3,
+          "reasons": [
+            "竞价分37.3",
+            "竞价涨幅9.99%",
+            "过程质量50.0",
+            "次日继续一字，不可达"
+          ]
+        },
+        {
+          "code": "002365",
+          "name": "永安药业",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 39.43,
+          "reasons": [
+            "竞价分39.4",
+            "竞价涨幅-2.38%",
+            "过程质量0.0"
+          ]
+        },
+        {
+          "code": "002515",
+          "name": "金字火腿",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "食品饮料",
+          "verdict": "observe",
+          "score": 32.01,
+          "reasons": [
+            "竞价分32.0",
+            "竞价涨幅-5.97%",
+            "过程质量0.0"
+          ]
+        },
+        {
+          "code": "600367",
+          "name": "红星发展",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "芯片",
+          "verdict": "observe",
+          "score": 45.54,
+          "reasons": [
+            "竞价分45.5",
+            "竞价涨幅-3.22%",
+            "过程质量11.7"
+          ]
+        },
+        {
+          "code": "000526",
+          "name": "学大教育",
+          "population": "wait-open",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "芯片",
+          "verdict": "observe",
+          "score": 60.7,
+          "reasons": [
+            "竞价分60.7",
+            "竞价涨幅4.98%",
+            "过程质量0.0",
+            "前日一字，等待可达性验证"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "code": "300970",
+          "name": "华绿生物",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 78.03,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "301106",
+          "name": "骏成科技",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "并购重组",
+          "verdict": "observe",
+          "score": 73.28,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "688112",
+          "name": "鼎阳科技",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "通信",
+          "verdict": "observe",
+          "score": 71.51,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        }
+      ],
+      "coverage": {
+        "auctionPct": 100,
+        "confirmationPct": null,
+        "sourceCount": 2
+      },
+      "warnings": [
+        "高标竞价处于收缩，确认状态受题材独立强度约束"
+      ],
+      "renderedText": "**竞价整体偏强，农业题材引领。正式候选0只入围、4只观察、2只拒绝。**\n\n- 强度：偏强（61.1）\n- 置信度：100%\n- 方向：农业题材引领\n- 风格：权重科技回流；前五集中度80.0%\n\n### 竞价成交额前列\n1. N宇树-W（自动化设备） 14.88亿\n2. 长鑫科技（半导体） 6.89亿\n3. 中际旭创（通信设备） 5.00亿\n4. 金风科技（风电设备） 4.95亿\n5. 兆易创新（半导体） 4.73亿\n\n### 题材方向\n- 农业：引领 82.7；核心红四方，助攻7只\n- 食品饮料：孤立一字 50.7；核心金健米业，助攻1只\n- 医药：偏弱 45.7；核心神奇制药，助攻0只\n- 芯片：偏弱 44.6；核心魅视科技，助攻3只\n\n### 主板接力池\n- [观察] 罗牛山 2进3 / 农业：竞价分57.2；竞价涨幅-0.49%；过程质量0.0\n- [拒绝] 红四方 2进3 / 农业：竞价分53.9；竞价涨幅10.02%；过程质量50.0；次日继续一字，不可达\n- [拒绝] 金健米业 2进3 / 食品饮料：竞价分37.3；竞价涨幅9.99%；过程质量50.0；次日继续一字，不可达\n- [观察] 永安药业 1进2 / 医药：竞价分39.4；竞价涨幅-2.38%；过程质量0.0\n- [观察] 金字火腿 1进2 / 食品饮料：竞价分32.0；竞价涨幅-5.97%；过程质量0.0\n- [观察] 红星发展 1进2 / 芯片：竞价分45.5；竞价涨幅-3.22%；过程质量11.7\n- [观察] 学大教育 1进2 / 芯片：竞价分60.7；竞价涨幅4.98%；过程质量0.0；前日一字，等待可达性验证\n\n### 单列观察\n- 华绿生物（twenty） 农业：20cm/北交所单列观察，不进入主板接力候选\n- 骏成科技（twenty） 并购重组：20cm/北交所单列观察，不进入主板接力候选\n- 鼎阳科技（twenty） 通信：20cm/北交所单列观察，不进入主板接力候选\n\n### 数据提示\n- 高标竞价处于收缩，确认状态受题材独立强度约束\n\n> 研究提醒，不构成交易或仓位建议。"
+    },
+    {
+      "id": "2026-08-19:open-confirmation:limit-ladder-v4",
+      "signalDate": "2026-08-18",
+      "tradeDate": "2026-08-19",
+      "generatedAt": "2026-08-19T01:35:07.015Z",
+      "ruleVersion": "limit-ladder-v4",
+      "phase": "open-confirmation",
+      "title": "2026-08-19 09:35承接确认",
+      "summary": "9:35承接整体偏强，农业题材引领。正式候选2只确认、2只继续观察、2只拒绝。",
+      "deterministicSummary": "9:35承接整体偏强，农业题材引领。正式候选2只确认、2只继续观察、2只拒绝。",
+      "generationMode": "rules",
+      "strengthScore": 67.69,
+      "strengthLabel": "偏强",
+      "confidence": 100,
+      "degraded": false,
+      "marketStyle": {
+        "style": "technology",
+        "label": "权重科技回流",
+        "score": 70,
+        "confidence": 100,
+        "topFiveConcentrationPct": 80,
+        "weightedSharePct": 100,
+        "evidence": [
+          "成交额前五科技占4只",
+          "权重股占5只",
+          "该信号只作市场风格证据，不单独确认题材主线"
+        ]
+      },
+      "primaryDirection": "农业题材引领",
+      "topAmount": [
+        {
+          "code": "688836",
+          "name": "N宇树-W",
+          "industry": "自动化设备",
+          "style": "mixed",
+          "price": 1100,
+          "changePct": 629.44,
+          "amount": 1488324200,
+          "marketCap": 444910774000,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:07",
+          "source": "eastmoney"
+        },
+        {
+          "code": "688825",
+          "name": "长鑫科技",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 57.1,
+          "changePct": -3.53,
+          "amount": 688958665,
+          "marketCap": 3818898594997,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:02",
+          "source": "eastmoney"
+        },
+        {
+          "code": "300308",
+          "name": "中际旭创",
+          "industry": "通信设备",
+          "style": "technology",
+          "price": 943.88,
+          "changePct": -4.48,
+          "amount": 500162012,
+          "marketCap": 1104089132947,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002202",
+          "name": "金风科技",
+          "industry": "风电设备",
+          "style": "technology",
+          "price": 24.21,
+          "changePct": 10,
+          "amount": 495443124,
+          "marketCap": 102257923144,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "603986",
+          "name": "兆易创新",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 417,
+          "changePct": -4.52,
+          "amount": 473142795,
+          "marketCap": 292627679178,
+          "tradeDate": "2026-08-19",
+          "quoteTime": "09:25:01",
+          "source": "eastmoney"
+        }
+      ],
+      "themes": [
+        {
+          "theme": "农业",
+          "score": 82.67,
+          "state": "leading",
+          "positiveRate": 52.38,
+          "weightedGapPct": 3.48,
+          "amountSharePct": 39.21,
+          "coreCode": "603395",
+          "coreName": "红四方",
+          "coreOnePrice": true,
+          "assistantCodes": [
+            "600127",
+            "600108",
+            "600313",
+            "000998",
+            "000505",
+            "600737",
+            "600371"
+          ],
+          "assistantCount": 7,
+          "coverage": 84
+        },
+        {
+          "theme": "食品饮料",
+          "score": 50.71,
+          "state": "isolated-one-price",
+          "positiveRate": 33.33,
+          "weightedGapPct": -0.45,
+          "amountSharePct": 10.35,
+          "coreCode": "600127",
+          "coreName": "金健米业",
+          "coreOnePrice": true,
+          "assistantCodes": [
+            "000505"
+          ],
+          "assistantCount": 1,
+          "coverage": 100
+        },
+        {
+          "theme": "医药",
+          "score": 45.69,
+          "state": "weak",
+          "positiveRate": 20,
+          "weightedGapPct": 1.74,
+          "amountSharePct": 9.18,
+          "coreCode": "600613",
+          "coreName": "神奇制药",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 100
+        },
+        {
+          "theme": "芯片",
+          "score": 44.64,
+          "state": "weak",
+          "positiveRate": 30,
+          "weightedGapPct": -1.91,
+          "amountSharePct": 20.54,
+          "coreCode": "001229",
+          "coreName": "魅视科技",
+          "coreOnePrice": false,
+          "assistantCodes": [
+            "002553",
+            "000526",
+            "603823"
+          ],
+          "assistantCount": 3,
+          "coverage": 100
+        }
+      ],
+      "candidates": [
+        {
+          "code": "000735",
+          "name": "罗牛山",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 76.57,
+          "reasons": [
+            "实时分76.6",
+            "承接分71.4",
+            "价格在VWAP上方"
+          ]
+        },
+        {
+          "code": "603395",
+          "name": "红四方",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "农业",
+          "verdict": "reject",
+          "score": 75.71,
+          "reasons": [
+            "实时分75.7",
+            "承接分71.3",
+            "价格在VWAP上方",
+            "开盘涨幅超过8%，拒绝追价"
+          ]
+        },
+        {
+          "code": "600127",
+          "name": "金健米业",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "食品饮料",
+          "verdict": "reject",
+          "score": 68.94,
+          "reasons": [
+            "实时分68.9",
+            "承接分52.9",
+            "价格在VWAP上方",
+            "次日继续一字，不可达"
+          ]
+        },
+        {
+          "code": "002365",
+          "name": "永安药业",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 68.49,
+          "reasons": [
+            "实时分68.5",
+            "承接分50.0",
+            "价格弱于VWAP"
+          ]
+        },
+        {
+          "code": "002515",
+          "name": "金字火腿",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "食品饮料",
+          "verdict": "accept",
+          "score": 71.12,
+          "reasons": [
+            "实时分71.1",
+            "承接分69.2",
+            "价格在VWAP上方"
+          ]
+        },
+        {
+          "code": "600367",
+          "name": "红星发展",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "芯片",
+          "verdict": "accept",
+          "score": 73.92,
+          "reasons": [
+            "实时分73.9",
+            "承接分73.5",
+            "价格在VWAP上方"
+          ]
+        },
+        {
+          "code": "000526",
+          "name": "学大教育",
+          "population": "wait-open",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "芯片",
+          "verdict": "observe",
+          "score": 64.25,
+          "reasons": [
+            "实时分64.3",
+            "承接分76.3",
+            "价格在VWAP上方",
+            "前日一字，等待可达性验证"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "code": "300970",
+          "name": "华绿生物",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 78.03,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "301106",
+          "name": "骏成科技",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "并购重组",
+          "verdict": "observe",
+          "score": 73.28,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "688112",
+          "name": "鼎阳科技",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "通信",
+          "verdict": "observe",
+          "score": 71.51,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        }
+      ],
+      "coverage": {
+        "auctionPct": 100,
+        "confirmationPct": 100,
+        "sourceCount": 2
+      },
+      "warnings": [
+        "高标竞价处于收缩，确认状态受题材独立强度约束"
+      ],
+      "renderedText": "**9:35承接整体偏强，农业题材引领。正式候选2只确认、2只继续观察、2只拒绝。**\n\n- 强度：偏强（67.7）\n- 置信度：100%\n- 方向：农业题材引领\n- 风格：权重科技回流；前五集中度80.0%\n\n### 竞价成交额前列\n1. N宇树-W（自动化设备） 14.88亿\n2. 长鑫科技（半导体） 6.89亿\n3. 中际旭创（通信设备） 5.00亿\n4. 金风科技（风电设备） 4.95亿\n5. 兆易创新（半导体） 4.73亿\n\n### 题材方向\n- 农业：引领 82.7；核心红四方，助攻7只\n- 食品饮料：孤立一字 50.7；核心金健米业，助攻1只\n- 医药：偏弱 45.7；核心神奇制药，助攻0只\n- 芯片：偏弱 44.6；核心魅视科技，助攻3只\n\n### 主板接力池\n- [观察] 罗牛山 2进3 / 农业：实时分76.6；承接分71.4；价格在VWAP上方\n- [拒绝] 红四方 2进3 / 农业：实时分75.7；承接分71.3；价格在VWAP上方；开盘涨幅超过8%，拒绝追价\n- [拒绝] 金健米业 2进3 / 食品饮料：实时分68.9；承接分52.9；价格在VWAP上方；次日继续一字，不可达\n- [观察] 永安药业 1进2 / 医药：实时分68.5；承接分50.0；价格弱于VWAP\n- [接受] 金字火腿 1进2 / 食品饮料：实时分71.1；承接分69.2；价格在VWAP上方\n- [接受] 红星发展 1进2 / 芯片：实时分73.9；承接分73.5；价格在VWAP上方\n- [观察] 学大教育 1进2 / 芯片：实时分64.3；承接分76.3；价格在VWAP上方；前日一字，等待可达性验证\n\n### 单列观察\n- 华绿生物（twenty） 农业：20cm/北交所单列观察，不进入主板接力候选\n- 骏成科技（twenty） 并购重组：20cm/北交所单列观察，不进入主板接力候选\n- 鼎阳科技（twenty） 通信：20cm/北交所单列观察，不进入主板接力候选\n\n### 数据提示\n- 高标竞价处于收缩，确认状态受题材独立强度约束\n\n> 研究提醒，不构成交易或仓位建议。"
+    }
+  ]
+}

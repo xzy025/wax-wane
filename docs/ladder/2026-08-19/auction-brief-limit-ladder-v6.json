@@ -1,0 +1,506 @@
+{
+  "signalDate": "2026-08-19",
+  "tradeDate": "2026-08-20",
+  "ruleVersion": "limit-ladder-v6",
+  "updatedAt": "2026-08-20T01:35:06.300Z",
+  "briefs": [
+    {
+      "id": "2026-08-20:auction-final:limit-ladder-v6",
+      "signalDate": "2026-08-19",
+      "tradeDate": "2026-08-20",
+      "generatedAt": "2026-08-20T01:28:03.385Z",
+      "ruleVersion": "limit-ladder-v6",
+      "phase": "auction-final",
+      "title": "2026-08-20 09:28竞价终局",
+      "summary": "大盘闸门正常；普涨修复；竞价整体弱，竞价方向分散。正式候选0只入围、3只观察、0只拒绝。",
+      "deterministicSummary": "大盘闸门正常；普涨修复；竞价整体弱，竞价方向分散。正式候选0只入围、3只观察、0只拒绝。",
+      "generationMode": "rules",
+      "strengthScore": 42.43,
+      "strengthLabel": "弱",
+      "confidence": 100,
+      "degraded": false,
+      "marketGateState": "normal",
+      "marketRiskScore": 18.9,
+      "marketRepairState": "broad-repair",
+      "repairConfidence": 100,
+      "marketStyle": {
+        "style": "mixed",
+        "label": "竞价方向分散",
+        "score": 50,
+        "confidence": 100,
+        "topFiveConcentrationPct": 40,
+        "weightedSharePct": 80,
+        "largeCapAmountSharePct": 64.57,
+        "evidence": [
+          "成交额前五分散占2只",
+          "权重股占4只",
+          "成交额前20大市值占64.6%",
+          "该信号只作市场风格证据，不单独确认题材主线"
+        ]
+      },
+      "primaryDirection": "竞价方向分散",
+      "topAmount": [
+        {
+          "code": "688825",
+          "name": "长鑫科技",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 57.58,
+          "changePct": 0.05,
+          "amount": 340404496,
+          "marketCap": 3851001420314,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:02",
+          "source": "eastmoney"
+        },
+        {
+          "code": "600127",
+          "name": "金健米业",
+          "industry": "农产品加工",
+          "style": "small-cap",
+          "price": 8.14,
+          "changePct": 4.09,
+          "amount": 315289729,
+          "marketCap": 5224115395,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:03",
+          "source": "eastmoney"
+        },
+        {
+          "code": "601899",
+          "name": "紫金矿业",
+          "industry": "工业金属",
+          "style": "mixed",
+          "price": 34,
+          "changePct": 3.79,
+          "amount": 292546200,
+          "marketCap": 904084297148,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:04",
+          "source": "eastmoney"
+        },
+        {
+          "code": "688836",
+          "name": "C宇树-W",
+          "industry": "自动化设备",
+          "style": "mixed",
+          "price": 790,
+          "changePct": -6.51,
+          "amount": 253953400,
+          "marketCap": 319526828600,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:03",
+          "source": "eastmoney"
+        },
+        {
+          "code": "603259",
+          "name": "药明康德",
+          "industry": "医疗服务",
+          "style": "medicine",
+          "price": 171,
+          "changePct": 4.27,
+          "amount": 236578500,
+          "marketCap": 510222473505,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:02",
+          "source": "eastmoney"
+        }
+      ],
+      "themes": [
+        {
+          "theme": "农业",
+          "score": 50.74,
+          "state": "weak",
+          "positiveRate": 20,
+          "weightedGapPct": 0.73,
+          "amountSharePct": 69.86,
+          "coreCode": "600127",
+          "coreName": "金健米业",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 100
+        },
+        {
+          "theme": "地产链",
+          "score": 28.22,
+          "state": "weak",
+          "positiveRate": 16.67,
+          "weightedGapPct": -3.11,
+          "amountSharePct": 20.13,
+          "coreCode": "000020",
+          "coreName": "深华发Ａ",
+          "coreOnePrice": false,
+          "assistantCodes": [
+            "603801"
+          ],
+          "assistantCount": 1,
+          "coverage": 100
+        }
+      ],
+      "candidates": [
+        {
+          "code": "603395",
+          "name": "红四方",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "3进4",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 33.5,
+          "reasons": [
+            "竞价分33.5",
+            "竞价涨幅-6.90%",
+            "过程质量0.0",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "000505",
+          "name": "京粮控股",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "3进4",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 33.5,
+          "reasons": [
+            "竞价分33.5",
+            "竞价涨幅-7.90%",
+            "过程质量0.0",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "000020",
+          "name": "深华发Ａ",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "地产链",
+          "verdict": "observe",
+          "score": 28.49,
+          "reasons": [
+            "竞价分28.5",
+            "竞价涨幅-9.02%",
+            "过程质量0.0",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "600127",
+          "name": "金健米业",
+          "population": "wait-open",
+          "boardType": "main",
+          "promotionLane": "3进4",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 55.72,
+          "reasons": [
+            "竞价分55.7",
+            "竞价涨幅2.05%",
+            "过程质量0.0",
+            "前日一字，等待可达性验证"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "code": "301211",
+          "name": "亨迪药业",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 69.38,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "301130",
+          "name": "西点药业",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 64.41,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "300069",
+          "name": "金利华电",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "商业航天",
+          "verdict": "observe",
+          "score": 58.85,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        }
+      ],
+      "coverage": {
+        "auctionPct": 100,
+        "confirmationPct": null,
+        "sourceCount": 2
+      },
+      "warnings": [],
+      "renderedText": "**大盘闸门正常；普涨修复；竞价整体弱，竞价方向分散。正式候选0只入围、3只观察、0只拒绝。**\n\n- 强度：弱（42.4）\n- 置信度：100%\n- 方向：竞价方向分散\n- 大盘闸门：normal（风险18.9）\n- 修复结构：broad-repair（置信度100.0%）\n- 风格：竞价方向分散；前五集中度40.0%\n\n### 竞价成交额前列\n1. 长鑫科技（半导体） 3.40亿\n2. 金健米业（农产品加工） 3.15亿\n3. 紫金矿业（工业金属） 2.93亿\n4. C宇树-W（自动化设备） 2.54亿\n5. 药明康德（医疗服务） 2.37亿\n\n### 题材方向\n- 农业：偏弱 50.7；核心金健米业，助攻0只\n- 地产链：偏弱 28.2；核心深华发Ａ，助攻1只\n\n### 主板接力池\n- [观察] 红四方 3进4 / 农业：竞价分33.5；竞价涨幅-6.90%；过程质量0.0；同层竞价样本少于5只，分位按中性分处理\n- [观察] 京粮控股 3进4 / 农业：竞价分33.5；竞价涨幅-7.90%；过程质量0.0；同层竞价样本少于5只，分位按中性分处理\n- [观察] 深华发Ａ 2进3 / 地产链：竞价分28.5；竞价涨幅-9.02%；过程质量0.0；同层竞价样本少于5只，分位按中性分处理\n- [观察] 金健米业 3进4 / 农业：竞价分55.7；竞价涨幅2.05%；过程质量0.0；前日一字，等待可达性验证\n\n### 单列观察\n- 亨迪药业（twenty） 医药：20cm/北交所单列观察，不进入主板接力候选\n- 西点药业（twenty） 医药：20cm/北交所单列观察，不进入主板接力候选\n- 金利华电（twenty） 商业航天：20cm/北交所单列观察，不进入主板接力候选\n\n> 研究提醒，不构成交易或仓位建议。"
+    },
+    {
+      "id": "2026-08-20:open-confirmation:limit-ladder-v6",
+      "signalDate": "2026-08-19",
+      "tradeDate": "2026-08-20",
+      "generatedAt": "2026-08-20T01:35:05.743Z",
+      "ruleVersion": "limit-ladder-v6",
+      "phase": "open-confirmation",
+      "title": "2026-08-20 09:35承接确认",
+      "summary": "大盘闸门正常；沿用9:25普涨修复；9:35承接整体分化，竞价方向分散。正式候选1只确认、2只继续观察、0只拒绝。",
+      "deterministicSummary": "大盘闸门正常；沿用9:25普涨修复；9:35承接整体分化，竞价方向分散。正式候选1只确认、2只继续观察、0只拒绝。",
+      "generationMode": "rules",
+      "strengthScore": 52.17,
+      "strengthLabel": "分化",
+      "confidence": 100,
+      "degraded": false,
+      "marketGateState": "normal",
+      "marketRiskScore": 21.63,
+      "marketRepairState": "broad-repair",
+      "repairConfidence": 100,
+      "marketStyle": {
+        "style": "mixed",
+        "label": "竞价方向分散",
+        "score": 50,
+        "confidence": 100,
+        "topFiveConcentrationPct": 40,
+        "weightedSharePct": 80,
+        "largeCapAmountSharePct": 64.57,
+        "evidence": [
+          "成交额前五分散占2只",
+          "权重股占4只",
+          "成交额前20大市值占64.6%",
+          "该信号只作市场风格证据，不单独确认题材主线"
+        ]
+      },
+      "primaryDirection": "竞价方向分散",
+      "topAmount": [
+        {
+          "code": "688825",
+          "name": "长鑫科技",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 57.58,
+          "changePct": 0.05,
+          "amount": 340404496,
+          "marketCap": 3851001420314,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:02",
+          "source": "eastmoney"
+        },
+        {
+          "code": "600127",
+          "name": "金健米业",
+          "industry": "农产品加工",
+          "style": "small-cap",
+          "price": 8.14,
+          "changePct": 4.09,
+          "amount": 315289729,
+          "marketCap": 5224115395,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:03",
+          "source": "eastmoney"
+        },
+        {
+          "code": "601899",
+          "name": "紫金矿业",
+          "industry": "工业金属",
+          "style": "mixed",
+          "price": 34,
+          "changePct": 3.79,
+          "amount": 292546200,
+          "marketCap": 904084297148,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:04",
+          "source": "eastmoney"
+        },
+        {
+          "code": "688836",
+          "name": "C宇树-W",
+          "industry": "自动化设备",
+          "style": "mixed",
+          "price": 790,
+          "changePct": -6.51,
+          "amount": 253953400,
+          "marketCap": 319526828600,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:03",
+          "source": "eastmoney"
+        },
+        {
+          "code": "603259",
+          "name": "药明康德",
+          "industry": "医疗服务",
+          "style": "medicine",
+          "price": 171,
+          "changePct": 4.27,
+          "amount": 236578500,
+          "marketCap": 510222473505,
+          "tradeDate": "2026-08-20",
+          "quoteTime": "09:25:02",
+          "source": "eastmoney"
+        }
+      ],
+      "themes": [
+        {
+          "theme": "农业",
+          "score": 50.74,
+          "state": "weak",
+          "positiveRate": 20,
+          "weightedGapPct": 0.73,
+          "amountSharePct": 69.86,
+          "coreCode": "600127",
+          "coreName": "金健米业",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 100
+        },
+        {
+          "theme": "地产链",
+          "score": 28.22,
+          "state": "weak",
+          "positiveRate": 16.67,
+          "weightedGapPct": -3.11,
+          "amountSharePct": 20.13,
+          "coreCode": "000020",
+          "coreName": "深华发Ａ",
+          "coreOnePrice": false,
+          "assistantCodes": [
+            "603801"
+          ],
+          "assistantCount": 1,
+          "coverage": 100
+        }
+      ],
+      "candidates": [
+        {
+          "code": "603395",
+          "name": "红四方",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "3进4",
+          "theme": "农业",
+          "verdict": "accept",
+          "score": 71.68,
+          "reasons": [
+            "决策分71.7",
+            "承接分65.4",
+            "价格弱于VWAP",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "000505",
+          "name": "京粮控股",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "3进4",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 68.26,
+          "reasons": [
+            "决策分68.3",
+            "承接分67.6",
+            "价格弱于VWAP",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "000020",
+          "name": "深华发Ａ",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "地产链",
+          "verdict": "observe",
+          "score": 64.63,
+          "reasons": [
+            "决策分64.6",
+            "承接分58.6",
+            "价格弱于VWAP",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "600127",
+          "name": "金健米业",
+          "population": "wait-open",
+          "boardType": "main",
+          "promotionLane": "3进4",
+          "theme": "农业",
+          "verdict": "observe",
+          "score": 62.87,
+          "reasons": [
+            "决策分62.9",
+            "承接分76.5",
+            "价格在VWAP上方",
+            "前日一字，等待可达性验证"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "code": "301211",
+          "name": "亨迪药业",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 69.38,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "301130",
+          "name": "西点药业",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 64.41,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "300069",
+          "name": "金利华电",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "商业航天",
+          "verdict": "observe",
+          "score": 58.85,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        }
+      ],
+      "coverage": {
+        "auctionPct": 100,
+        "confirmationPct": 100,
+        "sourceCount": 2
+      },
+      "warnings": [],
+      "renderedText": "**大盘闸门正常；沿用9:25普涨修复；9:35承接整体分化，竞价方向分散。正式候选1只确认、2只继续观察、0只拒绝。**\n\n- 强度：分化（52.2）\n- 置信度：100%\n- 方向：竞价方向分散\n- 大盘闸门：normal（风险21.6）\n- 修复结构：broad-repair（置信度100.0%）\n- 风格：竞价方向分散；前五集中度40.0%\n\n### 竞价成交额前列\n1. 长鑫科技（半导体） 3.40亿\n2. 金健米业（农产品加工） 3.15亿\n3. 紫金矿业（工业金属） 2.93亿\n4. C宇树-W（自动化设备） 2.54亿\n5. 药明康德（医疗服务） 2.37亿\n\n### 题材方向\n- 农业：偏弱 50.7；核心金健米业，助攻0只\n- 地产链：偏弱 28.2；核心深华发Ａ，助攻1只\n\n### 主板接力池\n- [接受] 红四方 3进4 / 农业：决策分71.7；承接分65.4；价格弱于VWAP；同层竞价样本少于5只，分位按中性分处理\n- [观察] 京粮控股 3进4 / 农业：决策分68.3；承接分67.6；价格弱于VWAP；同层竞价样本少于5只，分位按中性分处理\n- [观察] 深华发Ａ 2进3 / 地产链：决策分64.6；承接分58.6；价格弱于VWAP；同层竞价样本少于5只，分位按中性分处理\n- [观察] 金健米业 3进4 / 农业：决策分62.9；承接分76.5；价格在VWAP上方；前日一字，等待可达性验证\n\n### 单列观察\n- 亨迪药业（twenty） 医药：20cm/北交所单列观察，不进入主板接力候选\n- 西点药业（twenty） 医药：20cm/北交所单列观察，不进入主板接力候选\n- 金利华电（twenty） 商业航天：20cm/北交所单列观察，不进入主板接力候选\n\n> 研究提醒，不构成交易或仓位建议。"
+    }
+  ]
+}

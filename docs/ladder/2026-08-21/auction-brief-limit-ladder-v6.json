@@ -1,0 +1,2998 @@
+{
+  "signalDate": "2026-08-21",
+  "tradeDate": "2026-08-24",
+  "ruleVersion": "limit-ladder-v6",
+  "updatedAt": "2026-08-24T01:35:23.159Z",
+  "briefs": [
+    {
+      "id": "2026-08-24:auction-final:limit-ladder-v6",
+      "signalDate": "2026-08-21",
+      "tradeDate": "2026-08-24",
+      "generatedAt": "2026-08-24T01:28:13.450Z",
+      "ruleVersion": "limit-ladder-v6",
+      "phase": "auction-final",
+      "title": "2026-08-24 09:28竞价终局",
+      "summary": "大盘闸门谨慎；修复结构混合；竞价整体偏强，黄金题材引领。正式候选0只入围、4只观察、1只拒绝。",
+      "deterministicSummary": "大盘闸门谨慎；修复结构混合；竞价整体偏强，黄金题材引领。正式候选0只入围、4只观察、1只拒绝。",
+      "generationMode": "rules",
+      "strengthScore": 65.07,
+      "strengthLabel": "偏强",
+      "confidence": 100,
+      "degraded": false,
+      "marketGateState": "cautious",
+      "marketRiskScore": 38.35,
+      "marketRepairState": "mixed",
+      "repairConfidence": 100,
+      "marketStyle": {
+        "style": "mixed",
+        "label": "竞价方向分散",
+        "score": 60,
+        "confidence": 100,
+        "topFiveConcentrationPct": 60,
+        "weightedSharePct": 80,
+        "largeCapAmountSharePct": 62.73,
+        "evidence": [
+          "成交额前五分散占3只",
+          "权重股占4只",
+          "成交额前20大市值占62.7%",
+          "该信号只作市场风格证据，不单独确认题材主线"
+        ]
+      },
+      "primaryDirection": "黄金题材引领",
+      "topAmount": [
+        {
+          "code": "300308",
+          "name": "中际旭创",
+          "industry": "通信设备",
+          "style": "technology",
+          "price": 945,
+          "changePct": 0.21,
+          "amount": 674352000,
+          "marketCap": 1105399235745,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002428",
+          "name": "云南锗业",
+          "industry": "小金属",
+          "style": "mixed",
+          "price": 103.6,
+          "changePct": 2.7,
+          "amount": 375114362,
+          "marketCap": 67663232000,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002384",
+          "name": "东山精密",
+          "industry": "元件",
+          "style": "mixed",
+          "price": 205.13,
+          "changePct": 2.01,
+          "amount": 172024684.69,
+          "marketCap": 375717653039,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "688825",
+          "name": "长鑫科技",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 57.6,
+          "changePct": -0.69,
+          "amount": 160935149,
+          "marketCap": 3852339038035,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:07",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002716",
+          "name": "湖南白银",
+          "industry": "贵金属",
+          "style": "mixed",
+          "price": 11.04,
+          "changePct": 5.95,
+          "amount": 159086400,
+          "marketCap": 31166898652,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        }
+      ],
+      "themes": [
+        {
+          "theme": "黄金",
+          "score": 100,
+          "state": "leading",
+          "positiveRate": 100,
+          "weightedGapPct": 5.59,
+          "amountSharePct": 35.35,
+          "coreCode": "000017",
+          "coreName": "深中华A",
+          "coreOnePrice": true,
+          "assistantCodes": [
+            "601212",
+            "002716",
+            "000603"
+          ],
+          "assistantCount": 3,
+          "coverage": 100
+        },
+        {
+          "theme": "通信",
+          "score": 77.85,
+          "state": "resonant",
+          "positiveRate": 60,
+          "weightedGapPct": 1.91,
+          "amountSharePct": 38.1,
+          "coreCode": "002491",
+          "coreName": "通鼎互联",
+          "coreOnePrice": false,
+          "assistantCodes": [
+            "603803",
+            "600577",
+            "002396"
+          ],
+          "assistantCount": 3,
+          "coverage": 90.91
+        },
+        {
+          "theme": "医药",
+          "score": 62.55,
+          "state": "weak",
+          "positiveRate": 33.33,
+          "weightedGapPct": 4.76,
+          "amountSharePct": 16.29,
+          "coreCode": "002412",
+          "coreName": "汉森制药",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 60
+        },
+        {
+          "theme": "新型工业化",
+          "score": 34.64,
+          "state": "weak",
+          "positiveRate": 25,
+          "weightedGapPct": -0.12,
+          "amountSharePct": 6.27,
+          "coreCode": "002903",
+          "coreName": "宇环数控",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 100
+        }
+      ],
+      "candidates": [
+        {
+          "code": "000017",
+          "name": "深中华A",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "黄金",
+          "verdict": "reject",
+          "score": 47.22,
+          "reasons": [
+            "竞价分47.2",
+            "竞价涨幅9.99%",
+            "过程质量50.0",
+            "次日继续一字，不可达"
+          ]
+        },
+        {
+          "code": "603803",
+          "name": "瑞斯康达",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "通信",
+          "verdict": "observe",
+          "score": 64.65,
+          "reasons": [
+            "竞价分64.7",
+            "竞价涨幅5.12%",
+            "过程质量0.0"
+          ]
+        },
+        {
+          "code": "000710",
+          "name": "贝瑞基因",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 43.01,
+          "reasons": [
+            "竞价分43.0",
+            "竞价涨幅-7.27%",
+            "过程质量41.3",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "603079",
+          "name": "圣达生物",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 37.22,
+          "reasons": [
+            "竞价分37.2",
+            "竞价涨幅-1.92%",
+            "过程质量0.0"
+          ]
+        },
+        {
+          "code": "002209",
+          "name": "达意隆",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "新型工业化",
+          "verdict": "observe",
+          "score": 39.25,
+          "reasons": [
+            "竞价分39.3",
+            "竞价涨幅-1.90%",
+            "过程质量0.0"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "code": "300839",
+          "name": "博汇股份",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "算力",
+          "verdict": "observe",
+          "score": 72.58,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "300016",
+          "name": "北陆药业",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 71.73,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "301591",
+          "name": "肯特股份",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "通信",
+          "verdict": "observe",
+          "score": 68.93,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        }
+      ],
+      "coverage": {
+        "auctionPct": 100,
+        "confirmationPct": null,
+        "sourceCount": 2
+      },
+      "warnings": [
+        "大盘交易闸门谨慎，板块必须形成独立竞价强度"
+      ],
+      "renderedText": "**大盘闸门谨慎；修复结构混合；竞价整体偏强，黄金题材引领。正式候选0只入围、4只观察、1只拒绝。**\n\n- 强度：偏强（65.1）\n- 置信度：100%\n- 方向：黄金题材引领\n- 大盘闸门：cautious（风险38.4）\n- 修复结构：mixed（置信度100.0%）\n- 风格：竞价方向分散；前五集中度60.0%\n\n### 竞价成交额前列\n1. 中际旭创（通信设备） 6.74亿\n2. 云南锗业（小金属） 3.75亿\n3. 东山精密（元件） 1.72亿\n4. 长鑫科技（半导体） 1.61亿\n5. 湖南白银（贵金属） 1.59亿\n\n### 题材方向\n- 黄金：引领 100.0；核心深中华A，助攻3只\n- 通信：共振 77.8；核心通鼎互联，助攻3只\n- 医药：偏弱 62.5；核心汉森制药，助攻0只\n- 新型工业化：偏弱 34.6；核心宇环数控，助攻0只\n\n### 主板接力池\n- [拒绝] 深中华A 2进3 / 黄金：竞价分47.2；竞价涨幅9.99%；过程质量50.0；次日继续一字，不可达\n- [观察] 瑞斯康达 1进2 / 通信：竞价分64.7；竞价涨幅5.12%；过程质量0.0\n- [观察] 贝瑞基因 2进3 / 医药：竞价分43.0；竞价涨幅-7.27%；过程质量41.3；同层竞价样本少于5只，分位按中性分处理\n- [观察] 圣达生物 1进2 / 医药：竞价分37.2；竞价涨幅-1.92%；过程质量0.0\n- [观察] 达意隆 1进2 / 新型工业化：竞价分39.3；竞价涨幅-1.90%；过程质量0.0\n\n### 单列观察\n- 博汇股份（twenty） 算力：20cm/北交所单列观察，不进入主板接力候选\n- 北陆药业（twenty） 医药：20cm/北交所单列观察，不进入主板接力候选\n- 肯特股份（twenty） 通信：20cm/北交所单列观察，不进入主板接力候选\n\n### 隔夜重要新闻与关联个股\n- 三星电子股价下跌超7% 股东回报计划令投资者失望（corporate-action，important-source，重要度90）\n  影响路径：海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应\n  - 东芯股份（688110）核心供应链：DRAM/NAND存储芯片设计，产业链关联明确；未验证 +1.50%；风险：公司规模与盈利仍受行业周期影响\n  - 兆易创新（603986）核心供应链：NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导；未验证 待竞价验证；风险：与海外龙头并非必然直接供货关系\n  - 普冉股份（688766）核心供应链：存储器芯片设计厂商，直接受存储价格与需求预期影响；未验证 待竞价验证；风险：业绩对存储周期和产品结构较敏感\n- 现货黄金失守4600美元/盎司，日内跌0.12%。（commodity，important-source，重要度90）\n  影响路径：金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司\n  - 赤峰黄金（600988）直接产品/业务：黄金采选与冶炼收入直接受金价驱动；未验证 +0.34%；风险：金价回撤和矿山成本是主要风险\n  - 兴业银锡（000426）直接产品/业务：白银等有色金属资源占比明确，受银价传导；未验证 +0.02%；风险：多金属组合会稀释单一白银弹性\n  - 山东黄金（600547）行业龙头：国内黄金采选龙头，金价敏感度高；未验证 +2.02%；风险：大型矿山成本、汇率及产量影响利润\n- 纽约期金失守4660美元/盎司，日内跌0.45%。（macro-liquidity，important-source，重要度90）\n  影响路径：美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股\n- 阿里新股配售定价为112.7港元 中东、欧洲、亚洲主要主权基金参与认购（macro-liquidity，important-source，重要度90）\n  影响路径：美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股\n- 现货黄金突破4640美元/盎司，日内涨0.77%。（commodity，important-source，重要度90）\n  影响路径：金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司\n  - 赤峰黄金（600988）直接产品/业务：黄金采选与冶炼收入直接受金价驱动；未验证 +0.34%；风险：金价回撤和矿山成本是主要风险\n  - 兴业银锡（000426）直接产品/业务：白银等有色金属资源占比明确，受银价传导；未验证 +0.02%；风险：多金属组合会稀释单一白银弹性\n  - 山东黄金（600547）行业龙头：国内黄金采选龙头，金价敏感度高；未验证 +2.02%；风险：大型矿山成本、汇率及产量影响利润\n- 隔夜预期方向：存储、HBM、半导体、黄金、白银、贵金属、宏观流动性、利率、mRNA、癌症疫苗、创新药\n\n### 数据提示\n- 大盘交易闸门谨慎，板块必须形成独立竞价强度\n\n> 研究提醒，不构成交易或仓位建议。",
+      "overnightContext": {
+        "windowStart": "2026-08-21T15:00:00+08:00",
+        "windowEnd": "2026-08-24T09:15:00+08:00",
+        "asof": "2026-08-24T01:28:14.394Z",
+        "sourceCoverage": {
+          "fetched": [
+            "eastmoney",
+            "cls",
+            "sina"
+          ],
+          "succeeded": [
+            "eastmoney",
+            "sina"
+          ],
+          "itemCount": 203,
+          "windowItemCount": 203,
+          "coveragePct": 67,
+          "warnings": []
+        },
+        "newsCatalysts": [
+          {
+            "id": "em-202608243850484482",
+            "time": "2026-08-24T08:45:36+08:00",
+            "title": "三星电子股价下跌超7% 股东回报计划令投资者失望",
+            "summary": "三星电子股价一度下跌超7%，原因是其新的股东回报方案侧重于分红，令投资者感到失望。三星电子周五表示，计划今年向投资者回报至多110万亿韩元（约合800亿美元），其中30万亿韩元计划第三季度以现金分红的形式发放；该公司表示，其余股东回报安排将在明年1月举行的董事会会议上最终敲定。",
+            "source": "eastmoney",
+            "category": "corporate-action",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+            "themes": [
+              "存储",
+              "HBM",
+              "半导体"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "688110",
+                "name": "东芯股份",
+                "relationType": "核心供应链",
+                "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+                "relationScore": 60,
+                "riskNote": "公司规模与盈利仍受行业周期影响",
+                "marketScore": 15,
+                "confidence": 75,
+                "validationState": "未验证",
+                "changePct": 1.5,
+                "auctionAmount": 77034411
+              },
+              {
+                "code": "603986",
+                "name": "兆易创新",
+                "relationType": "核心供应链",
+                "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+                "relationScore": 60,
+                "riskNote": "与海外龙头并非必然直接供货关系",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688766",
+                "name": "普冉股份",
+                "relationType": "核心供应链",
+                "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+                "relationScore": 60,
+                "riskNote": "业绩对存储周期和产品结构较敏感",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "000021",
+                "name": "深科技",
+                "relationType": "核心供应链",
+                "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+                "relationScore": 60,
+                "riskNote": "封测受订单和代工价格影响",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "001309",
+                "name": "德明利",
+                "relationType": "同类技术",
+                "relationReason": "存储模组和主控相关产品，属于存储终端链",
+                "relationScore": 45,
+                "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054106",
+            "time": "2026-08-24T08:26:58+08:00",
+            "title": "现货黄金失守4600美元/盎司，日内跌0.12%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0106680.d.html",
+            "category": "commodity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+            "themes": [
+              "黄金",
+              "白银",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "600988",
+                "name": "赤峰黄金",
+                "relationType": "直接产品/业务",
+                "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+                "relationScore": 70,
+                "riskNote": "金价回撤和矿山成本是主要风险",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.34,
+                "auctionAmount": 83580960
+              },
+              {
+                "code": "000426",
+                "name": "兴业银锡",
+                "relationType": "直接产品/业务",
+                "relationReason": "白银等有色金属资源占比明确，受银价传导",
+                "relationScore": 70,
+                "riskNote": "多金属组合会稀释单一白银弹性",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.02,
+                "auctionAmount": 82961966.34
+              },
+              {
+                "code": "600547",
+                "name": "山东黄金",
+                "relationType": "行业龙头",
+                "relationReason": "国内黄金采选龙头，金价敏感度高",
+                "relationScore": 50,
+                "riskNote": "大型矿山成本、汇率及产量影响利润",
+                "marketScore": 15,
+                "confidence": 65,
+                "validationState": "未验证",
+                "changePct": 2.02,
+                "auctionAmount": 105548940
+              },
+              {
+                "code": "600489",
+                "name": "中金黄金",
+                "relationType": "行业龙头",
+                "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+                "relationScore": 50,
+                "riskNote": "泛黄金行情不代表个股同步上涨",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054104",
+            "time": "2026-08-24T08:26:30+08:00",
+            "title": "纽约期金失守4660美元/盎司，日内跌0.45%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2057064.d.html",
+            "category": "macro-liquidity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "mixed",
+            "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+            "themes": [
+              "宏观流动性",
+              "利率",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": []
+          },
+          {
+            "id": "em-202608243850478282",
+            "time": "2026-08-24T08:21:27+08:00",
+            "title": "阿里新股配售定价为112.7港元 中东、欧洲、亚洲主要主权基金参与认购",
+            "summary": "阿里巴巴宣布完成800亿港元（约102亿美元）新股配售定价，发行价为每股普通股112.70港元，共配售7.1亿股。记者从知情人士获悉，本次配售自启动后不到一小时即获超额认购，最终配售份额以主权财富基金等高质量长线做多投资者为主，中金公司（CICC）、汇丰（HSBC）、摩根士丹利（Morgan Stanley）、瑞银（UBS）参与了本轮新股配售。中东、欧洲、亚洲等地区的主要主权基金积极参与了此次认购。",
+            "source": "eastmoney",
+            "category": "macro-liquidity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "mixed",
+            "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+            "themes": [
+              "宏观流动性",
+              "利率",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": []
+          },
+          {
+            "id": "sina-5054082",
+            "time": "2026-08-24T08:12:48+08:00",
+            "title": "现货黄金突破4640美元/盎司，日内涨0.77%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0097712.d.html",
+            "category": "commodity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+            "themes": [
+              "黄金",
+              "白银",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "600988",
+                "name": "赤峰黄金",
+                "relationType": "直接产品/业务",
+                "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+                "relationScore": 70,
+                "riskNote": "金价回撤和矿山成本是主要风险",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.34,
+                "auctionAmount": 83580960
+              },
+              {
+                "code": "000426",
+                "name": "兴业银锡",
+                "relationType": "直接产品/业务",
+                "relationReason": "白银等有色金属资源占比明确，受银价传导",
+                "relationScore": 70,
+                "riskNote": "多金属组合会稀释单一白银弹性",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.02,
+                "auctionAmount": 82961966.34
+              },
+              {
+                "code": "600547",
+                "name": "山东黄金",
+                "relationType": "行业龙头",
+                "relationReason": "国内黄金采选龙头，金价敏感度高",
+                "relationScore": 50,
+                "riskNote": "大型矿山成本、汇率及产量影响利润",
+                "marketScore": 15,
+                "confidence": 65,
+                "validationState": "未验证",
+                "changePct": 2.02,
+                "auctionAmount": 105548940
+              },
+              {
+                "code": "600489",
+                "name": "中金黄金",
+                "relationType": "行业龙头",
+                "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+                "relationScore": 50,
+                "riskNote": "泛黄金行情不代表个股同步上涨",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054071",
+            "time": "2026-08-24T08:05:14+08:00",
+            "title": "现货黄金突破4630美元/盎司，日内涨0.65%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0093047.d.html",
+            "category": "commodity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+            "themes": [
+              "黄金",
+              "白银",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "600988",
+                "name": "赤峰黄金",
+                "relationType": "直接产品/业务",
+                "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+                "relationScore": 70,
+                "riskNote": "金价回撤和矿山成本是主要风险",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.34,
+                "auctionAmount": 83580960
+              },
+              {
+                "code": "000426",
+                "name": "兴业银锡",
+                "relationType": "直接产品/业务",
+                "relationReason": "白银等有色金属资源占比明确，受银价传导",
+                "relationScore": 70,
+                "riskNote": "多金属组合会稀释单一白银弹性",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.02,
+                "auctionAmount": 82961966.34
+              },
+              {
+                "code": "600547",
+                "name": "山东黄金",
+                "relationType": "行业龙头",
+                "relationReason": "国内黄金采选龙头，金价敏感度高",
+                "relationScore": 50,
+                "riskNote": "大型矿山成本、汇率及产量影响利润",
+                "marketScore": 15,
+                "confidence": 65,
+                "validationState": "未验证",
+                "changePct": 2.02,
+                "auctionAmount": 105548940
+              },
+              {
+                "code": "600489",
+                "name": "中金黄金",
+                "relationType": "行业龙头",
+                "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+                "relationScore": 50,
+                "riskNote": "泛黄金行情不代表个股同步上涨",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054070",
+            "time": "2026-08-24T08:05:09+08:00",
+            "title": "纽约期金突破4690美元/盎司，日内涨0.21%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkmae3033496.d.html",
+            "category": "macro-liquidity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "mixed",
+            "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+            "themes": [
+              "宏观流动性",
+              "利率",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": []
+          },
+          {
+            "id": "sina-5054067",
+            "time": "2026-08-24T08:02:15+08:00",
+            "title": "三星电子公布股东回报计划后，股价下跌4.8%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0090927.d.html",
+            "category": "corporate-action",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+            "themes": [
+              "存储",
+              "HBM",
+              "半导体"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "688110",
+                "name": "东芯股份",
+                "relationType": "核心供应链",
+                "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+                "relationScore": 60,
+                "riskNote": "公司规模与盈利仍受行业周期影响",
+                "marketScore": 15,
+                "confidence": 75,
+                "validationState": "未验证",
+                "changePct": 1.5,
+                "auctionAmount": 77034411
+              },
+              {
+                "code": "603986",
+                "name": "兆易创新",
+                "relationType": "核心供应链",
+                "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+                "relationScore": 60,
+                "riskNote": "与海外龙头并非必然直接供货关系",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688766",
+                "name": "普冉股份",
+                "relationType": "核心供应链",
+                "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+                "relationScore": 60,
+                "riskNote": "业绩对存储周期和产品结构较敏感",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "000021",
+                "name": "深科技",
+                "relationType": "核心供应链",
+                "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+                "relationScore": 60,
+                "riskNote": "封测受订单和代工价格影响",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "001309",
+                "name": "德明利",
+                "relationType": "同类技术",
+                "relationReason": "存储模组和主控相关产品，属于存储终端链",
+                "relationScore": 45,
+                "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054127",
+            "time": "2026-08-24T08:45:55+08:00",
+            "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+            "summary": "方正证券研报称，美国财政部加大长债回购力度，弱化远端收益率上行动能，叠加美国经济数据疲软打压美联储加息预期及美元走强动能，金价顺势突破4600美元/盎司，贵金属权益市场颇具弹性。静待年内加息预期及美元走强逻辑进一步松动，带来贵金属权益市场的结构性机会；往后看，AI通胀和美国财政端有望继续创造黄金的利多环境，对后续的市场流动性保持乐观，并建议持续关注贵金属板块的高配置价值。",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2071474.d.html",
+            "category": "corporate-action",
+            "verification": "single-source",
+            "importanceScore": 80,
+            "direction": "positive",
+            "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+            "themes": [
+              "存储",
+              "HBM",
+              "半导体"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "688110",
+                "name": "东芯股份",
+                "relationType": "核心供应链",
+                "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+                "relationScore": 60,
+                "riskNote": "公司规模与盈利仍受行业周期影响",
+                "marketScore": 15,
+                "confidence": 75,
+                "validationState": "未验证",
+                "changePct": 1.5,
+                "auctionAmount": 77034411
+              },
+              {
+                "code": "603986",
+                "name": "兆易创新",
+                "relationType": "核心供应链",
+                "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+                "relationScore": 60,
+                "riskNote": "与海外龙头并非必然直接供货关系",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688766",
+                "name": "普冉股份",
+                "relationType": "核心供应链",
+                "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+                "relationScore": 60,
+                "riskNote": "业绩对存储周期和产品结构较敏感",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "000021",
+                "name": "深科技",
+                "relationType": "核心供应链",
+                "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+                "relationScore": 60,
+                "riskNote": "封测受订单和代工价格影响",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "001309",
+                "name": "德明利",
+                "relationType": "同类技术",
+                "relationReason": "存储模组和主控相关产品，属于存储终端链",
+                "relationScore": 45,
+                "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "em-202608243850479181",
+            "time": "2026-08-24T08:27:58+08:00",
+            "title": "中信建投：肿瘤mRNA疫苗开创肿瘤治疗新范式 国内企业加速追赶",
+            "summary": "中信建投研报称，随着Moderna个性化肿瘤mRNA疫苗临床III期取得积极结果，mRNA肿瘤疫苗正朝着商业化阶段迈进，市场空间有望逐步打开。mRNA肿瘤疫苗与ICIs联用有望开创肿瘤治疗的新范式。分类来看，个性化肿瘤疫苗具有潜在更优的治疗效果，虽然生产成本较高，但也有更大的定价空间，而通用型疫苗凭规模化生产和较低成本，有望覆盖更广泛的患者群体。",
+            "source": "eastmoney",
+            "category": "product-clinical",
+            "verification": "single-source",
+            "importanceScore": 70,
+            "direction": "positive",
+            "impactPath": "临床成功→创新药估值与肿瘤免疫研发预期提升→竞价验证医药主线",
+            "themes": [
+              "mRNA",
+              "癌症疫苗",
+              "创新药"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "300142",
+                "name": "沃森生物",
+                "relationType": "直接产品/业务",
+                "relationReason": "布局mRNA疫苗及创新疫苗平台，产品技术路线最接近",
+                "relationScore": 70,
+                "riskNote": "具体项目进度和收入贡献需以公告为准",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.43,
+                "auctionAmount": 151012939.77
+              },
+              {
+                "code": "600276",
+                "name": "恒瑞医药",
+                "relationType": "同类技术",
+                "relationReason": "肿瘤创新药龙头，具备临床和商业化平台",
+                "relationScore": 50,
+                "riskNote": "并非该新闻项目的直接参与方",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              },
+              {
+                "code": "300122",
+                "name": "智飞生物",
+                "relationType": "行业龙头",
+                "relationReason": "疫苗研发与商业化龙头，受疫苗风险偏好传导",
+                "relationScore": 50,
+                "riskNote": "新闻产品与公司现有业务并非一一对应",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688177",
+                "name": "百奥泰",
+                "relationType": "同类技术",
+                "relationReason": "创新生物药和肿瘤治疗平台，属于同类技术映射",
+                "relationScore": 45,
+                "riskNote": "同类技术不等于供应或合作关系",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          }
+        ],
+        "expectedDirections": [
+          "存储",
+          "HBM",
+          "半导体",
+          "黄金",
+          "白银",
+          "贵金属",
+          "宏观流动性",
+          "利率",
+          "mRNA",
+          "癌症疫苗",
+          "创新药"
+        ],
+        "auctionConfirmedDirections": [],
+        "openConfirmedDirections": [],
+        "warnings": []
+      },
+      "newsCatalysts": [
+        {
+          "id": "em-202608243850484482",
+          "time": "2026-08-24T08:45:36+08:00",
+          "title": "三星电子股价下跌超7% 股东回报计划令投资者失望",
+          "summary": "三星电子股价一度下跌超7%，原因是其新的股东回报方案侧重于分红，令投资者感到失望。三星电子周五表示，计划今年向投资者回报至多110万亿韩元（约合800亿美元），其中30万亿韩元计划第三季度以现金分红的形式发放；该公司表示，其余股东回报安排将在明年1月举行的董事会会议上最终敲定。",
+          "source": "eastmoney",
+          "category": "corporate-action",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+          "themes": [
+            "存储",
+            "HBM",
+            "半导体"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "688110",
+              "name": "东芯股份",
+              "relationType": "核心供应链",
+              "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+              "relationScore": 60,
+              "riskNote": "公司规模与盈利仍受行业周期影响",
+              "marketScore": 15,
+              "confidence": 75,
+              "validationState": "未验证",
+              "changePct": 1.5,
+              "auctionAmount": 77034411
+            },
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "relationType": "核心供应链",
+              "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+              "relationScore": 60,
+              "riskNote": "与海外龙头并非必然直接供货关系",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688766",
+              "name": "普冉股份",
+              "relationType": "核心供应链",
+              "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+              "relationScore": 60,
+              "riskNote": "业绩对存储周期和产品结构较敏感",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "000021",
+              "name": "深科技",
+              "relationType": "核心供应链",
+              "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+              "relationScore": 60,
+              "riskNote": "封测受订单和代工价格影响",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "001309",
+              "name": "德明利",
+              "relationType": "同类技术",
+              "relationReason": "存储模组和主控相关产品，属于存储终端链",
+              "relationScore": 45,
+              "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054106",
+          "time": "2026-08-24T08:26:58+08:00",
+          "title": "现货黄金失守4600美元/盎司，日内跌0.12%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0106680.d.html",
+          "category": "commodity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+          "themes": [
+            "黄金",
+            "白银",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "600988",
+              "name": "赤峰黄金",
+              "relationType": "直接产品/业务",
+              "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+              "relationScore": 70,
+              "riskNote": "金价回撤和矿山成本是主要风险",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.34,
+              "auctionAmount": 83580960
+            },
+            {
+              "code": "000426",
+              "name": "兴业银锡",
+              "relationType": "直接产品/业务",
+              "relationReason": "白银等有色金属资源占比明确，受银价传导",
+              "relationScore": 70,
+              "riskNote": "多金属组合会稀释单一白银弹性",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.02,
+              "auctionAmount": 82961966.34
+            },
+            {
+              "code": "600547",
+              "name": "山东黄金",
+              "relationType": "行业龙头",
+              "relationReason": "国内黄金采选龙头，金价敏感度高",
+              "relationScore": 50,
+              "riskNote": "大型矿山成本、汇率及产量影响利润",
+              "marketScore": 15,
+              "confidence": 65,
+              "validationState": "未验证",
+              "changePct": 2.02,
+              "auctionAmount": 105548940
+            },
+            {
+              "code": "600489",
+              "name": "中金黄金",
+              "relationType": "行业龙头",
+              "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+              "relationScore": 50,
+              "riskNote": "泛黄金行情不代表个股同步上涨",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054104",
+          "time": "2026-08-24T08:26:30+08:00",
+          "title": "纽约期金失守4660美元/盎司，日内跌0.45%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2057064.d.html",
+          "category": "macro-liquidity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "mixed",
+          "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+          "themes": [
+            "宏观流动性",
+            "利率",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": []
+        },
+        {
+          "id": "em-202608243850478282",
+          "time": "2026-08-24T08:21:27+08:00",
+          "title": "阿里新股配售定价为112.7港元 中东、欧洲、亚洲主要主权基金参与认购",
+          "summary": "阿里巴巴宣布完成800亿港元（约102亿美元）新股配售定价，发行价为每股普通股112.70港元，共配售7.1亿股。记者从知情人士获悉，本次配售自启动后不到一小时即获超额认购，最终配售份额以主权财富基金等高质量长线做多投资者为主，中金公司（CICC）、汇丰（HSBC）、摩根士丹利（Morgan Stanley）、瑞银（UBS）参与了本轮新股配售。中东、欧洲、亚洲等地区的主要主权基金积极参与了此次认购。",
+          "source": "eastmoney",
+          "category": "macro-liquidity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "mixed",
+          "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+          "themes": [
+            "宏观流动性",
+            "利率",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": []
+        },
+        {
+          "id": "sina-5054082",
+          "time": "2026-08-24T08:12:48+08:00",
+          "title": "现货黄金突破4640美元/盎司，日内涨0.77%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0097712.d.html",
+          "category": "commodity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+          "themes": [
+            "黄金",
+            "白银",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "600988",
+              "name": "赤峰黄金",
+              "relationType": "直接产品/业务",
+              "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+              "relationScore": 70,
+              "riskNote": "金价回撤和矿山成本是主要风险",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.34,
+              "auctionAmount": 83580960
+            },
+            {
+              "code": "000426",
+              "name": "兴业银锡",
+              "relationType": "直接产品/业务",
+              "relationReason": "白银等有色金属资源占比明确，受银价传导",
+              "relationScore": 70,
+              "riskNote": "多金属组合会稀释单一白银弹性",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.02,
+              "auctionAmount": 82961966.34
+            },
+            {
+              "code": "600547",
+              "name": "山东黄金",
+              "relationType": "行业龙头",
+              "relationReason": "国内黄金采选龙头，金价敏感度高",
+              "relationScore": 50,
+              "riskNote": "大型矿山成本、汇率及产量影响利润",
+              "marketScore": 15,
+              "confidence": 65,
+              "validationState": "未验证",
+              "changePct": 2.02,
+              "auctionAmount": 105548940
+            },
+            {
+              "code": "600489",
+              "name": "中金黄金",
+              "relationType": "行业龙头",
+              "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+              "relationScore": 50,
+              "riskNote": "泛黄金行情不代表个股同步上涨",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054071",
+          "time": "2026-08-24T08:05:14+08:00",
+          "title": "现货黄金突破4630美元/盎司，日内涨0.65%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0093047.d.html",
+          "category": "commodity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+          "themes": [
+            "黄金",
+            "白银",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "600988",
+              "name": "赤峰黄金",
+              "relationType": "直接产品/业务",
+              "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+              "relationScore": 70,
+              "riskNote": "金价回撤和矿山成本是主要风险",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.34,
+              "auctionAmount": 83580960
+            },
+            {
+              "code": "000426",
+              "name": "兴业银锡",
+              "relationType": "直接产品/业务",
+              "relationReason": "白银等有色金属资源占比明确，受银价传导",
+              "relationScore": 70,
+              "riskNote": "多金属组合会稀释单一白银弹性",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.02,
+              "auctionAmount": 82961966.34
+            },
+            {
+              "code": "600547",
+              "name": "山东黄金",
+              "relationType": "行业龙头",
+              "relationReason": "国内黄金采选龙头，金价敏感度高",
+              "relationScore": 50,
+              "riskNote": "大型矿山成本、汇率及产量影响利润",
+              "marketScore": 15,
+              "confidence": 65,
+              "validationState": "未验证",
+              "changePct": 2.02,
+              "auctionAmount": 105548940
+            },
+            {
+              "code": "600489",
+              "name": "中金黄金",
+              "relationType": "行业龙头",
+              "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+              "relationScore": 50,
+              "riskNote": "泛黄金行情不代表个股同步上涨",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054070",
+          "time": "2026-08-24T08:05:09+08:00",
+          "title": "纽约期金突破4690美元/盎司，日内涨0.21%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkmae3033496.d.html",
+          "category": "macro-liquidity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "mixed",
+          "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+          "themes": [
+            "宏观流动性",
+            "利率",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": []
+        },
+        {
+          "id": "sina-5054067",
+          "time": "2026-08-24T08:02:15+08:00",
+          "title": "三星电子公布股东回报计划后，股价下跌4.8%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0090927.d.html",
+          "category": "corporate-action",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+          "themes": [
+            "存储",
+            "HBM",
+            "半导体"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "688110",
+              "name": "东芯股份",
+              "relationType": "核心供应链",
+              "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+              "relationScore": 60,
+              "riskNote": "公司规模与盈利仍受行业周期影响",
+              "marketScore": 15,
+              "confidence": 75,
+              "validationState": "未验证",
+              "changePct": 1.5,
+              "auctionAmount": 77034411
+            },
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "relationType": "核心供应链",
+              "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+              "relationScore": 60,
+              "riskNote": "与海外龙头并非必然直接供货关系",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688766",
+              "name": "普冉股份",
+              "relationType": "核心供应链",
+              "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+              "relationScore": 60,
+              "riskNote": "业绩对存储周期和产品结构较敏感",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "000021",
+              "name": "深科技",
+              "relationType": "核心供应链",
+              "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+              "relationScore": 60,
+              "riskNote": "封测受订单和代工价格影响",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "001309",
+              "name": "德明利",
+              "relationType": "同类技术",
+              "relationReason": "存储模组和主控相关产品，属于存储终端链",
+              "relationScore": 45,
+              "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054127",
+          "time": "2026-08-24T08:45:55+08:00",
+          "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+          "summary": "方正证券研报称，美国财政部加大长债回购力度，弱化远端收益率上行动能，叠加美国经济数据疲软打压美联储加息预期及美元走强动能，金价顺势突破4600美元/盎司，贵金属权益市场颇具弹性。静待年内加息预期及美元走强逻辑进一步松动，带来贵金属权益市场的结构性机会；往后看，AI通胀和美国财政端有望继续创造黄金的利多环境，对后续的市场流动性保持乐观，并建议持续关注贵金属板块的高配置价值。",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2071474.d.html",
+          "category": "corporate-action",
+          "verification": "single-source",
+          "importanceScore": 80,
+          "direction": "positive",
+          "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+          "themes": [
+            "存储",
+            "HBM",
+            "半导体"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "688110",
+              "name": "东芯股份",
+              "relationType": "核心供应链",
+              "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+              "relationScore": 60,
+              "riskNote": "公司规模与盈利仍受行业周期影响",
+              "marketScore": 15,
+              "confidence": 75,
+              "validationState": "未验证",
+              "changePct": 1.5,
+              "auctionAmount": 77034411
+            },
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "relationType": "核心供应链",
+              "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+              "relationScore": 60,
+              "riskNote": "与海外龙头并非必然直接供货关系",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688766",
+              "name": "普冉股份",
+              "relationType": "核心供应链",
+              "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+              "relationScore": 60,
+              "riskNote": "业绩对存储周期和产品结构较敏感",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "000021",
+              "name": "深科技",
+              "relationType": "核心供应链",
+              "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+              "relationScore": 60,
+              "riskNote": "封测受订单和代工价格影响",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "001309",
+              "name": "德明利",
+              "relationType": "同类技术",
+              "relationReason": "存储模组和主控相关产品，属于存储终端链",
+              "relationScore": 45,
+              "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "em-202608243850479181",
+          "time": "2026-08-24T08:27:58+08:00",
+          "title": "中信建投：肿瘤mRNA疫苗开创肿瘤治疗新范式 国内企业加速追赶",
+          "summary": "中信建投研报称，随着Moderna个性化肿瘤mRNA疫苗临床III期取得积极结果，mRNA肿瘤疫苗正朝着商业化阶段迈进，市场空间有望逐步打开。mRNA肿瘤疫苗与ICIs联用有望开创肿瘤治疗的新范式。分类来看，个性化肿瘤疫苗具有潜在更优的治疗效果，虽然生产成本较高，但也有更大的定价空间，而通用型疫苗凭规模化生产和较低成本，有望覆盖更广泛的患者群体。",
+          "source": "eastmoney",
+          "category": "product-clinical",
+          "verification": "single-source",
+          "importanceScore": 70,
+          "direction": "positive",
+          "impactPath": "临床成功→创新药估值与肿瘤免疫研发预期提升→竞价验证医药主线",
+          "themes": [
+            "mRNA",
+            "癌症疫苗",
+            "创新药"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "300142",
+              "name": "沃森生物",
+              "relationType": "直接产品/业务",
+              "relationReason": "布局mRNA疫苗及创新疫苗平台，产品技术路线最接近",
+              "relationScore": 70,
+              "riskNote": "具体项目进度和收入贡献需以公告为准",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.43,
+              "auctionAmount": 151012939.77
+            },
+            {
+              "code": "600276",
+              "name": "恒瑞医药",
+              "relationType": "同类技术",
+              "relationReason": "肿瘤创新药龙头，具备临床和商业化平台",
+              "relationScore": 50,
+              "riskNote": "并非该新闻项目的直接参与方",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            },
+            {
+              "code": "300122",
+              "name": "智飞生物",
+              "relationType": "行业龙头",
+              "relationReason": "疫苗研发与商业化龙头，受疫苗风险偏好传导",
+              "relationScore": 50,
+              "riskNote": "新闻产品与公司现有业务并非一一对应",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688177",
+              "name": "百奥泰",
+              "relationType": "同类技术",
+              "relationReason": "创新生物药和肿瘤治疗平台，属于同类技术映射",
+              "relationScore": 45,
+              "riskNote": "同类技术不等于供应或合作关系",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        }
+      ],
+      "expectedDirections": [
+        "存储",
+        "HBM",
+        "半导体",
+        "黄金",
+        "白银",
+        "贵金属",
+        "宏观流动性",
+        "利率",
+        "mRNA",
+        "癌症疫苗",
+        "创新药"
+      ],
+      "auctionConfirmedDirections": [],
+      "openConfirmedDirections": []
+    },
+    {
+      "id": "2026-08-24:open-confirmation:limit-ladder-v6",
+      "signalDate": "2026-08-21",
+      "tradeDate": "2026-08-24",
+      "generatedAt": "2026-08-24T01:35:21.893Z",
+      "ruleVersion": "limit-ladder-v6",
+      "phase": "open-confirmation",
+      "title": "2026-08-24 09:35承接确认",
+      "summary": "大盘闸门正常；沿用9:25修复结构混合；9:35承接整体偏强，黄金题材引领。正式候选1只确认、3只继续观察、1只拒绝。",
+      "deterministicSummary": "大盘闸门正常；沿用9:25修复结构混合；9:35承接整体偏强，黄金题材引领。正式候选1只确认、3只继续观察、1只拒绝。",
+      "generationMode": "rules",
+      "strengthScore": 68.73,
+      "strengthLabel": "偏强",
+      "confidence": 100,
+      "degraded": false,
+      "marketGateState": "normal",
+      "marketRiskScore": 33.14,
+      "marketRepairState": "mixed",
+      "repairConfidence": 100,
+      "marketStyle": {
+        "style": "mixed",
+        "label": "竞价方向分散",
+        "score": 60,
+        "confidence": 100,
+        "topFiveConcentrationPct": 60,
+        "weightedSharePct": 80,
+        "largeCapAmountSharePct": 62.73,
+        "evidence": [
+          "成交额前五分散占3只",
+          "权重股占4只",
+          "成交额前20大市值占62.7%",
+          "该信号只作市场风格证据，不单独确认题材主线"
+        ]
+      },
+      "primaryDirection": "黄金题材引领",
+      "topAmount": [
+        {
+          "code": "300308",
+          "name": "中际旭创",
+          "industry": "通信设备",
+          "style": "technology",
+          "price": 945,
+          "changePct": 0.21,
+          "amount": 674352000,
+          "marketCap": 1105399235745,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002428",
+          "name": "云南锗业",
+          "industry": "小金属",
+          "style": "mixed",
+          "price": 103.6,
+          "changePct": 2.7,
+          "amount": 375114362,
+          "marketCap": 67663232000,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002384",
+          "name": "东山精密",
+          "industry": "元件",
+          "style": "mixed",
+          "price": 205.13,
+          "changePct": 2.01,
+          "amount": 172024684.69,
+          "marketCap": 375717653039,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        },
+        {
+          "code": "688825",
+          "name": "长鑫科技",
+          "industry": "半导体",
+          "style": "technology",
+          "price": 57.6,
+          "changePct": -0.69,
+          "amount": 160935149,
+          "marketCap": 3852339038035,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:07",
+          "source": "eastmoney"
+        },
+        {
+          "code": "002716",
+          "name": "湖南白银",
+          "industry": "贵金属",
+          "style": "mixed",
+          "price": 11.04,
+          "changePct": 5.95,
+          "amount": 159086400,
+          "marketCap": 31166898652,
+          "tradeDate": "2026-08-24",
+          "quoteTime": "09:25:00",
+          "source": "eastmoney"
+        }
+      ],
+      "themes": [
+        {
+          "theme": "黄金",
+          "score": 100,
+          "state": "leading",
+          "positiveRate": 100,
+          "weightedGapPct": 5.59,
+          "amountSharePct": 35.35,
+          "coreCode": "000017",
+          "coreName": "深中华A",
+          "coreOnePrice": true,
+          "assistantCodes": [
+            "601212",
+            "002716",
+            "000603"
+          ],
+          "assistantCount": 3,
+          "coverage": 100
+        },
+        {
+          "theme": "通信",
+          "score": 77.85,
+          "state": "resonant",
+          "positiveRate": 60,
+          "weightedGapPct": 1.91,
+          "amountSharePct": 38.1,
+          "coreCode": "002491",
+          "coreName": "通鼎互联",
+          "coreOnePrice": false,
+          "assistantCodes": [
+            "603803",
+            "600577",
+            "002396"
+          ],
+          "assistantCount": 3,
+          "coverage": 90.91
+        },
+        {
+          "theme": "医药",
+          "score": 62.55,
+          "state": "weak",
+          "positiveRate": 33.33,
+          "weightedGapPct": 4.76,
+          "amountSharePct": 16.29,
+          "coreCode": "002412",
+          "coreName": "汉森制药",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 60
+        },
+        {
+          "theme": "新型工业化",
+          "score": 34.64,
+          "state": "weak",
+          "positiveRate": 25,
+          "weightedGapPct": -0.12,
+          "amountSharePct": 6.27,
+          "coreCode": "002903",
+          "coreName": "宇环数控",
+          "coreOnePrice": false,
+          "assistantCodes": [],
+          "assistantCount": 0,
+          "coverage": 100
+        }
+      ],
+      "candidates": [
+        {
+          "code": "000017",
+          "name": "深中华A",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "黄金",
+          "verdict": "reject",
+          "score": 71.64,
+          "reasons": [
+            "决策分71.6",
+            "承接分57.5",
+            "价格弱于VWAP",
+            "次日继续一字，不可达"
+          ]
+        },
+        {
+          "code": "603803",
+          "name": "瑞斯康达",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "通信",
+          "verdict": "accept",
+          "score": 76.21,
+          "reasons": [
+            "决策分76.2",
+            "承接分67.6",
+            "价格弱于VWAP"
+          ]
+        },
+        {
+          "code": "000710",
+          "name": "贝瑞基因",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "2进3",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 69.22,
+          "reasons": [
+            "决策分69.2",
+            "承接分64.2",
+            "价格在VWAP上方",
+            "同层竞价样本少于5只，分位按中性分处理"
+          ]
+        },
+        {
+          "code": "603079",
+          "name": "圣达生物",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 63.74,
+          "reasons": [
+            "决策分63.7",
+            "承接分45.3",
+            "价格弱于VWAP"
+          ]
+        },
+        {
+          "code": "002209",
+          "name": "达意隆",
+          "population": "formal",
+          "boardType": "main",
+          "promotionLane": "1进2",
+          "theme": "新型工业化",
+          "verdict": "observe",
+          "score": 63.8,
+          "reasons": [
+            "决策分63.8",
+            "承接分51.8",
+            "价格在VWAP上方"
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "code": "300839",
+          "name": "博汇股份",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "算力",
+          "verdict": "observe",
+          "score": 72.58,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "300016",
+          "name": "北陆药业",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "医药",
+          "verdict": "observe",
+          "score": 71.73,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        },
+        {
+          "code": "301591",
+          "name": "肯特股份",
+          "population": "observation",
+          "boardType": "twenty",
+          "promotionLane": "1进2",
+          "theme": "通信",
+          "verdict": "observe",
+          "score": 68.93,
+          "reasons": [
+            "20cm/北交所单列观察，不进入主板接力候选"
+          ]
+        }
+      ],
+      "coverage": {
+        "auctionPct": 100,
+        "confirmationPct": 100,
+        "sourceCount": 2
+      },
+      "warnings": [],
+      "renderedText": "**大盘闸门正常；沿用9:25修复结构混合；9:35承接整体偏强，黄金题材引领。正式候选1只确认、3只继续观察、1只拒绝。**\n\n- 强度：偏强（68.7）\n- 置信度：100%\n- 方向：黄金题材引领\n- 大盘闸门：normal（风险33.1）\n- 修复结构：mixed（置信度100.0%）\n- 风格：竞价方向分散；前五集中度60.0%\n\n### 竞价成交额前列\n1. 中际旭创（通信设备） 6.74亿\n2. 云南锗业（小金属） 3.75亿\n3. 东山精密（元件） 1.72亿\n4. 长鑫科技（半导体） 1.61亿\n5. 湖南白银（贵金属） 1.59亿\n\n### 题材方向\n- 黄金：引领 100.0；核心深中华A，助攻3只\n- 通信：共振 77.8；核心通鼎互联，助攻3只\n- 医药：偏弱 62.5；核心汉森制药，助攻0只\n- 新型工业化：偏弱 34.6；核心宇环数控，助攻0只\n\n### 主板接力池\n- [拒绝] 深中华A 2进3 / 黄金：决策分71.6；承接分57.5；价格弱于VWAP；次日继续一字，不可达\n- [接受] 瑞斯康达 1进2 / 通信：决策分76.2；承接分67.6；价格弱于VWAP\n- [观察] 贝瑞基因 2进3 / 医药：决策分69.2；承接分64.2；价格在VWAP上方；同层竞价样本少于5只，分位按中性分处理\n- [观察] 圣达生物 1进2 / 医药：决策分63.7；承接分45.3；价格弱于VWAP\n- [观察] 达意隆 1进2 / 新型工业化：决策分63.8；承接分51.8；价格在VWAP上方\n\n### 单列观察\n- 博汇股份（twenty） 算力：20cm/北交所单列观察，不进入主板接力候选\n- 北陆药业（twenty） 医药：20cm/北交所单列观察，不进入主板接力候选\n- 肯特股份（twenty） 通信：20cm/北交所单列观察，不进入主板接力候选\n\n### 隔夜重要新闻与关联个股\n- 三星电子股价下跌超7% 股东回报计划令投资者失望（corporate-action，important-source，重要度90）\n  影响路径：海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应\n  - 东芯股份（688110）核心供应链：DRAM/NAND存储芯片设计，产业链关联明确；未验证 +1.50%；风险：公司规模与盈利仍受行业周期影响\n  - 兆易创新（603986）核心供应链：NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导；未验证 待竞价验证；风险：与海外龙头并非必然直接供货关系\n  - 普冉股份（688766）核心供应链：存储器芯片设计厂商，直接受存储价格与需求预期影响；未验证 待竞价验证；风险：业绩对存储周期和产品结构较敏感\n- 现货黄金失守4600美元/盎司，日内跌0.12%。（commodity，important-source，重要度90）\n  影响路径：金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司\n  - 赤峰黄金（600988）直接产品/业务：黄金采选与冶炼收入直接受金价驱动；未验证 +0.34%；风险：金价回撤和矿山成本是主要风险\n  - 兴业银锡（000426）直接产品/业务：白银等有色金属资源占比明确，受银价传导；未验证 +0.02%；风险：多金属组合会稀释单一白银弹性\n  - 山东黄金（600547）行业龙头：国内黄金采选龙头，金价敏感度高；未验证 +2.02%；风险：大型矿山成本、汇率及产量影响利润\n- 纽约期金失守4660美元/盎司，日内跌0.45%。（macro-liquidity，important-source，重要度90）\n  影响路径：美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股\n- 现货黄金突破4640美元/盎司，日内涨0.77%。（commodity，important-source，重要度90）\n  影响路径：金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司\n  - 赤峰黄金（600988）直接产品/业务：黄金采选与冶炼收入直接受金价驱动；未验证 +0.34%；风险：金价回撤和矿山成本是主要风险\n  - 兴业银锡（000426）直接产品/业务：白银等有色金属资源占比明确，受银价传导；未验证 +0.02%；风险：多金属组合会稀释单一白银弹性\n  - 山东黄金（600547）行业龙头：国内黄金采选龙头，金价敏感度高；未验证 +2.02%；风险：大型矿山成本、汇率及产量影响利润\n- 现货黄金突破4630美元/盎司，日内涨0.65%。（commodity，important-source，重要度90）\n  影响路径：金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司\n  - 赤峰黄金（600988）直接产品/业务：黄金采选与冶炼收入直接受金价驱动；未验证 +0.34%；风险：金价回撤和矿山成本是主要风险\n  - 兴业银锡（000426）直接产品/业务：白银等有色金属资源占比明确，受银价传导；未验证 +0.02%；风险：多金属组合会稀释单一白银弹性\n  - 山东黄金（600547）行业龙头：国内黄金采选龙头，金价敏感度高；未验证 +2.02%；风险：大型矿山成本、汇率及产量影响利润\n- 隔夜预期方向：存储、HBM、半导体、黄金、白银、贵金属、宏观流动性、利率、mRNA、癌症疫苗、创新药\n\n> 研究提醒，不构成交易或仓位建议。",
+      "overnightContext": {
+        "windowStart": "2026-08-21T15:00:00+08:00",
+        "windowEnd": "2026-08-24T09:15:00+08:00",
+        "asof": "2026-08-24T01:35:22.890Z",
+        "sourceCoverage": {
+          "fetched": [
+            "eastmoney",
+            "cls",
+            "sina"
+          ],
+          "succeeded": [
+            "eastmoney",
+            "sina"
+          ],
+          "itemCount": 179,
+          "windowItemCount": 179,
+          "coveragePct": 67,
+          "warnings": []
+        },
+        "newsCatalysts": [
+          {
+            "id": "em-202608243850484482",
+            "time": "2026-08-24T08:45:36+08:00",
+            "title": "三星电子股价下跌超7% 股东回报计划令投资者失望",
+            "summary": "三星电子股价一度下跌超7%，原因是其新的股东回报方案侧重于分红，令投资者感到失望。三星电子周五表示，计划今年向投资者回报至多110万亿韩元（约合800亿美元），其中30万亿韩元计划第三季度以现金分红的形式发放；该公司表示，其余股东回报安排将在明年1月举行的董事会会议上最终敲定。",
+            "source": "eastmoney",
+            "category": "corporate-action",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+            "themes": [
+              "存储",
+              "HBM",
+              "半导体"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "688110",
+                "name": "东芯股份",
+                "relationType": "核心供应链",
+                "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+                "relationScore": 60,
+                "riskNote": "公司规模与盈利仍受行业周期影响",
+                "marketScore": 15,
+                "confidence": 75,
+                "validationState": "未验证",
+                "changePct": 1.5,
+                "auctionAmount": 77034411
+              },
+              {
+                "code": "603986",
+                "name": "兆易创新",
+                "relationType": "核心供应链",
+                "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+                "relationScore": 60,
+                "riskNote": "与海外龙头并非必然直接供货关系",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688766",
+                "name": "普冉股份",
+                "relationType": "核心供应链",
+                "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+                "relationScore": 60,
+                "riskNote": "业绩对存储周期和产品结构较敏感",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "000021",
+                "name": "深科技",
+                "relationType": "核心供应链",
+                "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+                "relationScore": 60,
+                "riskNote": "封测受订单和代工价格影响",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "001309",
+                "name": "德明利",
+                "relationType": "同类技术",
+                "relationReason": "存储模组和主控相关产品，属于存储终端链",
+                "relationScore": 45,
+                "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054106",
+            "time": "2026-08-24T08:26:58+08:00",
+            "title": "现货黄金失守4600美元/盎司，日内跌0.12%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0106680.d.html",
+            "category": "commodity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+            "themes": [
+              "黄金",
+              "白银",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "600988",
+                "name": "赤峰黄金",
+                "relationType": "直接产品/业务",
+                "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+                "relationScore": 70,
+                "riskNote": "金价回撤和矿山成本是主要风险",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.34,
+                "auctionAmount": 83580960
+              },
+              {
+                "code": "000426",
+                "name": "兴业银锡",
+                "relationType": "直接产品/业务",
+                "relationReason": "白银等有色金属资源占比明确，受银价传导",
+                "relationScore": 70,
+                "riskNote": "多金属组合会稀释单一白银弹性",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.02,
+                "auctionAmount": 82961966.34
+              },
+              {
+                "code": "600547",
+                "name": "山东黄金",
+                "relationType": "行业龙头",
+                "relationReason": "国内黄金采选龙头，金价敏感度高",
+                "relationScore": 50,
+                "riskNote": "大型矿山成本、汇率及产量影响利润",
+                "marketScore": 15,
+                "confidence": 65,
+                "validationState": "未验证",
+                "changePct": 2.02,
+                "auctionAmount": 105548940
+              },
+              {
+                "code": "600489",
+                "name": "中金黄金",
+                "relationType": "行业龙头",
+                "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+                "relationScore": 50,
+                "riskNote": "泛黄金行情不代表个股同步上涨",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054104",
+            "time": "2026-08-24T08:26:30+08:00",
+            "title": "纽约期金失守4660美元/盎司，日内跌0.45%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2057064.d.html",
+            "category": "macro-liquidity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "mixed",
+            "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+            "themes": [
+              "宏观流动性",
+              "利率",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": []
+          },
+          {
+            "id": "sina-5054082",
+            "time": "2026-08-24T08:12:48+08:00",
+            "title": "现货黄金突破4640美元/盎司，日内涨0.77%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0097712.d.html",
+            "category": "commodity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+            "themes": [
+              "黄金",
+              "白银",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "600988",
+                "name": "赤峰黄金",
+                "relationType": "直接产品/业务",
+                "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+                "relationScore": 70,
+                "riskNote": "金价回撤和矿山成本是主要风险",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.34,
+                "auctionAmount": 83580960
+              },
+              {
+                "code": "000426",
+                "name": "兴业银锡",
+                "relationType": "直接产品/业务",
+                "relationReason": "白银等有色金属资源占比明确，受银价传导",
+                "relationScore": 70,
+                "riskNote": "多金属组合会稀释单一白银弹性",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.02,
+                "auctionAmount": 82961966.34
+              },
+              {
+                "code": "600547",
+                "name": "山东黄金",
+                "relationType": "行业龙头",
+                "relationReason": "国内黄金采选龙头，金价敏感度高",
+                "relationScore": 50,
+                "riskNote": "大型矿山成本、汇率及产量影响利润",
+                "marketScore": 15,
+                "confidence": 65,
+                "validationState": "未验证",
+                "changePct": 2.02,
+                "auctionAmount": 105548940
+              },
+              {
+                "code": "600489",
+                "name": "中金黄金",
+                "relationType": "行业龙头",
+                "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+                "relationScore": 50,
+                "riskNote": "泛黄金行情不代表个股同步上涨",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054071",
+            "time": "2026-08-24T08:05:14+08:00",
+            "title": "现货黄金突破4630美元/盎司，日内涨0.65%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0093047.d.html",
+            "category": "commodity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+            "themes": [
+              "黄金",
+              "白银",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "600988",
+                "name": "赤峰黄金",
+                "relationType": "直接产品/业务",
+                "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+                "relationScore": 70,
+                "riskNote": "金价回撤和矿山成本是主要风险",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.34,
+                "auctionAmount": 83580960
+              },
+              {
+                "code": "000426",
+                "name": "兴业银锡",
+                "relationType": "直接产品/业务",
+                "relationReason": "白银等有色金属资源占比明确，受银价传导",
+                "relationScore": 70,
+                "riskNote": "多金属组合会稀释单一白银弹性",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.02,
+                "auctionAmount": 82961966.34
+              },
+              {
+                "code": "600547",
+                "name": "山东黄金",
+                "relationType": "行业龙头",
+                "relationReason": "国内黄金采选龙头，金价敏感度高",
+                "relationScore": 50,
+                "riskNote": "大型矿山成本、汇率及产量影响利润",
+                "marketScore": 15,
+                "confidence": 65,
+                "validationState": "未验证",
+                "changePct": 2.02,
+                "auctionAmount": 105548940
+              },
+              {
+                "code": "600489",
+                "name": "中金黄金",
+                "relationType": "行业龙头",
+                "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+                "relationScore": 50,
+                "riskNote": "泛黄金行情不代表个股同步上涨",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054070",
+            "time": "2026-08-24T08:05:09+08:00",
+            "title": "纽约期金突破4690美元/盎司，日内涨0.21%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkmae3033496.d.html",
+            "category": "macro-liquidity",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "mixed",
+            "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+            "themes": [
+              "宏观流动性",
+              "利率",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": []
+          },
+          {
+            "id": "sina-5054067",
+            "time": "2026-08-24T08:02:15+08:00",
+            "title": "三星电子公布股东回报计划后，股价下跌4.8%。",
+            "summary": "",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0090927.d.html",
+            "category": "corporate-action",
+            "verification": "important-source",
+            "importanceScore": 90,
+            "direction": "positive",
+            "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+            "themes": [
+              "存储",
+              "HBM",
+              "半导体"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "688110",
+                "name": "东芯股份",
+                "relationType": "核心供应链",
+                "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+                "relationScore": 60,
+                "riskNote": "公司规模与盈利仍受行业周期影响",
+                "marketScore": 15,
+                "confidence": 75,
+                "validationState": "未验证",
+                "changePct": 1.5,
+                "auctionAmount": 77034411
+              },
+              {
+                "code": "603986",
+                "name": "兆易创新",
+                "relationType": "核心供应链",
+                "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+                "relationScore": 60,
+                "riskNote": "与海外龙头并非必然直接供货关系",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688766",
+                "name": "普冉股份",
+                "relationType": "核心供应链",
+                "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+                "relationScore": 60,
+                "riskNote": "业绩对存储周期和产品结构较敏感",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "000021",
+                "name": "深科技",
+                "relationType": "核心供应链",
+                "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+                "relationScore": 60,
+                "riskNote": "封测受订单和代工价格影响",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "001309",
+                "name": "德明利",
+                "relationType": "同类技术",
+                "relationReason": "存储模组和主控相关产品，属于存储终端链",
+                "relationScore": 45,
+                "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "sina-5054132",
+            "time": "2026-08-24T08:48:46+08:00",
+            "title": "招商证券：短期A股波动可能加大",
+            "summary": "招商证券认为，长端美债利率上行反映了AI融资挤出、财政赤字和期限溢价抬升等结构性问题，美财政部回购只能缓解局部流动性压力；外部利率和地缘风险将压制短期风险偏好，使A股进入更重业绩、重结构的阶段。国内扩内需、“六张网”和地产政策正加速落地，但经济仍处于总量偏弱、新旧动能分化的K型格局，因此市场机会更集中于科技创新、高端装备出海及受益于政策落地的低估值方向。短期A股波动可能加大，配置上继续沿科技创新、制造出海、低估值政策发力三条线索均衡布局，重点关注电子、机械设备、电力设备、有色金属、煤炭等方向。",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkmaa6282472.d.html",
+            "category": "macro-liquidity",
+            "verification": "single-source",
+            "importanceScore": 80,
+            "direction": "mixed",
+            "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+            "themes": [
+              "宏观流动性",
+              "利率",
+              "贵金属"
+            ],
+            "warnings": [],
+            "relatedStocks": []
+          },
+          {
+            "id": "sina-5054127",
+            "time": "2026-08-24T08:45:55+08:00",
+            "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+            "summary": "方正证券研报称，美国财政部加大长债回购力度，弱化远端收益率上行动能，叠加美国经济数据疲软打压美联储加息预期及美元走强动能，金价顺势突破4600美元/盎司，贵金属权益市场颇具弹性。静待年内加息预期及美元走强逻辑进一步松动，带来贵金属权益市场的结构性机会；往后看，AI通胀和美国财政端有望继续创造黄金的利多环境，对后续的市场流动性保持乐观，并建议持续关注贵金属板块的高配置价值。",
+            "source": "sina",
+            "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2071474.d.html",
+            "category": "corporate-action",
+            "verification": "single-source",
+            "importanceScore": 80,
+            "direction": "positive",
+            "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+            "themes": [
+              "存储",
+              "HBM",
+              "半导体"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "688110",
+                "name": "东芯股份",
+                "relationType": "核心供应链",
+                "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+                "relationScore": 60,
+                "riskNote": "公司规模与盈利仍受行业周期影响",
+                "marketScore": 15,
+                "confidence": 75,
+                "validationState": "未验证",
+                "changePct": 1.5,
+                "auctionAmount": 77034411
+              },
+              {
+                "code": "603986",
+                "name": "兆易创新",
+                "relationType": "核心供应链",
+                "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+                "relationScore": 60,
+                "riskNote": "与海外龙头并非必然直接供货关系",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688766",
+                "name": "普冉股份",
+                "relationType": "核心供应链",
+                "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+                "relationScore": 60,
+                "riskNote": "业绩对存储周期和产品结构较敏感",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "000021",
+                "name": "深科技",
+                "relationType": "核心供应链",
+                "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+                "relationScore": 60,
+                "riskNote": "封测受订单和代工价格影响",
+                "marketScore": 0,
+                "confidence": 60,
+                "validationState": "未验证"
+              },
+              {
+                "code": "001309",
+                "name": "德明利",
+                "relationType": "同类技术",
+                "relationReason": "存储模组和主控相关产品，属于存储终端链",
+                "relationScore": 45,
+                "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          },
+          {
+            "id": "em-202608243850479181",
+            "time": "2026-08-24T08:27:58+08:00",
+            "title": "中信建投：肿瘤mRNA疫苗开创肿瘤治疗新范式 国内企业加速追赶",
+            "summary": "中信建投研报称，随着Moderna个性化肿瘤mRNA疫苗临床III期取得积极结果，mRNA肿瘤疫苗正朝着商业化阶段迈进，市场空间有望逐步打开。mRNA肿瘤疫苗与ICIs联用有望开创肿瘤治疗的新范式。分类来看，个性化肿瘤疫苗具有潜在更优的治疗效果，虽然生产成本较高，但也有更大的定价空间，而通用型疫苗凭规模化生产和较低成本，有望覆盖更广泛的患者群体。",
+            "source": "eastmoney",
+            "category": "product-clinical",
+            "verification": "single-source",
+            "importanceScore": 70,
+            "direction": "positive",
+            "impactPath": "临床成功→创新药估值与肿瘤免疫研发预期提升→竞价验证医药主线",
+            "themes": [
+              "mRNA",
+              "癌症疫苗",
+              "创新药"
+            ],
+            "warnings": [],
+            "relatedStocks": [
+              {
+                "code": "300142",
+                "name": "沃森生物",
+                "relationType": "直接产品/业务",
+                "relationReason": "布局mRNA疫苗及创新疫苗平台，产品技术路线最接近",
+                "relationScore": 70,
+                "riskNote": "具体项目进度和收入贡献需以公告为准",
+                "marketScore": 15,
+                "confidence": 85,
+                "validationState": "未验证",
+                "changePct": 0.43,
+                "auctionAmount": 151012939.77
+              },
+              {
+                "code": "600276",
+                "name": "恒瑞医药",
+                "relationType": "同类技术",
+                "relationReason": "肿瘤创新药龙头，具备临床和商业化平台",
+                "relationScore": 50,
+                "riskNote": "并非该新闻项目的直接参与方",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              },
+              {
+                "code": "300122",
+                "name": "智飞生物",
+                "relationType": "行业龙头",
+                "relationReason": "疫苗研发与商业化龙头，受疫苗风险偏好传导",
+                "relationScore": 50,
+                "riskNote": "新闻产品与公司现有业务并非一一对应",
+                "marketScore": 0,
+                "confidence": 50,
+                "validationState": "未验证"
+              },
+              {
+                "code": "688177",
+                "name": "百奥泰",
+                "relationType": "同类技术",
+                "relationReason": "创新生物药和肿瘤治疗平台，属于同类技术映射",
+                "relationScore": 45,
+                "riskNote": "同类技术不等于供应或合作关系",
+                "marketScore": 0,
+                "confidence": 45,
+                "validationState": "未验证"
+              }
+            ]
+          }
+        ],
+        "expectedDirections": [
+          "存储",
+          "HBM",
+          "半导体",
+          "黄金",
+          "白银",
+          "贵金属",
+          "宏观流动性",
+          "利率",
+          "mRNA",
+          "癌症疫苗",
+          "创新药"
+        ],
+        "auctionConfirmedDirections": [],
+        "openConfirmedDirections": [],
+        "warnings": []
+      },
+      "newsCatalysts": [
+        {
+          "id": "em-202608243850484482",
+          "time": "2026-08-24T08:45:36+08:00",
+          "title": "三星电子股价下跌超7% 股东回报计划令投资者失望",
+          "summary": "三星电子股价一度下跌超7%，原因是其新的股东回报方案侧重于分红，令投资者感到失望。三星电子周五表示，计划今年向投资者回报至多110万亿韩元（约合800亿美元），其中30万亿韩元计划第三季度以现金分红的形式发放；该公司表示，其余股东回报安排将在明年1月举行的董事会会议上最终敲定。",
+          "source": "eastmoney",
+          "category": "corporate-action",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+          "themes": [
+            "存储",
+            "HBM",
+            "半导体"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "688110",
+              "name": "东芯股份",
+              "relationType": "核心供应链",
+              "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+              "relationScore": 60,
+              "riskNote": "公司规模与盈利仍受行业周期影响",
+              "marketScore": 15,
+              "confidence": 75,
+              "validationState": "未验证",
+              "changePct": 1.5,
+              "auctionAmount": 77034411
+            },
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "relationType": "核心供应链",
+              "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+              "relationScore": 60,
+              "riskNote": "与海外龙头并非必然直接供货关系",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688766",
+              "name": "普冉股份",
+              "relationType": "核心供应链",
+              "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+              "relationScore": 60,
+              "riskNote": "业绩对存储周期和产品结构较敏感",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "000021",
+              "name": "深科技",
+              "relationType": "核心供应链",
+              "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+              "relationScore": 60,
+              "riskNote": "封测受订单和代工价格影响",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "001309",
+              "name": "德明利",
+              "relationType": "同类技术",
+              "relationReason": "存储模组和主控相关产品，属于存储终端链",
+              "relationScore": 45,
+              "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054106",
+          "time": "2026-08-24T08:26:58+08:00",
+          "title": "现货黄金失守4600美元/盎司，日内跌0.12%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0106680.d.html",
+          "category": "commodity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+          "themes": [
+            "黄金",
+            "白银",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "600988",
+              "name": "赤峰黄金",
+              "relationType": "直接产品/业务",
+              "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+              "relationScore": 70,
+              "riskNote": "金价回撤和矿山成本是主要风险",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.34,
+              "auctionAmount": 83580960
+            },
+            {
+              "code": "000426",
+              "name": "兴业银锡",
+              "relationType": "直接产品/业务",
+              "relationReason": "白银等有色金属资源占比明确，受银价传导",
+              "relationScore": 70,
+              "riskNote": "多金属组合会稀释单一白银弹性",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.02,
+              "auctionAmount": 82961966.34
+            },
+            {
+              "code": "600547",
+              "name": "山东黄金",
+              "relationType": "行业龙头",
+              "relationReason": "国内黄金采选龙头，金价敏感度高",
+              "relationScore": 50,
+              "riskNote": "大型矿山成本、汇率及产量影响利润",
+              "marketScore": 15,
+              "confidence": 65,
+              "validationState": "未验证",
+              "changePct": 2.02,
+              "auctionAmount": 105548940
+            },
+            {
+              "code": "600489",
+              "name": "中金黄金",
+              "relationType": "行业龙头",
+              "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+              "relationScore": 50,
+              "riskNote": "泛黄金行情不代表个股同步上涨",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054104",
+          "time": "2026-08-24T08:26:30+08:00",
+          "title": "纽约期金失守4660美元/盎司，日内跌0.45%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2057064.d.html",
+          "category": "macro-liquidity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "mixed",
+          "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+          "themes": [
+            "宏观流动性",
+            "利率",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": []
+        },
+        {
+          "id": "sina-5054082",
+          "time": "2026-08-24T08:12:48+08:00",
+          "title": "现货黄金突破4640美元/盎司，日内涨0.77%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0097712.d.html",
+          "category": "commodity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+          "themes": [
+            "黄金",
+            "白银",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "600988",
+              "name": "赤峰黄金",
+              "relationType": "直接产品/业务",
+              "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+              "relationScore": 70,
+              "riskNote": "金价回撤和矿山成本是主要风险",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.34,
+              "auctionAmount": 83580960
+            },
+            {
+              "code": "000426",
+              "name": "兴业银锡",
+              "relationType": "直接产品/业务",
+              "relationReason": "白银等有色金属资源占比明确，受银价传导",
+              "relationScore": 70,
+              "riskNote": "多金属组合会稀释单一白银弹性",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.02,
+              "auctionAmount": 82961966.34
+            },
+            {
+              "code": "600547",
+              "name": "山东黄金",
+              "relationType": "行业龙头",
+              "relationReason": "国内黄金采选龙头，金价敏感度高",
+              "relationScore": 50,
+              "riskNote": "大型矿山成本、汇率及产量影响利润",
+              "marketScore": 15,
+              "confidence": 65,
+              "validationState": "未验证",
+              "changePct": 2.02,
+              "auctionAmount": 105548940
+            },
+            {
+              "code": "600489",
+              "name": "中金黄金",
+              "relationType": "行业龙头",
+              "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+              "relationScore": 50,
+              "riskNote": "泛黄金行情不代表个股同步上涨",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054071",
+          "time": "2026-08-24T08:05:14+08:00",
+          "title": "现货黄金突破4630美元/盎司，日内涨0.65%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0093047.d.html",
+          "category": "commodity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "金银期货/现货异动→资源品价格传导→优先验证采选冶炼公司",
+          "themes": [
+            "黄金",
+            "白银",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "600988",
+              "name": "赤峰黄金",
+              "relationType": "直接产品/业务",
+              "relationReason": "黄金采选与冶炼收入直接受金价驱动",
+              "relationScore": 70,
+              "riskNote": "金价回撤和矿山成本是主要风险",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.34,
+              "auctionAmount": 83580960
+            },
+            {
+              "code": "000426",
+              "name": "兴业银锡",
+              "relationType": "直接产品/业务",
+              "relationReason": "白银等有色金属资源占比明确，受银价传导",
+              "relationScore": 70,
+              "riskNote": "多金属组合会稀释单一白银弹性",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.02,
+              "auctionAmount": 82961966.34
+            },
+            {
+              "code": "600547",
+              "name": "山东黄金",
+              "relationType": "行业龙头",
+              "relationReason": "国内黄金采选龙头，金价敏感度高",
+              "relationScore": 50,
+              "riskNote": "大型矿山成本、汇率及产量影响利润",
+              "marketScore": 15,
+              "confidence": 65,
+              "validationState": "未验证",
+              "changePct": 2.02,
+              "auctionAmount": 105548940
+            },
+            {
+              "code": "600489",
+              "name": "中金黄金",
+              "relationType": "行业龙头",
+              "relationReason": "黄金资源与冶炼龙头，直接受贵金属价格影响",
+              "relationScore": 50,
+              "riskNote": "泛黄金行情不代表个股同步上涨",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054070",
+          "time": "2026-08-24T08:05:09+08:00",
+          "title": "纽约期金突破4690美元/盎司，日内涨0.21%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkmae3033496.d.html",
+          "category": "macro-liquidity",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "mixed",
+          "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+          "themes": [
+            "宏观流动性",
+            "利率",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": []
+        },
+        {
+          "id": "sina-5054067",
+          "time": "2026-08-24T08:02:15+08:00",
+          "title": "三星电子公布股东回报计划后，股价下跌4.8%。",
+          "summary": "",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzx0090927.d.html",
+          "category": "corporate-action",
+          "verification": "important-source",
+          "importanceScore": 90,
+          "direction": "positive",
+          "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+          "themes": [
+            "存储",
+            "HBM",
+            "半导体"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "688110",
+              "name": "东芯股份",
+              "relationType": "核心供应链",
+              "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+              "relationScore": 60,
+              "riskNote": "公司规模与盈利仍受行业周期影响",
+              "marketScore": 15,
+              "confidence": 75,
+              "validationState": "未验证",
+              "changePct": 1.5,
+              "auctionAmount": 77034411
+            },
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "relationType": "核心供应链",
+              "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+              "relationScore": 60,
+              "riskNote": "与海外龙头并非必然直接供货关系",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688766",
+              "name": "普冉股份",
+              "relationType": "核心供应链",
+              "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+              "relationScore": 60,
+              "riskNote": "业绩对存储周期和产品结构较敏感",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "000021",
+              "name": "深科技",
+              "relationType": "核心供应链",
+              "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+              "relationScore": 60,
+              "riskNote": "封测受订单和代工价格影响",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "001309",
+              "name": "德明利",
+              "relationType": "同类技术",
+              "relationReason": "存储模组和主控相关产品，属于存储终端链",
+              "relationScore": 45,
+              "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "sina-5054132",
+          "time": "2026-08-24T08:48:46+08:00",
+          "title": "招商证券：短期A股波动可能加大",
+          "summary": "招商证券认为，长端美债利率上行反映了AI融资挤出、财政赤字和期限溢价抬升等结构性问题，美财政部回购只能缓解局部流动性压力；外部利率和地缘风险将压制短期风险偏好，使A股进入更重业绩、重结构的阶段。国内扩内需、“六张网”和地产政策正加速落地，但经济仍处于总量偏弱、新旧动能分化的K型格局，因此市场机会更集中于科技创新、高端装备出海及受益于政策落地的低估值方向。短期A股波动可能加大，配置上继续沿科技创新、制造出海、低估值政策发力三条线索均衡布局，重点关注电子、机械设备、电力设备、有色金属、煤炭等方向。",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkmaa6282472.d.html",
+          "category": "macro-liquidity",
+          "verification": "single-source",
+          "importanceScore": 80,
+          "direction": "mixed",
+          "impactPath": "美债回购→期限利差/美元与全球流动性变化→先列预期方向，待竞价共振后再确认个股",
+          "themes": [
+            "宏观流动性",
+            "利率",
+            "贵金属"
+          ],
+          "warnings": [],
+          "relatedStocks": []
+        },
+        {
+          "id": "sina-5054127",
+          "time": "2026-08-24T08:45:55+08:00",
+          "title": "方正证券：美财政部加大长债回购力度 贵金属逻辑持续增强",
+          "summary": "方正证券研报称，美国财政部加大长债回购力度，弱化远端收益率上行动能，叠加美国经济数据疲软打压美联储加息预期及美元走强动能，金价顺势突破4600美元/盎司，贵金属权益市场颇具弹性。静待年内加息预期及美元走强逻辑进一步松动，带来贵金属权益市场的结构性机会；往后看，AI通胀和美国财政端有望继续创造黄金的利多环境，对后续的市场流动性保持乐观，并建议持续关注贵金属板块的高配置价值。",
+          "source": "sina",
+          "url": "https://finance.sina.cn/7x24/2026-08-24/detail-inipkkzy2071474.d.html",
+          "category": "corporate-action",
+          "verification": "single-source",
+          "importanceScore": 80,
+          "direction": "positive",
+          "impactPath": "海外存储龙头资本动作→板块估值/风险偏好改善→观察A股存储链竞价响应",
+          "themes": [
+            "存储",
+            "HBM",
+            "半导体"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "688110",
+              "name": "东芯股份",
+              "relationType": "核心供应链",
+              "relationReason": "DRAM/NAND存储芯片设计，产业链关联明确",
+              "relationScore": 60,
+              "riskNote": "公司规模与盈利仍受行业周期影响",
+              "marketScore": 15,
+              "confidence": 75,
+              "validationState": "未验证",
+              "changePct": 1.5,
+              "auctionAmount": 77034411
+            },
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "relationType": "核心供应链",
+              "relationReason": "NOR/NAND及存储控制相关产品，受存储周期与龙头资本开支传导",
+              "relationScore": 60,
+              "riskNote": "与海外龙头并非必然直接供货关系",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688766",
+              "name": "普冉股份",
+              "relationType": "核心供应链",
+              "relationReason": "存储器芯片设计厂商，直接受存储价格与需求预期影响",
+              "relationScore": 60,
+              "riskNote": "业绩对存储周期和产品结构较敏感",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "000021",
+              "name": "深科技",
+              "relationType": "核心供应链",
+              "relationReason": "存储封装测试及制造服务，处于产业链关键环节",
+              "relationScore": 60,
+              "riskNote": "封测受订单和代工价格影响",
+              "marketScore": 0,
+              "confidence": 60,
+              "validationState": "未验证"
+            },
+            {
+              "code": "001309",
+              "name": "德明利",
+              "relationType": "同类技术",
+              "relationReason": "存储模组和主控相关产品，属于存储终端链",
+              "relationScore": 45,
+              "riskNote": "与SK海力士/三星的直接业务关系需单独核实",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        },
+        {
+          "id": "em-202608243850479181",
+          "time": "2026-08-24T08:27:58+08:00",
+          "title": "中信建投：肿瘤mRNA疫苗开创肿瘤治疗新范式 国内企业加速追赶",
+          "summary": "中信建投研报称，随着Moderna个性化肿瘤mRNA疫苗临床III期取得积极结果，mRNA肿瘤疫苗正朝着商业化阶段迈进，市场空间有望逐步打开。mRNA肿瘤疫苗与ICIs联用有望开创肿瘤治疗的新范式。分类来看，个性化肿瘤疫苗具有潜在更优的治疗效果，虽然生产成本较高，但也有更大的定价空间，而通用型疫苗凭规模化生产和较低成本，有望覆盖更广泛的患者群体。",
+          "source": "eastmoney",
+          "category": "product-clinical",
+          "verification": "single-source",
+          "importanceScore": 70,
+          "direction": "positive",
+          "impactPath": "临床成功→创新药估值与肿瘤免疫研发预期提升→竞价验证医药主线",
+          "themes": [
+            "mRNA",
+            "癌症疫苗",
+            "创新药"
+          ],
+          "warnings": [],
+          "relatedStocks": [
+            {
+              "code": "300142",
+              "name": "沃森生物",
+              "relationType": "直接产品/业务",
+              "relationReason": "布局mRNA疫苗及创新疫苗平台，产品技术路线最接近",
+              "relationScore": 70,
+              "riskNote": "具体项目进度和收入贡献需以公告为准",
+              "marketScore": 15,
+              "confidence": 85,
+              "validationState": "未验证",
+              "changePct": 0.43,
+              "auctionAmount": 151012939.77
+            },
+            {
+              "code": "600276",
+              "name": "恒瑞医药",
+              "relationType": "同类技术",
+              "relationReason": "肿瘤创新药龙头，具备临床和商业化平台",
+              "relationScore": 50,
+              "riskNote": "并非该新闻项目的直接参与方",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            },
+            {
+              "code": "300122",
+              "name": "智飞生物",
+              "relationType": "行业龙头",
+              "relationReason": "疫苗研发与商业化龙头，受疫苗风险偏好传导",
+              "relationScore": 50,
+              "riskNote": "新闻产品与公司现有业务并非一一对应",
+              "marketScore": 0,
+              "confidence": 50,
+              "validationState": "未验证"
+            },
+            {
+              "code": "688177",
+              "name": "百奥泰",
+              "relationType": "同类技术",
+              "relationReason": "创新生物药和肿瘤治疗平台，属于同类技术映射",
+              "relationScore": 45,
+              "riskNote": "同类技术不等于供应或合作关系",
+              "marketScore": 0,
+              "confidence": 45,
+              "validationState": "未验证"
+            }
+          ]
+        }
+      ],
+      "expectedDirections": [
+        "存储",
+        "HBM",
+        "半导体",
+        "黄金",
+        "白银",
+        "贵金属",
+        "宏观流动性",
+        "利率",
+        "mRNA",
+        "癌症疫苗",
+        "创新药"
+      ],
+      "auctionConfirmedDirections": [],
+      "openConfirmedDirections": []
+    }
+  ]
+}

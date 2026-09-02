@@ -1,0 +1,44 @@
+{
+  "signalDate": "2026-08-18",
+  "tradeDate": "2026-08-19",
+  "ruleVersion": "limit-ladder-v4",
+  "updatedAt": "2026-08-19T01:35:12.375Z",
+  "records": [
+    {
+      "idempotencyKey": "2026-08-19:auction-final:limit-ladder-v4",
+      "signalDate": "2026-08-18",
+      "tradeDate": "2026-08-19",
+      "phase": "auction-final",
+      "provider": "serverchan",
+      "status": "sent",
+      "attempts": 1,
+      "createdAt": "2026-08-19T01:28:07.047Z",
+      "updatedAt": "2026-08-19T01:28:08.494Z",
+      "sentAt": "2026-08-19T01:28:08.494Z",
+      "responseTimeMs": 1443,
+      "statusCode": 200,
+      "providerCode": 0,
+      "providerMessage": "",
+      "pushId": "51527270",
+      "error": ""
+    },
+    {
+      "idempotencyKey": "2026-08-19:open-confirmation:limit-ladder-v4",
+      "signalDate": "2026-08-18",
+      "tradeDate": "2026-08-19",
+      "phase": "open-confirmation",
+      "provider": "serverchan",
+      "status": "sent",
+      "attempts": 1,
+      "createdAt": "2026-08-19T01:35:09.306Z",
+      "updatedAt": "2026-08-19T01:35:12.375Z",
+      "sentAt": "2026-08-19T01:35:12.375Z",
+      "responseTimeMs": 3064,
+      "statusCode": 200,
+      "providerCode": 0,
+      "providerMessage": "",
+      "pushId": "51530493",
+      "error": ""
+    }
+  ]
+}
