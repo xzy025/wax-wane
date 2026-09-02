@@ -3,6 +3,7 @@ dist/
 *.log
 *.err
 .vite/
+.runtime/
 .claude/*
 !.claude/skills/
 
@@ -33,3 +34,34 @@ docs/research/
 
 # Private indicator reverse-engineering evidence (personal/proprietary, local only)
 docs/n/
+
+# ---- Personal / non-source artifacts (never commit) ----
+# Job-search resumes, career planning, interview cheatsheets
+docs/career/
+docs/hao/
+docs/Xia_Zhengyan_*
+docs/Zhengyan_Xia_*
+docs/夏正彦*
+docs/interview-cheatsheet-2026.*
+docs/202682410*.docx*
+docs/翼形形态/
+docs/附件*
+docs/电力交易岗*
+
+# iFind capability-probe cache (temporal data downloads)
+/ifind_*.csv
+/ifind_*.json
+
+# Backend/frontend runtime logs
+/logs-*.out
+
+# Recorded videos / QA preview screenshots
+/video_*.mp4
+.qa/
+
+# One-off personal scripts (resume builders / workstation checks)
+/check_agent_gw.py
+/build_*resume.py
+/build_power_trading_resume.py
+/build_supabase_frontend_resume.py
+/.codex_read_docs.py

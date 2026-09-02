@@ -2,7 +2,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const apiTarget = process.env.VITE_API_TARGET ?? 'http://localhost:3002'
+// Use the IPv4 loopback explicitly on Windows. localhost may resolve to
+ // ::1 while Express is listening on IPv4, surfacing as Failed to fetch.
+const apiTarget = process.env.VITE_API_TARGET ?? 'http://127.0.0.1:3002'
 
 export default defineConfig({
   plugins: [react()],
@@ -13,6 +15,10 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    headers: {
+      // Avoid a corrupted/304'd Vite module leaving the dev app blank.
+      'Cache-Control': 'no-store',
+    },
     proxy: {
       '/api': apiTarget,
     },
