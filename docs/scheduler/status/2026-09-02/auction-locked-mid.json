@@ -1,0 +1,18 @@
+{
+  "runId": "auction-locked-mid-2026-09-02-1788312153070-0djyin",
+  "tradeDate": "2026-09-02",
+  "phase": "auction",
+  "checkpoint": "auction-locked-mid",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:22:24",
+  "startedAt": "2026-09-02T01:22:33.069Z",
+  "finishedAt": "2026-09-02T01:22:33.069Z",
+  "dataAsOf": "2026-09-02T01:22:33.173Z",
+  "warnings": [
+    "Sina 竞价行情缺失",
+    "09:22 锁定阶段持续性检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

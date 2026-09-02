@@ -1,0 +1,18 @@
+{
+  "runId": "auction-prelock-2026-09-02-1788311991462-3krquc",
+  "tradeDate": "2026-09-02",
+  "phase": "auction",
+  "checkpoint": "auction-prelock",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:19:39",
+  "startedAt": "2026-09-02T01:19:51.461Z",
+  "finishedAt": "2026-09-02T01:19:51.461Z",
+  "dataAsOf": "2026-09-02T01:19:51.550Z",
+  "warnings": [
+    "Sina 竞价行情缺失",
+    "09:19 锁价前峰值结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}
