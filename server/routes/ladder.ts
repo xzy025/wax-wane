@@ -2,7 +2,9 @@ import { Router } from 'express'
 import {
   fetchLimitLadderAnalysis,
   fetchLimitLadderNextDay,
+  getLimitLadderAuctionSchedulerStatus,
   importLimitLadder,
+  listLimitLadderArchiveDates,
 } from '../services/limitLadder'
 import { fetchKplLimitReason } from '../services/kaipanlaLadder'
 import {
@@ -19,8 +21,63 @@ import {
 } from '../services/crossMarketMapping'
 import { resolveCrossMarketSnapshot } from '../services/crossMarketRuntime'
 import { buildAuctionBehaviorResearch } from '../services/auctionBehaviorResearch'
+import { fetchFirstBoardScan } from '../services/firstBoardScan'
+import { listLadderSentimentQuant, readLadderSentimentQuant } from '../services/ladderSentimentQuant'
+import {
+  applyManualReviews,
+  normalizeManualReviewPayload,
+  saveManualReviewPayload,
+  validateManualReviewCodes,
+} from '../services/nextDayManualReview'
 
 const router = Router()
+
+// Ladder responses are live/settled research snapshots. Do not serve them
+// from a stale browser cache during the premarket window.
+router.use((_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
+  res.setHeader('Pragma', 'no-cache')
+  next()
+})
+
+router.get('/api/ladder/archive-dates', (req, res) => {
+  const rawLimit = typeof req.query.limit === 'string' ? Number(req.query.limit) : 30
+  const limit = Number.isFinite(rawLimit) ? Math.floor(rawLimit) : 30
+  if (limit < 1 || limit > 200) {
+    res.status(400).json({ error: 'limit 必须是 1 到 200 的整数' })
+    return
+  }
+  res.json({ dates: listLimitLadderArchiveDates(limit) })
+})
+
+router.get('/api/ladder/auction-scheduler-status', (_req, res) => {
+  res.json(getLimitLadderAuctionSchedulerStatus())
+})
+
+router.get('/api/ladder/sentiment-quant', async (req, res) => {
+  const asof = typeof req.query.asof === 'string' ? req.query.asof : undefined
+  const rawLimit = typeof req.query.limit === 'string' ? Number(req.query.limit) : 30
+  const limit = Number.isFinite(rawLimit) ? Math.max(1, Math.min(100, Math.floor(rawLimit))) : 30
+  if (asof && !/^\d{4}-\d{2}-\d{2}$/.test(asof)) {
+    res.status(400).json({ error: 'asof 必须是 YYYY-MM-DD' })
+    return
+  }
+  try {
+    if (asof) {
+      const snapshot = readLadderSentimentQuant(asof)
+      if (!snapshot) {
+        res.status(404).json({ error: `未找到${asof}的情绪量化归档` })
+        return
+      }
+      res.json({ snapshots: [snapshot] })
+      return
+    }
+    res.json({ snapshots: listLadderSentimentQuant(limit) })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '情绪量化读取失败'
+    res.status(500).json({ error: message })
+  }
+})
 
 router.get('/api/ladder/cross-market', async (req, res) => {
   const tradeDate = typeof req.query.tradeDate === 'string' ? req.query.tradeDate : ''
@@ -76,6 +133,20 @@ router.get('/api/ladder/analysis', async (req, res) => {
   }
 })
 
+router.get('/api/ladder/first-board-scan', async (req, res) => {
+  const tradeDate = typeof req.query.tradeDate === 'string' ? req.query.tradeDate : undefined
+  if (tradeDate && !/^\d{4}-\d{2}-\d{2}$/.test(tradeDate)) {
+    res.status(400).json({ error: 'tradeDate 必须是 YYYY-MM-DD' })
+    return
+  }
+  try {
+    res.json(await fetchFirstBoardScan(Date.now(), tradeDate))
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    res.status(502).json({ error: message })
+  }
+})
+
 router.get('/api/ladder/next-day', async (req, res) => {
   const signalDate =
     typeof req.query.signalDate === 'string' ? req.query.signalDate : ''
@@ -84,10 +155,40 @@ router.get('/api/ladder/next-day', async (req, res) => {
     return
   }
   try {
-    res.json(await fetchLimitLadderNextDay(signalDate))
+    res.json(applyManualReviews(await fetchLimitLadderNextDay(signalDate)))
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     const status = message.startsWith('未找到') ? 404 : 500
+    res.status(status).json({ error: message })
+  }
+})
+
+router.post('/api/ladder/next-day/manual-review', async (req, res) => {
+  try {
+    const payload = normalizeManualReviewPayload(req.body)
+    const nextDay = await fetchLimitLadderNextDay(payload.signalDate)
+    validateManualReviewCodes(payload, nextDay.candidates)
+    const frozenPayload = {
+      ...payload,
+      reviews: payload.reviews.map((review) => {
+        const candidate = nextDay.candidates.find((item) => item.code === review.code)
+        return {
+          ...review,
+          automaticScoreSnapshot: review.automaticScoreSnapshot !== undefined
+            ? review.automaticScoreSnapshot
+            : candidate?.decisionScore ?? candidate?.liveScore ?? candidate?.baseScore ?? null,
+          themeLadderScoreSnapshot: review.themeLadderScoreSnapshot !== undefined
+            ? review.themeLadderScoreSnapshot
+            : candidate?.themeLadder?.score ?? null,
+          decisionSnapshotRef: review.decisionSnapshotRef ?? `${payload.signalDate}:${review.code}:next-day-decision`,
+        }
+      }),
+    }
+    saveManualReviewPayload(frozenPayload)
+    res.json({ ...applyManualReviews(nextDay), manualReviewSaved: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '人工复核保存失败'
+    const status = message.startsWith('未找到') ? 404 : 400
     res.status(status).json({ error: message })
   }
 })

@@ -143,6 +143,12 @@ router.get('/api/mcp/ashare/breadth', async (_req, res) => {
       promotionRate: data.promotionRate,
       promotedCount: data.promotedCount,
       promotionTotal: data.promotionTotal,
+      quality: {
+        breadth: data.quality.breadth,
+        limitUp: data.quality.limitUp,
+        limitDown: data.quality.limitDown,
+        promotion: data.quality.promotion,
+      },
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
@@ -160,7 +166,8 @@ router.get('/api/mcp/ashare/limit-pool', async (req, res) => {
     const data = await fetchAShareData()
     const stocks = direction === 'up' ? data.limitUpStocks : data.limitDownStocks
     const count = direction === 'up' ? data.limitUpCount : data.limitDownCount
-    res.json({ count, stocks })
+    const quality = direction === 'up' ? data.quality.limitUp : data.quality.limitDown
+    res.json({ count, stocks, quality })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     res.status(500).json({ error: message })

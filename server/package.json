@@ -17,8 +17,12 @@
     "probe:kpl": "tsx scripts/kplThemeProbe.ts",
     "probe:feishu": "tsx scripts/probeFeishu.ts",
     "probe:emfetch": "tsx scripts/emFetchProbe.ts",
+    "probe:ifind": "tsx scripts/runIfindCapabilityProbe.ts",
+    "research:relay": "tsx scripts/runRelayResearch.ts",
     "probe:liftban": "tsx scripts/liftBanProbe.ts",
-    "probe:holdernum": "tsx scripts/holderNumProbe.ts"
+    "probe:holdernum": "tsx scripts/holderNumProbe.ts",
+    "backfill:us-daily": "tsx scripts/backfillUsDaily.ts",
+    "refresh:settled": "node node_modules/tsx/dist/cli.mjs scripts/settleReview.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

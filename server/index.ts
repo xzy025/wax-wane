@@ -19,11 +19,7 @@ import intelRoutes from './routes/intel'
 import holdingsRoutes from './routes/holdings'
 import ladderRoutes from './routes/ladder'
 import opsRoutes from './routes/ops'
-import { startMoneyFlowScheduler } from './services/moneyflowScheduler'
-import { startLimitLadderAuctionScheduler } from './services/limitLadder'
-import { startCrossMarketScheduler } from './services/crossMarketRuntime'
-import { startCheckpointScheduler } from './services/schedulerCheckpoints'
-import { defaultCheckpointHandlers } from './services/checkpointHandlers'
+import { startSchedulerCoordinator } from './services/schedulerCoordinator'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -102,10 +98,7 @@ async function startServer() {
     console.log(
       `Database: ${dbConnected ? 'PostgreSQL (connected)' : 'PostgreSQL (not connected - limited mode)'}`,
     )
-startMoneyFlowScheduler()
-    startLimitLadderAuctionScheduler()
-    startCrossMarketScheduler()
-    startCheckpointScheduler(defaultCheckpointHandlers)
+    startSchedulerCoordinator()
   })
 }
 

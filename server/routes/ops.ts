@@ -3,22 +3,30 @@
 import { Router } from 'express'
 import { todayShanghai } from '../lib/time'
 import {
-  listCheckpointStatuses,
-  nextCheckpointAt,
+  buildSchedulerStatusSnapshot,
   CHECKPOINT_SCHEDULE,
 } from '../services/schedulerCheckpoints'
 import { readCrossMarketSnapshot } from '../services/crossMarketMapping'
 import type { CrossMarketPhase } from '../services/crossMarketMapping'
+import { buildPremarketWorkbench } from '../services/premarketWorkbench'
+import { getSettledArchiveSchedulerStatus } from '../services/settlementArchive'
 
 const router = Router()
 
 const CROSS_PHASES: CrossMarketPhase[] = ['premarket', 'auction', 'open']
 
+router.get('/api/ops/premarket-workbench', (_req, res) => {
+  try {
+    res.json(buildPremarketWorkbench())
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' })
+  }
+})
+
 router.get('/api/ops/scheduler-status', (_req, res) => {
   const now = new Date()
   const tradeDate = todayShanghai(now.getTime())
-  const lastRuns = listCheckpointStatuses(tradeDate)
-  const next = nextCheckpointAt(now.getTime())
+  const scheduler = buildSchedulerStatusSnapshot(now.getTime(), tradeDate)
   const crossMarket = Object.fromEntries(
     CROSS_PHASES.map((phase) => {
       const snapshot = readCrossMarketSnapshot(tradeDate, phase)
@@ -36,22 +44,10 @@ router.get('/api/ops/scheduler-status', (_req, res) => {
     }),
   )
   res.json({
-    now: now.toISOString(),
-    tradeDate,
-    currentCheckpoint: lastRuns,
-    nextWindow: next
-      ? {
-          checkpoint: next.checkpoint,
-          phase: next.phase,
-          label: next.label,
-          atSecondsOfDay: next.atSec,
-        }
-      : null,
+    ...scheduler,
     schedule: CHECKPOINT_SCHEDULE.map((row) => row.checkpoint),
     crossMarketSnapshots: crossMarket,
-    warnings: Object.values(lastRuns)
-      .flatMap((status) => status.warnings)
-      .slice(0, 20),
+    settledArchive: getSettledArchiveSchedulerStatus(),
   })
 })
 
