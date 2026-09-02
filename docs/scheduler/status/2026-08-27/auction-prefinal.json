@@ -1,0 +1,17 @@
+{
+  "runId": "auction-prefinal-2026-08-27-1787793891199-w3e2tv",
+  "tradeDate": "2026-08-27",
+  "phase": "auction",
+  "checkpoint": "auction-prefinal",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:24:46",
+  "startedAt": "2026-08-27T01:24:51.198Z",
+  "finishedAt": "2026-08-27T01:24:51.198Z",
+  "dataAsOf": "2026-08-27T01:24:51.220Z",
+  "warnings": [
+    "09:24 竞价结束前状态检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

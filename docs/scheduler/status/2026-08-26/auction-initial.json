@@ -1,0 +1,17 @@
+{
+  "runId": "auction-initial-2026-08-26-1787706916843-32g3q0",
+  "tradeDate": "2026-08-26",
+  "phase": "auction",
+  "checkpoint": "auction-initial",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:15:09",
+  "startedAt": "2026-08-26T01:15:16.843Z",
+  "finishedAt": "2026-08-26T01:15:16.843Z",
+  "dataAsOf": "2026-08-26T01:15:16.868Z",
+  "warnings": [
+    "09:15 首次聚合申报检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

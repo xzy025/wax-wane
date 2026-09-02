@@ -1,0 +1,18 @@
+{
+  "runId": "auction-prelock-2026-08-24-1787534403750-2p98aj",
+  "tradeDate": "2026-08-24",
+  "phase": "auction",
+  "checkpoint": "auction-prelock",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-08-24T01:20:03.750Z",
+  "finishedAt": "2026-08-24T01:20:03.820Z",
+  "dataAsOf": "2026-08-24T01:20:03.820Z",
+  "warnings": [
+    "竞价候选池为空，未采集公开源快照",
+    "09:19 锁价前峰值结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

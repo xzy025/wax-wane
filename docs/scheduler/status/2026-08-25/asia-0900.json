@@ -1,0 +1,18 @@
+{
+  "runId": "asia-0900-2026-08-25-1787619688675-con81r",
+  "tradeDate": "2026-08-25",
+  "phase": "premarket",
+  "checkpoint": "asia-0900",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "eastmoney-asia",
+  "providerTimestamp": "2026-08-25T01:01:28.675Z",
+  "startedAt": "2026-08-25T01:01:28.674Z",
+  "finishedAt": "2026-08-25T01:01:28.674Z",
+  "dataAsOf": "2026-08-25T01:01:28.675Z",
+  "warnings": [
+    "无法判定检查点时点，质量降级",
+    "日韩量化状态向量已按检查点时间固化"
+  ]
+}

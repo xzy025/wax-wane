@@ -1,0 +1,18 @@
+{
+  "runId": "auction-final-2026-08-24-1787534754240-sz53hc",
+  "tradeDate": "2026-08-24",
+  "phase": "auction",
+  "checkpoint": "auction-final",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-08-24T01:25:54.240Z",
+  "finishedAt": "2026-08-24T01:25:54.265Z",
+  "dataAsOf": "2026-08-24T01:25:54.265Z",
+  "warnings": [
+    "竞价候选池为空，未采集公开源快照",
+    "09:25 正式开盘价固化检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

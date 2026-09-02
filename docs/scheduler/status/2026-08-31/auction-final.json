@@ -1,0 +1,20 @@
+{
+  "runId": "auction-final-2026-08-31-1788139555546-vawbpp",
+  "tradeDate": "2026-08-31",
+  "phase": "auction",
+  "checkpoint": "auction-final",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-08-31T01:25:55.545Z",
+  "finishedAt": "2026-08-31T01:25:55.545Z",
+  "dataAsOf": "2026-08-31T01:25:55.655Z",
+  "warnings": [
+    "公开源竞价行情全部失败",
+    "Sina 竞价行情缺失",
+    "腾讯竞价行情缺失",
+    "09:25 正式开盘价固化检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

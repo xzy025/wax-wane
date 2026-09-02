@@ -1,0 +1,20 @@
+{
+  "runId": "open-initial-2026-08-31-1788139856024-u7vpd6",
+  "tradeDate": "2026-08-31",
+  "phase": "open",
+  "checkpoint": "open-initial",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-08-31T01:30:56.023Z",
+  "finishedAt": "2026-08-31T01:30:56.023Z",
+  "dataAsOf": "2026-08-31T01:30:56.024Z",
+  "warnings": [
+    "公开源竞价行情全部失败",
+    "Sina 竞价行情缺失",
+    "腾讯竞价行情缺失",
+    "09:30 首笔成交确认检查点采用固定指数池作为过渡采集，正式开盘承接在后续批次接入"
+  ]
+}

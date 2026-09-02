@@ -1,0 +1,17 @@
+{
+  "runId": "settled-2026-08-24-1787555401242-y7en06",
+  "tradeDate": "2026-08-24",
+  "phase": "settled",
+  "checkpoint": "settled",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "pending",
+  "providerTimestamp": "15:10:00",
+  "startedAt": "2026-08-24T07:10:01.242Z",
+  "finishedAt": "2026-08-24T07:10:01.251Z",
+  "dataAsOf": "2026-08-24T07:10:01.251Z",
+  "warnings": [
+    "settled 检查点已登记，派生数据将在后续批次接入"
+  ]
+}

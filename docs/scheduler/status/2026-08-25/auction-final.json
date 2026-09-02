@@ -1,0 +1,17 @@
+{
+  "runId": "auction-final-2026-08-25-1787621145820-kcbzyz",
+  "tradeDate": "2026-08-25",
+  "phase": "auction",
+  "checkpoint": "auction-final",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:25:00",
+  "startedAt": "2026-08-25T01:25:45.819Z",
+  "finishedAt": "2026-08-25T01:25:45.819Z",
+  "dataAsOf": "2026-08-25T01:25:45.847Z",
+  "warnings": [
+    "09:25 正式开盘价固化检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

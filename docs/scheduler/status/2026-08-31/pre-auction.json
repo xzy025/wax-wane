@@ -1,0 +1,17 @@
+{
+  "runId": "pre-auction-2026-08-31-1788138874305-ddkx9v",
+  "tradeDate": "2026-08-31",
+  "phase": "premarket",
+  "checkpoint": "pre-auction",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "external-pending",
+  "providerTimestamp": "09:14:00",
+  "startedAt": "2026-08-31T01:14:34.301Z",
+  "finishedAt": "2026-08-31T01:14:34.301Z",
+  "dataAsOf": "2026-08-31T01:14:34.308Z",
+  "warnings": [
+    "隔夜环境固化将在跨市场批次接入；本检查点已按时触发，未伪造外部环境"
+  ]
+}

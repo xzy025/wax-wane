@@ -1,0 +1,17 @@
+{
+  "runId": "open-confirm-2026-08-27-1787794502017-pmbkle",
+  "tradeDate": "2026-08-27",
+  "phase": "open",
+  "checkpoint": "open-confirm",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:34:59",
+  "startedAt": "2026-08-27T01:35:02.017Z",
+  "finishedAt": "2026-08-27T01:35:02.017Z",
+  "dataAsOf": "2026-08-27T01:35:02.017Z",
+  "warnings": [
+    "09:35 五分钟承接确认检查点采用固定指数池作为过渡采集，正式开盘承接在后续批次接入"
+  ]
+}

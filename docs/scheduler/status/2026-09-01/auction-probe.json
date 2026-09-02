@@ -1,0 +1,18 @@
+{
+  "runId": "auction-probe-2026-09-01-1788225454378-9jy4z6",
+  "tradeDate": "2026-09-01",
+  "phase": "auction",
+  "checkpoint": "auction-probe",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:17:30",
+  "startedAt": "2026-09-01T01:17:34.378Z",
+  "finishedAt": "2026-09-01T01:17:34.378Z",
+  "dataAsOf": "2026-09-01T01:17:34.410Z",
+  "warnings": [
+    "Sina 竞价行情缺失",
+    "09:17 可撤单试盘结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

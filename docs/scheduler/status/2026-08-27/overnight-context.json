@@ -1,0 +1,17 @@
+{
+  "runId": "overnight-context-2026-08-27-1787788204900-tcnkxs",
+  "tradeDate": "2026-08-27",
+  "phase": "premarket",
+  "checkpoint": "overnight-context",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "external-pending",
+  "providerTimestamp": "07:50:00",
+  "startedAt": "2026-08-26T23:50:04.893Z",
+  "finishedAt": "2026-08-26T23:50:04.893Z",
+  "dataAsOf": "2026-08-26T23:50:04.900Z",
+  "warnings": [
+    "隔夜环境固化将在跨市场批次接入；本检查点已按时触发，未伪造外部环境"
+  ]
+}

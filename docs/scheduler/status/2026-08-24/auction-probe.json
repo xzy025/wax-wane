@@ -1,0 +1,18 @@
+{
+  "runId": "auction-probe-2026-08-24-1787534308627-ou95in",
+  "tradeDate": "2026-08-24",
+  "phase": "auction",
+  "checkpoint": "auction-probe",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-08-24T01:18:28.627Z",
+  "finishedAt": "2026-08-24T01:18:28.650Z",
+  "dataAsOf": "2026-08-24T01:18:28.650Z",
+  "warnings": [
+    "竞价候选池为空，未采集公开源快照",
+    "09:17 可撤单试盘结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}
