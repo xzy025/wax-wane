@@ -1,0 +1,88 @@
+{
+  "tradeDate": "2026-09-01",
+  "generatedAt": "2026-09-01T07:14:19.097Z",
+  "modelVersion": "cross-market-v1-research",
+  "status": "unavailable",
+  "themes": [
+    {
+      "id": "cpo",
+      "label": "CPO/大科技",
+      "source": "unavailable",
+      "constituentCount": 0,
+      "themeReturnPct": null,
+      "benchmarkReturnPct": null,
+      "excessReturnPct": null,
+      "positiveBreadthPct": null,
+      "amount": null,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": null,
+      "firstBoardCount": null,
+      "strongCoreCount": null,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0,
+        "cycleComponent": 0,
+        "metCriteria": [],
+        "availableCriteria": 0,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材行业代理成分不足5只",
+        "题材收益历史仅6日",
+        "题材成交额历史仅6日",
+        "题材高潮四项证据不足三项"
+      ]
+    },
+    {
+      "id": "innovative-drug",
+      "label": "创新药",
+      "source": "unavailable",
+      "constituentCount": 0,
+      "themeReturnPct": null,
+      "benchmarkReturnPct": null,
+      "excessReturnPct": null,
+      "positiveBreadthPct": null,
+      "amount": null,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": null,
+      "firstBoardCount": null,
+      "strongCoreCount": null,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0,
+        "cycleComponent": 0,
+        "metCriteria": [],
+        "availableCriteria": 0,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材行业代理成分不足5只",
+        "题材收益历史仅6日",
+        "题材成交额历史仅6日",
+        "题材高潮四项证据不足三项"
+      ]
+    }
+  ],
+  "warnings": [
+    "全市场行情第16页全部镜像失败",
+    "全市场行情覆盖不足：1500/5555",
+    "无法获取无重叠全市场成交额",
+    "收盘连板题材归档缺失",
+    "收盘基准行情缺失",
+    "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+    "题材行业代理成分不足5只",
+    "题材收益历史仅6日",
+    "题材成交额历史仅6日",
+    "题材高潮四项证据不足三项"
+  ]
+}

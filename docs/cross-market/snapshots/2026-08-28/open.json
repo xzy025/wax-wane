@@ -1,0 +1,396 @@
+{
+  "tradeDate": "2026-08-28",
+  "scheduledCutoffAt": "2026-08-28T09:35:00.000+08:00",
+  "capturedAt": "2026-08-28T01:35:42.648Z",
+  "captureStatus": "on-time",
+  "cutoffAt": "2026-08-28T09:35:00.000+08:00",
+  "generatedAt": "2026-08-28T01:35:42.648Z",
+  "phase": "open",
+  "modelVersion": "cross-market-v1-research",
+  "graphVersion": "evidence-graph-v1",
+  "probabilityStatus": "research-score",
+  "researchStatus": "research",
+  "dataQuality": {
+    "status": "degraded",
+    "sourceCoveragePct": 100,
+    "staleSources": [],
+    "missingSources": [
+      "liquidity-baseline"
+    ],
+    "warnings": [
+      "美股篮子方向分裂，已降低置信度",
+      "全市场停牌或过时行情已剔除：5067/5554",
+      "同刻历史基线仅1日，至少需要20日"
+    ]
+  },
+  "liquidityRegime": {
+    "phase": "open",
+    "cutoffAt": "2026-08-28T01:35:42.645Z",
+    "source": "full-market-clist",
+    "totalAmount": 250036779345.22003,
+    "baselineSessions": 1,
+    "sameTimeTurnoverRatio": null,
+    "turnoverZ": null,
+    "advanceRatePct": 56.57,
+    "top50AmountSharePct": 24.73,
+    "concentrationDeltaPct": null,
+    "largeSmallSpreadPct": -0.68,
+    "state": "unavailable",
+    "confidence": 80,
+    "warnings": [
+      "全市场停牌或过时行情已剔除：5067/5554",
+      "同刻历史基线仅1日，至少需要20日"
+    ]
+  },
+  "capitalSeesaw": {
+    "phase": "open",
+    "generatedAt": "2026-08-28T01:35:42.648Z",
+    "status": "research-score",
+    "lanes": [
+      {
+        "id": "hard-tech",
+        "label": "大科技/CPO",
+        "externalShock": -0.29,
+        "domesticCycle": 0,
+        "auctionConfirmation": 0,
+        "openConfirmation": 1,
+        "liquidityAdjustment": 0,
+        "interactionAdjustment": -0.07,
+        "netResearchScore": 54.67,
+        "state": "背离",
+        "reasons": [
+          "海外冲击-0.29",
+          "昨日节律unavailable",
+          "竞价确认+0",
+          "开盘确认+1",
+          "流动性修正+0"
+        ],
+        "warnings": [
+          "美股篮子方向分裂，已降低置信度",
+          "题材高潮四项证据不足三项",
+          "历史题材收益z、全成分宽度与成交额比尚未归档，高潮判断不参与概率"
+        ]
+      },
+      {
+        "id": "innovative-drug",
+        "label": "创新药",
+        "externalShock": -0.05,
+        "domesticCycle": 0,
+        "auctionConfirmation": 0,
+        "openConfirmation": 0.25,
+        "liquidityAdjustment": 0,
+        "interactionAdjustment": -0.01,
+        "netResearchScore": 51.43,
+        "state": "背离",
+        "reasons": [
+          "海外冲击-0.05",
+          "昨日节律unavailable",
+          "竞价确认+0",
+          "开盘确认+0.25",
+          "流动性修正+0"
+        ],
+        "warnings": [
+          "题材高潮四项证据不足三项",
+          "历史题材收益z、全成分宽度与成交额比尚未归档，高潮判断不参与概率"
+        ]
+      },
+      {
+        "id": "small-theme",
+        "label": "题材小票",
+        "externalShock": 0,
+        "domesticCycle": 0,
+        "auctionConfirmation": 0,
+        "openConfirmation": -0.12,
+        "liquidityAdjustment": 0,
+        "interactionAdjustment": 0,
+        "netResearchScore": 49.03,
+        "state": "观察",
+        "reasons": [
+          "无直接海外篮子",
+          "昨日节律缺失",
+          "竞价确认+0",
+          "开盘确认-0.12",
+          "流动性修正+0"
+        ],
+        "warnings": []
+      },
+      {
+        "id": "index-weight",
+        "label": "指数权重",
+        "externalShock": 0,
+        "domesticCycle": 0,
+        "auctionConfirmation": 0,
+        "openConfirmation": -0.45,
+        "liquidityAdjustment": 0,
+        "interactionAdjustment": 0,
+        "netResearchScore": 46.37,
+        "state": "观察",
+        "reasons": [
+          "无直接海外篮子",
+          "昨日节律缺失",
+          "竞价确认+0",
+          "开盘确认-0.45",
+          "流动性修正+0"
+        ],
+        "warnings": []
+      }
+    ],
+    "transfers": [],
+    "warnings": [
+      "流动性基线不足，资金迁移只作展示不参与概率"
+    ]
+  },
+  "sourceShocks": [
+    {
+      "ticker": "LITE",
+      "sessionDate": "2026-08-27",
+      "returnPct": 1.805691826454355,
+      "abnormalReturnPct": -0.29550044724139524,
+      "returnZ": -0.1189254728492531,
+      "volumeZ": 0.33653688605597243,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "MRVL",
+      "sessionDate": "2026-08-27",
+      "returnPct": -1.504467705583464,
+      "abnormalReturnPct": -4.248458361121599,
+      "returnZ": -1.8163357929658173,
+      "volumeZ": 1.6008600534520852,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "COHR",
+      "sessionDate": "2026-08-27",
+      "returnPct": 0.34590376323243904,
+      "abnormalReturnPct": -1.7224589756431263,
+      "returnZ": -0.49016078346031644,
+      "volumeZ": 0.10364271985391746,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "CIEN",
+      "sessionDate": "2026-08-27",
+      "returnPct": -1.0399655852047403,
+      "abnormalReturnPct": -1.87636732716053,
+      "returnZ": -0.7839626652914575,
+      "volumeZ": -0.6725804328094963,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "AVGO",
+      "sessionDate": "2026-08-27",
+      "returnPct": 4.387814820373942,
+      "abnormalReturnPct": 3.4169791067289372,
+      "returnZ": 2.2958810981982203,
+      "volumeZ": -0.17745789550917862,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "XBI",
+      "sessionDate": "2026-08-27",
+      "returnPct": -0.09506268911485431,
+      "abnormalReturnPct": -0.1258045900710311,
+      "returnZ": -0.1413696564587463,
+      "volumeZ": -1.6087307555327108,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "IBB",
+      "sessionDate": "2026-08-27",
+      "returnPct": -0.19998611413780423,
+      "abnormalReturnPct": 0.1981404323674305,
+      "returnZ": 0.17426102635789453,
+      "volumeZ": -0.07868126459244577,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "MRNA",
+      "sessionDate": "2026-08-27",
+      "returnPct": -4.713111085108356,
+      "abnormalReturnPct": -3.392086972333783,
+      "returnZ": -0.5921966147669074,
+      "volumeZ": 5.378741680707298,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "BNTX",
+      "sessionDate": "2026-08-27",
+      "returnPct": -1.0359085312949914,
+      "abnormalReturnPct": -0.6537058895525212,
+      "returnZ": -0.1780956362871977,
+      "volumeZ": 1.563854946224559,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "LLY",
+      "sessionDate": "2026-08-27",
+      "returnPct": -1.1253505980629692,
+      "abnormalReturnPct": -0.4676351428802506,
+      "returnZ": -0.20773213683014743,
+      "volumeZ": 0.1361338309408318,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    },
+    {
+      "ticker": "NVO",
+      "sessionDate": "2026-08-27",
+      "returnPct": -1.9904348935002993,
+      "abnormalReturnPct": -1.3981334357487802,
+      "returnZ": -0.6809640409250759,
+      "volumeZ": -0.16299750289837078,
+      "eventFlag": false,
+      "sourceAvailable": true,
+      "warnings": [
+        "免费调整日线残差特征仅用于research，尚未通过三年覆盖审计"
+      ]
+    }
+  ],
+  "themePredictions": [
+    {
+      "theme": "CPO/大科技",
+      "baseScore": 50,
+      "externalAdjustment": -2.9,
+      "cycleAdjustment": 0,
+      "liquidityAdjustment": 0,
+      "burstProbability": null,
+      "tradableProbability": null,
+      "burstScore": 54.67,
+      "tradableScore": 54.67,
+      "status": "research-score",
+      "evidenceGrade": "B",
+      "drivers": [
+        "海外冲击-0.29",
+        "昨日节律unavailable",
+        "竞价确认+0",
+        "开盘确认+1",
+        "流动性修正+0"
+      ],
+      "auctionConfirmation": "未确认",
+      "openConfirmation": "强化",
+      "warnings": [
+        "美股篮子方向分裂，已降低置信度",
+        "题材高潮四项证据不足三项",
+        "历史题材收益z、全成分宽度与成交额比尚未归档，高潮判断不参与概率"
+      ]
+    },
+    {
+      "theme": "创新药",
+      "baseScore": 50,
+      "externalAdjustment": -0.5,
+      "cycleAdjustment": 0,
+      "liquidityAdjustment": 0,
+      "burstProbability": null,
+      "tradableProbability": null,
+      "burstScore": 51.43,
+      "tradableScore": 51.43,
+      "status": "research-score",
+      "evidenceGrade": "B",
+      "drivers": [
+        "海外冲击-0.05",
+        "昨日节律unavailable",
+        "竞价确认+0",
+        "开盘确认+0.25",
+        "流动性修正+0"
+      ],
+      "auctionConfirmation": "未确认",
+      "openConfirmation": "未确认",
+      "warnings": [
+        "题材高潮四项证据不足三项",
+        "历史题材收益z、全成分宽度与成交额比尚未归档，高潮判断不参与概率"
+      ]
+    },
+    {
+      "theme": "题材小票",
+      "baseScore": 50,
+      "externalAdjustment": 0,
+      "cycleAdjustment": 0,
+      "liquidityAdjustment": 0,
+      "burstProbability": null,
+      "tradableProbability": null,
+      "burstScore": 49.03,
+      "tradableScore": 49.03,
+      "status": "research-score",
+      "evidenceGrade": "none",
+      "drivers": [
+        "无直接海外篮子",
+        "昨日节律缺失",
+        "竞价确认+0",
+        "开盘确认-0.12",
+        "流动性修正+0"
+      ],
+      "auctionConfirmation": "未确认",
+      "openConfirmation": "未确认",
+      "warnings": []
+    },
+    {
+      "theme": "指数权重",
+      "baseScore": 50,
+      "externalAdjustment": 0,
+      "cycleAdjustment": 0,
+      "liquidityAdjustment": 0,
+      "burstProbability": null,
+      "tradableProbability": null,
+      "burstScore": 46.37,
+      "tradableScore": 46.37,
+      "status": "research-score",
+      "evidenceGrade": "none",
+      "drivers": [
+        "无直接海外篮子",
+        "昨日节律缺失",
+        "竞价确认+0",
+        "开盘确认-0.45",
+        "流动性修正+0"
+      ],
+      "auctionConfirmation": "未确认",
+      "openConfirmation": "背离",
+      "warnings": []
+    }
+  ],
+  "stockPredictions": [],
+  "rejectedMappings": [],
+  "warnings": [
+    "美股篮子方向分裂，已降低置信度",
+    "全市场停牌或过时行情已剔除：5067/5554",
+    "同刻历史基线仅1日，至少需要20日"
+  ]
+}

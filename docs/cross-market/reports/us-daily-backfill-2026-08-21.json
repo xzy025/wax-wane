@@ -1,0 +1,4787 @@
+{
+  "runDate": "2026-08-21",
+  "generatedAt": "2026-08-21T15:29:28.872Z",
+  "modelVersion": "cross-market-v1-research",
+  "referenceTicker": "SPY",
+  "startDate": "2023-08-19",
+  "targetYears": 3,
+  "requestedTickers": 300,
+  "rows": [
+    {
+      "ticker": "SPY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AXTI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-07-29 单日 22.26%，疑似拆分/除权或数据断点",
+        "2022-10-04 单日 -23.71%，疑似拆分/除权或数据断点",
+        "2023-07-05 单日 -21.18%，疑似拆分/除权或数据断点",
+        "2024-02-23 单日 52.65%，疑似拆分/除权或数据断点",
+        "2024-04-04 单日 -43%，疑似拆分/除权或数据断点",
+        "2024-08-02 单日 -20.51%，疑似拆分/除权或数据断点",
+        "2025-02-21 单日 -37.11%，疑似拆分/除权或数据断点",
+        "2025-02-27 单日 22.31%，疑似拆分/除权或数据断点",
+        "2025-05-12 单日 20.21%，疑似拆分/除权或数据断点",
+        "2025-10-10 单日 -26.06%，疑似拆分/除权或数据断点",
+        "2026-02-20 单日 22.04%，疑似拆分/除权或数据断点",
+        "2026-04-16 单日 26.2%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-07-29 单日 22.26%，疑似拆分/除权或数据断点",
+        "异常标记:2022-10-04 单日 -23.71%，疑似拆分/除权或数据断点",
+        "异常标记:2023-07-05 单日 -21.18%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-23 单日 52.65%，疑似拆分/除权或数据断点",
+        "异常标记:2024-04-04 单日 -43%，疑似拆分/除权或数据断点",
+        "异常标记:2024-08-02 单日 -20.51%，疑似拆分/除权或数据断点",
+        "异常标记:2025-02-21 单日 -37.11%，疑似拆分/除权或数据断点",
+        "异常标记:2025-02-27 单日 22.31%，疑似拆分/除权或数据断点",
+        "异常标记:2025-05-12 单日 20.21%，疑似拆分/除权或数据断点",
+        "异常标记:2025-10-10 单日 -26.06%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-20 单日 22.04%，疑似拆分/除权或数据断点",
+        "异常标记:2026-04-16 单日 26.2%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "LITE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-02-08 单日 -25.41%，疑似拆分/除权或数据断点",
+        "2025-01-27 单日 -25.43%，疑似拆分/除权或数据断点",
+        "2025-04-03 单日 -22.33%，疑似拆分/除权或数据断点",
+        "2025-11-05 单日 21.16%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-02-08 单日 -25.41%，疑似拆分/除权或数据断点",
+        "异常标记:2025-01-27 单日 -25.43%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-03 单日 -22.33%，疑似拆分/除权或数据断点",
+        "异常标记:2025-11-05 单日 21.16%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "MRNA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-08-01 单日 -23.59%，疑似拆分/除权或数据断点",
+        "2026-08-19 单日 101.87%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-08-01 单日 -23.59%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-19 单日 101.87%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "MSFT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "NVDA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-05-25 单日 21.81%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-05-25 单日 21.81%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "AMD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-04-09 单日 21.37%，疑似拆分/除权或数据断点",
+        "2025-10-06 单日 21.28%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-04-09 单日 21.37%，疑似拆分/除权或数据断点",
+        "异常标记:2025-10-06 单日 21.28%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "AVGO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-12-13 单日 21.86%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-12-13 单日 21.86%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "INTC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-08-02 单日 -30.19%，疑似拆分/除权或数据断点",
+        "2025-09-18 单日 20.52%，疑似拆分/除权或数据断点",
+        "2026-04-24 单日 21.19%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-08-02 单日 -30.19%，疑似拆分/除权或数据断点",
+        "异常标记:2025-09-18 单日 20.52%，疑似拆分/除权或数据断点",
+        "异常标记:2026-04-24 单日 21.19%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "QCOM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ARM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 735,
+      "referenceSessions": 753,
+      "coveragePct": 97.61,
+      "firstDate": "2023-09-15",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-02-08 单日 39.13%，疑似拆分/除权或数据断点",
+        "2025-04-09 单日 21.67%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-02-08 单日 39.13%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-09 单日 21.67%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "TSM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ASML",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AMAT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LRCX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "KLAC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MRVL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-05-26 单日 28.08%，疑似拆分/除权或数据断点",
+        "2024-12-04 单日 20.85%，疑似拆分/除权或数据断点",
+        "2025-01-27 单日 -21.2%，疑似拆分/除权或数据断点",
+        "2025-03-06 单日 -22.08%，疑似拆分/除权或数据断点",
+        "2025-08-29 单日 -20.58%，疑似拆分/除权或数据断点",
+        "2026-06-02 单日 28.16%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-05-26 单日 28.08%，疑似拆分/除权或数据断点",
+        "异常标记:2024-12-04 单日 20.85%，疑似拆分/除权或数据断点",
+        "异常标记:2025-01-27 单日 -21.2%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-06 单日 -22.08%，疑似拆分/除权或数据断点",
+        "异常标记:2025-08-29 单日 -20.58%，疑似拆分/除权或数据断点",
+        "异常标记:2026-06-02 单日 28.16%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ON",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-10-30 单日 -24.55%，疑似拆分/除权或数据断点",
+        "2025-04-09 单日 20.45%，疑似拆分/除权或数据断点",
+        "2026-06-26 单日 -26.99%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-10-30 单日 -24.55%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-09 单日 20.45%，疑似拆分/除权或数据断点",
+        "异常标记:2026-06-26 单日 -26.99%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "NXPI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2026-04-29 单日 22.75%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2026-04-29 单日 22.75%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "TXN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ADI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MCHP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-04-09 单日 23.94%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-04-09 单日 23.94%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "STM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2026-07-23 单日 -20.67%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2026-07-23 单日 -20.67%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "GFS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "TER",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-01-27 单日 -25.37%，疑似拆分/除权或数据断点",
+        "2026-04-29 单日 -21.59%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-01-27 单日 -25.37%，疑似拆分/除权或数据断点",
+        "异常标记:2026-04-29 单日 -21.59%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ENTG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-11-02 单日 -23.53%，疑似拆分/除权或数据断点",
+        "2025-04-09 单日 22.1%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-11-02 单日 -23.53%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-09 单日 22.1%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "AMKR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-07-30 单日 -20.89%，疑似拆分/除权或数据断点",
+        "2026-07-28 单日 -28.42%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-07-30 单日 -20.89%，疑似拆分/除权或数据断点",
+        "异常标记:2026-07-28 单日 -28.42%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ACLS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2026-05-06 单日 20.22%，疑似拆分/除权或数据断点",
+        "2026-07-02 单日 -21.04%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2026-05-06 单日 20.22%，疑似拆分/除权或数据断点",
+        "异常标记:2026-07-02 单日 -21.04%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "WDC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-04-03 单日 -20.17%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-04-03 单日 -20.17%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "STX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SMCI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-04 单日 27.16%，疑似拆分/除权或数据断点",
+        "2023-05-03 单日 24.89%，疑似拆分/除权或数据断点",
+        "2023-05-25 单日 21.03%，疑似拆分/除权或数据断点",
+        "2023-08-09 单日 -26.65%，疑似拆分/除权或数据断点",
+        "2024-01-19 单日 30.7%，疑似拆分/除权或数据断点",
+        "2024-04-19 单日 -26.32%，疑似拆分/除权或数据断点",
+        "2024-08-07 单日 -22.49%，疑似拆分/除权或数据断点",
+        "2024-08-28 单日 -21.09%，疑似拆分/除权或数据断点",
+        "2024-10-30 单日 -39.56%，疑似拆分/除权或数据断点",
+        "2024-12-02 单日 25.21%，疑似拆分/除权或数据断点",
+        "2025-08-06 单日 -20.19%，疑似拆分/除权或数据断点",
+        "2026-03-20 单日 -40.53%，疑似拆分/除权或数据断点",
+        "2026-05-06 单日 21.95%，疑似拆分/除权或数据断点",
+        "2026-06-10 单日 -32.82%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-04 单日 27.16%，疑似拆分/除权或数据断点",
+        "异常标记:2023-05-03 单日 24.89%，疑似拆分/除权或数据断点",
+        "异常标记:2023-05-25 单日 21.03%，疑似拆分/除权或数据断点",
+        "异常标记:2023-08-09 单日 -26.65%，疑似拆分/除权或数据断点",
+        "异常标记:2024-01-19 单日 30.7%，疑似拆分/除权或数据断点",
+        "异常标记:2024-04-19 单日 -26.32%，疑似拆分/除权或数据断点",
+        "异常标记:2024-08-07 单日 -22.49%，疑似拆分/除权或数据断点",
+        "异常标记:2024-08-28 单日 -21.09%，疑似拆分/除权或数据断点",
+        "异常标记:2024-10-30 单日 -39.56%，疑似拆分/除权或数据断点",
+        "异常标记:2024-12-02 单日 25.21%，疑似拆分/除权或数据断点",
+        "异常标记:2025-08-06 单日 -20.19%，疑似拆分/除权或数据断点",
+        "异常标记:2026-03-20 单日 -40.53%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-06 单日 21.95%，疑似拆分/除权或数据断点",
+        "异常标记:2026-06-10 单日 -32.82%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "DELL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-03-01 单日 27.47%，疑似拆分/除权或数据断点",
+        "2025-04-03 单日 -21.06%，疑似拆分/除权或数据断点",
+        "2026-05-29 单日 28.34%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-03-01 单日 27.47%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-03 单日 -21.06%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-29 单日 28.34%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "HPE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "IBM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2026-07-14 单日 -29.05%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2026-07-14 单日 -29.05%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ORCL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-09-10 单日 30.71%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-09-10 单日 30.71%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "CRM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-05-30 单日 -21.99%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-05-30 单日 -21.99%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SNOW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-08-25 单日 20.76%，疑似拆分/除权或数据断点",
+        "2024-02-29 单日 -20.01%，疑似拆分/除权或数据断点",
+        "2024-11-21 单日 28.3%，疑似拆分/除权或数据断点",
+        "2026-05-28 单日 31.1%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-08-25 单日 20.76%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-29 单日 -20.01%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-21 单日 28.3%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-28 单日 31.1%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "PLTR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-09 单日 -23.96%，疑似拆分/除权或数据断点",
+        "2023-05-09 单日 21.01%，疑似拆分/除权或数据断点",
+        "2024-02-06 单日 26.85%，疑似拆分/除权或数据断点",
+        "2024-11-05 单日 21.08%，疑似拆分/除权或数据断点",
+        "2025-02-04 单日 21.5%，疑似拆分/除权或数据断点",
+        "2026-08-04 单日 25.82%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-09 单日 -23.96%，疑似拆分/除权或数据断点",
+        "异常标记:2023-05-09 单日 21.01%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-06 单日 26.85%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-05 单日 21.08%，疑似拆分/除权或数据断点",
+        "异常标记:2025-02-04 单日 21.5%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-04 单日 25.82%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "PANW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-02-21 单日 -33.46%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-02-21 单日 -33.46%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "CRWD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ZS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-09-04 单日 -20.66%，疑似拆分/除权或数据断点",
+        "2026-05-27 单日 -37.87%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-09-04 单日 -20.66%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-27 单日 -37.87%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "NET",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-08-05 单日 23.95%，疑似拆分/除权或数据断点",
+        "2022-11-04 单日 -20.36%，疑似拆分/除权或数据断点",
+        "2022-11-10 单日 22.25%，疑似拆分/除权或数据断点",
+        "2023-04-28 单日 -23.61%，疑似拆分/除权或数据断点",
+        "2026-05-08 单日 -26.95%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-08-05 单日 23.95%，疑似拆分/除权或数据断点",
+        "异常标记:2022-11-04 单日 -20.36%，疑似拆分/除权或数据断点",
+        "异常标记:2022-11-10 单日 22.25%，疑似拆分/除权或数据断点",
+        "异常标记:2023-04-28 单日 -23.61%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-08 单日 -26.95%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "DDOG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-11-07 单日 25.05%，疑似拆分/除权或数据断点",
+        "2025-11-06 单日 20.8%，疑似拆分/除权或数据断点",
+        "2026-05-07 单日 27.25%，疑似拆分/除权或数据断点",
+        "2026-08-06 单日 -21.11%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-11-07 单日 25.05%，疑似拆分/除权或数据断点",
+        "异常标记:2025-11-06 单日 20.8%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-07 单日 27.25%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-06 单日 -21.11%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "MDB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-09-03 单日 23.37%，疑似拆分/除权或数据断点",
+        "2022-09-01 单日 -29.2%，疑似拆分/除权或数据断点",
+        "2022-12-07 单日 20.89%，疑似拆分/除权或数据断点",
+        "2023-06-02 单日 24.69%，疑似拆分/除权或数据断点",
+        "2024-05-31 单日 -27.25%，疑似拆分/除权或数据断点",
+        "2025-03-06 单日 -31.39%，疑似拆分/除权或数据断点",
+        "2025-08-27 单日 32.18%，疑似拆分/除权或数据断点",
+        "2025-12-02 单日 20.08%，疑似拆分/除权或数据断点",
+        "2026-03-03 单日 -25.15%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-09-03 单日 23.37%，疑似拆分/除权或数据断点",
+        "异常标记:2022-09-01 单日 -29.2%，疑似拆分/除权或数据断点",
+        "异常标记:2022-12-07 单日 20.89%，疑似拆分/除权或数据断点",
+        "异常标记:2023-06-02 单日 24.69%，疑似拆分/除权或数据断点",
+        "异常标记:2024-05-31 单日 -27.25%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-06 单日 -31.39%，疑似拆分/除权或数据断点",
+        "异常标记:2025-08-27 单日 32.18%，疑似拆分/除权或数据断点",
+        "异常标记:2025-12-02 单日 20.08%，疑似拆分/除权或数据断点",
+        "异常标记:2026-03-03 单日 -25.15%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "NOW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SHOP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-05-04 单日 21.38%，疑似拆分/除权或数据断点",
+        "2023-11-02 单日 20.18%，疑似拆分/除权或数据断点",
+        "2024-05-08 单日 -20.56%，疑似拆分/除权或数据断点",
+        "2025-04-03 单日 -20.14%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-05-04 单日 21.38%，疑似拆分/除权或数据断点",
+        "异常标记:2023-11-02 单日 20.18%，疑似拆分/除权或数据断点",
+        "异常标记:2024-05-08 单日 -20.56%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-03 单日 -20.14%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "UBER",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ABNB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DASH",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "GOOGL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "GOOG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "META",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-02-03 单日 -30.64%，疑似拆分/除权或数据断点",
+        "2022-10-27 单日 -28.18%，疑似拆分/除权或数据断点",
+        "2023-02-02 单日 20.93%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-02-03 单日 -30.64%，疑似拆分/除权或数据断点",
+        "异常标记:2022-10-27 单日 -28.18%，疑似拆分/除权或数据断点",
+        "异常标记:2023-02-02 单日 20.93%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "AMZN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AAPL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "NFLX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-01-21 单日 -24.58%，疑似拆分/除权或数据断点",
+        "2022-04-20 单日 -43.26%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-01-21 单日 -24.58%，疑似拆分/除权或数据断点",
+        "异常标记:2022-04-20 单日 -43.26%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "TSLA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-04-09 单日 20.45%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-04-09 单日 20.45%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "RIVN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-09 单日 -23.41%，疑似拆分/除权或数据断点",
+        "2023-03-01 单日 -20.26%，疑似拆分/除权或数据断点",
+        "2023-10-05 单日 -25.98%，疑似拆分/除权或数据断点",
+        "2024-02-22 单日 -29.57%，疑似拆分/除权或数据断点",
+        "2024-06-26 单日 20.9%，疑似拆分/除权或数据断点",
+        "2025-01-03 单日 21.88%，疑似拆分/除权或数据断点",
+        "2025-11-05 单日 20.99%，疑似拆分/除权或数据断点",
+        "2026-02-13 单日 23.62%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-09 单日 -23.41%，疑似拆分/除权或数据断点",
+        "异常标记:2023-03-01 单日 -20.26%，疑似拆分/除权或数据断点",
+        "异常标记:2023-10-05 单日 -25.98%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-22 单日 -29.57%，疑似拆分/除权或数据断点",
+        "异常标记:2024-06-26 单日 20.9%，疑似拆分/除权或数据断点",
+        "异常标记:2025-01-03 单日 21.88%，疑似拆分/除权或数据断点",
+        "异常标记:2025-11-05 单日 20.99%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-13 单日 23.62%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "F",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-07-25 单日 -20.29%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-07-25 单日 -20.29%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "GM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "IONQ",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-10-04 单日 -20.3%，疑似拆分/除权或数据断点",
+        "2022-08-16 单日 27.58%，疑似拆分/除权或数据断点",
+        "2023-05-22 单日 20.13%，疑似拆分/除权或数据断点",
+        "2023-06-28 单日 21.1%，疑似拆分/除权或数据断点",
+        "2024-11-07 单日 29.57%，疑似拆分/除权或数据断点",
+        "2025-04-09 单日 21.45%，疑似拆分/除权或数据断点",
+        "2025-05-22 单日 31.13%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-10-04 单日 -20.3%，疑似拆分/除权或数据断点",
+        "异常标记:2022-08-16 单日 27.58%，疑似拆分/除权或数据断点",
+        "异常标记:2023-05-22 单日 20.13%，疑似拆分/除权或数据断点",
+        "异常标记:2023-06-28 单日 21.1%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-07 单日 29.57%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-09 单日 21.45%，疑似拆分/除权或数据断点",
+        "异常标记:2025-05-22 单日 31.13%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "RGTI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-09-06 单日 -46.34%，疑似拆分/除权或数据断点",
+        "2022-11-09 单日 -34.67%，疑似拆分/除权或数据断点",
+        "2023-05-22 单日 37.07%，疑似拆分/除权或数据断点",
+        "2023-06-08 单日 28.77%，疑似拆分/除权或数据断点",
+        "2024-10-28 单日 20.66%，疑似拆分/除权或数据断点",
+        "2025-03-14 单日 24.86%，疑似拆分/除权或数据断点",
+        "2025-05-22 单日 23.48%，疑似拆分/除权或数据断点",
+        "2025-07-16 单日 26.38%，疑似拆分/除权或数据断点",
+        "2025-10-13 单日 22.33%，疑似拆分/除权或数据断点",
+        "2026-05-21 单日 26.67%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-09-06 单日 -46.34%，疑似拆分/除权或数据断点",
+        "异常标记:2022-11-09 单日 -34.67%，疑似拆分/除权或数据断点",
+        "异常标记:2023-05-22 单日 37.07%，疑似拆分/除权或数据断点",
+        "异常标记:2023-06-08 单日 28.77%，疑似拆分/除权或数据断点",
+        "异常标记:2024-10-28 单日 20.66%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-14 单日 24.86%，疑似拆分/除权或数据断点",
+        "异常标记:2025-05-22 单日 23.48%，疑似拆分/除权或数据断点",
+        "异常标记:2025-07-16 单日 26.38%，疑似拆分/除权或数据断点",
+        "异常标记:2025-10-13 单日 22.33%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-21 单日 26.67%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "QUBT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-12-09 单日 -21.66%，疑似拆分/除权或数据断点",
+        "2022-05-24 单日 22.7%，疑似拆分/除权或数据断点",
+        "2022-06-07 单日 29.11%，疑似拆分/除权或数据断点",
+        "2024-03-12 单日 25.01%，疑似拆分/除权或数据断点",
+        "2024-06-28 单日 -23.04%，疑似拆分/除权或数据断点",
+        "2024-10-21 单日 21.44%，疑似拆分/除权或数据断点",
+        "2025-03-14 单日 25.58%，疑似拆分/除权或数据断点",
+        "2025-05-16 单日 33.14%，疑似拆分/除权或数据断点",
+        "2025-06-16 单日 24.07%，疑似拆分/除权或数据断点",
+        "2025-09-19 单日 23.75%，疑似拆分/除权或数据断点",
+        "2025-10-03 单日 20.88%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-12-09 单日 -21.66%，疑似拆分/除权或数据断点",
+        "异常标记:2022-05-24 单日 22.7%，疑似拆分/除权或数据断点",
+        "异常标记:2022-06-07 单日 29.11%，疑似拆分/除权或数据断点",
+        "异常标记:2024-03-12 单日 25.01%，疑似拆分/除权或数据断点",
+        "异常标记:2024-06-28 单日 -23.04%，疑似拆分/除权或数据断点",
+        "异常标记:2024-10-21 单日 21.44%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-14 单日 25.58%，疑似拆分/除权或数据断点",
+        "异常标记:2025-05-16 单日 33.14%，疑似拆分/除权或数据断点",
+        "异常标记:2025-06-16 单日 24.07%，疑似拆分/除权或数据断点",
+        "异常标记:2025-09-19 单日 23.75%，疑似拆分/除权或数据断点",
+        "异常标记:2025-10-03 单日 20.88%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "APP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-12 单日 29.77%，疑似拆分/除权或数据断点",
+        "2023-02-09 单日 23.94%，疑似拆分/除权或数据断点",
+        "2023-05-11 单日 21.13%，疑似拆分/除权或数据断点",
+        "2023-08-10 单日 23.5%，疑似拆分/除权或数据断点",
+        "2024-02-15 单日 22.16%，疑似拆分/除权或数据断点",
+        "2024-11-07 单日 38.03%，疑似拆分/除权或数据断点",
+        "2025-02-13 单日 21.53%，疑似拆分/除权或数据断点",
+        "2025-03-06 单日 -20.28%，疑似拆分/除权或数据断点",
+        "2025-03-27 单日 -22.47%，疑似拆分/除权或数据断点",
+        "2026-02-12 单日 -21.92%，疑似拆分/除权或数据断点",
+        "2026-08-06 单日 -21.89%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-12 单日 29.77%，疑似拆分/除权或数据断点",
+        "异常标记:2023-02-09 单日 23.94%，疑似拆分/除权或数据断点",
+        "异常标记:2023-05-11 单日 21.13%，疑似拆分/除权或数据断点",
+        "异常标记:2023-08-10 单日 23.5%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-15 单日 22.16%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-07 单日 38.03%，疑似拆分/除权或数据断点",
+        "异常标记:2025-02-13 单日 21.53%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-06 单日 -20.28%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-27 单日 -22.47%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-12 单日 -21.92%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-06 单日 -21.89%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "DUOL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-13 单日 29.29%，疑似拆分/除权或数据断点",
+        "2023-03-01 单日 20.08%，疑似拆分/除权或数据断点",
+        "2024-02-29 单日 20.09%，疑似拆分/除权或数据断点",
+        "2025-11-06 单日 -29.42%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-13 单日 29.29%，疑似拆分/除权或数据断点",
+        "异常标记:2023-03-01 单日 20.08%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-29 单日 20.09%，疑似拆分/除权或数据断点",
+        "异常标记:2025-11-06 单日 -29.42%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ROKU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-02-18 单日 -25.21%，疑似拆分/除权或数据断点",
+        "2022-07-29 单日 -26.23%，疑似拆分/除权或数据断点",
+        "2023-07-28 单日 27.32%，疑似拆分/除权或数据断点",
+        "2023-11-02 单日 26.8%，疑似拆分/除权或数据断点",
+        "2024-02-16 单日 -27.19%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-02-18 单日 -25.21%，疑似拆分/除权或数据断点",
+        "异常标记:2022-07-29 单日 -26.23%，疑似拆分/除权或数据断点",
+        "异常标记:2023-07-28 单日 27.32%，疑似拆分/除权或数据断点",
+        "异常标记:2023-11-02 单日 26.8%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-16 单日 -27.19%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SPOT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PINS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-24 单日 -26.97%，疑似拆分/除权或数据断点",
+        "2025-11-05 单日 -24.53%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-24 单日 -26.97%，疑似拆分/除权或数据断点",
+        "异常标记:2025-11-05 单日 -24.53%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SNAP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-10-22 单日 -30.91%，疑似拆分/除权或数据断点",
+        "2022-02-04 单日 46.26%，疑似拆分/除权或数据断点",
+        "2022-05-24 单日 -56.35%，疑似拆分/除权或数据断点",
+        "2022-07-22 单日 -49.57%，疑似拆分/除权或数据断点",
+        "2022-10-21 单日 -32.96%，疑似拆分/除权或数据断点",
+        "2024-02-07 单日 -42.48%，疑似拆分/除权或数据断点",
+        "2024-04-26 单日 24.4%，疑似拆分/除权或数据断点",
+        "2024-08-02 单日 -31.38%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-10-22 单日 -30.91%，疑似拆分/除权或数据断点",
+        "异常标记:2022-02-04 单日 46.26%，疑似拆分/除权或数据断点",
+        "异常标记:2022-05-24 单日 -56.35%，疑似拆分/除权或数据断点",
+        "异常标记:2022-07-22 单日 -49.57%，疑似拆分/除权或数据断点",
+        "异常标记:2022-10-21 单日 -32.96%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-07 单日 -42.48%，疑似拆分/除权或数据断点",
+        "异常标记:2024-04-26 单日 24.4%，疑似拆分/除权或数据断点",
+        "异常标记:2024-08-02 单日 -31.38%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "TTD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-11-08 单日 25.83%，疑似拆分/除权或数据断点",
+        "2022-05-24 单日 -20.47%，疑似拆分/除权或数据断点",
+        "2022-08-10 单日 30.91%，疑似拆分/除权或数据断点",
+        "2023-02-15 单日 28.38%，疑似拆分/除权或数据断点",
+        "2025-02-13 单日 -40.02%，疑似拆分/除权或数据断点",
+        "2025-08-08 单日 -48.78%，疑似拆分/除权或数据断点",
+        "2026-08-07 单日 -24.72%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-11-08 单日 25.83%，疑似拆分/除权或数据断点",
+        "异常标记:2022-05-24 单日 -20.47%，疑似拆分/除权或数据断点",
+        "异常标记:2022-08-10 单日 30.91%，疑似拆分/除权或数据断点",
+        "异常标记:2023-02-15 单日 28.38%，疑似拆分/除权或数据断点",
+        "异常标记:2025-02-13 单日 -40.02%，疑似拆分/除权或数据断点",
+        "异常标记:2025-08-08 单日 -48.78%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-07 单日 -24.72%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "MTCH",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "WBD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-11-08 单日 -21.12%，疑似拆分/除权或数据断点",
+        "2025-09-11 单日 25.42%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-11-08 单日 -21.12%，疑似拆分/除权或数据断点",
+        "异常标记:2025-09-11 单日 25.42%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "DIS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PARA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 734,
+      "referenceSessions": 753,
+      "coveragePct": 97.48,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-12-10 单日 38.85%，疑似拆分/除权或数据断点",
+        "2025-03-26 单日 23.28%，疑似拆分/除权或数据断点",
+        "2025-06-12 单日 -24.48%，疑似拆分/除权或数据断点",
+        "2025-07-08 单日 -22.33%，疑似拆分/除权或数据断点",
+        "2026-04-07 单日 -29.2%，疑似拆分/除权或数据断点",
+        "2026-04-13 单日 24.68%，疑似拆分/除权或数据断点",
+        "2026-07-13 单日 -30.01%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-12-10 单日 38.85%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-26 单日 23.28%，疑似拆分/除权或数据断点",
+        "异常标记:2025-06-12 单日 -24.48%，疑似拆分/除权或数据断点",
+        "异常标记:2025-07-08 单日 -22.33%，疑似拆分/除权或数据断点",
+        "异常标记:2026-04-07 单日 -29.2%，疑似拆分/除权或数据断点",
+        "异常标记:2026-04-13 单日 24.68%，疑似拆分/除权或数据断点",
+        "异常标记:2026-07-13 单日 -30.01%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "CMCSA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "VZ",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "T",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "TMO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ADBE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "INTU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2026-05-21 单日 -22.34%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2026-05-21 单日 -22.34%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ACN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SAP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-02-14 单日 -20.32%，疑似拆分/除权或数据断点",
+        "2022-05-13 单日 20.46%，疑似拆分/除权或数据断点",
+        "2022-11-15 单日 30.78%，疑似拆分/除权或数据断点",
+        "2023-08-15 单日 -33.8%，疑似拆分/除权或数据断点",
+        "2023-11-14 单日 -24.94%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-02-14 单日 -20.32%，疑似拆分/除权或数据断点",
+        "异常标记:2022-05-13 单日 20.46%，疑似拆分/除权或数据断点",
+        "异常标记:2022-11-15 单日 30.78%，疑似拆分/除权或数据断点",
+        "异常标记:2023-08-15 单日 -33.8%，疑似拆分/除权或数据断点",
+        "异常标记:2023-11-14 单日 -24.94%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "TEAM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-11-04 单日 -34.19%，疑似拆分/除权或数据断点",
+        "2026-05-01 单日 25.91%，疑似拆分/除权或数据断点",
+        "2026-08-07 单日 30.24%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-11-04 单日 -34.19%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-01 单日 25.91%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-07 单日 30.24%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "HUBS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2026-05-08 单日 -21.11%，疑似拆分/除权或数据断点",
+        "2026-08-06 单日 -21.19%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2026-05-08 单日 -21.11%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-06 单日 -21.19%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "DOCU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-12-03 单日 -54.86%，疑似拆分/除权或数据断点",
+        "2022-03-11 单日 -22.44%，疑似拆分/除权或数据断点",
+        "2022-06-10 单日 -28.14%，疑似拆分/除权或数据断点",
+        "2023-03-10 单日 -25.95%，疑似拆分/除权或数据断点",
+        "2024-12-06 单日 24.57%，疑似拆分/除权或数据断点",
+        "2025-06-06 单日 -21.03%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-12-03 单日 -54.86%，疑似拆分/除权或数据断点",
+        "异常标记:2022-03-11 单日 -22.44%，疑似拆分/除权或数据断点",
+        "异常标记:2022-06-10 单日 -28.14%，疑似拆分/除权或数据断点",
+        "异常标记:2023-03-10 单日 -25.95%，疑似拆分/除权或数据断点",
+        "异常标记:2024-12-06 单日 24.57%，疑似拆分/除权或数据断点",
+        "异常标记:2025-06-06 单日 -21.03%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ASAN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-11-22 单日 -25.71%，疑似拆分/除权或数据断点",
+        "2021-12-03 单日 -30.65%，疑似拆分/除权或数据断点",
+        "2022-02-23 单日 -26.14%，疑似拆分/除权或数据断点",
+        "2022-03-10 单日 -25.01%，疑似拆分/除权或数据断点",
+        "2022-05-13 单日 20.41%，疑似拆分/除权或数据断点",
+        "2022-09-08 单日 22.15%，疑似拆分/除权或数据断点",
+        "2024-12-06 单日 36.14%，疑似拆分/除权或数据断点",
+        "2025-03-11 单日 -27.73%，疑似拆分/除权或数据断点",
+        "2025-06-04 单日 -22.91%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-11-22 单日 -25.71%，疑似拆分/除权或数据断点",
+        "异常标记:2021-12-03 单日 -30.65%，疑似拆分/除权或数据断点",
+        "异常标记:2022-02-23 单日 -26.14%，疑似拆分/除权或数据断点",
+        "异常标记:2022-03-10 单日 -25.01%，疑似拆分/除权或数据断点",
+        "异常标记:2022-05-13 单日 20.41%，疑似拆分/除权或数据断点",
+        "异常标记:2022-09-08 单日 22.15%，疑似拆分/除权或数据断点",
+        "异常标记:2024-12-06 单日 36.14%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-11 单日 -27.73%，疑似拆分/除权或数据断点",
+        "异常标记:2025-06-04 单日 -22.91%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "OKTA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-09-01 单日 -41.1%，疑似拆分/除权或数据断点",
+        "2022-12-01 单日 23.48%，疑似拆分/除权或数据断点",
+        "2024-02-29 单日 20.63%，疑似拆分/除权或数据断点",
+        "2025-03-04 单日 21.73%，疑似拆分/除权或数据断点",
+        "2026-05-29 单日 26.35%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-09-01 单日 -41.1%，疑似拆分/除权或数据断点",
+        "异常标记:2022-12-01 单日 23.48%，疑似拆分/除权或数据断点",
+        "异常标记:2024-02-29 单日 20.63%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-04 单日 21.73%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-29 单日 26.35%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "BILL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-08-27 单日 25.96%，疑似拆分/除权或数据断点",
+        "2022-02-04 单日 30.79%，疑似拆分/除权或数据断点",
+        "2022-05-06 单日 -22.97%，疑似拆分/除权或数据断点",
+        "2023-02-03 单日 -31.04%，疑似拆分/除权或数据断点",
+        "2023-11-03 单日 -29.03%，疑似拆分/除权或数据断点",
+        "2025-02-07 单日 -43.88%，疑似拆分/除权或数据断点",
+        "2026-02-06 单日 31.6%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-08-27 单日 25.96%，疑似拆分/除权或数据断点",
+        "异常标记:2022-02-04 单日 30.79%，疑似拆分/除权或数据断点",
+        "异常标记:2022-05-06 单日 -22.97%，疑似拆分/除权或数据断点",
+        "异常标记:2023-02-03 单日 -31.04%，疑似拆分/除权或数据断点",
+        "异常标记:2023-11-03 单日 -29.03%，疑似拆分/除权或数据断点",
+        "异常标记:2025-02-07 单日 -43.88%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-06 单日 31.6%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "PAYC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-08-02 单日 -21.31%，疑似拆分/除权或数据断点",
+        "2023-11-01 单日 -48.59%，疑似拆分/除权或数据断点",
+        "2026-08-06 单日 21.15%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-08-02 单日 -21.31%，疑似拆分/除权或数据断点",
+        "异常标记:2023-11-01 单日 -48.59%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-06 单日 21.15%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "TWLO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-11-04 单日 -42.48%，疑似拆分/除权或数据断点",
+        "2025-08-08 单日 -21.54%，疑似拆分/除权或数据断点",
+        "2026-05-01 单日 21.37%，疑似拆分/除权或数据断点",
+        "2026-08-07 单日 22.22%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-11-04 单日 -42.48%，疑似拆分/除权或数据断点",
+        "异常标记:2025-08-08 单日 -21.54%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-01 单日 21.37%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-07 单日 22.22%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SQ",
+      "source": null,
+      "adjustment": null,
+      "sessionCount": 0,
+      "referenceSessions": 753,
+      "coveragePct": 0,
+      "firstDate": null,
+      "latestDate": null,
+      "status": "unavailable",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PYPL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-02-02 单日 -28.22%，疑似拆分/除权或数据断点",
+        "2026-02-03 单日 -22.71%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-02-02 单日 -28.22%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-03 单日 -22.71%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "V",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ARKK",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "COIN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-07-26 单日 -23.68%，疑似拆分/除权或数据断点",
+        "2023-02-02 单日 21.5%，疑似拆分/除权或数据断点",
+        "2023-07-13 单日 21.91%，疑似拆分/除权或数据断点",
+        "2024-11-06 单日 27.09%，疑似拆分/除权或数据断点",
+        "2025-05-13 单日 21.49%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-07-26 单日 -23.68%，疑似拆分/除权或数据断点",
+        "异常标记:2023-02-02 单日 21.5%，疑似拆分/除权或数据断点",
+        "异常标记:2023-07-13 单日 21.91%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-06 单日 27.09%，疑似拆分/除权或数据断点",
+        "异常标记:2025-05-13 单日 21.49%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "HOOD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-03-29 单日 21.67%，疑似拆分/除权或数据断点",
+        "2022-05-13 单日 22.22%，疑似拆分/除权或数据断点",
+        "2022-11-08 单日 -21.12%，疑似拆分/除权或数据断点",
+        "2025-03-10 单日 -22.05%，疑似拆分/除权或数据断点",
+        "2025-04-09 单日 21.13%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-03-29 单日 21.67%，疑似拆分/除权或数据断点",
+        "异常标记:2022-05-13 单日 22.22%，疑似拆分/除权或数据断点",
+        "异常标记:2022-11-08 单日 -21.12%，疑似拆分/除权或数据断点",
+        "异常标记:2025-03-10 单日 -22.05%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-09 单日 21.13%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SOFI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-08-03 单日 24.99%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-08-03 单日 24.99%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "AFRM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-08-30 单日 38.3%，疑似拆分/除权或数据断点",
+        "2021-09-10 单日 29.54%，疑似拆分/除权或数据断点",
+        "2022-02-11 单日 -23.16%，疑似拆分/除权或数据断点",
+        "2022-08-26 单日 -23.99%，疑似拆分/除权或数据断点",
+        "2022-11-10 单日 21.42%，疑似拆分/除权或数据断点",
+        "2023-08-25 单日 25.32%，疑似拆分/除权或数据断点",
+        "2024-08-29 单日 27.7%，疑似拆分/除权或数据断点",
+        "2024-11-11 单日 21.42%，疑似拆分/除权或数据断点",
+        "2025-04-03 单日 -20.47%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-08-30 单日 38.3%，疑似拆分/除权或数据断点",
+        "异常标记:2021-09-10 单日 29.54%，疑似拆分/除权或数据断点",
+        "异常标记:2022-02-11 单日 -23.16%，疑似拆分/除权或数据断点",
+        "异常标记:2022-08-26 单日 -23.99%，疑似拆分/除权或数据断点",
+        "异常标记:2022-11-10 单日 21.42%，疑似拆分/除权或数据断点",
+        "异常标记:2023-08-25 单日 25.32%，疑似拆分/除权或数据断点",
+        "异常标记:2024-08-29 单日 27.7%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-11 单日 21.42%，疑似拆分/除权或数据断点",
+        "异常标记:2025-04-03 单日 -20.47%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "NU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-02-21 单日 -20.94%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-02-21 单日 -20.94%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "RBLX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-11-09 单日 35.23%，疑似拆分/除权或数据断点",
+        "2022-02-16 单日 -30.8%，疑似拆分/除权或数据断点",
+        "2022-11-09 单日 -23.57%，疑似拆分/除权或数据断点",
+        "2023-02-15 单日 23.41%，疑似拆分/除权或数据断点",
+        "2023-08-09 单日 -24.77%，疑似拆分/除权或数据断点",
+        "2024-05-09 单日 -24.92%，疑似拆分/除权或数据断点",
+        "2026-05-01 单日 -20.25%，疑似拆分/除权或数据断点",
+        "2026-07-31 单日 -31.27%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-11-09 单日 35.23%，疑似拆分/除权或数据断点",
+        "异常标记:2022-02-16 单日 -30.8%，疑似拆分/除权或数据断点",
+        "异常标记:2022-11-09 单日 -23.57%，疑似拆分/除权或数据断点",
+        "异常标记:2023-02-15 单日 23.41%，疑似拆分/除权或数据断点",
+        "异常标记:2023-08-09 单日 -24.77%，疑似拆分/除权或数据断点",
+        "异常标记:2024-05-09 单日 -24.92%，疑似拆分/除权或数据断点",
+        "异常标记:2026-05-01 单日 -20.25%，疑似拆分/除权或数据断点",
+        "异常标记:2026-07-31 单日 -31.27%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "EA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 741,
+      "referenceSessions": 753,
+      "coveragePct": 98.41,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-04",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "TTWO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ATVI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 39,
+      "referenceSessions": 753,
+      "coveragePct": 5.18,
+      "firstDate": "2023-08-21",
+      "latestDate": "2023-10-13",
+      "status": "degraded",
+      "anomalies": [
+        "2022-01-18 单日 23.01%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "三年窗口覆盖率 5.18% 低于 95%",
+        "异常标记:2022-01-18 单日 23.01%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "U",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-11-10 单日 25.77%，疑似拆分/除权或数据断点",
+        "2025-02-20 单日 26.55%，疑似拆分/除权或数据断点",
+        "2026-01-30 单日 -27.73%，疑似拆分/除权或数据断点",
+        "2026-02-11 单日 -30.55%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-11-10 单日 25.77%，疑似拆分/除权或数据断点",
+        "异常标记:2025-02-20 单日 26.55%，疑似拆分/除权或数据断点",
+        "异常标记:2026-01-30 单日 -27.73%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-11 单日 -30.55%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SBUX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-08-13 单日 21.91%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-08-13 单日 21.91%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "MCD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "NKE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-06-28 单日 -22.29%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-06-28 单日 -22.29%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "LULU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-06-06 单日 -22.07%，疑似拆分/除权或数据断点",
+        "2025-09-05 单日 -20.55%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-06-06 单日 -22.07%，疑似拆分/除权或数据断点",
+        "异常标记:2025-09-05 单日 -20.55%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "TGT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-18 单日 -28.68%，疑似拆分/除权或数据断点",
+        "2024-11-20 单日 -24.09%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-18 单日 -28.68%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-20 单日 -24.09%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "WMT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "COST",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "HD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LOW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "TJX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ROST",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-05-20 单日 -25.45%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-05-20 单日 -25.45%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "DG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-06-01 单日 -21.7%，疑似拆分/除权或数据断点",
+        "2024-08-29 单日 -38.78%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-06-01 单日 -21.7%，疑似拆分/除权或数据断点",
+        "异常标记:2024-08-29 单日 -38.78%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "DLTR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-09-04 单日 -25.05%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-09-04 单日 -25.05%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "KR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CVS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "WBA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 507,
+      "referenceSessions": 753,
+      "coveragePct": 67.33,
+      "firstDate": "2023-08-21",
+      "latestDate": "2025-08-27",
+      "status": "degraded",
+      "anomalies": [
+        "2024-06-27 单日 -25.05%，疑似拆分/除权或数据断点",
+        "2025-01-10 单日 24.33%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "三年窗口覆盖率 67.33% 低于 95%",
+        "异常标记:2024-06-27 单日 -25.05%，疑似拆分/除权或数据断点",
+        "异常标记:2025-01-10 单日 24.33%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "PEP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "KO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MNST",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "KDP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "EL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-11-01 单日 -20.95%，疑似拆分/除权或数据断点",
+        "2024-10-31 单日 -23.44%，疑似拆分/除权或数据断点",
+        "2026-02-05 单日 -21.3%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-11-01 单日 -20.95%，疑似拆分/除权或数据断点",
+        "异常标记:2024-10-31 单日 -23.44%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-05 单日 -21.3%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "CLX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "UL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "UNH",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-04-17 单日 -25.33%，疑似拆分/除权或数据断点",
+        "2026-01-27 单日 -21.82%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-04-17 单日 -25.33%，疑似拆分/除权或数据断点",
+        "异常标记:2026-01-27 单日 -21.82%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "HUM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-01-06 单日 -21.53%，疑似拆分/除权或数据断点",
+        "2026-01-27 单日 -23.73%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-01-06 单日 -21.53%，疑似拆分/除权或数据断点",
+        "异常标记:2026-01-27 单日 -23.73%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "CI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CNC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-07-02 单日 -51.7%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-07-02 单日 -51.7%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "HCA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-04-22 单日 -24.62%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-04-22 单日 -24.62%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "JNJ",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PFE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BNTX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2021-11-05 单日 -23.47%，疑似拆分/除权或数据断点",
+        "2021-12-06 单日 -20.66%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2021-11-05 单日 -23.47%，疑似拆分/除权或数据断点",
+        "异常标记:2021-12-06 单日 -20.66%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "GILD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "REGN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-05-30 单日 -21.09%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-05-30 单日 -21.09%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "BIIB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-09-28 单日 33.54%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-09-28 单日 33.54%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "AMGN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "VRTX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-08-05 单日 -23.07%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-08-05 单日 -23.07%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ABBV",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LLY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BMY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MRK",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AZN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 705,
+      "referenceSessions": 753,
+      "coveragePct": 93.63,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "degraded",
+      "anomalies": [],
+      "warnings": [
+        "三年窗口覆盖率 93.63% 低于 95%"
+      ]
+    },
+    {
+      "ticker": "NVO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-07-29 单日 -24.62%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-07-29 单日 -24.62%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SGEN",
+      "source": null,
+      "adjustment": null,
+      "sessionCount": 0,
+      "referenceSessions": 753,
+      "coveragePct": 0,
+      "firstDate": null,
+      "latestDate": null,
+      "status": "unavailable",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "INCY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "EXAS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 648,
+      "referenceSessions": 753,
+      "coveragePct": 86.06,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-03-20",
+      "status": "degraded",
+      "anomalies": [
+        "2023-01-09 单日 22.03%，疑似拆分/除权或数据断点",
+        "2024-08-01 单日 23.72%，疑似拆分/除权或数据断点",
+        "2024-11-06 单日 -26.76%，疑似拆分/除权或数据断点",
+        "2025-11-19 单日 21.25%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "三年窗口覆盖率 86.06% 低于 95%",
+        "异常标记:2023-01-09 单日 22.03%，疑似拆分/除权或数据断点",
+        "异常标记:2024-08-01 单日 23.72%，疑似拆分/除权或数据断点",
+        "异常标记:2024-11-06 单日 -26.76%，疑似拆分/除权或数据断点",
+        "异常标记:2025-11-19 单日 21.25%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ILMN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-10-31 单日 22.13%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-10-31 单日 22.13%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ISRG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SYK",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MDT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BSX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "EW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-07-25 单日 -37.6%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-07-25 单日 -37.6%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ZBH",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DXCM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-07-26 单日 -52.19%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-07-26 单日 -52.19%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "PODD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-11-04 单日 20.36%，疑似拆分/除权或数据断点",
+        "2026-08-05 单日 -22.46%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-11-04 单日 20.36%，疑似拆分/除权或数据断点",
+        "异常标记:2026-08-05 单日 -22.46%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ALGN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-02-02 单日 24.2%，疑似拆分/除权或数据断点",
+        "2023-10-26 单日 -28.61%，疑似拆分/除权或数据断点",
+        "2025-07-31 单日 -45.61%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-02-02 单日 24.2%，疑似拆分/除权或数据断点",
+        "异常标记:2023-10-26 单日 -28.61%，疑似拆分/除权或数据断点",
+        "异常标记:2025-07-31 单日 -45.61%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "RMD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-08-04 单日 -20.46%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-08-04 单日 -20.46%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "HOLX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 658,
+      "referenceSessions": 753,
+      "coveragePct": 87.38,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-04-06",
+      "status": "degraded",
+      "anomalies": [],
+      "warnings": [
+        "三年窗口覆盖率 87.38% 低于 95%"
+      ]
+    },
+    {
+      "ticker": "XRAY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2024-11-07 单日 -32.88%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2024-11-07 单日 -32.88%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "RGEN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "IQV",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ABT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DHR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XBI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "IBB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLV",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "QQQ",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DIA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "IWM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SMH",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SOXX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "IGV",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SKYY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CLOU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "HACK",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BOTZ",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ROBO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LIT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "TAN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ICLN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ARKG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ARKF",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLF",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLK",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XLB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "JPM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BAC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "WFC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "C",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "GS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SCHW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BLK",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "KKR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "APO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AXP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DFS",
+      "source": null,
+      "adjustment": null,
+      "sessionCount": 0,
+      "referenceSessions": 753,
+      "coveragePct": 0,
+      "firstDate": null,
+      "latestDate": null,
+      "status": "unavailable",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "COF",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "USB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PNC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "TFC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BK",
+      "source": null,
+      "adjustment": null,
+      "sessionCount": 0,
+      "referenceSessions": 753,
+      "coveragePct": 0,
+      "firstDate": null,
+      "latestDate": null,
+      "status": "unavailable",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "STT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "NTRS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CME",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ICE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CBOE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SPGI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MCO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MSCI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "VRSK",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "FIS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-11-03 单日 -32.92%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-11-03 单日 -32.92%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "FISV",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-04-24 单日 -20.48%，疑似拆分/除权或数据断点",
+        "2025-10-29 单日 -58.06%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-04-24 单日 -20.48%，疑似拆分/除权或数据断点",
+        "异常标记:2025-10-29 单日 -58.06%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "GPN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ADP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PAYX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ALL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "TRV",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PGR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MET",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PRU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AFL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AIG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "XOM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CVX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "COP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "OXY",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SLB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "HAL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BKR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "EOG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PXD",
+      "source": null,
+      "adjustment": null,
+      "sessionCount": 0,
+      "referenceSessions": 753,
+      "coveragePct": 0,
+      "firstDate": null,
+      "latestDate": null,
+      "status": "unavailable",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "MPC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "VLO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "PSX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "OKE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "KMI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ENB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "EQT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LNG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CTRA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 680,
+      "referenceSessions": 753,
+      "coveragePct": 90.31,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-05-06",
+      "status": "degraded",
+      "anomalies": [],
+      "warnings": [
+        "三年窗口覆盖率 90.31% 低于 95%"
+      ]
+    },
+    {
+      "ticker": "DVN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "FANG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "APA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CNQ",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SU",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "RIG",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-04-04 单日 -22.59%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-04-04 单日 -22.59%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "FCX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SCCO",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "NEM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "GOLD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "AEM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "RGLD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "WPM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LIN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "APD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ECL",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "SHW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DOW",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LYB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "NUE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "STLD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CLF",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-06-02 单日 20.83%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-06-02 单日 20.83%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "AA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CENX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-09-30 单日 -20.17%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-09-30 单日 -20.17%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "ALB",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2022-02-17 单日 -22.2%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2022-02-17 单日 -22.2%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "SQM",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2023-04-21 单日 -20.55%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2023-04-21 单日 -20.55%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "MP",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-07-10 单日 40.96%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-07-10 单日 40.96%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "MOS",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CF",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "FMC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [
+        "2025-02-05 单日 -40.84%，疑似拆分/除权或数据断点",
+        "2025-10-30 单日 -62.59%，疑似拆分/除权或数据断点",
+        "2026-02-05 单日 -21.74%，疑似拆分/除权或数据断点"
+      ],
+      "warnings": [
+        "异常标记:2025-02-05 单日 -40.84%，疑似拆分/除权或数据断点",
+        "异常标记:2025-10-30 单日 -62.59%，疑似拆分/除权或数据断点",
+        "异常标记:2026-02-05 单日 -21.74%，疑似拆分/除权或数据断点"
+      ]
+    },
+    {
+      "ticker": "CAT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "DE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "CMI",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "ETN",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "EMR",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "HON",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "GE",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "RTX",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "LMT",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "NOC",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "GD",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    },
+    {
+      "ticker": "BA",
+      "source": "stockanalysis",
+      "adjustment": "adjusted",
+      "sessionCount": 753,
+      "referenceSessions": 753,
+      "coveragePct": 100,
+      "firstDate": "2023-08-21",
+      "latestDate": "2026-08-20",
+      "status": "full",
+      "anomalies": [],
+      "warnings": []
+    }
+  ],
+  "summary": {
+    "archived": 295,
+    "reused": 0,
+    "fullCount": 289,
+    "degradedCount": 6,
+    "unavailableCount": 5,
+    "adjustedOnlyCount": 295,
+    "rawOnlyCount": 0,
+    "sources": {
+      "stockanalysis": 295
+    },
+    "warnings": []
+  }
+}

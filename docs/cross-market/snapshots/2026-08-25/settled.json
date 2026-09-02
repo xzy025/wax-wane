@@ -1,0 +1,86 @@
+{
+  "tradeDate": "2026-08-25",
+  "generatedAt": "2026-08-25T07:11:05.964Z",
+  "modelVersion": "cross-market-v1-research",
+  "status": "degraded",
+  "themes": [
+    {
+      "id": "cpo",
+      "label": "CPO/大科技",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 307,
+      "themeReturnPct": 0.42,
+      "benchmarkReturnPct": -0.24,
+      "excessReturnPct": 0.66,
+      "positiveBreadthPct": 55.05,
+      "amount": 395809165170.8899,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 18,
+      "firstBoardCount": 18,
+      "strongCoreCount": 0,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0.25,
+        "cycleComponent": 0,
+        "metCriteria": [
+          "涨停≥3且首板≥2"
+        ],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅2日",
+        "题材成交额历史仅2日",
+        "题材高潮四项证据不足三项"
+      ]
+    },
+    {
+      "id": "innovative-drug",
+      "label": "创新药",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 114,
+      "themeReturnPct": 2.49,
+      "benchmarkReturnPct": -0.24,
+      "excessReturnPct": 2.73,
+      "positiveBreadthPct": 84.21,
+      "amount": 39116092096.45,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 13,
+      "firstBoardCount": 11,
+      "strongCoreCount": 2,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0.5,
+        "cycleComponent": 0,
+        "metCriteria": [
+          "涨停≥3且首板≥2",
+          "上涨宽度≥70%"
+        ],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "continuation",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅2日",
+        "题材成交额历史仅2日",
+        "题材高潮四项证据不足三项"
+      ]
+    }
+  ],
+  "warnings": [
+    "全市场停牌或过时行情已剔除：5208/5553",
+    "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+    "题材收益历史仅2日",
+    "题材成交额历史仅2日",
+    "题材高潮四项证据不足三项"
+  ]
+}
