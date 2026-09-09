@@ -3,10 +3,12 @@ import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 const LADDER_SNAPSHOT_PREFIX = 'limit-ladder-snapshot-v6:'
 const CURRENT_LADDER_RULE_VERSION = 'limit-ladder-v6'
+// A cold analysis hydrates the full ladder and can exceed two minutes.
+const LADDER_ANALYSIS_TIMEOUT_MS = 900_000
 
-async function fetchLadderJson<T>(url: string, timeoutMs: number): Promise<T> {
+async function fetchLadderJson<T>(url: string, timeoutMs: number, attempts = 2): Promise<T> {
   let lastError: unknown = null
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
       const response = await fetchWithTimeout(url, timeoutMs, {
         cache: 'no-store',
@@ -19,13 +21,26 @@ async function fetchLadderJson<T>(url: string, timeoutMs: number): Promise<T> {
       return json
     } catch (reason) {
       lastError = reason
-      if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 250))
+      if (attempt + 1 < attempts) await new Promise((resolve) => setTimeout(resolve, 250))
     }
   }
   if (lastError instanceof TypeError && lastError.message === 'Failed to fetch') {
     throw new Error('连板天梯服务不可达：请确认后端 3002 与 Vite 代理均已启动')
   }
-  throw lastError instanceof Error ? lastError : new Error('Failed to load ladder data')
+  throw lastError instanceof Error || lastError instanceof DOMException
+    ? lastError
+    : new Error('Failed to load ladder data')
+}
+
+function ladderAnalysisError(reason: unknown): string {
+  if (reason instanceof Error || reason instanceof DOMException) {
+    if (reason.name === 'AbortError' || reason.name === 'TimeoutError'
+      || /signal (?:is |was )?aborted|timed?\s*out|timeout/i.test(reason.message)) {
+      return '连板天梯分析等待超时（15 分钟），请稍后手动刷新'
+    }
+    return reason.message
+  }
+  return '连板天梯分析加载失败'
 }
 
 function readLadderSnapshot(date: string): LimitLadderAnalysis | null {
@@ -1605,6 +1620,93 @@ export interface LadderReasonDetail {
   source: 'kaipanla'
 }
 
+export interface HithinkAnomalyDetail {
+  stockName: string
+  tagName: string
+  content: string
+  keywords: string[]
+}
+
+function toHithinkCode(code: string): string | null {
+  if (!/^\d{6}$/.test(code)) return null
+  if (code.startsWith('6')) return `${code}.SH`
+  if (code.startsWith('4') || code.startsWith('8')) return `${code}.BJ`
+  return `${code}.SZ`
+}
+
+function record(value: unknown): Record<string, unknown> | null {
+  return value != null && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null
+}
+
+function stringField(row: Record<string, unknown>, name: string): string {
+  return typeof row[name] === 'string' ? row[name].trim() : ''
+}
+
+function anomalyDetail(payload: unknown): HithinkAnomalyDetail | null {
+  const root = record(payload)
+  const datasets = Array.isArray(root?.datasets) ? root.datasets : []
+  const dataset = datasets.find((value) => record(value)?.dataset === 'anomaly')
+  const data = record(record(dataset)?.data)
+  const items = Array.isArray(data?.item) ? data.item : []
+  const latest = record(items[0])
+  if (!latest) return null
+  const keywordValue = latest.keyword_list
+  const keywords = Array.isArray(keywordValue)
+    ? keywordValue.filter((value): value is string => typeof value === 'string').map((value) => value.trim()).filter(Boolean)
+    : typeof keywordValue === 'string'
+      ? keywordValue.split(/[、,，]/).map((value) => value.trim()).filter(Boolean)
+      : []
+  const content = stringField(latest, 'analysis_content')
+  if (!content && keywords.length === 0) return null
+  return {
+    stockName: stringField(latest, 'stock_name'),
+    tagName: stringField(latest, 'tag_name'),
+    content,
+    keywords,
+  }
+}
+
+export function useHithinkAnomaly(code: string) {
+  const thscode = toHithinkCode(code)
+  const requestKey = thscode ?? ''
+  const [result, setResult] = useState<{
+    key: string
+    detail: HithinkAnomalyDetail | null
+    error: string | null
+  }>({ key: '', detail: null, error: null })
+
+  useEffect(() => {
+    let cancelled = false
+    if (!requestKey) return
+    fetchWithTimeout(
+      `/api/research/hithink/stock?thscode=${encodeURIComponent(requestKey)}`,
+      15_000,
+    )
+      .then(async (response) => {
+        const json = await response.json() as { error?: string }
+        if (!response.ok || json.error) throw new Error(json.error ?? `HTTP ${response.status}`)
+        if (!cancelled) setResult({ key: requestKey, detail: anomalyDetail(json), error: null })
+      })
+      .catch((reason) => {
+        if (!cancelled) {
+          setResult({
+            key: requestKey,
+            detail: null,
+            error: reason instanceof Error ? reason.message : '同花顺异动原因暂不可用',
+          })
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [requestKey])
+
+  if (result.key !== requestKey) return { detail: null, loading: !!requestKey, error: null }
+  return { detail: result.detail, loading: false, error: result.error }
+}
+
 export function useLadderReason(code: string, date: string) {
   const requestKey = `${date}:${code}`
   const [result, setResult] = useState<{
@@ -1665,16 +1767,24 @@ export function useLadderAnalysis(date: string) {
 
   const load = useCallback(
     async (refresh = false) => {
+      let json: LimitLadderAnalysis
       if (refresh) {
-        await fetch('/api/refresh?market=ladder', {
+        const response = await fetchWithTimeout('/api/ladder/analysis/refresh', LADDER_ANALYSIS_TIMEOUT_MS, {
           method: 'POST',
           cache: 'no-store',
-        }).catch(() => {})
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date }),
+        })
+        json = await response.json()
+        const failure = json as LimitLadderAnalysis & { error?: string }
+        if (!response.ok || failure.error) throw new Error(failure.error ?? `HTTP ${response.status}`)
+      } else {
+        json = await fetchLadderJson<LimitLadderAnalysis>(
+          '/api/ladder/analysis?date=' + encodeURIComponent(date),
+          LADDER_ANALYSIS_TIMEOUT_MS,
+          1,
+        )
       }
-      const json = await fetchLadderJson<LimitLadderAnalysis>(
-        '/api/ladder/analysis?date=' + encodeURIComponent(date),
-        120_000,
-      )
       writeLadderSnapshot(json)
       if (activeDate.current === date) {
         setData(json)
@@ -1692,20 +1802,18 @@ export function useLadderAnalysis(date: string) {
     if (snapshot) {
       setData(snapshot)
       setError(null)
-      setLoading(false)
-      return
     }
     // A date change must not keep rendering the previous date's archive while
     // the new request is pending or unavailable.
-    setData(null)
+    if (!snapshot) setData(null)
     setError(null)
     fetching.current = true
     setLoading(true)
     load()
       .catch((err) => {
         if (!cancelled && activeDate.current === date) {
-          setData(null)
-          setError(err instanceof Error ? err.message : 'Failed to load ladder')
+          if (!snapshot) setData(null)
+          setError(ladderAnalysisError(err))
         }
       })
       .finally(() => {
@@ -1729,7 +1837,7 @@ export function useLadderAnalysis(date: string) {
       await load(true)
       return true
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load ladder')
+      setError(ladderAnalysisError(err))
       return false
     } finally {
       setLoading(false)
@@ -1791,7 +1899,50 @@ export function useLadderArchiveDates(limit = 30): { dates: Set<string>; loading
   return { dates, loading }
 }
 
-export function useLadderNextDay(signalDate: string, enabled = true, refreshKey = 0) {
+/** Trading calendar dates are separate from dates with an available ladder archive. */
+export function useTradingCalendarDates(): {
+  dates: Set<string>
+  source: string | null
+  version: string | null
+  status: string | null
+  loading: boolean
+} {
+  const [dates, setDates] = useState<Set<string>>(new Set())
+  const [source, setSource] = useState<string | null>(null)
+  const [version, setVersion] = useState<string | null>(null)
+  const [status, setStatus] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchLadderJson<{ dates: string[]; source?: string; version?: string | null; dataQuality?: { status?: string } }>('/api/ladder/trading-dates', 10_000)
+      .then((json) => {
+        if (cancelled) return
+        setDates(new Set((json.dates ?? []).filter((value) => /^\d{4}-\d{2}-\d{2}$/.test(value))))
+        setSource(json.source ?? null)
+        setVersion(json.version ?? null)
+        setStatus(json.dataQuality?.status ?? null)
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setDates(new Set())
+          setSource(null)
+          setVersion(null)
+          setStatus(null)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return { dates, source, version, status, loading }
+}
+
+export function useLadderNextDay(signalDate: string, enabled = true, refreshKey = 0, poll = false) {
   const requestKey = enabled && signalDate ? signalDate : ''
   const [result, setResult] = useState<{
     key: string
@@ -1835,19 +1986,19 @@ export function useLadderNextDay(signalDate: string, enabled = true, refreshKey 
       }
     }
     void load()
-    const timer = setInterval(() => void load(), 30_000)
+    const timer = poll ? setInterval(() => void load(), 30_000) : null
     return () => {
       cancelled = true
-      clearInterval(timer)
+      if (timer) clearInterval(timer)
     }
-  }, [refreshKey, requestKey, signalDate])
+  }, [poll, refreshKey, requestKey, signalDate])
 
   return result.key === requestKey
     ? { data: result.data, error: result.error, saveManualReviews }
     : { data: null, error: null, saveManualReviews }
 }
 
-export function useFirstBoardScan(tradeDate: string, enabled = true, refreshKey = 0) {
+export function useFirstBoardScan(tradeDate: string, enabled = true, refreshKey = 0, poll = false) {
   const requestKey = enabled && /^\d{4}-\d{2}-\d{2}$/.test(tradeDate)
     ? `first-board-scan:${tradeDate}`
     : ''
@@ -1880,12 +2031,12 @@ export function useFirstBoardScan(tradeDate: string, enabled = true, refreshKey 
     void load()
     // The backend owns the exact 60-second scan slots; this shorter poll only
     // makes the ladder panel reflect a completed slot without a manual refresh.
-    const timer = setInterval(() => void load(), 30_000)
+    const timer = poll ? setInterval(() => void load(), 30_000) : null
     return () => {
       cancelled = true
-      clearInterval(timer)
+      if (timer) clearInterval(timer)
     }
-  }, [refreshKey, requestKey, tradeDate])
+  }, [poll, refreshKey, requestKey, tradeDate])
 
   return result.key === requestKey
     ? { data: result.data, error: result.error }
@@ -1897,6 +2048,7 @@ export function useCrossMarketSnapshot(
   phase: CrossMarketPhase,
   enabled = true,
   refreshKey = 0,
+  poll = false,
 ) {
   const requestKey = enabled && tradeDate ? tradeDate + ':' + phase : ''
   const [result, setResult] = useState<{
@@ -1929,18 +2081,18 @@ export function useCrossMarketSnapshot(
       }
     }
     void load()
-    const timer = setInterval(() => void load(), 30_000)
+    const timer = poll ? setInterval(() => void load(), 30_000) : null
     return () => {
       cancelled = true
-      clearInterval(timer)
+      if (timer) clearInterval(timer)
     }
-  }, [phase, refreshKey, requestKey, tradeDate])
+  }, [phase, poll, refreshKey, requestKey, tradeDate])
 
   return result.key === requestKey
     ? { data: result.data, error: result.error }
     : { data: null, error: null }
 }
-export function useAuctionBriefs(signalDate: string, enabled = true, refreshKey = 0) {
+export function useAuctionBriefs(signalDate: string, enabled = true, refreshKey = 0, poll = false) {
   const requestKey = enabled && signalDate ? signalDate : ''
   const [result, setResult] = useState<{
     key: string
@@ -1971,12 +2123,12 @@ export function useAuctionBriefs(signalDate: string, enabled = true, refreshKey 
       }
     }
     void load()
-    const timer = setInterval(() => void load(), 30_000)
+    const timer = poll ? setInterval(() => void load(), 30_000) : null
     return () => {
       cancelled = true
-      clearInterval(timer)
+      if (timer) clearInterval(timer)
     }
-  }, [refreshKey, requestKey, signalDate])
+  }, [poll, refreshKey, requestKey, signalDate])
 
   return result.key === requestKey
     ? { data: result.data, error: result.error }

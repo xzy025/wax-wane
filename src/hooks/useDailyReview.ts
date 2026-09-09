@@ -105,6 +105,7 @@ export interface ReboundSection {
 /** Mirror of server DailyReviewData. */
 export interface DailyReviewData {
   asof: string
+  marketDataAsOf?: string | null
   generatedAt: string
   overnight: ReviewQuote[]
   asia: ReviewQuote[]
@@ -114,11 +115,11 @@ export interface DailyReviewData {
   calendarSource: 'jin10' | 'builtin' | 'mixed'
   ashare: {
     indices: ReviewQuote[]
-    totalTurnover: number
-    limitUp: number
-    limitDown: number
-    advance: number
-    decline: number
+    totalTurnover: number | null
+    limitUp: number | null
+    limitDown: number | null
+    advance: number | null
+    decline: number | null
   } | null
   structure: {
     hsCount: number

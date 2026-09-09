@@ -1,14 +1,16 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import Papa from 'papaparse'
 import { FileArrowUp, FlagBanner, X } from 'phosphor-react'
 import {
   useAuctionBriefs,
   useCrossMarketSnapshot,
   useFirstBoardScan,
+  useHithinkAnomaly,
   useLadderArchiveDates,
   useLadderAnalysis,
   useLadderNextDay,
   useLadderReason,
+  useTradingCalendarDates,
   type AuctionBriefState,
   type CapitalLaneId,
   type CrossMarketPhase,
@@ -31,6 +33,7 @@ import {
   type NextDayState,
   type LadderState,
   type LadderStockAnalysis,
+  type LimitLadderAnalysis,
   type LadderSentimentQuantSnapshot,
   type RelayExpectation,
   type PromotionLane,
@@ -52,6 +55,17 @@ type BoardFilter = 'all' | 'main' | 'twenty'
 type StateFilter = 'all' | LadderState
 
 const STATE_ORDER: LadderState[] = ['candidate', 'waiting', 'observe', 'exclude']
+
+function recentWeekdaysThrough(endDate: string, lookback = 45): string[] {
+  const cursor = new Date(`${endDate}T00:00:00Z`)
+  const dates: string[] = []
+  for (let index = 0; index < lookback; index += 1) {
+    const day = cursor.getUTCDay()
+    if (day !== 0 && day !== 6) dates.push(cursor.toISOString().slice(0, 10))
+    cursor.setUTCDate(cursor.getUTCDate() - 1)
+  }
+  return dates
+}
 
 function fmtTime(value: string): string {
   if (!value) return '--:--'
@@ -1350,6 +1364,54 @@ function themeLadderRelationLabel(
   }[relation]
 }
 
+/**
+ * Keep the relay decision trace in the same order as the operator checklist:
+ * candidate strength → theme leadership → breadth/assist → extension.  It is
+ * deliberately explanatory; execution eligibility remains fail-closed in the
+ * server-side confirmation gates.
+ */
+function relayConfirmationTrace(
+  stock: LadderStockAnalysis,
+  live: NextDayCandidateConfirmation | undefined,
+  language: 'zh' | 'en',
+): string {
+  if (!live) return language === 'zh' ? '待竞价/开盘快照：尚不能确认接力' : 'waiting for auction/open snapshot'
+  if (live.inaccessible) return language === 'zh' ? '止步：一字或高开不可达，不接力' : 'stop: inaccessible one-price/high-gap board'
+  if (live.openingConfirmationGate === 'blocked') {
+    return language === 'zh'
+      ? '竞价/分时不及预期 → 等待09:35量价翻红，不确认接力'
+      : 'auction/intraday weak → wait for 09:35 price-volume rebound'
+  }
+  if (live.themePermission?.state === 'blocked') {
+    return language === 'zh'
+      ? '未能引领板块走强 → 小弟不助攻 → 不确认接力'
+      : 'theme cannot strengthen → no assistant confirmation'
+  }
+  if (live.themePermission?.state === 'conditional') {
+    return language === 'zh'
+      ? '板块未形成单边行情 → 转低位补涨观察'
+      : 'theme has not formed a one-sided move → observe low-level replenishment'
+  }
+  if (live.themePermission && !live.themePermission.independentStrength) {
+    return language === 'zh'
+      ? '核心带动/小弟助攻未同时成立 → 等待20/30cm或反包跟随'
+      : 'core leadership/assistant breadth incomplete → wait for 20/30cm or reseal follow-through'
+  }
+  if (stock.themeLadder?.relation === 'isolated' || stock.themeLadder?.relation === 'unavailable') {
+    return language === 'zh'
+      ? '梯队未扩散：等待20/30cm或反包跟随，不确认接力'
+      : 'no ladder expansion: wait for 20/30cm or reseal follow-through'
+  }
+  if (live.state === 'confirmed' || live.state === 'auction-qualified') {
+    return language === 'zh'
+      ? '封单/加速 → 板块走强 → 梯队扩散，研究确认'
+      : 'acceleration → theme strength → ladder expansion, research confirmed'
+  }
+  return language === 'zh'
+    ? '等待：继续核对核心强度、小弟助攻与梯队扩散'
+    : 'waiting: verify leader strength, assistants, and ladder expansion'
+}
+
 function NextDayRelayPlanPanel({
   plan,
   language,
@@ -1437,6 +1499,37 @@ function NextDayRelayPlanPanel({
     </section>
   )
 }
+function candidateDataBlock(
+  analysis: LimitLadderAnalysis & { formalSignalEligible?: boolean },
+  language: 'zh' | 'en',
+): { reasons: string[]; warnings: string[] } | null {
+  const quality = analysis.quality
+  const eligibility = quality as typeof quality & { formalSignalEligible?: boolean }
+  const zh = language === 'zh'
+  const reasons: string[] = []
+  if (quality.degraded) reasons.push(zh ? '整体数据质量已降级' : 'Overall data quality is degraded')
+  if (!analysis.archived) reasons.push(zh ? '收盘归档尚未完成' : 'The close archive is not complete')
+  if (analysis.formalSignalEligible === false || eligibility.formalSignalEligible === false) {
+    reasons.push(zh ? '归档尚未达到正式信号条件' : 'The archive is not eligible for formal signals')
+  }
+  if (quality.sentimentStatus && quality.sentimentStatus !== 'full') {
+    reasons.push(zh ? `情绪数据不完整：${quality.sentimentStatus}` : `Sentiment data is incomplete: ${quality.sentimentStatus}`)
+  }
+  if (!quality.limitFieldsComplete) {
+    reasons.push(zh ? '正式归档股票的板数或封板时间不完整' : 'Board counts or seal times are incomplete in the formal archive universe')
+  }
+  if (quality.klineTotal <= 0 || quality.klineComplete !== quality.klineTotal) {
+    reasons.push(zh ? `正式归档股票K线覆盖不完整：${quality.klineComplete}/${quality.klineTotal}` : `K-line coverage in the formal archive universe is incomplete: ${quality.klineComplete}/${quality.klineTotal}`)
+  }
+  if (quality.settled === false) reasons.push(zh ? 'K线尚未完成收盘定盘' : 'K-lines are not settled')
+  if (quality.providerAt === null) reasons.push(zh ? '缺少可信K线来源时间（providerAt）' : 'Trusted K-line provider time (providerAt) is missing')
+  if (!reasons.length) return null
+  // Optional fields may be absent in legacy archives. Explain their absence only
+  // once an explicit quality/eligibility failure has established the block.
+  if (quality.providerAt === undefined) reasons.push(zh ? '缺少可信K线来源时间（providerAt）' : 'Trusted K-line provider time (providerAt) is missing')
+  return { reasons, warnings: Array.from(new Set(quality.warnings)) }
+}
+
 function NextDayCandidates({
   candidates,
   confirmations,
@@ -1445,6 +1538,8 @@ function NextDayCandidates({
   stage,
   snapshotAvailable,
   warning,
+  resultAvailable,
+  dataBlock,
   onImportManualReviews,
   manualReviewMessage,
   t,
@@ -1458,6 +1553,8 @@ function NextDayCandidates({
   stage: 'pending' | 'auction' | 'open' | 'settled'
   snapshotAvailable: boolean | null
   warning: string
+  resultAvailable: boolean
+  dataBlock: ReturnType<typeof candidateDataBlock>
   onImportManualReviews: () => void
   manualReviewMessage: string
   t: Translation['ladder']
@@ -1498,6 +1595,7 @@ function NextDayCandidates({
                 <th>最终复核分</th>
                 <th>研究定位</th>
                 <th>反馈/阶段</th>
+                <th>接力确认流程</th>
                 <th>{t.v2.dragonIdentity}</th>
                 <th>{t.v6.sizeBucket}</th>
                 <th>{t.v2.promotionScore}</th>
@@ -1602,6 +1700,9 @@ function NextDayCandidates({
                         {(dataDate || '--') + ' · ' + stage}
                       </span>
                     </td>
+                    <td title={[...(live?.gateReasons ?? []), ...(live?.warnings ?? [])].join(' · ')}>
+                      <span>{relayConfirmationTrace(stock, live, language)}</span>
+                    </td>
                     <td
                       className="mono score-base"
                       title={[
@@ -1705,9 +1806,20 @@ function NextDayCandidates({
             </tbody>
           </table>
         </div>
-      ) : (
+      ) : dataBlock ? (
+        <div className="ladder-candidate-empty">
+          <strong>{language === 'zh' ? '数据质量阻断，正式候选未生成' : 'Data quality blocks formal candidate generation'}</strong>
+          <ul>{dataBlock.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+          {dataBlock.warnings.length > 0 && (
+            <details>
+              <summary>{language === 'zh' ? '其他数据提示（含观察池及可选数据缺口，不全部属于正式候选阻断）' : 'Other data notes (including observation and optional gaps; not all block formal candidates)'}</summary>
+              <ul>{dataBlock.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+            </details>
+          )}
+        </div>
+      ) : resultAvailable ? (
         <div className="ladder-candidate-empty">{t.v2.candidateEmpty}</div>
-      )}
+      ) : null}
     </section>
   )
 }
@@ -1906,7 +2018,7 @@ function FirstBoardScanPanel({
       {snapshots.length > 0 && (
         <div className="ladder-first-board-timeline">
           {snapshots.map((snapshot) => (
-            <span key={snapshot.slot}>
+            <span key={snapshot.observationKey}>
               {snapshot.scannedAt.slice(11, 16)} · +{snapshot.newCount}
             </span>
           ))}
@@ -1981,6 +2093,7 @@ function EvidenceDrawer({
   onClose: () => void
 }) {
   const { detail, loading: reasonLoading, error: reasonError } = useLadderReason(stock.code, date)
+  const { detail: hithinkAnomaly, loading: anomalyLoading, error: anomalyError } = useHithinkAnomaly(stock.code)
   const reason = detail?.reason || stock.reason
   const extraExplanation =
     detail?.explanation && !reason.includes(detail.explanation) ? detail.explanation : ''
@@ -2292,6 +2405,29 @@ function EvidenceDrawer({
             </dl>
           )}
         </section>
+
+        <section className="ladder-reason-detail">
+          <header>
+            <h3>{language === 'zh' ? '同花顺异动原因' : 'Tonghuashun anomaly reason'}</h3>
+            <span>{language === 'zh' ? '当日最新 · 研究参考' : 'latest today · research only'}</span>
+          </header>
+          {anomalyLoading && <div className="ladder-reason-loading">{language === 'zh' ? '正在读取同花顺异动原因…' : 'Loading anomaly reason…'}</div>}
+          {hithinkAnomaly ? (
+            <div className="ladder-reason-copy">
+              {hithinkAnomaly.tagName && <p><strong>{hithinkAnomaly.tagName}</strong></p>}
+              {hithinkAnomaly.content && <p>{hithinkAnomaly.content}</p>}
+              {hithinkAnomaly.keywords.length > 0 && (
+                <div className="ladder-reason-themes">
+                  {hithinkAnomaly.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}
+                </div>
+              )}
+            </div>
+          ) : !anomalyLoading ? (
+            <p className="ladder-reason-empty">
+              {anomalyError || (language === 'zh' ? '当前暂无同花顺异动原因' : 'No current anomaly reason')}
+            </p>
+          ) : null}
+        </section>
       </aside>
     </div>
   )
@@ -2312,11 +2448,16 @@ export default function LadderView({ t, language }: LadderViewProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const manualReviewFileRef = useRef<HTMLInputElement>(null)
   const { dates: ladderArchiveDates } = useLadderArchiveDates()
+  const { dates: tradingCalendarDates } = useTradingCalendarDates()
   const { data, loading, error, refresh, importData } = useLadderAnalysis(date)
+  // The server freezes a settled ladder. Keep its dependent selections stable
+  // after close; manual refresh remains available through liveRefreshKey.
+  const pollLiveLadder = data?.archived === false
   const { data: firstBoardScan, error: firstBoardScanError } = useFirstBoardScan(
     date,
     mode === 'single',
     liveRefreshKey,
+    pollLiveLadder,
   )
   const isResearchLadder = /^limit-ladder-v[23456]$/.test(data?.ruleVersion ?? '')
   const supportsNextDayReview = /^limit-ladder-v[123456]$/.test(data?.ruleVersion ?? '')
@@ -2324,11 +2465,13 @@ export default function LadderView({ t, language }: LadderViewProps) {
     date,
     supportsNextDayReview,
     liveRefreshKey,
+    pollLiveLadder,
   )
   const { data: auctionBriefs, error: auctionBriefError } = useAuctionBriefs(
     date,
     /^limit-ladder-v[3456]$/.test(data?.ruleVersion ?? ''),
     liveRefreshKey,
+    pollLiveLadder,
   )
   const crossMarketPhase: CrossMarketPhase =
     nextDay?.stage === 'open' || nextDay?.stage === 'settled'
@@ -2341,19 +2484,31 @@ export default function LadderView({ t, language }: LadderViewProps) {
     crossMarketPhase,
     mode === 'single' && supportsNextDayReview && !!nextDay?.tradeDate,
     liveRefreshKey,
+    false,
   )
   const { dates: allTradingDates } = useTradingDates()
   const calendarTradingDates = useMemo(() => {
     const settledThrough = getLastSettledTradingDay()
     const dates = new Set(
-      [...allTradingDates, ...ladderArchiveDates].filter((tradingDate) => tradingDate <= settledThrough),
+      [...allTradingDates, ...ladderArchiveDates, ...tradingCalendarDates]
+        .filter((tradingDate) => tradingDate <= settledThrough),
     )
+    // The money-flow/archive endpoints are data-availability lists, not a
+    // trading calendar. Keep the recent calendar navigable when archives lag;
+    // selecting a date with no archive must still render unavailable rather
+    // than silently falling back to an older ladder.
+    // Only use the weekday fallback while the independent calendar endpoint
+    // has no result; never re-add dates that an injected holiday calendar has
+    // explicitly excluded.
+    if (tradingCalendarDates.size === 0) {
+      for (const tradingDate of recentWeekdaysThrough(settledThrough)) dates.add(tradingDate)
+    }
     // The latest settled date may not be present in a lagging upstream calendar
     // yet. Keep it visible/selectable so an unavailable current date is shown
     // explicitly instead of silently falling back to an older archive.
     dates.add(date)
     return dates
-  }, [allTradingDates, date, ladderArchiveDates])
+  }, [allTradingDates, date, ladderArchiveDates, tradingCalendarDates])
 
   const filteredStocks = useMemo(() => {
     if (!data) return []
@@ -2440,6 +2595,8 @@ export default function LadderView({ t, language }: LadderViewProps) {
     await refresh()
     setLiveRefreshKey((current) => current + 1)
   }
+
+  const archiveUnavailable = Boolean(error && error.startsWith('未找到'))
 
   return (
     <div className="ladder-page" lang={language === 'zh' ? 'zh-CN' : 'en'}>
@@ -2606,6 +2763,8 @@ export default function LadderView({ t, language }: LadderViewProps) {
           stage={nextDay?.stage ?? 'pending'}
           snapshotAvailable={nextDay ? nextDay.auctionSnapshotAvailable : null}
           warning={[nextDayError, ...(nextDay?.warnings ?? [])].filter(Boolean).join(' · ')}
+          resultAvailable={!!nextDay}
+          dataBlock={candidateDataBlock(data, language)}
           onImportManualReviews={() => manualReviewFileRef.current?.click()}
           manualReviewMessage={manualReviewMessage}
           t={copy}
@@ -2638,8 +2797,9 @@ export default function LadderView({ t, language }: LadderViewProps) {
 
       {loading && !data && <div className="ladder-loading">{copy.loading}</div>}
       {error && !data && (
-        <div className="ladder-error">
-          <strong>{copy.loadFail}</strong>
+        <div className={`ladder-error${archiveUnavailable ? ' ladder-error--unavailable' : ''}`}>
+          <strong>{archiveUnavailable ? copy.archiveUnavailable : copy.loadFail}</strong>
+          {archiveUnavailable && <span>{copy.archiveUnavailableHint}</span>}
           <span>{error}</span>
         </div>
       )}

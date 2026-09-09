@@ -274,7 +274,7 @@ export default function DailyReviewCard({ t }: { t: Translation }) {
                 <QuoteChip key={q.code} q={q} />
               ))}
               {/* 0 = 上游不可用哨兵(ashare.ts),不渲染成「0.00万亿」 */}
-              {data.ashare.totalTurnover > 0 && (
+              {data.ashare.totalTurnover != null && data.ashare.totalTurnover > 0 && (
                 <span className="rot-review-chip">
                   {rv.turnover} <b className="mono">{(data.ashare.totalTurnover / 1e12).toFixed(2)}万亿</b>
                 </span>
@@ -283,10 +283,12 @@ export default function DailyReviewCard({ t }: { t: Translation }) {
                 {st.limitUp} <b className="mono positive-text">{data.ashare.limitUp}</b> / {st.limitDown}{' '}
                 <b className="mono negative-text">{data.ashare.limitDown}</b>
               </span>
-              <span className="rot-review-chip">
-                {st.advance} <b className="mono positive-text">{data.ashare.advance}</b> / {st.decline}{' '}
-                <b className="mono negative-text">{data.ashare.decline}</b>
-              </span>
+              {data.ashare.advance != null && data.ashare.decline != null && (
+                <span className="rot-review-chip">
+                  {st.advance} <b className="mono positive-text">{data.ashare.advance}</b> / {st.decline}{' '}
+                  <b className="mono negative-text">{data.ashare.decline}</b>
+                </span>
+              )}
             </div>
           )}
           {data.structure && data.structure.hsCount + data.structure.lsCount + data.structure.hwCount + data.structure.lwCount > 0 && (

@@ -45,6 +45,7 @@ vi.mock('../hooks/useLadderAnalysis', async () => {
     useAuctionBriefs: vi.fn(),
     useCrossMarketSnapshot: vi.fn(),
     useFirstBoardScan: vi.fn(),
+    useHithinkAnomaly: vi.fn(),
     useLadderAnalysis: vi.fn(),
     useLadderNextDay: vi.fn(),
     useLadderReason: vi.fn(),
@@ -55,6 +56,7 @@ import {
   useAuctionBriefs,
   useCrossMarketSnapshot,
   useFirstBoardScan,
+  useHithinkAnomaly,
   useLadderAnalysis,
   useLadderNextDay,
   useLadderReason,
@@ -340,6 +342,7 @@ describe('LadderView', () => {
     vi.mocked(useCrossMarketSnapshot).mockReturnValue({ data: null, error: null })
     vi.mocked(useFirstBoardScan).mockReturnValue({ data: null, error: null })
     vi.mocked(useLadderNextDay).mockReturnValue({ data: null, error: null })
+    vi.mocked(useHithinkAnomaly).mockReturnValue({ detail: null, loading: false, error: null })
     vi.mocked(useLadderReason).mockReturnValue({
       detail: {
         code: '600001',
@@ -380,6 +383,22 @@ describe('LadderView', () => {
     expect(screen.getByText(`${year}年${Number(month)}月`)).toBeInTheDocument()
   })
 
+  it('distinguishes a missing historical archive from a service failure', () => {
+    vi.mocked(useLadderAnalysis).mockReturnValue({
+      data: null,
+      loading: false,
+      error: '未找到2026-09-02的连板天梯归档',
+      refresh,
+      importData,
+    })
+
+    render(<LadderView t={zh} language="zh" />)
+
+    expect(screen.getByText(zh.ladder.archiveUnavailable)).toBeInTheDocument()
+    expect(screen.getByText(zh.ladder.archiveUnavailableHint)).toBeInTheDocument()
+    expect(screen.queryByText(zh.ladder.loadFail)).not.toBeInTheDocument()
+  })
+
   it('renders an unavailable first-board scan as a data failure, not a closed window', () => {
     vi.mocked(useFirstBoardScan).mockReturnValue({ data: unavailableFirstBoardScan(), error: null })
 
@@ -390,6 +409,16 @@ describe('LadderView', () => {
   })
 
   it('switches to the list view and opens evidence details', async () => {
+    vi.mocked(useHithinkAnomaly).mockReturnValue({
+      detail: {
+        stockName: '机器人龙头',
+        tagName: '异动解读',
+        content: '同花顺当日异动原因。',
+        keywords: ['机器人', '减速器'],
+      },
+      loading: false,
+      error: null,
+    })
     const user = userEvent.setup()
     render(<LadderView t={zh} language="zh" />)
     await user.click(screen.getByRole('tab', { name: zh.ladder.list }))
@@ -404,6 +433,9 @@ describe('LadderView', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(zh.ladder.detail.limitReason)).toBeInTheDocument()
     expect(screen.getByText('机器人+核心零部件；公司产品进入量产阶段。')).toBeInTheDocument()
+    expect(screen.getByText('同花顺异动原因')).toBeInTheDocument()
+    expect(screen.getByText('同花顺当日异动原因。')).toBeInTheDocument()
+    expect(screen.getByText('减速器')).toBeInTheDocument()
   })
 
   it('refreshes the analysis, next-day state, and auction briefs together', async () => {
@@ -415,10 +447,114 @@ describe('LadderView', () => {
 
     expect(refresh).toHaveBeenCalledTimes(1)
     await waitFor(() => {
-      expect(useLadderNextDay).toHaveBeenLastCalledWith(expect.any(String), true, 1)
-      expect(useAuctionBriefs).toHaveBeenLastCalledWith(expect.any(String), false, 1)
-      expect(useCrossMarketSnapshot).toHaveBeenLastCalledWith('', 'premarket', false, 1)
+      expect(useLadderNextDay).toHaveBeenLastCalledWith(expect.any(String), true, 1, false)
+      expect(useAuctionBriefs).toHaveBeenLastCalledWith(expect.any(String), false, 1, false)
+      expect(useCrossMarketSnapshot).toHaveBeenLastCalledWith('', 'premarket', false, 1, false)
     })
+  })
+
+  it('does not report zero qualifying candidates when archive eligibility blocked the request', () => {
+    vi.mocked(useLadderAnalysis).mockReturnValue({
+      data: { ...v2Data, ruleVersion: 'limit-ladder-v6', nextDayCandidates: [] },
+      loading: false, error: null, refresh, importData,
+    })
+    vi.mocked(useLadderNextDay).mockReturnValue({
+      data: null, error: '连板归档未完成：缺少K线providerAt',
+    })
+    render(<LadderView t={zh} language="zh" />)
+    expect(screen.getByText('连板归档未完成：缺少K线providerAt')).toBeInTheDocument()
+    expect(screen.queryByText(zh.ladder.v2.candidateEmpty)).not.toBeInTheDocument()
+  })
+
+  it('explains data blockers when the next-day request succeeds with no formal candidates', () => {
+    vi.mocked(useLadderAnalysis).mockReturnValue({
+      data: {
+        ...v2Data,
+        ruleVersion: 'limit-ladder-v6',
+        nextDayCandidates: [],
+        strategyStatus: 'research',
+        quality: {
+          ...v2Data.quality,
+          degraded: true,
+          sentimentStatus: 'unavailable',
+          limitFieldsComplete: false,
+          providerAt: null,
+          settled: true,
+          warnings: ['1只非正式候选观察标的缺少封板时间'],
+        },
+      },
+      loading: false, error: null, refresh, importData,
+    })
+    vi.mocked(useLadderNextDay).mockReturnValue({
+      data: {
+        signalDate: '2026-08-11', tradeDate: '2026-08-12',
+        generatedAt: '2026-08-11T15:30:00+08:00', ruleVersion: 'limit-ladder-v6',
+        stage: 'pending', auctionSnapshotAvailable: false, candidates: [], warnings: [],
+        strategyStatus: 'research',
+      },
+      error: null,
+    })
+
+    render(<LadderView t={zh} language="zh" />)
+
+    const panel = within(screen.getByLabelText(zh.ladder.v2.candidates))
+    expect(panel.getByText('数据质量阻断，正式候选未生成')).toBeInTheDocument()
+    expect(panel.getByText('情绪数据不完整：unavailable')).toBeInTheDocument()
+    expect(panel.getByText('正式归档股票的板数或封板时间不完整')).toBeInTheDocument()
+    expect(panel.getByText('缺少可信K线来源时间（providerAt）')).toBeInTheDocument()
+    expect(panel.queryByText(/正式归档股票K线覆盖不完整/)).not.toBeInTheDocument()
+    expect(panel.getByText('1只非正式候选观察标的缺少封板时间').closest('details')).not.toBeNull()
+    expect(panel.queryByText(zh.ladder.v2.candidateEmpty)).not.toBeInTheDocument()
+  })
+
+  it.each([
+    { name: 'unarchived close', archived: false, reason: '收盘归档尚未完成' },
+    { name: 'formal eligibility', formalSignalEligible: false, reason: '归档尚未达到正式信号条件' },
+    { name: 'unsettled K-lines', quality: { settled: false }, reason: 'K线尚未完成收盘定盘' },
+    { name: 'incomplete formal K-lines', quality: { klineComplete: 1 }, reason: '正式归档股票K线覆盖不完整：1/2' },
+  ])('explains $name without relying on an API error', ({ reason, quality, name: _name, ...overrides }) => {
+    const analysis = {
+      ...v2Data,
+      ...overrides,
+      nextDayCandidates: [],
+      quality: { ...v2Data.quality, sentimentStatus: 'full' as const, settled: true, providerAt: '2026-08-11T15:00:00+08:00', ...quality },
+    }
+    vi.mocked(useLadderAnalysis).mockReturnValue({ data: analysis, loading: false, error: null, refresh, importData })
+
+    render(<LadderView t={zh} language="zh" />)
+
+    const panel = within(screen.getByLabelText(zh.ladder.v2.candidates))
+    expect(panel.getByText('数据质量阻断，正式候选未生成')).toBeInTheDocument()
+    expect(panel.getByText(reason)).toBeInTheDocument()
+    expect(panel.queryByText(zh.ladder.v2.candidateEmpty)).not.toBeInTheDocument()
+  })
+
+  it('keeps the threshold empty state for eligible data despite observation-only warnings', () => {
+    const analysis = {
+      ...v2Data,
+      formalSignalEligible: true,
+      nextDayCandidates: [],
+      quality: {
+        ...v2Data.quality, sentimentStatus: 'full' as const, settled: true,
+        providerAt: '2026-08-11T15:00:00+08:00',
+        warnings: ['1只非正式候选观察标的缺少封板时间', '观察标的K线不完整：300001'],
+      },
+    }
+    vi.mocked(useLadderAnalysis).mockReturnValue({ data: analysis, loading: false, error: null, refresh, importData })
+    vi.mocked(useLadderNextDay).mockReturnValue({
+      data: {
+        signalDate: '2026-08-11', tradeDate: '2026-08-12',
+        generatedAt: '2026-08-11T15:30:00+08:00', ruleVersion: 'limit-ladder-v2',
+        stage: 'pending', auctionSnapshotAvailable: false, candidates: [], warnings: [],
+      },
+      error: null,
+    })
+
+    render(<LadderView t={zh} language="zh" />)
+
+    const panel = within(screen.getByLabelText(zh.ladder.v2.candidates))
+    expect(panel.getByText(zh.ladder.v2.candidateEmpty)).toBeInTheDocument()
+    expect(panel.queryByText('数据质量阻断，正式候选未生成')).not.toBeInTheDocument()
   })
 
   it('renders research scores, unavailable liquidity, and statistical capital tilt', () => {
@@ -532,7 +668,7 @@ describe('LadderView', () => {
     expect(within(panel).getByLabelText('大科技/CPO research-score')).not.toHaveTextContent('%')
     expect(within(panel).getByText(/同刻基线不足20日，流动性状态不可用/)).toBeInTheDocument()
     expect(within(panel).getByText('题材小票 → 大科技/CPO')).toBeInTheDocument()
-    expect(useCrossMarketSnapshot).toHaveBeenLastCalledWith('2026-08-21', 'open', true, 0)
+    expect(useCrossMarketSnapshot).toHaveBeenLastCalledWith('2026-08-21', 'open', true, 0, false)
   })
 
   it('renders v2 lanes, live candidate state, and dual-score evidence', async () => {
