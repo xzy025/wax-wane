@@ -1,0 +1,18 @@
+{
+  "runId": "auction-prefinal-2026-09-03-1788398693148-08zyka",
+  "tradeDate": "2026-09-03",
+  "phase": "auction",
+  "checkpoint": "auction-prefinal",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:24:48",
+  "startedAt": "2026-09-03T01:24:53.147Z",
+  "finishedAt": "2026-09-03T01:24:53.147Z",
+  "dataAsOf": "2026-09-03T01:24:53.215Z",
+  "warnings": [
+    "Sina 竞价行情缺失",
+    "09:24 竞价结束前状态检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

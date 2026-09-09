@@ -1,0 +1,81 @@
+{
+  "tradeDate": "2026-09-04",
+  "generatedAt": "2026-09-04T07:12:46.625Z",
+  "modelVersion": "cross-market-v1-research",
+  "status": "degraded",
+  "themes": [
+    {
+      "id": "cpo",
+      "label": "CPO/大科技",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 305,
+      "themeReturnPct": -2.2,
+      "benchmarkReturnPct": -0.1,
+      "excessReturnPct": -2.1,
+      "positiveBreadthPct": 14.1,
+      "amount": 355325566332.04974,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 1,
+      "firstBoardCount": 1,
+      "strongCoreCount": 0,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0,
+        "cycleComponent": 0,
+        "metCriteria": [],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅8日",
+        "题材成交额历史仅8日",
+        "题材高潮四项证据不足三项"
+      ]
+    },
+    {
+      "id": "innovative-drug",
+      "label": "创新药",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 114,
+      "themeReturnPct": -0.41,
+      "benchmarkReturnPct": -0.1,
+      "excessReturnPct": -0.31,
+      "positiveBreadthPct": 46.49,
+      "amount": 23734145519.949997,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 1,
+      "firstBoardCount": 1,
+      "strongCoreCount": 0,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0,
+        "cycleComponent": 0,
+        "metCriteria": [],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅8日",
+        "题材成交额历史仅8日",
+        "题材高潮四项证据不足三项"
+      ]
+    }
+  ],
+  "warnings": [
+    "全市场停牌或过时行情已剔除：5207/5556",
+    "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+    "题材收益历史仅8日",
+    "题材成交额历史仅8日",
+    "题材高潮四项证据不足三项"
+  ]
+}

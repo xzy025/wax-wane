@@ -1,0 +1,196 @@
+{
+  "generatedAt": "2026-09-08T07:30:54.666Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5082344",
+      "publishedAt": "2026-09-08T15:27:18+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-08/detail-inirayqw6061657.d.html",
+      "title": "上期所：对蔡博文公开谴责并禁入三年，处5万元罚款",
+      "summary": "2025年8月15日至2025年11月17日期间，蔡博文操作蔡博文账户与郭立宁账户在ao2601、rb2601、hc2601、ao2605、hc2510、cu2601、cu2512合约上实施事先约定的相互交易、转移资金的行为。上期所决定给予蔡博文公开谴责处分，宣布为“市场禁止进入者”（期限三年）。责令改正，对蔡博文处5万元罚款，在违规案件处理决定书生效之日起5个交易日内如数缴纳至上海期货交易所指定账户。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-11T07:27:18.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "em-202609083868013576",
+      "publishedAt": "2026-09-08T15:23:15+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "上海期货交易所：8月处理异常交易行为33起",
+      "summary": "9月8日，上海期货交易所发布2026年8月自律监管信息。为切实强化风险防范，加强一线监管，规范期货交易行为，保障期货市场参与者的合法权益，上海期货交易所持续开展自律监管工作。2026年8月份自律监管信息如下。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "abnormal-monitoring",
+      "direction": "negative",
+      "severity": 4,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-15T07:23:15.000Z",
+      "evidence": [
+        "命中重点监控或异常交易规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "sina-5082334",
+      "publishedAt": "2026-09-08T15:22:25+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-08/detail-inirayqw6056506.d.html",
+      "title": "9月8日沪深两市涨停分析",
+      "summary": "创业板指冲高回落跌超1%，农业股逆势爆发。亚盛集团、百大集团、爱仕达4连板，一图看懂>>",
+      "codes": [
+        "600108",
+        "600865",
+        "002403"
+      ],
+      "themes": [
+        "农业",
+        "零售",
+        "机器人概念"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-11T07:22:25.000Z",
+      "evidence": []
+    },
+    {
+      "id": "cls-2476977",
+      "publishedAt": "2026-09-08T15:21:44+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2476977?os=web&sv=7.7.5&app=",
+      "title": "上期所：对蔡博文公开谴责并禁入三年 处5万元罚款",
+      "summary": "财联社9月8日电，上期所发布违规处理决定公告，蔡博文，户籍北京市，1986年出生。 2025年8月15日至2025年11月17日期间，蔡博文操作蔡博文账户与郭立宁账户在ao2601、rb2601、hc2601、ao2605、hc2510、cu2601、cu2512合约上实施事先约定的相互交易、转移资金的行为。上述行为已构成《上海期货交易所违规处理办法》第三十二条第一款第三项规定的违规行为，依据该办法第三十二条，本所决定：1. 给予蔡博文公开谴责处分，宣布为“市场禁止进入者”（期限三年）。 2. 责令改正，对蔡博文处5万元罚款，在违规案件处理决",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-11T07:21:44.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "sina-5082330",
+      "publishedAt": "2026-09-08T15:21:00+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-08/detail-inirayqu9282288.d.html",
+      "title": "上海国际能源交易中心：8月处理异常交易行为16起",
+      "summary": "9月8日，上海国际能源交易中心发布2026年8月自律监管信息公告。异常交易行为管理方面，处理异常交易行为16起，其中，自成交超限6起，日内开仓量超限10起，均通过会员单位对上述达到异常交易处理标准的客户进行提示。对10个实际控制关系账户组采取限制开仓的监管措施并进行全市场公告。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "regulatory-restriction",
+      "direction": "negative",
+      "severity": 4,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-15T07:21:00.000Z",
+      "evidence": [
+        "限制对象为相关账户时不等同于股票停牌",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "cls-2476975",
+      "publishedAt": "2026-09-08T15:19:39+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2476975?os=web&sv=7.7.5&app=",
+      "title": "外交部：中国对尼泊尔第四批紧急援助物资已启运",
+      "summary": "财联社9月8日电，外交部发言人毛宁9月8日主持例行记者会。总台央视记者提问：发言人能否介绍中方对尼泊尔救灾援助的最新进展？毛宁介绍，为了支持尼泊尔的救灾工作，中国第四批紧急援助物资已于今天上午启运，包括救援运输、照明、遗体处置等物资。中国社会各界也积极向尼方伸出援手，中国乡村发展基金会赴尼泊尔灾区搭建临时安置点，向灾民提供生活物资和基础医疗服务。尼泊尔中资企业协会日前向尼方移交了首批赈灾善款。毛宁表示，大灾大难面前，中国将继续同尼泊尔守望相助、共克时艰。",
+      "codes": [],
+      "themes": [
+        "医药"
+      ],
+      "scope": "theme",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-11T07:19:39.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "cls-2476968",
+      "publishedAt": "2026-09-08T15:16:04+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2476968?os=web&sv=7.7.5&app=",
+      "title": "9月8日涨停分析",
+      "summary": "财联社9月8日电，今日全市场共73股涨停，连板股总数18只，37股封板未遂，封板率为66%（不含ST股、退市股）。焦点股方面，液冷概念股集泰股份7天6板，农业板块敦煌种业8天5板、亚盛集团9天5板。",
+      "codes": [
+        "600354",
+        "600108",
+        "002909"
+      ],
+      "themes": [
+        "农业",
+        "算力"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-11T07:16:04.000Z",
+      "evidence": []
+    },
+    {
+      "id": "em-202609083868006054",
+      "publishedAt": "2026-09-08T15:03:00+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "河南15条措施稳房地产市场！实施购房补贴、贷款贴息 鼓励现房销售",
+      "summary": "9月8日，河南省住建厅等九部门联合发布稳地产新政，从控新增、去库存、优供给、稳预期等四方面提出15条措施。其中明确，因地制宜实施购房补贴、贷款贴息，优化套数认定标准。同时，鼓励实行现房销售，支持保障性住房和商业地产项目发行REITs。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-11T07:03:00.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

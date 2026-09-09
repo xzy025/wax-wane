@@ -1,0 +1,198 @@
+{
+  "generatedAt": "2026-09-07T07:30:09.234Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5080416",
+      "publishedAt": "2026-09-07T15:14:58+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-07/detail-iniqyvru9533643.d.html",
+      "title": "9月7日沪深两市涨停分析",
+      "summary": "创业板指高开高走涨3.41%，算力硬件股集体爆发。龙版传媒6连板，一图看懂>>",
+      "codes": [
+        "605577"
+      ],
+      "themes": [
+        "AI应用",
+        "算力",
+        "科技"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-10T07:14:58.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5080413",
+      "publishedAt": "2026-09-07T15:13:23+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-07/detail-iniqyvrw6304543.d.html",
+      "title": "Ferrexpo股价现已上涨29%，该股自5月以来一直处于停牌状态。",
+      "summary": "",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-10T07:13:23.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "em-202609073866643864",
+      "publishedAt": "2026-09-07T15:13:19+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "东方证券：维持荣盛石化“买入”评级 行业有望进入景气周期",
+      "summary": "东方证券研报指出，荣盛石化中报业绩大幅提升，行业有望进入景气周期。上半年实现归母净利润51.11亿元，同比增长748.84%。冲突爆发后，化工产品盈利能力也显著改善，使公司利润大幅增长。按照2026年可比公司估值15倍PE，给予目标价为16.59元（原目标价15.94元），维持“买入”评级。",
+      "codes": [],
+      "themes": [
+        "化工",
+        "金融",
+        "周期"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-10T07:13:19.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "cls-2475783",
+      "publishedAt": "2026-09-07T15:10:42+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2475783?os=web&sv=7.7.5&app=",
+      "title": "9月7日涨停分析",
+      "summary": "财联社9月7日电，今日全市场共93股涨停，连板股总数13只，19股封板未遂，封板率为83%（不含ST股、退市股）。焦点股方面，农业板块万向德农15天9板，AI影视概念股龙版传媒6连板，零售板块国芳集团7天6板，液冷概念股集泰股份6天5板。",
+      "codes": [
+        "002909",
+        "600371",
+        "601086",
+        "605577"
+      ],
+      "themes": [
+        "算力",
+        "农业",
+        "零售",
+        "AI应用",
+        "科技",
+        "消费"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-10T07:10:42.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5080402",
+      "publishedAt": "2026-09-07T15:05:20+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "",
+      "title": "东方证券：维持荣盛石化“买入”评级，行业有望进入景气周期",
+      "summary": "东方证券研报指出，荣盛石化中报业绩大幅提升，行业有望进入景气周期。上半年实现归母净利润51.11亿元，同比增长748.84%。冲突爆发后，化工产品盈利能力也显著改善，使公司利润大幅增长。认为短期会通过“减汽增柴”、调动国内调油组分出口等方式拉动国内炼化景气度提升。中长期看，全球“油转化”投资被严重抑制，加速化工景气回升。最后，中东冲突结束后，大概率会迎来原油供给增长明显高于炼能增长的局面，而低油价将推动炼厂化工板块迎来更长的景气周期。报告期内，公司公告联手沙特基础工业公司（SABIC）计划就先进新材料项目开展战略投资。SABIC是沙特主要的化工材料企业，拥有多项高端材料的技术、生产和销售体系。未来与荣盛的合作项目落地，有望提升公司的产品附加值，并为公司打开更多国际化发展的舞台。按照2026年可比公司估值15倍PE，给予目标价为16.59元（原目标价15.94元），维持“买入”评级。",
+      "codes": [],
+      "themes": [
+        "化工",
+        "金融",
+        "周期"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-10T07:05:20.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5080398",
+      "publishedAt": "2026-09-07T15:02:50+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-07/detail-iniqyvru9519504.d.html",
+      "title": "高盛首予中际旭创买入评级 目标价3267港元",
+      "summary": "高盛发表报告，首予中际旭创(03308.HK)H股买入评级，目标价3267港元。该行预计公司2026至2028年收入复合年增长率达78%，主要受硅光(SiPh)光模组出货增长，以及公司在scale-out之外扩展至scale-up及scale-across市场所推动。该行对公司2026及2027年净利润预测分别较市场预期高25%及42%。另预计毛利率由2025年42%改善至2028年50%，净利润于2026至2028年复合年增长率达84%。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-10T07:02:50.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5080394",
+      "publishedAt": "2026-09-07T15:01:19+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "",
+      "title": "A股收评：双创指数分别涨超3%、2%，算力硬件股集体大涨",
+      "summary": "A股三大指数今日集体上涨，截至收盘，上证指数涨0.07%，深证成指涨1.91%，创业板指涨3.41%，北证50涨0.85%，科创50指数涨2.42%。全市场成交额19642亿元，较上日缩量868亿元，全市场超3100只个股上涨。板块题材上，元件、CPO、非金属材料、PCB概念、电子化学品板块涨幅居前；贵金属、厨卫电器、保险、煤炭开采加工、证券板块跌幅居前。盘面上，CPO板块高开高走，泰金新能、迅捷兴、共进股份、博敏电子、剑桥科技等20股盘中涨停，中际旭创、中石科技、蘅东光纷纷大涨。非金属材料板块午后震荡走高，长江材料、坤彩科技涨停，太力科技一度20cm涨停，联瑞新材、金博股份、粤桂股份涨幅居前。PCB概念板块亦掀起涨停潮，沪电股份、江南新材、景旺电子等20股盘中涨停，德福科技、明阳电路、杰普特涨幅居前。贵金属板块低开低走，湖南白银、四川黄金、招金黄金跌幅居前。煤炭开采加工板块走势低迷，中煤能源、郑州煤电、山西焦煤领跌板块。",
+      "codes": [
+        "688813",
+        "688655",
+        "603118",
+        "603936",
+        "603083",
+        "001296",
+        "603826",
+        "002463",
+        "603124",
+        "603228"
+      ],
+      "themes": [
+        "通信",
+        "新材料概念",
+        "3D打印",
+        "化工",
+        "算力",
+        "科技",
+        "金融",
+        "周期"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-10T07:01:19.000Z",
+      "evidence": []
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

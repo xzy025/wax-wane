@@ -1,0 +1,211 @@
+{
+  "generatedAt": "2026-09-04T07:47:30.750Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5077129",
+      "publishedAt": "2026-09-04T15:45:50+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryeu0899980.d.html",
+      "title": "迪威尔：2026年上半年营收5.74亿元 净利同比降35.97%",
+      "summary": "迪威尔公告称，2026年1-6月实现营业收入5.74亿元，同比增长2.00%；归属于上市公司股东的净利润3299.33万元，同比下降35.97%；扣非净利润3185.81万元，同比下降36.54%。业绩下滑主要受人民币汇率升值致汇兑损失增加、募投项目产能爬坡折旧及前期投入增加影响。经营活动产生的现金流量净额1.19亿元，同比增长222.97%。截至2026年6月末，公司可转债募集资金余额9.02亿元，存放与使用合规。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:45:50.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5077122",
+      "publishedAt": "2026-09-04T15:43:34+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryes4124502.d.html",
+      "title": "每个补助10万元！2026年将建600个全国劳模工匠创新工作室",
+      "summary": "近日，全国总工会印发通知，确定2026年支持建设600个全国劳模工匠创新工作室，全国总工会给予每个创新工作室10万元补助资金，旨在进一步激发职工创新创造活力，更好发挥劳模工匠示范引领作用。今年的支持建设工作紧扣国家“十五五”规划部署，重点面向提质升级的重点传统产业、加速壮大的新兴产业以及前瞻布局的未来产业，更加突出创新成果转化实效与职工技能素质提升成效。据统计，入选支持建设的创新工作室近三年累计取得创新成果3.2万个，获得专利1.92万项，培养各类技能人才13.7万人，其中高技能人才4.1万人。同时，创新工作室成员积极投身“劳模工匠助企行”“劳模工匠进校园”等活动，大力弘扬劳模精神、劳动精神、工匠精神。预计到2030年全国总工会支持建设的创新工作室达到3000家，各级创新工作室数量达到16万家。（央视新闻）",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:43:34.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "sina-5077117",
+      "publishedAt": "2026-09-04T15:41:15+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryeu0894659.d.html",
+      "title": "NFL新赛季开赛前要求预测平台禁止争议投注品类",
+      "summary": "距离美国国家橄榄球联盟（NFL）新赛季开赛仅剩一周，据一封信件显示，联盟再度向Polymarket、Kalshi等预测交易平台提出要求，禁止上线有损赛事公正性的争议投注品类。 这封由NFL首席合规官萨布丽娜·佩雷尔于周四发出的信件写道：“数月前我们就已划定一批争议投注品类，但时至今日，这类投注产品依旧在相关交易平台以合约形式挂牌，这一情况令人高度担忧。” 信件写明，所谓“争议投注”包含和球迷安全相关的投注、球员伤病类投注（例如某一周哪些球员上场/缺阵），以及球员不当行为相关投注。 NFL还要求平台限制其他部分体育事件类合约，包括赛事转播提及内容、名人到场情况。联盟表示，这类投注很容易遭到单人操纵。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:41:15.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "sina-5077115",
+      "publishedAt": "2026-09-04T15:40:17+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryeu0893576.d.html",
+      "title": "理工导航：股东减持计划届满，未减持0股",
+      "summary": "理工导航公告，持股5%以上股东北京理工资产经营有限公司及一致行动人北京理工技术转移有限公司原计划于2026年6月5日至2026年9月4日减持合计不超过264万股、不超过公司总股份的3.00%；截至2026年9月4日收盘，减持计划时间区间届满，实际减持0股。因公司股权激励实施导致总股本增加，二者合计持股比例由7.36%被动稀释至7.27%。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:40:17.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5077109",
+      "publishedAt": "2026-09-04T15:37:25+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryeu0890778.d.html",
+      "title": "国盛证券：维持宇瞳光学“买入”评级，车载+新消费为增长引擎",
+      "summary": "国盛证券研报指出，宇瞳光学上半年营收利润双增，车载+新消费为增长引擎。26H1实现归母净利润1.22亿元，同比增长13.65%；26Q2归母净利润0.65亿元，同比增长11.58%，环比增长15.45%。安防主业稳健增长，为新业务拓展提供坚实基础；车载光学增长较快，推进ADAS开发量产。新消费光学领域快速突破，打开新发展空间。精密光学元件为光通信刚需，公司加速拓展。公司在安防领域建立坚实的领先地位，战略布局车载镜头等智驾领域，同时凭借模造玻璃量产优势和多年光学技术积累，卡位新消费领域，并切入光通信领域，有望带来较大业绩弹性。维持“买入”评级。",
+      "codes": [],
+      "themes": [
+        "科技",
+        "消费",
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:37:25.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5077105",
+      "publishedAt": "2026-09-04T15:34:46+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryeu0888001.d.html",
+      "title": "麒盛科技：2026年上半年营收17.25亿元 净利同比降72.54%",
+      "summary": "麒盛科技公告称，公司于2026年9月4日召开2026年半年度业绩说明会。2026年上半年，公司营业收入为17.25亿元，较上年同期增长18.22%；归属于上市公司股东的净利润为0.29亿元，较上年同期下降72.54%，利润下滑主要系人民币兑美元汇率波动，汇兑损失增加所致。公司聚焦健康睡眠智能技术和大数据应用，旗下舒福德品牌提供睡眠解决方案，未来如有业务拓展、大股东及高管增持等重大事项，将及时履行信息披露义务。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "earnings",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:34:46.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5077102",
+      "publishedAt": "2026-09-04T15:34:02+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryes4114538.d.html",
+      "title": "全球大型资管机构重新建立黄金头寸",
+      "summary": "部分全球顶级资管机构在金价回落之后重新增持黄金，押注贵金属的长期支撑因素仍将持续。安联、百达资产管理、富达国际等机构的基金经理，在黄金从历史高点回落期间，加仓了今年早些时候减持的黄金仓位。基金净多头头寸攀升至今年以来最高水平，体现出投资者对黄金重拾兴趣，将黄金视作投资组合内的对冲工具。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:34:02.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5077082",
+      "publishedAt": "2026-09-04T15:22:35+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-04/detail-iniqryeu0872767.d.html",
+      "title": "高争民爆股价创历史新高",
+      "summary": "9月4日，高争民爆(002827)股价涨停，收盘价66.15元/股，创历史新高（前复权）。",
+      "codes": [
+        "002827"
+      ],
+      "themes": [
+        "股权转让"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:22:35.000Z",
+      "evidence": []
+    },
+    {
+      "id": "cls-2474240",
+      "publishedAt": "2026-09-04T15:16:38+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2474240?os=web&sv=7.7.5&app=",
+      "title": "9月4日涨停分析",
+      "summary": "财联社9月4日电，今日全市场共39股涨停，连板股总数7只，49股封板未遂，封板率为44%（不含ST股、退市股）。焦点股方面，AI漫剧概念龙版传媒5连板、欢瑞世纪5天4板，农业板块亚盛集团2连板。",
+      "codes": [
+        "600108",
+        "605577",
+        "000892"
+      ],
+      "themes": [
+        "农业",
+        "AI应用",
+        "科技"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-07T07:16:38.000Z",
+      "evidence": []
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

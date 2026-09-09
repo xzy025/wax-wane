@@ -1,0 +1,1239 @@
+{
+  "schemaVersion": "first-board-scan-v2",
+  "tradeDate": "2026-09-02",
+  "ruleVersion": "first-board-scan-v2",
+  "observations": [
+    {
+      "observationKey": "2026-09-02:0",
+      "slot": 0,
+      "observedAt": "2026-09-02T01:35:04.638Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:6",
+      "slot": 6,
+      "observedAt": "2026-09-02T01:41:10.192Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:7",
+      "slot": 7,
+      "observedAt": "2026-09-02T01:42:00.266Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:8",
+      "slot": 8,
+      "observedAt": "2026-09-02T01:43:00.368Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:9",
+      "slot": 9,
+      "observedAt": "2026-09-02T01:44:00.465Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:10",
+      "slot": 10,
+      "observedAt": "2026-09-02T01:45:00.563Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:11",
+      "slot": 11,
+      "observedAt": "2026-09-02T01:46:00.667Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:12",
+      "slot": 12,
+      "observedAt": "2026-09-02T01:47:00.750Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:13",
+      "slot": 13,
+      "observedAt": "2026-09-02T01:48:00.862Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:14",
+      "slot": 14,
+      "observedAt": "2026-09-02T01:49:00.960Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:15",
+      "slot": 15,
+      "observedAt": "2026-09-02T01:50:01.071Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:16",
+      "slot": 16,
+      "observedAt": "2026-09-02T01:51:01.143Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:17",
+      "slot": 17,
+      "observedAt": "2026-09-02T01:52:01.219Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:18",
+      "slot": 18,
+      "observedAt": "2026-09-02T01:53:01.304Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:19",
+      "slot": 19,
+      "observedAt": "2026-09-02T01:54:01.377Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:20",
+      "slot": 20,
+      "observedAt": "2026-09-02T01:55:01.466Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:21",
+      "slot": 21,
+      "observedAt": "2026-09-02T01:56:01.584Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:22",
+      "slot": 22,
+      "observedAt": "2026-09-02T01:57:01.659Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:23",
+      "slot": 23,
+      "observedAt": "2026-09-02T01:58:01.762Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:24",
+      "slot": 24,
+      "observedAt": "2026-09-02T01:59:01.848Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:25",
+      "slot": 25,
+      "observedAt": "2026-09-02T02:00:01.982Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:26",
+      "slot": 26,
+      "observedAt": "2026-09-02T02:01:02.078Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:27",
+      "slot": 27,
+      "observedAt": "2026-09-02T02:02:02.179Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:28",
+      "slot": 28,
+      "observedAt": "2026-09-02T02:03:02.265Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:29",
+      "slot": 29,
+      "observedAt": "2026-09-02T02:04:02.365Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:30",
+      "slot": 30,
+      "observedAt": "2026-09-02T02:05:02.462Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:31",
+      "slot": 31,
+      "observedAt": "2026-09-02T02:06:02.576Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:32",
+      "slot": 32,
+      "observedAt": "2026-09-02T02:07:02.640Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:33",
+      "slot": 33,
+      "observedAt": "2026-09-02T02:08:02.738Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:34",
+      "slot": 34,
+      "observedAt": "2026-09-02T02:09:02.829Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:35",
+      "slot": 35,
+      "observedAt": "2026-09-02T02:10:02.925Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:36",
+      "slot": 36,
+      "observedAt": "2026-09-02T02:11:03.023Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:37",
+      "slot": 37,
+      "observedAt": "2026-09-02T02:12:03.159Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:38",
+      "slot": 38,
+      "observedAt": "2026-09-02T02:13:03.242Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:39",
+      "slot": 39,
+      "observedAt": "2026-09-02T02:14:03.326Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:40",
+      "slot": 40,
+      "observedAt": "2026-09-02T02:15:03.410Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:41",
+      "slot": 41,
+      "observedAt": "2026-09-02T02:16:03.494Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:42",
+      "slot": 42,
+      "observedAt": "2026-09-02T02:17:03.603Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:43",
+      "slot": 43,
+      "observedAt": "2026-09-02T02:18:03.680Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:44",
+      "slot": 44,
+      "observedAt": "2026-09-02T02:19:03.785Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:45",
+      "slot": 45,
+      "observedAt": "2026-09-02T02:20:03.899Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:46",
+      "slot": 46,
+      "observedAt": "2026-09-02T02:21:04.000Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:47",
+      "slot": 47,
+      "observedAt": "2026-09-02T02:22:04.300Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:48",
+      "slot": 48,
+      "observedAt": "2026-09-02T02:23:04.366Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:49",
+      "slot": 49,
+      "observedAt": "2026-09-02T02:24:04.471Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:50",
+      "slot": 50,
+      "observedAt": "2026-09-02T02:25:04.546Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:51",
+      "slot": 51,
+      "observedAt": "2026-09-02T02:26:04.666Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:52",
+      "slot": 52,
+      "observedAt": "2026-09-02T02:27:04.759Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:53",
+      "slot": 53,
+      "observedAt": "2026-09-02T02:28:04.854Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:54",
+      "slot": 54,
+      "observedAt": "2026-09-02T02:29:04.915Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:55",
+      "slot": 55,
+      "observedAt": "2026-09-02T02:30:05.000Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:56",
+      "slot": 56,
+      "observedAt": "2026-09-02T02:31:00.101Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:57",
+      "slot": 57,
+      "observedAt": "2026-09-02T02:32:00.206Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:58",
+      "slot": 58,
+      "observedAt": "2026-09-02T02:33:00.298Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:59",
+      "slot": 59,
+      "observedAt": "2026-09-02T02:34:00.430Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    },
+    {
+      "observationKey": "2026-09-02:60",
+      "slot": 60,
+      "observedAt": "2026-09-02T02:35:00.511Z",
+      "providerAt": null,
+      "timestampQuality": "rejected",
+      "source": "kaipanla-realtime",
+      "fromCache": false,
+      "cacheAgeMs": null,
+      "tradeDate": "2026-09-02",
+      "ladderDate": "",
+      "complete": false,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "warnings": [
+        "首板扫描失败：开盘啦实时梯队接口不可用（1板：fetch failed；2板：fetch failed；3板：fetch failed；4板：fetch failed；5板：fetch failed）"
+      ],
+      "payloadHash": "a583cb90c8a97da21a2c41c4609e469112290148fa0da142e739b5a464f74748"
+    }
+  ]
+}

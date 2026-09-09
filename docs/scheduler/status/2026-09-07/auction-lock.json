@@ -1,0 +1,17 @@
+{
+  "runId": "auction-lock-2026-09-07-1788744010009-1naxeq",
+  "tradeDate": "2026-09-07",
+  "phase": "auction",
+  "checkpoint": "auction-lock",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:20:10",
+  "startedAt": "2026-09-07T01:20:10.009Z",
+  "finishedAt": "2026-09-07T01:20:10.009Z",
+  "dataAsOf": "2026-09-07T01:20:10.046Z",
+  "warnings": [
+    "09:20 不可撤单初始检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}
