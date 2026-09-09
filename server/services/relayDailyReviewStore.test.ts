@@ -9,8 +9,11 @@ import {
   listRelayDailyReviewRevisions,
   readRelayDailyReview,
   RelayReviewStoreError,
+  safeDate,
   relayReviewPath,
+  relayReviewDir,
   resolveSignalDateForTradeDate,
+  type RelayOutcomeAppendInput,
 } from './relayDailyReviewStore'
 import { buildRelayClosePlan, type BuildRelayClosePlanInput } from './relayDailyReviewBuilder'
 
@@ -148,6 +151,47 @@ describe('relay daily review store', () => {
     })).toThrow(/已写入/)
   })
 
+  it('keeps outcome evidence in the checkpoint, retries idempotently, and allows exit settlement', () => {
+    freezeRelayClosePlan(buildRelayClosePlan(baseInput))
+    const firstSource = baseInput.sourceRefs?.[0]
+    if (!firstSource) throw new Error('test requires sourceRefs')
+    const outcomeSource = {
+      ...firstSource,
+      sourceId: 'settlement-source',
+      sourceRef: 'settlement/2026-08-31',
+      asof: '2026-08-31',
+      observedPhase: 'settled' as const,
+      dataCutoffAt: '2026-08-31T15:10:00+08:00',
+      decisionAt: '2026-08-31T15:10:02+08:00',
+      receivedAt: '2026-08-31T15:10:01+08:00',
+      knownAt: '2026-08-31T15:10:01+08:00',
+      capturedAt: '2026-08-31T15:10:01+08:00',
+    }
+    const input: RelayOutcomeAppendInput = {
+      outcome: {
+        decisionAt: '2026-08-31T15:10:02+08:00',
+        dataCutoffAt: '2026-08-31T15:10:00+08:00',
+        marketOutcome: { promoted: 1 },
+        executionOutcome: { filled: 0 },
+        exitOutcome: null,
+        expectationDelta: null,
+        errorTaxonomy: ['unresolved'],
+      },
+      sourceRefs: [outcomeSource],
+    }
+    const settled = appendRelayOutcome('2026-08-28', input)
+    expect(settled.checkpoints.at(-1)?.sourceRefs).toHaveLength(1)
+    expect(settled.evidenceHashes).toHaveLength(2)
+    expect(appendRelayOutcome('2026-08-28', input).documentHash).toBe(settled.documentHash)
+
+    const exited = appendRelayOutcome('2026-08-28', {
+      ...input,
+      outcome: { ...input.outcome, exitOutcome: { closed: true } },
+    }, 'exit-settled')
+    expect(exited.latestCheckpoint).toBe('exit-settled')
+    expect(exited.revision).toBe(settled.revision + 1)
+  })
+
   it('fails fast when appending before a close plan exists', () => {
     expect(() => appendRelayCheckpoint('2026-08-27', auctionInput)).toThrow(RelayReviewStoreError)
     expect(readRelayDailyReview('2026-08-27')).toBeNull()
@@ -198,6 +242,18 @@ describe('relay daily review store', () => {
       tradeDate: '2026-08-31',
     })
     expect(resolveSignalDateForTradeDate('2026-08-30')).toBeNull()
+  })
+
+  it('rejects impossible dates and duplicate tradeDate mappings', () => {
+    expect(safeDate('2026-02-30')).toBe(false)
+    expect(() => relayReviewDir('2026-02-30')).toThrow()
+    freezeRelayClosePlan(buildRelayClosePlan(baseInput))
+    freezeRelayClosePlan(buildRelayClosePlan({
+      ...baseInput,
+      reviewId: 'relay-review-2026-09-01-2026-08-31',
+      signalDate: '2026-09-01',
+    }))
+    expect(() => resolveSignalDateForTradeDate('2026-08-31')).toThrow(/多个 signalDate/)
   })
 
   it('rejects a mixed signalDate during checkpoint projection', () => {

@@ -5,6 +5,7 @@ import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { createCache, sessionTtl } from '../lib/cache'
 import { createComponentQuality, type DataComponentQuality } from '../market-data/dataQuality'
+import { fetchThsWebHotList, type ThsWebHotListResult } from '../market-data/providers/ths/web'
 import { fetchDragonTiger as fetchCanonicalDragonTiger } from './moneyflow'
 
 export interface HotStock {
@@ -125,26 +126,6 @@ async function fetchEastMoneyDetail(secids: string): Promise<Record<string, any>
 
 // ── 同花顺 热榜 ─────────────────────────────────────────
 
-async function fetchTHSHot(): Promise<HotStock[]> {
-  const url = 'https://dq.10jqka.com.cn/fuyao/hot_list_data/out/hot_list/v1/stock?stock_type=a&type=hour&list_type=normal'
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.10jqka.com.cn/' },
-    signal: AbortSignal.timeout(5000),
-  })
-  if (!res.ok) throw new Error(`THS HTTP ${res.status}`)
-  const json = await res.json() as any
-  const list = json.data?.stock_list ?? json.data ?? []
-  if (!Array.isArray(list)) throw new Error('THS payload missing stock list')
-  return list.slice(0, 10).map((d: any, i: number) => ({
-    rank: i + 1,
-    code: d.code ?? '',
-    name: d.name ?? '',
-    changePct: d.rise_and_fall ?? null,
-    tags: d.tag?.concept_tag ?? [],
-    popularityTag: d.tag?.popularity_tag ?? undefined,
-  }))
-}
-
 // ── 龙虎榜 ─────────────────────────────────────────────
 
 async function fetchDragonTiger(): Promise<DragonTigerStock[]> {
@@ -176,7 +157,7 @@ async function fetchHotListFresh(): Promise<HotListData> {
 
   const [eastmoney, ths, dragonTiger] = await Promise.allSettled([
     fetchEastMoneyHot(),
-    fetchTHSHot(),
+    fetchThsWebHotList(),
     fetchDragonTiger(),
   ])
 
@@ -195,7 +176,14 @@ async function fetchHotListFresh(): Promise<HotListData> {
         missingReasons: [failure(eastmoney, 'EastMoney unavailable')],
       }),
     ths: ths.status === 'fulfilled'
-      ? createComponentQuality('ths', { source: 'ths', status: 'full', asOf, receivedAt })
+      ? createComponentQuality('ths', {
+        source: ths.value.source,
+        status: ths.value.status,
+        providerAt: ths.value.providerAt,
+        receivedAt: ths.value.receivedAt,
+        asOf: null,
+        ...(ths.value.status === 'empty' ? { warnings: ['THS returned a confirmed empty hourly hot list'] } : {}),
+      })
       : createComponentQuality('ths', {
         source: 'ths', status: 'unavailable', asOf, receivedAt,
         warnings: [failure(ths, 'THS unavailable')],
@@ -210,7 +198,7 @@ async function fetchHotListFresh(): Promise<HotListData> {
       }),
   }
   const emData = eastmoney.status === 'fulfilled' ? eastmoney.value : []
-  const thsData = ths.status === 'fulfilled' ? ths.value : []
+  const thsData: HotStock[] = ths.status === 'fulfilled' ? ths.value.data : []
   const dtData = dragonTiger.status === 'fulfilled' ? dragonTiger.value : []
 
   // All three failed (as distinct from three observed empty lists): retain the

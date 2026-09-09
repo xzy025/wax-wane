@@ -329,6 +329,7 @@ function boardFromSeries(
   shortWin: number,
   reconstructed = false,
 ): RotationBoard | null {
+  if (bars.at(-1)?.date !== benchmarkBars.at(-1)?.date) return null
   const long = returnsAgainstBenchmark(bars, benchmarkBars, longWin)
   const short = returnsAgainstBenchmark(bars, benchmarkBars, shortWin)
   if (!long || !short) return null
@@ -411,7 +412,9 @@ async function fetchEastmoneyRotationFresh(
 
   console.log(`[Rotation] ${category} 原始${rawUniverse.length}/去重${taxonomyUniverse.length}/选中${universe.length}→有效${rows.length}(官方${directRows.length},重构${reconRows.length});长${longWin}/短${shortWin}日`)
   return {
-    asof: todayShanghai(),
+    // Use the last benchmark bar as the data date; wall-clock today may be a
+    // weekend or a session whose upstream bars have not settled yet.
+    asof: benchmarkBars.at(-1)?.date?.slice(0, 10) ?? todayShanghai(),
     category,
     longWin,
     shortWin,

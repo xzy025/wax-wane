@@ -8,6 +8,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl, isArchiveWindow } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
+import { mayReplaceDatedArchive } from './archiveReplacement'
 import { fetchSentiment, type SentimentData } from './kaipanla'
 import { fetchRotation, type RotationBoard } from './rotation'
 
@@ -29,6 +30,8 @@ export interface MarketStructureBoard {
 
 export interface MarketStructureSummary {
   asof: string
+  dataAsOf?: string
+  qualityPassed?: boolean
   generatedAt: string
   limitUp: number | null // 涨停家数
   limitDown: number | null // 跌停家数
@@ -58,6 +61,11 @@ async function computeMarketStructure(): Promise<MarketStructureSummary> {
   if (rotation.summary.total === 0 || rotation.quality.degraded) {
     throw new Error('[MarketStructure] rotation 官方日线覆盖不足,不以重构小样本代表市场宽度')
   }
+  // Sentiment and board structure must describe the same settled session. A
+  // missing/other-date sentiment payload is retained as unavailable rather
+  // than mixed into a dated structure snapshot.
+  const sentimentDate = sentiment?.date?.replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3')
+  const datedSentiment = sentiment && sentimentDate === rotation.asof ? sentiment : null
   const byQuad = (q: RotationBoard['quadrant']) => rotation.boards.filter((b) => b.quadrant === q)
   const topBy = (boards: RotationBoard[]): MarketStructureBoard[] =>
     [...boards]
@@ -69,14 +77,18 @@ async function computeMarketStructure(): Promise<MarketStructureSummary> {
       }))
 
   const result: MarketStructureSummary = {
-    asof: todayShanghai(),
+    // Rotation carries the actual last settled bar date.  Do not substitute
+    // the wall-clock date when upstream data is still on the prior session.
+    asof: rotation.asof,
+    dataAsOf: rotation.asof,
+    qualityPassed: !rotation.quality.degraded,
     generatedAt: new Date().toISOString(),
-    limitUp: sentiment?.limitUp ?? null,
-    limitDown: sentiment?.limitDown ?? null,
-    advanceCount: sentiment?.riseCount ?? null,
-    declineCount: sentiment?.fallCount ?? null,
-    breakRate: sentiment?.breakRate ?? null,
-    sentimentStatus: sentiment?.status ?? 'unavailable',
+    limitUp: datedSentiment?.limitUp ?? null,
+    limitDown: datedSentiment?.limitDown ?? null,
+    advanceCount: datedSentiment?.riseCount ?? null,
+    declineCount: datedSentiment?.fallCount ?? null,
+    breakRate: datedSentiment?.breakRate ?? null,
+    sentimentStatus: datedSentiment?.status ?? 'unavailable',
     boardTotal: rotation.summary.total,
     hsCount: rotation.summary.hs,
     lsCount: rotation.summary.ls,
@@ -87,12 +99,15 @@ async function computeMarketStructure(): Promise<MarketStructureSummary> {
     topLs: topBy(byQuad('ls')),
   }
   // 盘外(周末/工作日盘前)数据实为上一交易日,asof=today 落盘会错标日期,跳过(内存缓存照常)。
-  if (isArchiveWindow()) writeStructureDisk(result)
+  if (isArchiveWindow() && result.asof === todayShanghai()) writeStructureDisk(result)
   return result
 }
 
 function writeStructureDisk(result: MarketStructureSummary): void {
   try {
+    let previous: unknown = null
+    try { previous = JSON.parse(readFileSync(join(SCREENER_DIR, `structure-${result.asof}.json`), 'utf8')) } catch { /* missing */ }
+    if (!mayReplaceDatedArchive(result, previous, todayShanghai(), 'structure')) return
     mkdirSync(SCREENER_DIR, { recursive: true })
     writeFileSync(join(SCREENER_DIR, `structure-${result.asof}.json`), JSON.stringify(result, null, 2))
   } catch (err) {
@@ -103,7 +118,7 @@ function writeStructureDisk(result: MarketStructureSummary): void {
 function isStructureResult(v: unknown): v is MarketStructureSummary {
   if (typeof v !== 'object' || v === null) return false
   const r = v as Record<string, unknown>
-  return typeof r.asof === 'string' && typeof r.boardTotal === 'number'
+  return typeof r.asof === 'string' && typeof r.boardTotal === 'number' && r.boardTotal > 0 && Array.isArray(r.topHs) && Array.isArray(r.topLs)
 }
 
 /** 读最新 structure-YYYY-MM-DD.json(冷启动种子 + 抓取失败兜底)。 */

@@ -48,9 +48,10 @@ function buildDigest(date: string, root: string, review: Json): string[] {
       ? `${(ashare.totalTurnover / 1e12).toFixed(2)}万亿`
       : '?'
     digest.push(`- 指数:${indices}|成交${turnover}`)
-    digest.push(
-      `- 涨跌:涨停${ashare.limitUp}/跌停${ashare.limitDown}|上涨${ashare.advance}/下跌${ashare.decline}${snap?.regime?.breakRate != null ? `|破板率${snap.regime.breakRate}%` : ''}`,
-    )
+    const breadth = typeof ashare.advance === 'number' && typeof ashare.decline === 'number'
+      ? `|上涨${ashare.advance}/下跌${ashare.decline}`
+      : '|上涨/下跌不可用'
+    digest.push(`- 涨跌:涨停${ashare.limitUp}/跌停${ashare.limitDown}${breadth}${snap?.regime?.breakRate != null ? `|破板率${snap.regime.breakRate}%` : ''}`)
   } else {
     digest.push('- 指数/涨跌:(缺档)')
   }

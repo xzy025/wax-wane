@@ -10,6 +10,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { createCache, sessionTtl, isArchiveWindow } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
+import { mayReplaceDatedArchive } from './archiveReplacement'
 import { fetchStockKline } from './ashare'
 import {
   ROTATION,
@@ -283,21 +284,27 @@ async function computeTempoFresh(): Promise<RotationTempoResult> {
   if (rows.length === 0) throw new Error('[Tempo] 双源均无有效板块行,保留既有缓存/归档')
 
   const result: RotationTempoResult = {
-    asof: todayShanghai(),
+    // The archive date is the last settled benchmark bar, not the wall-clock
+    // date.  During a Monday refresh the newest bar may still be Friday; using
+    // today here would mislabel stale data as a successful current snapshot.
+    asof: dates[dates.length - 1],
     dates,
     benchmark,
     rows,
     sources: { em, kpl },
   }
-  await enrichNotes(rows, result.asof)
+  if (result.asof === todayShanghai()) await enrichNotes(rows, result.asof)
   // 盘外(周末/工作日盘前)数据实为上一交易日,asof=today 归档会错标日期,跳过(内存缓存照常)。
-  if (isArchiveWindow()) writeTempoDisk(result)
+  if (isArchiveWindow() && result.asof === todayShanghai()) writeTempoDisk(result)
   return result
 }
 
 // ── 磁盘归档四件套(仿 structure-<date>.json)+ 滚动裁剪 ─────────────────
 function writeTempoDisk(result: RotationTempoResult): void {
   try {
+    let previous: unknown = null
+    try { previous = JSON.parse(readFileSync(tempoArchivePath(result.asof), 'utf8')) } catch { /* missing */ }
+    if (!mayReplaceDatedArchive(result, previous, todayShanghai(), 'tempo')) return
     mkdirSync(SCREENER_DIR, { recursive: true })
     writeFileSync(join(SCREENER_DIR, `tempo-${result.asof}.json`), JSON.stringify(result, null, 2))
     trimTempoArchives()
@@ -391,7 +398,7 @@ export async function fetchRotationTempo(pins: string[] = []): Promise<RotationT
     const row = base.rows.find((x) => x.code === p)
     return row !== undefined && row.notes.length === 0 && row.source !== 'kpl-theme'
   })
-  if (missing.length > 0 && !base.fromArchive) {
+  if (missing.length > 0 && !base.fromArchive && base.asof === todayShanghai()) {
     await enrichNotes(base.rows, base.asof, missing) // notesCache 5min,重复调用便宜
   }
   return base
@@ -400,4 +407,5 @@ export async function fetchRotationTempo(pins: string[] = []): Promise<RotationT
 export function clearRotationTempoCache(): void {
   tempoCache.clear()
   notesCache.clear()
+  stockChgCache.clear()
 }

@@ -16,6 +16,7 @@ import { fetchHKData } from './hk'
 import { fetchNewsFeed } from './news'
 import { fetchDragonTiger } from './moneyflow'
 import { fetchAShareData } from './ashare'
+import { mayReplaceDatedArchive } from './archiveReplacement'
 import { fetchMarketStructure } from './marketStructure'
 import {
   fetchMacroCalendar,
@@ -77,6 +78,7 @@ export interface ReviewNarrative {
 
 export interface DailyReviewData {
   asof: string
+  marketDataAsOf?: string | null
   generatedAt: string
   overnight: ReviewQuote[] // 隔夜美股三大
   asia: ReviewQuote[] // 日经/KOSPI/恒指
@@ -222,6 +224,8 @@ async function computeDailyReview(): Promise<DailyReviewData> {
 
   const data: DailyReviewData = {
     asof,
+    marketDataAsOf: ash?.indices.length && ash.indices.every((index) => index.dataAsOf === ash.indices[0].dataAsOf)
+      ? ash.indices[0].dataAsOf ?? null : null,
     generatedAt: new Date().toISOString(),
     overnight: (val(us)?.indices ?? []).map(toQuote),
     asia,
@@ -277,6 +281,7 @@ async function computeDailyReview(): Promise<DailyReviewData> {
 
 function writeReviewDisk(result: DailyReviewData): void {
   try {
+    if (!mayReplaceDatedArchive(result, loadReviewDisk(result.asof), todayShanghai(), 'review')) return
     mkdirSync(SCREENER_DIR, { recursive: true })
     writeFileSync(join(SCREENER_DIR, `review-${result.asof}.json`), JSON.stringify(result, null, 2))
   } catch (err) {

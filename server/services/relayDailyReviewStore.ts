@@ -1,18 +1,22 @@
 import { existsSync, readdirSync } from 'fs'
-import { dirname, join } from 'path'
+import { basename, dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { readAtomicJson, writeAtomicJson } from '../lib/atomicJsonStore'
+import { canonicalStringify } from '../lib/canonicalJson'
 import {
   computeDocumentHash,
+  computeSourceHash,
   computeRevisionContentHash,
   projectRelayCheckpoint,
-  validateRelayDailyReview,
   type ProjectRelayCheckpointInput,
 } from './relayDailyReviewBuilder'
+import { validateRelayDailyReviewRevision } from './relayDailyReviewValidation'
 import type {
   RelayDailyReviewV1,
+  RelayReviewQuality,
   RelayReviewOutcome,
   RelayReviewPhase,
+  RelaySourceRef,
 } from './relayDailyReviewTypes'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -42,7 +46,9 @@ export function relayReviewRoot(): string {
 }
 
 export function safeDate(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
 export function relayReviewDir(signalDate: string): string {
@@ -73,22 +79,36 @@ function readRevisionMeta(signalDate: string): RelayRevisionMeta[] {
   const dir = relayReviewDir(signalDate)
   if (!existsSync(dir)) return []
   const out: RelayRevisionMeta[] = []
-  for (const file of readdirSync(dir)) {
-    const match = REVISION_RE.exec(file)
-    if (!match) continue
-    const revision = match[1] ? Number(match[1]) : 1
+  const files = readdirSync(dir)
+    .map((file) => {
+      const match = REVISION_RE.exec(file)
+      return match ? { file, revision: match[1] ? Number(match[1]) : 1 } : null
+    })
+    .filter((row): row is { file: string; revision: number } => row !== null)
+    .sort((a, b) => a.revision - b.revision)
+  let previousDoc: RelayDailyReviewV1 | null = null
+  let previousMeta: RelayRevisionMeta | null = null
+  for (const { file, revision } of files) {
     const full = join(dir, file)
     const doc = readAtomicJson<RelayDailyReviewV1>(full)
-    const errors = doc ? validateRelayDailyReview(doc) : ['JSON 无法解析或结构非法']
-    out.push({
+    const errors = doc
+      ? validateRelayDailyReviewRevision(doc, { expectedRevision: revision, previous: previousDoc })
+      : ['JSON 无法解析或结构非法']
+    if (previousMeta && !previousMeta.valid) errors.push(`前一 revision ${previousMeta.revision} 无效，链路不可信`)
+    if (previousMeta && revision !== previousMeta.revision + 1) errors.push('revision 序列存在缺口')
+    if (!previousMeta && revision !== 1) errors.push('缺少 revision 1 基线')
+    const meta: RelayRevisionMeta = {
       revision,
       path: full,
       documentHash: doc?.documentHash ?? '',
       valid: errors.length === 0,
-      errors,
-    })
+      errors: Array.from(new Set(errors)),
+    }
+    out.push(meta)
+    previousDoc = doc
+    previousMeta = meta
   }
-  return out.sort((a, b) => a.revision - b.revision)
+  return out
 }
 
 export function listRelayDailyReviewRevisions(signalDate: string): RelayRevisionMeta[] {
@@ -100,7 +120,9 @@ export function listRelayDailyReviewRevisions(signalDate: string): RelayRevision
 export function readValidatedRevision(path: string): RelayDailyReviewV1 {
   const doc = readAtomicJson<RelayDailyReviewV1>(path)
   if (!doc) throw new RelayReviewStoreError('corrupt', `文件无法解析: ${path}`)
-  const errors = validateRelayDailyReview(doc)
+  const match = REVISION_RE.exec(basename(path))
+  const expectedRevision = match ? (match[1] ? Number(match[1]) : 1) : undefined
+  const errors = validateRelayDailyReviewRevision(doc, { expectedRevision })
   if (errors.length > 0) {
     throw new RelayReviewStoreError('corrupt', `文件未通过完整校验: ${path}；${errors.slice(0, 3).join('；')}`)
   }
@@ -169,6 +191,10 @@ export function freezeRelayClosePlan(revision: RelayDailyReviewV1): RelayDailyRe
   }
   const stored = { ...revision, revision: 1, supersedes: null }
   stored.documentHash = computeDocumentHash(stored)
+  const validationErrors = validateRelayDailyReviewRevision(stored, { expectedRevision: 1 })
+  if (validationErrors.length > 0) {
+    throw new RelayReviewStoreError('validation', `close plan 未通过完整校验: ${validationErrors.slice(0, 3).join('；')}`)
+  }
   writeAtomicJson(relayReviewPath(revision.signalDate, 1), stored)
   return stored
 }
@@ -186,6 +212,16 @@ export function appendRelayCheckpoint(
 ): RelayDailyReviewV1 {
   const current = readRelayDailyReview(signalDate)
   if (!current) throw new RelayReviewStoreError('not-found', `signalDate ${signalDate} 尚未冻结 close plan`)
+  const previousEntry = current.checkpoints.at(-1)
+  if (previousEntry?.checkpoint === input.checkpoint) {
+    const same = previousEntry.observedAt === input.observedAt &&
+      previousEntry.dataCutoffAt === input.dataCutoffAt &&
+      previousEntry.decisionAt === input.decisionAt &&
+      computeSourceHash(previousEntry.sourceRefs) === computeSourceHash(input.sourceRefs) &&
+      canonicalStringify(previousEntry.warnings) === canonicalStringify([...new Set(input.warnings ?? [])])
+    if (same) return current
+    throw new RelayReviewStoreError('conflict', `检查点 ${input.checkpoint} 已存在但内容不同`)
+  }
   if (current.latestCheckpoint === 'exit-settled') {
     throw new RelayReviewStoreError('conflict', 'exit-settled 之后不再追加检查点')
   }
@@ -193,25 +229,54 @@ export function appendRelayCheckpoint(
   return writeNextRevision(signalDate, current, projected)
 }
 
+export interface RelayOutcomeAppendInput {
+  outcome: RelayReviewOutcome
+  checkpoint?: Extract<RelayDailyReviewV1['latestCheckpoint'], 'settled' | 'exit-settled'>
+  observedAt?: string
+  dataCutoffAt?: string
+  decisionAt?: string
+  sourceRefs?: RelaySourceRef[]
+  quality?: Partial<Omit<RelayReviewQuality, 'status'>>
+  warnings?: string[]
+}
+
 export function appendRelayOutcome(
   signalDate: string,
-  outcome: RelayReviewOutcome,
+  outcomeOrInput: RelayReviewOutcome | RelayOutcomeAppendInput,
   checkpoint: Extract<RelayDailyReviewV1['latestCheckpoint'], 'settled' | 'exit-settled'> = 'settled',
 ): RelayDailyReviewV1 {
+  const appendInput: RelayOutcomeAppendInput = 'outcome' in outcomeOrInput
+    ? outcomeOrInput
+    : { outcome: outcomeOrInput }
+  const { outcome } = appendInput
+  const targetCheckpoint = appendInput.checkpoint ?? checkpoint
   const current = readRelayDailyReview(signalDate)
   if (!current) throw new RelayReviewStoreError('not-found', `signalDate ${signalDate} 尚未冻结 close plan`)
-  if (current.outcome && (current.latestCheckpoint === 'settled' || current.latestCheckpoint === 'exit-settled')) {
+  const previousOutcomeCheckpoint = current.checkpoints.at(-1)
+  const sameOutcomeRetry = current.outcome && previousOutcomeCheckpoint?.checkpoint === targetCheckpoint &&
+    canonicalStringify(current.outcome) === canonicalStringify(outcome) &&
+    computeSourceHash(previousOutcomeCheckpoint.sourceRefs) === computeSourceHash(appendInput.sourceRefs ?? [])
+  if (sameOutcomeRetry) {
+    return current
+  }
+  const canPromoteToExitSettled = current.latestCheckpoint === 'settled' && targetCheckpoint === 'exit-settled'
+  if (current.outcome && !canPromoteToExitSettled) {
     throw new RelayReviewStoreError('conflict', 'settled outcome 已写入，禁止改写')
   }
+  const now = new Date().toISOString()
+  const observedAt = appendInput.observedAt ?? outcome.dataCutoffAt ?? outcome.observedAt ?? now
+  const decisionAt = appendInput.decisionAt ?? outcome.decisionAt ?? observedAt
+  const dataCutoffAt = appendInput.dataCutoffAt ?? outcome.dataCutoffAt ?? outcome.observedAt ?? observedAt
   const projected = projectRelayCheckpoint(current, {
     signalDate: current.signalDate,
     tradeDate: current.tradeDate,
-    checkpoint,
-    observedAt: outcome.dataCutoffAt ?? outcome.observedAt ?? new Date().toISOString(),
-    decisionAt: outcome.decisionAt ?? new Date().toISOString(),
-    dataCutoffAt: outcome.dataCutoffAt ?? outcome.observedAt ?? new Date().toISOString(),
-    sourceRefs: [],
-    warnings: ['outcome 归档'],
+    checkpoint: targetCheckpoint,
+    observedAt,
+    decisionAt,
+    dataCutoffAt,
+    sourceRefs: appendInput.sourceRefs ?? [],
+    quality: appendInput.quality,
+    warnings: ['outcome 归档', ...(appendInput.warnings ?? [])],
   })
   // WP3.1 Fix 1: outcome must be part of the revision hash chain, so the
   // projected revision (hash computed before outcome was attached) must be
@@ -238,7 +303,7 @@ function writeNextRevision(
   const existing = readRevisionMeta(signalDate)
   for (const meta of existing) {
     const doc = readAtomicJson<RelayDailyReviewV1>(meta.path)
-    if (doc && doc.revisionContentHash === projected.revisionContentHash) return doc
+    if (meta.valid && doc && doc.revisionContentHash === projected.revisionContentHash) return doc
   }
   const nextRevision = current.revision + 1
   const supersede = {
@@ -252,6 +317,13 @@ function writeNextRevision(
     closePlanHash: current.closePlanHash,
   }
   next.documentHash = computeDocumentHash(next)
+  const validationErrors = validateRelayDailyReviewRevision(next, {
+    expectedRevision: nextRevision,
+    previous: current,
+  })
+  if (validationErrors.length > 0) {
+    throw new RelayReviewStoreError('validation', `新 revision 未通过完整校验: ${validationErrors.slice(0, 3).join('；')}`)
+  }
   writeAtomicJson(relayReviewPath(signalDate, nextRevision), next)
   return next
 }
@@ -283,6 +355,7 @@ export function listFrozenLedgersByTradeDate(): Array<{ signalDate: string; trad
         if (!existsSync(dir)) continue
         const metas = readRevisionMeta(signalDate)
         if (metas.length === 0) continue
+        if (metas.some((meta) => !meta.valid)) continue
         const doc = readAtomicJson<RelayDailyReviewV1>(metas[0].path)
         if (doc && safeDate(doc.tradeDate)) {
           out.push({ signalDate: doc.signalDate, tradeDate: doc.tradeDate })
@@ -296,8 +369,11 @@ export function listFrozenLedgersByTradeDate(): Array<{ signalDate: string; trad
 /** Resolve signalDate strictly from a frozen ledger tradeDate; null if absent. */
 export function resolveSignalDateForTradeDate(tradeDate: string): { signalDate: string; tradeDate: string } | null {
   if (!safeDate(tradeDate)) throw new Error(`tradeDate 必须是 YYYY-MM-DD，收到 ${tradeDate}`)
-  const ledger = listFrozenLedgersByTradeDate().find((row) => row.tradeDate === tradeDate)
-  return ledger ?? null
+  const matches = listFrozenLedgersByTradeDate().filter((row) => row.tradeDate === tradeDate)
+  if (matches.length > 1) {
+    throw new RelayReviewStoreError('conflict', `tradeDate ${tradeDate} 对应多个 signalDate，拒绝自动选择`)
+  }
+  return matches[0] ?? null
 }
 
 export function getRelayReviewPhase(signalDate: string): RelayReviewPhase | null {

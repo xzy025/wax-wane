@@ -80,13 +80,18 @@ export function aggregateRelaySourceQuality(
   const unusable = sources.filter((source) => source.quality === 'unavailable')
   const missingLayers = Array.from(new Set(sources.flatMap((source) => source.missingReasons ?? [])))
   const coveragePct = total > 0 ? Math.round((formal.length / total) * 1000) / 10 : null
+  const hasMissingReasons = missingLayers.length > 0
   let status: RelayReviewQuality['status']
   if (total === 0) {
     status = 'unavailable'
     missingLayers.push('sourceRefs')
   } else if (unusable.length === total) {
     status = 'unavailable'
-  } else if (unusable.length > 0 || usable.some((source) => source.quality === 'degraded')) {
+  } else if (
+    unusable.length > 0 ||
+    usable.some((source) => source.quality === 'degraded') ||
+    hasMissingReasons
+  ) {
     // Any unusable or degraded source prevents formality.
     status = 'degraded'
   } else if (usable.some((source) => source.quality === 'shadow' || source.quality === 'legacy-unverified')) {
@@ -101,12 +106,49 @@ export function aggregateRelaySourceQuality(
     coveragePct,
     sourceCount: total,
     missingLayers: Array.from(new Set(missingLayers)),
-    warnings: [],
+    warnings: Array.from(new Set(missingLayers.map((reason) => `来源缺失：${reason}`))),
   }
 }
 
 function sourceRefsSorted(sourceRefs: ReadonlyArray<RelaySourceRef>): RelaySourceRef[] {
-  return sortBy(sourceRefs, (s) => `${s.sourceId}|${s.eventAt ?? ''}|${s.capturedAt}`)
+  return sortBy(
+    sourceRefs,
+    (s) => `${s.sourceId}|${s.sourceRef}|${s.sourceHash}|${s.eventAt ?? ''}|${s.capturedAt}|${s.observedPhase}`,
+  )
+}
+
+/** All evidence attached to a revision, including checkpoint evidence. */
+export function collectRelaySourceRefs(revision: Pick<RelayDailyReviewV1, 'closePlan' | 'checkpoints'>): RelaySourceRef[] {
+  return sourceRefsSorted([
+    ...revision.closePlan.sourceRefs,
+    ...revision.checkpoints.flatMap((checkpoint) => checkpoint.sourceRefs),
+  ])
+}
+
+/** Aggregate the close-plan, checkpoint, and revision-level quality layers. */
+export function aggregateRelayRevisionQuality(
+  revision: Pick<RelayDailyReviewV1, 'closePlan' | 'checkpoints'>,
+): RelayReviewQuality {
+  const allSources = collectRelaySourceRefs(revision)
+  const sourceQuality = aggregateRelaySourceQuality({ sourceRefs: allSources })
+  const layerQualities = [
+    aggregateRelaySourceQuality({ sourceRefs: revision.closePlan.sourceRefs }),
+    ...revision.checkpoints.map((checkpoint) => checkpoint.quality),
+  ]
+  let status = sourceQuality.status
+  if (layerQualities.some((quality) => quality.status === 'degraded')) status = 'degraded'
+  else if (layerQualities.some((quality) => quality.status === 'unavailable') && status === 'formal') status = 'degraded'
+  else if (layerQualities.some((quality) => quality.status === 'partial') && status === 'formal') status = 'partial'
+  const missingLayers = Array.from(new Set(layerQualities.flatMap((quality) => quality.missingLayers)))
+  const warnings = Array.from(new Set(layerQualities.flatMap((quality) => quality.warnings)))
+  return {
+    ...sourceQuality,
+    status,
+    pointInTime: status === 'formal' && layerQualities.every((quality) => quality.pointInTime),
+    missingLayers,
+    warnings,
+    sourceCount: allSources.length,
+  }
 }
 
 /**
@@ -122,8 +164,11 @@ export function validateRelayDailyReview(revision: RelayDailyReviewV1): string[]
   if (!safeRelayDate(revision.signalDate)) errors.push('signalDate 非法: ' + revision.signalDate)
   if (!safeRelayDate(revision.tradeDate)) errors.push('tradeDate 非法: ' + revision.tradeDate)
   if (revision.timezone !== 'Asia/Shanghai') errors.push(`timezone 非法: ${revision.timezone}`)
-  for (const field of [revision.decisionAt, revision.dataCutoffAt, revision.generatedAt] as const) {
+  for (const field of [revision.decisionAt, revision.dataCutoffAt, revision.generatedAt, revision.storedAt] as const) {
     if (!isIsoTime(field)) errors.push(`时间字段非法: ${field}`)
+  }
+  if (isIsoTime(revision.dataCutoffAt) && isIsoTime(revision.decisionAt) && compareIsoTimes(revision.dataCutoffAt, revision.decisionAt) > 0) {
+    errors.push('顶层 dataCutoffAt 不得晚于 decisionAt')
   }
   if (!Number.isInteger(revision.revision) || revision.revision < 1) errors.push(`revision 非法: ${revision.revision}`)
   if (revision.runtimePermission !== 'research-only') errors.push(`runtimePermission 非法: ${revision.runtimePermission}`)
@@ -131,6 +176,7 @@ export function validateRelayDailyReview(revision: RelayDailyReviewV1): string[]
     errors.push('latestCheckpoint 非 close-plan 但 checkpoints 为空')
   }
   let previous: RelayReviewCheckpoint | null = null
+  let previousEntry: RelayCheckpoint | null = null
   for (const entry of revision.checkpoints) {
     if (!isRelayCheckpointKnown(entry.checkpoint)) {
       errors.push(`未知检查点: ${entry.checkpoint}`)
@@ -139,12 +185,41 @@ export function validateRelayDailyReview(revision: RelayDailyReviewV1): string[]
     const index = RELAY_REVIEW_CHECKPOINT_ORDER.indexOf(entry.checkpoint)
     if (previous) {
       const previousIndex = RELAY_REVIEW_CHECKPOINT_ORDER.indexOf(previous)
-      if (index < previousIndex) {
+      if (index <= previousIndex) {
         errors.push(`检查点顺序倒退: ${previous} -> ${entry.checkpoint}`)
       }
     }
+    if (entry.phase !== phaseOfRelayCheckpoint(entry.checkpoint)) {
+      errors.push(`检查点 phase 不匹配: ${entry.checkpoint}`)
+    }
+    if (!isIsoTime(entry.observedAt) || !isIsoTime(entry.dataCutoffAt) || !isIsoTime(entry.decisionAt)) {
+      errors.push(`检查点时间字段非法: ${entry.checkpoint}`)
+    } else {
+      if (compareIsoTimes(entry.observedAt, entry.decisionAt) > 0) {
+        errors.push(`检查点 observedAt 晚于 decisionAt: ${entry.checkpoint}`)
+      }
+      if (compareIsoTimes(entry.dataCutoffAt, entry.decisionAt) > 0) {
+        errors.push(`检查点 dataCutoffAt 晚于 decisionAt: ${entry.checkpoint}`)
+      }
+      if (previousEntry && compareIsoTimes(entry.decisionAt, previousEntry.decisionAt) < 0) {
+        errors.push(`检查点时间倒退: ${previousEntry.checkpoint} -> ${entry.checkpoint}`)
+      }
+    }
     previous = entry.checkpoint
+    previousEntry = entry
   }
+  const expectedLatest = revision.checkpoints.at(-1)?.checkpoint ?? 'close-plan'
+  if (revision.latestCheckpoint !== expectedLatest) {
+    errors.push(`latestCheckpoint 与 checkpoints 不一致: ${revision.latestCheckpoint} != ${expectedLatest}`)
+  }
+  if (revision.phase !== phaseOfRelayCheckpoint(revision.latestCheckpoint)) {
+    errors.push(`顶层 phase 不匹配: ${revision.latestCheckpoint}`)
+  }
+  const expectedSettled = revision.latestCheckpoint === 'settled' || revision.latestCheckpoint === 'exit-settled'
+  if (revision.settled !== expectedSettled) errors.push('settled 与 latestCheckpoint 不一致')
+  if (revision.validation.stage !== revision.validationStage) errors.push('validationStage 与 validation.stage 不一致')
+  if (revision.validation.ruleVersion !== revision.ruleVersion) errors.push('validation.ruleVersion 不一致')
+  if (revision.validation.taxonomyVersion !== revision.taxonomyVersion) errors.push('validation.taxonomyVersion 不一致')
   const closePlanHash = computeClosePlanHash({
     signalDate: revision.signalDate,
     tradeDate: revision.tradeDate,
@@ -154,13 +229,12 @@ export function validateRelayDailyReview(revision: RelayDailyReviewV1): string[]
     closePlan: revision.closePlan,
   })
   if (revision.closePlanHash !== closePlanHash) errors.push('closePlanHash 不匹配')
-  const sourceHash = computeSourceHash(revision.closePlan.sourceRefs)
+  const allSources = collectRelaySourceRefs(revision)
+  const sourceHash = computeSourceHash(allSources)
   if (revision.sourceHash !== sourceHash) errors.push('sourceHash 不匹配')
-  const evidenceHashes = computeEvidenceHashes(revision.closePlan.sourceRefs)
-  if (
-    revision.evidenceHashes.length !== evidenceHashes.length ||
-    !evidenceHashes.every((hash, index) => hash === revision.evidenceHashes[index])
-  ) {
+  const evidenceHashes = computeEvidenceHashes(allSources)
+  if (revision.evidenceHashes.length !== evidenceHashes.length ||
+      [...revision.evidenceHashes].sort().join('|') !== [...evidenceHashes].sort().join('|')) {
     errors.push('evidenceHashes 不匹配')
   }
   const revisionContentHash = computeRevisionContentHash({
@@ -173,6 +247,7 @@ export function validateRelayDailyReview(revision: RelayDailyReviewV1): string[]
   if (revision.revisionContentHash !== revisionContentHash) errors.push('revisionContentHash 不匹配')
   const documentHash = computeDocumentHash(revision)
   if (revision.documentHash !== documentHash) errors.push('documentHash 不匹配')
+  if (!revision.supersedes && revision.revision > 1) errors.push('revision > 1 必须存在 supersedes')
   if (revision.supersedes && revision.revision <= 1) {
     errors.push('revision 1 不应存在 supersedes')
   }
@@ -187,7 +262,9 @@ export function isRelayDailyReviewValid(revision: RelayDailyReviewV1): boolean {
 }
 
 function safeRelayDate(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
 function stableCheckpoints(checkpoints: readonly RelayCheckpoint[]): RelayCheckpoint[] {
@@ -196,7 +273,8 @@ function stableCheckpoints(checkpoints: readonly RelayCheckpoint[]): RelayCheckp
     const pb = RELAY_REVIEW_CHECKPOINT_ORDER.indexOf(b.checkpoint)
     if (pa !== pb) return pa - pb
     if (a.observedAt !== b.observedAt) return a.observedAt < b.observedAt ? -1 : 1
-    return 0
+    if (a.decisionAt !== b.decisionAt) return a.decisionAt < b.decisionAt ? -1 : 1
+    return canonicalStringify(a).localeCompare(canonicalStringify(b))
   })
 }
 
@@ -257,6 +335,7 @@ export function computeSourceEvidenceHash(source: RelaySourceRef): string {
     receivedAt: source.receivedAt,
     knownAt: source.knownAt,
     capturedAt: source.capturedAt,
+    sourceHash: source.sourceHash,
     quality: source.quality,
     missingReasons: [...source.missingReasons].sort(),
   })
@@ -401,7 +480,14 @@ export function buildRelayClosePlan(input: BuildRelayClosePlanInput): RelayDaily
   const aggregatedQuality = aggregateRelaySourceQuality({ sourceRefs: closePlan.sourceRefs })
   const quality: RelayReviewQuality = {
     ...aggregatedQuality,
-    ...input.quality,
+    missingLayers: Array.from(new Set([
+      ...aggregatedQuality.missingLayers,
+      ...(input.quality?.missingLayers ?? []),
+    ])),
+    warnings: Array.from(new Set([
+      ...aggregatedQuality.warnings,
+      ...(input.quality?.warnings ?? []),
+    ])),
     sourceCount,
   }
   const closePlanHash = computeClosePlanHash({
@@ -497,11 +583,18 @@ export function projectRelayCheckpoint(
   if (cpIndex <= latestIndex) {
     throw new Error(`检查点不可回退: ${current.latestCheckpoint} -> ${input.checkpoint}`)
   }
-  if (input.dataCutoffAt > input.decisionAt) {
-    throw new Error('dataCutoffAt 不得晚于 decisionAt')
+  if (!isIsoTime(input.observedAt) || !isIsoTime(input.dataCutoffAt) || !isIsoTime(input.decisionAt)) {
+    throw new Error(`检查点时间字段非法: ${input.checkpoint}`)
+  }
+  if (compareIsoTimes(input.observedAt, input.decisionAt) > 0) {
+    throw new Error('observedAt 不得晚于 decisionAt')
   }
   if (compareIsoTimes(input.dataCutoffAt, input.decisionAt) > 0) {
     throw new Error('dataCutoffAt 不得晚于 decisionAt')
+  }
+  const previousEntry = current.checkpoints.at(-1)
+  if (previousEntry && compareIsoTimes(input.decisionAt, previousEntry.decisionAt) < 0) {
+    throw new Error(`检查点时间不可回退: ${previousEntry.checkpoint} -> ${input.checkpoint}`)
   }
   for (const source of input.sourceRefs) {
     if (source.eventAt && compareIsoTimes(source.eventAt, source.dataCutoffAt) > 0) {
@@ -532,7 +625,14 @@ export function projectRelayCheckpoint(
     sourceRefs: sourceRefsSorted(input.sourceRefs),
     quality: {
       ...aggregateRelaySourceQuality({ sourceRefs: input.sourceRefs }),
-      ...input.quality,
+      missingLayers: Array.from(new Set([
+        ...aggregateRelaySourceQuality({ sourceRefs: input.sourceRefs }).missingLayers,
+        ...(input.quality?.missingLayers ?? []),
+      ])),
+      warnings: Array.from(new Set([
+        ...aggregateRelaySourceQuality({ sourceRefs: input.sourceRefs }).warnings,
+        ...(input.quality?.warnings ?? []),
+      ])),
       sourceCount: input.sourceRefs.length,
     },
     warnings: [...new Set(input.warnings ?? [])],
@@ -540,6 +640,8 @@ export function projectRelayCheckpoint(
   const checkpoints = [...current.checkpoints, entry]
   const phase = phaseOfRelayCheckpoint(input.checkpoint)
   const warnings = [...new Set([...current.warnings, ...entry.warnings])]
+  const allSources = collectRelaySourceRefs({ closePlan: current.closePlan, checkpoints })
+  const revisionQuality = aggregateRelayRevisionQuality({ closePlan: current.closePlan, checkpoints })
   const revisionContentHash = computeRevisionContentHash({
     closePlanHash: current.closePlanHash,
     checkpoints,
@@ -555,9 +657,22 @@ export function projectRelayCheckpoint(
     // contract; each checkpoint entry carries its own observedAt/decisionAt.
     settled: input.checkpoint === 'settled' || input.checkpoint === 'exit-settled',
     closePlanHash: current.closePlanHash,
+    sourceHash: computeSourceHash(allSources),
     revisionContentHash,
     checkpoints,
-    evidenceHashes: [...current.evidenceHashes].sort(),
+    evidenceHashes: computeEvidenceHashes(allSources),
+    quality: {
+      ...revisionQuality,
+      missingLayers: Array.from(new Set([
+        ...revisionQuality.missingLayers,
+        ...current.quality.missingLayers,
+      ])),
+      warnings: Array.from(new Set([
+        ...revisionQuality.warnings,
+        ...current.quality.warnings,
+      ])),
+      sourceCount: allSources.length,
+    },
     warnings,
   }
   return { ...projected, documentHash: computeDocumentHash(projected) }
@@ -590,4 +705,3 @@ export function validateSchedulerCheckpointMapping(): void {
  * Canonical stringify used by tests and debugging to assert stable key ordering.
  * Pass-through for the hash-spec helpers above.
  */
-export { canonicalStringify as canonicalJsonSnapshot }

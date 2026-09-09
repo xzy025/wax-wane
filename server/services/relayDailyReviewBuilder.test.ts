@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { validateRelayDailyReviewRevision } from './relayDailyReviewValidation'
 import {
   aggregateRelaySourceQuality,
   buildRelayClosePlan,
@@ -154,6 +155,25 @@ describe('relay daily review builder', () => {
     expect(projected.phase).toBe('auction')
     expect(projected.closePlanHash).toBe(plan.closePlanHash)
     expect(projected.revisionContentHash).toMatch(/^[a-f0-9]{64}$/)
+    expect(projected.evidenceHashes).toHaveLength(plan.evidenceHashes.length + 1)
+    expect(projected.sourceHash).not.toBe(plan.sourceHash)
+    expect(validateRelayDailyReviewRevision(projected, { expectedRevision: 1 })).toEqual([])
+  })
+
+  it('does not keep revision quality formal when a required checkpoint has no source', () => {
+    const plan = buildRelayClosePlan(baseInput)
+    const projected = projectRelayCheckpoint(plan, {
+      signalDate: plan.signalDate,
+      tradeDate: plan.tradeDate,
+      checkpoint: 'auction-final',
+      observedAt: '2026-08-31T09:25:05+08:00',
+      decisionAt: '2026-08-31T09:25:06+08:00',
+      dataCutoffAt: '2026-08-31T09:25:05+08:00',
+      sourceRefs: [],
+    })
+    expect(projected.quality.status).toBe('degraded')
+    expect(projected.quality.pointInTime).toBe(false)
+    expect(validateRelayDailyReviewRevision(projected, { expectedRevision: 1 })).toEqual([])
   })
 
   it('rejects regressions and time-order violations fail-closed', () => {
@@ -265,6 +285,14 @@ describe('relay daily review builder', () => {
     expect(sameInstant).toBe(0)
     expect(compareIsoTimes('2026-08-31T09:25:05+08:00', '2026-08-31T09:25:04+08:00')).toBeGreaterThan(0)
     expect(() => compareIsoTimes('not-a-date', '2026-08-31')).toThrow(/非法 ISO/)
+  })
+
+  it('rejects impossible calendar dates and makes sourceHash sensitive to sourceHash', () => {
+    const impossibleDate = buildRelayClosePlan({ ...baseInput, signalDate: '2026-02-30' })
+    expect(validateRelayDailyReviewRevision(impossibleDate, { expectedRevision: 1 })).toContain('signalDate 非法: 2026-02-30')
+    const source = baseInput.sourceRefs?.[0]
+    if (!source) throw new Error('test requires sourceRefs')
+    expect(computeSourceHash([{ ...source, sourceHash: 'different' }])).not.toBe(computeSourceHash([source]))
   })
 
   it('validates a pristine plan and rejects a tampered one (WP3.1)', () => {
