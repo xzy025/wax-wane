@@ -983,6 +983,50 @@ describe('limit ladder next-day confirmation', () => {
     expect(result.candidates[0].gateReasons?.join('')).toContain('高Beta')
   })
 
+  it('keeps a high-scoring relay candidate waiting until core leadership and assistant breadth are both confirmed', () => {
+    const candidate = nextDayCandidate()
+    const marketGate: MarketRiskGate = {
+      signalDate: '2026-08-11',
+      tradeDate: '2026-08-12',
+      generatedAt: '2026-08-12T01:25:00.000Z',
+      phase: 'open',
+      state: 'normal',
+      riskScore: 20,
+      externalRiskScore: 20,
+      domesticRiskScore: 20,
+      domesticConfirmed: true,
+      premarket: null,
+      domestic: null,
+      themePermissions: [
+        {
+          theme: candidate.primaryTheme,
+          riskClass: 'neutral',
+          state: 'allowed',
+          score: 66,
+          independentStrength: false,
+          directionScore: 66,
+          positiveRate: 55,
+          assistantCount: 1,
+          environmentAdjustment: 0,
+          reasons: [],
+        },
+      ],
+      reasons: [],
+      warnings: [],
+    }
+    const result = scoreNextDayConfirmations({
+      baseRows: [candidate],
+      tradeDate: '2026-08-12',
+      clockMinutes: 9 * 60 + 35,
+      quotes: new Map([[candidate.code, liveQuote()]]),
+      marketGate,
+    })
+
+    expect(result.candidates[0].liveScore).toBeGreaterThanOrEqual(70)
+    expect(result.candidates[0].state).toBe('waiting')
+    expect(result.candidates[0].gateReasons?.join('')).toContain('核心带动')
+  })
+
   it('rejects stale quotes and continued one-price boards', () => {
     const candidate = nextDayCandidate()
     const stale = scoreNextDayConfirmations({

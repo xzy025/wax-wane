@@ -1,4 +1,6 @@
 import { createCache, sessionTtl } from '../lib/cache'
+import { fetchWithProxy } from '../lib/llm'
+import { fetchQuickTinyRealtimeLadder } from './quicktinyLadder'
 
 const KPL_DEVICE_ID = '00000000-025d-1ffd-fa71-8fd5272bb997'
 const KPL_LADDER_URL = 'https://apphwhq.longhuvip.com/w1/api/index.php'
@@ -20,6 +22,7 @@ export interface KplRealtimeStock {
   price: number
   changePct: number
   firstTime: string
+  lastTime?: string
   consecutiveDays: number
   nDayBoards: string
   primaryTheme: string
@@ -38,6 +41,15 @@ export interface KplRealtimeStock {
   isSuspended?: boolean
   listingStatus?: string
   statusEvidence?: 'historical-master' | 'provider-field'
+  /** Optional fields retained when the authorized QuickTiny ladder supplies them. */
+  reasonType?: string
+  reasonInfo?: string
+  industry?: string
+  limitUpType?: string
+  actualTurnoverRate?: number
+  currencyValue?: number
+  totalMarketCap?: number
+  actualCurrencyValue?: number
 }
 
 export interface KplRealtimeLadder {
@@ -45,6 +57,8 @@ export interface KplRealtimeLadder {
   stocks: KplRealtimeStock[]
   complete: boolean
   missingTiers: number[]
+  /** Provider-level availability classification; empty is not proof of no market data. */
+  dataStatus?: 'full' | 'degraded' | 'partial' | 'empty' | 'stale' | 'unavailable'
   /** Per-tier request failures retained when a partial ladder is returned. */
   tierFailures?: Array<{ tier: number; message: string }>
   source?: string
@@ -52,6 +66,19 @@ export interface KplRealtimeLadder {
   capturedAt?: string
   fromCache?: boolean
   cacheAgeMs?: number | null
+  /** Non-primary-provider notes, such as a degraded fallback snapshot. */
+  warnings?: string[]
+}
+
+/**
+ * The configured provider remains the default. Callers that need a resilient
+ * fallback may explicitly request the public Kaipanla adapter without sharing
+ * the configured provider's cache entry.
+ */
+export type KplRealtimeLadderProvider = 'quicktiny' | 'kaipanla'
+
+export interface KplRealtimeLadderFetchOptions {
+  provider?: KplRealtimeLadderProvider
 }
 
 export interface KplLimitReasonDetail {
@@ -186,7 +213,7 @@ async function fetchTierOnce(
     apiv: 'w39',
     Type: '4',
   })
-  const response = await fetch(`${KPL_LADDER_URL}?${params}`, {
+  const response = await fetchWithProxy(`${KPL_LADDER_URL}?${params}`, {
     headers: KPL_HEADERS,
     signal: AbortSignal.timeout(timeoutMs),
   })
@@ -226,7 +253,16 @@ async function fetchTier(tier: KplLadderTier): Promise<{ date: string; tier: num
   throw lastFailure ?? new Error('tier request timed out before it could start')
 }
 
-async function fetchKplRealtimeLadderFresh(): Promise<KplRealtimeLadder> {
+function configuredRealtimeLadderProvider(): KplRealtimeLadderProvider {
+  return (process.env.QUICKTINY_LADDER_PROVIDER || '').trim().toLowerCase() === 'quicktiny'
+    ? 'quicktiny'
+    : 'kaipanla'
+}
+
+async function fetchKplRealtimeLadderFresh(provider: KplRealtimeLadderProvider): Promise<KplRealtimeLadder> {
+  if (provider === 'quicktiny') {
+    return fetchQuickTinyRealtimeLadder()
+  }
   const settled = await Promise.allSettled(KPL_LADDER_TIERS.map(fetchTier))
   const fulfilled = settled
     .filter((result): result is PromiseFulfilledResult<Awaited<ReturnType<typeof fetchTier>>> => result.status === 'fulfilled')
@@ -264,20 +300,34 @@ async function fetchKplRealtimeLadderFresh(): Promise<KplRealtimeLadder> {
   }
 }
 
-const ladderCache = createCache<KplRealtimeLadder>({
+const kaipanlaLadderCache = createCache<KplRealtimeLadder>({
   name: 'KplRealtimeLadder',
   ttl: sessionTtl(60_000, 15 * 60_000),
-  fetcher: fetchKplRealtimeLadderFresh,
+  fetcher: () => fetchKplRealtimeLadderFresh('kaipanla'),
 })
 
-export async function fetchKplRealtimeLadder(): Promise<KplRealtimeLadder> {
+const quickTinyLadderCache = createCache<KplRealtimeLadder>({
+  name: 'QuickTinyRealtimeLadder',
+  ttl: sessionTtl(60_000, 15 * 60_000),
+  fetcher: () => fetchKplRealtimeLadderFresh('quicktiny'),
+})
+
+function ladderCacheFor(provider: KplRealtimeLadderProvider) {
+  return provider === 'quicktiny' ? quickTinyLadderCache : kaipanlaLadderCache
+}
+
+export async function fetchKplRealtimeLadder(
+  options: KplRealtimeLadderFetchOptions = {},
+): Promise<KplRealtimeLadder> {
+  const provider = options.provider ?? configuredRealtimeLadderProvider()
+  const ladderCache = ladderCacheFor(provider)
   const before = ladderCache.peek()
   const value = await ladderCache.get()
   const ageMs = ladderCache.ageMs()
   const fromCache = before === value && ageMs != null && ageMs > 0
   return {
     ...value,
-    source: value.source ?? 'kaipanla',
+    source: value.source ?? provider,
     capturedAt: value.capturedAt ?? new Date().toISOString(),
     fromCache,
     cacheAgeMs: ageMs,
@@ -332,7 +382,7 @@ export async function fetchKplLimitReason(
       c: 'StockLineData',
       StockID: normalizedCode,
     })
-    const response = await fetch(`${KPL_REASON_URL}?${params}`, {
+    const response = await fetchWithProxy(`${KPL_REASON_URL}?${params}`, {
       headers: KPL_HEADERS,
       signal: AbortSignal.timeout(8_000),
     })
@@ -345,6 +395,7 @@ export async function fetchKplLimitReason(
 }
 
 export function clearKplLadderCache(): void {
-  ladderCache.clear()
+  kaipanlaLadderCache.clear()
+  quickTinyLadderCache.clear()
   reasonCache.clear()
 }

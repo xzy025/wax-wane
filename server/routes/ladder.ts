@@ -5,6 +5,8 @@ import {
   getLimitLadderAuctionSchedulerStatus,
   importLimitLadder,
   listLimitLadderArchiveDates,
+  refreshLimitLadderAnalysis,
+  LadderFormalEligibilityError,
 } from '../services/limitLadder'
 import { fetchKplLimitReason } from '../services/kaipanlaLadder'
 import {
@@ -23,6 +25,9 @@ import { resolveCrossMarketSnapshot } from '../services/crossMarketRuntime'
 import { buildAuctionBehaviorResearch } from '../services/auctionBehaviorResearch'
 import { fetchFirstBoardScan } from '../services/firstBoardScan'
 import { listLadderSentimentQuant, readLadderSentimentQuant } from '../services/ladderSentimentQuant'
+import { listTradingDates, tradingCalendarSource, tradingCalendarVersion } from '../services/tradingCalendar'
+import { todayShanghai } from '../lib/time'
+import { envelopeForTradingCalendar } from '../market-data/marketDataSource'
 import {
   applyManualReviews,
   normalizeManualReviewPayload,
@@ -48,6 +53,32 @@ router.get('/api/ladder/archive-dates', (req, res) => {
     return
   }
   res.json({ dates: listLimitLadderArchiveDates(limit) })
+})
+
+// Trading calendar is independent from the dates for which ladder data exists.
+// This keeps an unavailable current day selectable without serving an older archive.
+router.get('/api/ladder/trading-dates', (req, res) => {
+  const to = typeof req.query.to === 'string' ? req.query.to : undefined
+  const from = typeof req.query.from === 'string' ? req.query.from : undefined
+  const end = to ?? todayShanghai()
+  const start = from ?? (() => {
+    const date = new Date(`${end}T00:00:00Z`)
+    date.setUTCDate(date.getUTCDate() - 90)
+    return date.toISOString().slice(0, 10)
+  })()
+  try {
+    const dates = listTradingDates(start, end).sort((a, b) => b.localeCompare(a))
+    const source = tradingCalendarSource()
+    const version = tradingCalendarVersion()
+    res.json({
+      dates,
+      source,
+      version,
+      dataQuality: envelopeForTradingCalendar(dates, source, version),
+    })
+  } catch (err) {
+    res.status(400).json({ error: err instanceof Error ? err.message : '交易日历范围无效' })
+  }
 })
 
 router.get('/api/ladder/auction-scheduler-status', (_req, res) => {
@@ -133,6 +164,20 @@ router.get('/api/ladder/analysis', async (req, res) => {
   }
 })
 
+router.post('/api/ladder/analysis/refresh', async (req, res) => {
+  const date = typeof req.body?.date === 'string' ? req.body.date : ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    res.status(400).json({ error: 'date 必须是 YYYY-MM-DD' })
+    return
+  }
+  try {
+    res.json(await refreshLimitLadderAnalysis(date))
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '连板归档补全失败'
+    res.status(message.startsWith('未找到') ? 404 : 409).json({ error: message })
+  }
+})
+
 router.get('/api/ladder/first-board-scan', async (req, res) => {
   const tradeDate = typeof req.query.tradeDate === 'string' ? req.query.tradeDate : undefined
   if (tradeDate && !/^\d{4}-\d{2}-\d{2}$/.test(tradeDate)) {
@@ -157,6 +202,10 @@ router.get('/api/ladder/next-day', async (req, res) => {
   try {
     res.json(applyManualReviews(await fetchLimitLadderNextDay(signalDate)))
   } catch (err) {
+    if (err instanceof LadderFormalEligibilityError) {
+      res.status(409).json({ error: err.message, code: err.code, reasons: err.reasons })
+      return
+    }
     const message = err instanceof Error ? err.message : 'Unknown error'
     const status = message.startsWith('未找到') ? 404 : 500
     res.status(status).json({ error: message })

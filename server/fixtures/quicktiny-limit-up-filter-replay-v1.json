@@ -1,0 +1,134 @@
+{
+  "version": "quicktiny-ladder-replay-v1",
+  "provider": "quicktiny",
+  "capturedAt": "2026-09-02T17:13:01.687Z",
+  "request": {
+    "toolName": "limit_up_filter",
+    "arguments": {
+      "date": "2026-09-02",
+      "continueNumMin": 4,
+      "page": 1,
+      "limit": 100,
+      "sortBy": "continue_num",
+      "sortOrder": "desc",
+      "detailLevel": "raw",
+      "includeFirstBoard": true,
+      "includeReasonInfo": true,
+      "format": "json"
+    }
+  },
+  "result": {
+    "structuredContent": {
+      "success": true,
+      "data": {
+        "total": 2,
+        "returned": 2,
+        "pagination": {
+          "page": 1,
+          "pageSize": 100,
+          "total": 2,
+          "totalPages": 1
+        },
+        "primaryThemeStats": [
+          {
+            "theme": "零售",
+            "limitUpCount": 1,
+            "maxContinueNum": 4,
+            "sampleStocks": [
+              { "code": "601086", "name": "国芳集团", "continueNum": 4 }
+            ]
+          },
+          {
+            "theme": "AI应用",
+            "limitUpCount": 1,
+            "maxContinueNum": 4,
+            "sampleStocks": [
+              { "code": "003005", "name": "竞业达", "continueNum": 4 }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "code": "003005",
+            "name": "竞业达",
+            "date": "20260902",
+            "continueNum": 4,
+            "primaryTheme": "AI应用",
+            "conceptTags": ["AI应用"],
+            "reasonType": "AI教育+智能体+智慧招考+智慧轨道",
+            "industry": "软件服务",
+            "latest": 20,
+            "changeRate": 10.011,
+            "firstLimitUpTime": "1788312300",
+            "lastLimitUpTime": "1788312300",
+            "openNum": null,
+            "turnoverRate": 3.273,
+            "actualTurnoverRate": 4.22,
+            "limitUpType": "一字板",
+            "currencyValue": 2683893500,
+            "totalMarketCap": 4627773820,
+            "actualCurrencyValue": 2083774913,
+            "orderAmount": 180729376,
+            "tradingAmount": 87842620,
+            "firstLimitUpTimeText": "09:25:00",
+            "lastLimitUpTimeText": "09:25:00"
+          },
+          {
+            "code": "601086",
+            "name": "国芳集团",
+            "date": "20260902",
+            "continueNum": 4,
+            "primaryTheme": "零售",
+            "conceptTags": ["零售"],
+            "reasonType": "连锁零售+新零售+半年报增长",
+            "industry": "百货",
+            "latest": 11.1,
+            "changeRate": 10.0099,
+            "firstLimitUpTime": "1788312300",
+            "lastLimitUpTime": "1788312300",
+            "openNum": null,
+            "turnoverRate": 0.8712,
+            "actualTurnoverRate": 3.32,
+            "limitUpType": "一字板",
+            "currencyValue": 7392600000,
+            "totalMarketCap": 7392600000,
+            "actualCurrencyValue": 1939078980,
+            "orderAmount": 306061408,
+            "tradingAmount": 64402200,
+            "firstLimitUpTimeText": "09:25:00",
+            "lastLimitUpTimeText": "09:25:00"
+          }
+        ]
+      },
+      "meta": {
+        "quality": { "warnings": [], "missingFields": [], "confidence": 0.95, "rawIncluded": true },
+        "standard": {
+          "toolName": "limit_up_filter",
+          "requestedArgs": {
+            "date": "2026-09-02",
+            "continueNumMin": 4,
+            "page": 1,
+            "limit": 100,
+            "sortBy": "continue_num",
+            "sortOrder": "desc"
+          },
+          "requestedDate": "2026-09-02",
+          "tradeDate": "2026-09-02",
+          "actualTradeDate": "2026-09-02",
+          "dateStatus": "exact",
+          "dataFreshness": {
+            "isRealtime": false,
+            "requestedAt": "2026-09-02T17:13:01.687Z",
+            "updatedAt": "2026-09-02T17:13:01.687Z",
+            "fallbackUsed": false,
+            "fallbackReason": null
+          }
+        },
+        "detailLevel": "raw",
+        "contentFormat": "json",
+        "tradeDate": "2026-09-02"
+      }
+    },
+    "isError": false
+  }
+}

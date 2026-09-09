@@ -22,7 +22,7 @@ import {
   type KlineBar,
   type LimitStock,
 } from './ashare'
-import { fetchSentiment, type SentimentData } from './kaipanla'
+import { clearSentimentCache, fetchSentiment, type SentimentData } from './kaipanla'
 import {
   clearKplLadderCache,
   fetchKplRealtimeLadder,
@@ -427,7 +427,7 @@ export interface LadderStockAnalysis {
   onePrice: boolean
   tBoard: boolean
   isMarginEligible: boolean
-  reasonSource: 'kaipanla' | 'import' | 'none'
+  reasonSource: 'kaipanla' | 'quicktiny' | 'import' | 'none'
   state: LadderState
   score: number
   promotionLane?: string
@@ -473,7 +473,7 @@ export interface LadderLevel {
 }
 
 export interface LadderDataQuality {
-  source: 'kaipanla' | 'eastmoney' | 'sina' | 'import' | 'mixed'
+  source: 'kaipanla' | 'quicktiny' | 'eastmoney' | 'sina' | 'import' | 'mixed'
   sourceDate: string
   sentimentSource: SentimentData['source']
   sentimentStatus: SentimentData['status']
@@ -486,6 +486,11 @@ export interface LadderDataQuality {
   receivedAt?: string | null
   adjustment?: KlineBar['adjustment'] | null
   settled?: boolean
+  /** Core close facts are complete even when optional evidence is still missing. */
+  coreDataComplete?: boolean
+  /** Core facts can be archived before optional post-close enrichment arrives. */
+  archiveStage?: 'core-settled' | 'enriched'
+  formalSignalEligible?: boolean
   warnings: string[]
 }
 
@@ -523,6 +528,8 @@ export interface LimitLadderAnalysis {
   strategyStatus?: 'research'
   revision?: number
   supersedes?: string | null
+  archiveStage?: 'core-settled' | 'enriched'
+  formalSignalEligible?: boolean
 }
 
 export interface NextDayCandidateConfirmation {
@@ -919,6 +926,8 @@ interface EvidenceArchive {
   receivedAt?: string | null
   adjustment?: KlineBar['adjustment'] | null
   settled?: boolean
+  archiveStage?: 'core-settled' | 'enriched'
+  formalSignalEligible?: boolean
   ashare: Pick<
     AShareData,
     | 'limitUpCount'
@@ -943,10 +952,18 @@ interface EvidenceArchive {
   roleMap?: LadderRoleMap
   eventGate?: LadderEventGate
   promotionStatistics?: PromotionStatistics
+  /** Date-scoped LHB facts; receipt time never substitutes for providerAt. */
+  fundFlow?: Record<string, LhbDay>
+  enrichmentReceivedAt?: string
 }
 
 const importsByDate = new Map<string, LadderImportPayload>()
 const analysisCache = new Map<string, { at: number; value: LimitLadderAnalysis }>()
+const analysisRequests = new Map<string, {
+  imported: LadderImportPayload | null
+  sessionSettled: boolean
+  request: Promise<LimitLadderAnalysis>
+}>()
 const forcedRecomputeDates = new Set<string>()
 
 const clamp = (n: number, min = 0, max = 100) => Math.max(min, Math.min(max, n))
@@ -2032,15 +2049,17 @@ async function fetchLadderMarketProfiles(
   return out
 }
 
-function buildHotRankMap(hotList?: HotListData): Map<string, HotRankEvidence> {
+export function buildHotRankMap(hotList?: HotListData): Map<string, HotRankEvidence> {
   const out = new Map<string, HotRankEvidence>()
-  for (const row of hotList?.eastmoney ?? []) {
+  const eastmoneyAvailable = hotList?.sourceStatus.eastmoney.status === 'full'
+  const thsAvailable = hotList?.sourceStatus.ths.status === 'full'
+  for (const row of eastmoneyAvailable ? hotList.eastmoney : []) {
     out.set(row.code, {
       eastmoneyRank: row.rank,
       thsRank: out.get(row.code)?.thsRank ?? null,
     })
   }
-  for (const row of hotList?.ths ?? []) {
+  for (const row of thsAvailable ? hotList.ths : []) {
     out.set(row.code, {
       eastmoneyRank: out.get(row.code)?.eastmoneyRank ?? null,
       thsRank: row.rank,
@@ -2137,6 +2156,7 @@ function mergeStocks(
   kplStocks: KplRealtimeStock[],
   imported: LadderImportPayload | null,
   profiles: Map<string, LadderMarketProfile> = new Map(),
+  kplSource = 'kaipanla',
 ): NormalizedStock[] {
   const importedMap = new Map((imported?.stocks ?? []).map((stock) => [normalizeCode(stock.code), stock]))
   const autoMap = new Map(auto.map((stock) => [normalizeCode(stock.code), stock]))
@@ -2161,7 +2181,7 @@ function mergeStocks(
       kpl &&
       market.consecutiveDays !== kpl.consecutiveDays
     ) {
-      warnings.push(`东财板数${market.consecutiveDays}与开盘啦板数${kpl.consecutiveDays}冲突，采用开盘啦实时值`)
+      warnings.push(`东财板数${market.consecutiveDays}与${kplSource === 'quicktiny' ? '悟道 QuickTiny' : '开盘啦'}板数${kpl.consecutiveDays}冲突，采用实时值`)
     }
     const sourceBoards = kpl?.consecutiveDays || market?.consecutiveDays || 0
     if (extra?.consecutiveDays != null && sourceBoards > 0 && extra.consecutiveDays !== sourceBoards) {
@@ -2196,7 +2216,7 @@ function mergeStocks(
       subtheme: extra?.subtheme || kpl?.primaryTheme || '',
       importedRole: extra?.role || '',
       reason,
-      reasonSource: extra?.reason ? 'import' : kpl ? 'kaipanla' : 'none',
+      reasonSource: extra?.reason ? 'import' : kpl ? (kplSource === 'quicktiny' ? 'quicktiny' : 'kaipanla') : 'none',
       sealAmount: extra?.sealAmount ?? kpl?.sealAmount ?? null,
       importedOnePrice: extra?.onePrice ?? null,
       patternHintAvailable: !!kpl,
@@ -2210,6 +2230,7 @@ function mergeStocks(
 }
 
 export function rankAndClassifyStocks(args: {
+  asof?: string
   stocks: NormalizedStock[]
   themes: ThemeAnalysis[]
   technical: Map<string, TechnicalEvidence>
@@ -2229,6 +2250,7 @@ export function rankAndClassifyStocks(args: {
   }>
 }): LadderStockAnalysis[] {
   const {
+    asof = '9999-12-31',
     stocks,
     themes,
     technical,
@@ -2319,6 +2341,10 @@ export function rankAndClassifyStocks(args: {
         }
       }),
       theme: themeMap.get(primaryTheme.name),
+      taxonomyContext: {
+        provider: 'ladder',
+        asof,
+      },
     })
     const fundFlow = scoreLadderFundFlow(lhb.get(stock.code))
     const lane = laneMap.get(stock.consecutiveDays)
@@ -2696,6 +2722,7 @@ function qualityRank(quality: LadderDataQuality): number {
   const sourceRank =
     !quality.degraded &&
     (quality.source === 'kaipanla' ||
+      quality.source === 'quicktiny' ||
       quality.source === 'eastmoney' ||
       quality.source === 'mixed')
       ? 2
@@ -2712,46 +2739,93 @@ export interface LadderArchiveEligibility {
 }
 
 /**
- * 归档只接受同一交易日、收盘后、来源可追溯且所有候选已结算的数据。
- * 这条门槛是 fail-closed：缺少 providerAt、接收时间、原始调整口径或资金流，
- * 都只能留在研究快照，不能冒充已确认的历史样本。
+ * Core archive gate: preserve exact-date settled facts without waiting for
+ * optional post-close enrichment such as LHB or provider-side timestamps.
  */
-export function canFinalizeLadderArchive(
+export function canArchiveLadderCore(
   analysis: LimitLadderAnalysis,
   evidence: EvidenceArchive,
   nowMs = Date.now(),
 ): LadderArchiveEligibility {
-  const reasons: string[] = []
+  const reasons = ladderCoreEvidenceReasons(analysis, evidence)
   if (!isTradingDayAt(nowMs)) reasons.push('当前日期不是交易日')
   if (!isLadderSettledWindow(shanghaiClockAt(nowMs))) reasons.push('尚未进入收盘定盘窗口')
   if (analysis.asof !== todayShanghai(nowMs)) reasons.push('只允许归档当前交易日')
-  if (evidence.asof !== analysis.asof) reasons.push('证据日期与分析日期不一致')
+  return { eligible: reasons.length === 0, reasons: Array.from(new Set(reasons)) }
+}
+
+function ladderAnalysisCoreReasons(analysis: LimitLadderAnalysis): string[] {
+  const reasons: string[] = []
   if (analysis.stocks.length === 0) reasons.push('涨停池为空')
   if (analysis.quality.sentimentStatus !== 'full') {
     reasons.push(`情绪数据状态为${analysis.quality.sentimentStatus}`)
   }
   if (analysis.quality.sourceDate !== analysis.asof) reasons.push('主数据源不是分析日')
   if (!analysis.quality.limitFieldsComplete) reasons.push('封板时间或板数不完整')
+  if (analysis.quality.coreDataComplete === false) reasons.push('核心收盘事实不完整')
   if (analysis.quality.klineTotal <= 0) reasons.push('没有K线证据')
   if (analysis.quality.klineComplete !== analysis.quality.klineTotal) {
     reasons.push('K线覆盖不完整')
   }
-  if (analysis.quality.degraded) reasons.push('数据质量已降级')
-  if (!analysis.quality.fundFlowComplete) reasons.push('资金流证据未发布或不完整')
   if (analysis.quality.settled !== true) reasons.push('K线尚未标记为已结算')
-  if (!analysis.quality.providerAt) reasons.push('缺少K线providerAt')
   if (!analysis.quality.receivedAt) reasons.push('缺少K线receivedAt')
   if (!analysis.quality.adjustment || analysis.quality.adjustment === 'unknown') {
     reasons.push('缺少明确K线复权口径')
   }
-  if (!evidence.providerAt) reasons.push('归档证据缺少providerAt')
+  return reasons
+}
+
+function ladderCoreEvidenceReasons(analysis: LimitLadderAnalysis, evidence: EvidenceArchive): string[] {
+  const reasons = ladderAnalysisCoreReasons(analysis)
+  if (evidence.asof !== analysis.asof) reasons.push('证据日期与分析日期不一致')
   if (!evidence.receivedAt) reasons.push('归档证据缺少receivedAt')
   if (!evidence.adjustment || evidence.adjustment === 'unknown') reasons.push('归档证据缺少明确K线复权口径')
   if (!evidence.settled) reasons.push('归档证据未标记为已结算')
   if (Object.keys(evidence.klines).length !== analysis.quality.klineTotal) {
     reasons.push('归档K线股票数与候选池不一致')
   }
+  return reasons
+}
+
+/**
+ * Formal signal gate: the stricter consumer contract used by next-day
+ * decisions. It builds on the core gate and additionally requires all
+ * enrichment and point-in-time metadata.
+ */
+export function canUseLadderAsFormalSignal(
+  analysis: LimitLadderAnalysis,
+  evidence: EvidenceArchive,
+  nowMs = Date.now(),
+): LadderArchiveEligibility {
+  const core = canArchiveLadderCore(analysis, evidence, nowMs)
+  const reasons = [...core.reasons, ...ladderEnrichmentReasons(analysis, evidence)]
   return { eligible: reasons.length === 0, reasons: Array.from(new Set(reasons)) }
+}
+
+function ladderEnrichmentReasons(analysis: LimitLadderAnalysis, evidence: EvidenceArchive | null): string[] {
+  const reasons: string[] = []
+  if (analysis.quality.degraded) reasons.push('数据质量已降级')
+  if (!analysis.quality.fundFlowComplete) reasons.push('资金流证据未发布或不完整')
+  if (!analysis.quality.providerAt) reasons.push('缺少K线providerAt')
+  if (evidence && !evidence.providerAt) reasons.push('归档证据缺少providerAt')
+  if (evidence && (!analysis.quality.providerAt || !evidence.providerAt)) {
+    const providers = Array.from(new Set(Object.values(evidence.klines)
+      .filter((bars) => bars.length > 0 && !bars.at(-1)?.providerAt)
+      .map((bars) => bars.at(-1)?.provider ?? 'unknown'))).sort()
+    if (providers.length) {
+      reasons.push(`冻结K线来源${providers.join('、')}未保留可验证的发布时间；补龙虎榜无法恢复此时间证据，需原始来源证据核验`)
+    }
+  }
+  return reasons
+}
+
+/** Backward-compatible name for callers that mean the formal archive gate. */
+export function canFinalizeLadderArchive(
+  analysis: LimitLadderAnalysis,
+  evidence: EvidenceArchive,
+  nowMs = Date.now(),
+): LadderArchiveEligibility {
+  return canUseLadderAsFormalSignal(analysis, evidence, nowMs)
 }
 
 function buildBoardSequenceForStock(args: {
@@ -2875,42 +2949,123 @@ function buildRelayExpectations(args: {
   }))
 }
 
+/** Frozen facts may only be enriched before the next session's auction starts. */
+export function canRecoverLadderArchive(
+  analysis: LimitLadderAnalysis,
+  evidence: EvidenceArchive,
+  nowMs = Date.now(),
+): LadderArchiveEligibility {
+  const reasons = ladderCoreEvidenceReasons(analysis, evidence)
+  const calendar = activeTradingCalendar()
+  if (analysis.ruleVersion !== LIMIT_LADDER_RULE_VERSION || evidence.ruleVersion !== LIMIT_LADDER_RULE_VERSION) {
+    reasons.push('历史规则版本已冻结，禁止按当前规则重算')
+  }
+  if (!analysis.archived) reasons.push('缺少已冻结的分析归档')
+  if (!calendar.isTradingDay(analysis.asof)) reasons.push('归档日期不是交易日')
+  const nextDate = new Date(`${analysis.asof}T00:00:00Z`)
+  let nextTradingDate: string | null = null
+  for (let day = 0; day < 31; day++) {
+    nextDate.setUTCDate(nextDate.getUTCDate() + 1)
+    const date = nextDate.toISOString().slice(0, 10)
+    if (calendar.isTradingDay(date)) { nextTradingDate = date; break }
+  }
+  const closeMs = Date.parse(`${analysis.asof}T15:00:00+08:00`)
+  const cutoffMs = nextTradingDate ? Date.parse(`${nextTradingDate}T09:15:00+08:00`) : NaN
+  if (!Number.isFinite(cutoffMs) || nowMs < closeMs || nowMs >= cutoffMs) {
+    reasons.push('只允许最近收盘交易日在下一交易日09:15前补全，过期归档保持冻结')
+  }
+  for (const value of [evidence.generatedAt, evidence.receivedAt, analysis.quality.receivedAt]) {
+    const timestamp = value ? Date.parse(value) : NaN
+    if (!Number.isFinite(timestamp) || timestamp < closeMs || timestamp >= cutoffMs || timestamp > nowMs) {
+      reasons.push('冻结证据时间不在对应收盘至下一竞价的有效窗口')
+    }
+  }
+  if (evidence.kplLadder?.date && evidence.kplLadder.date !== analysis.asof) reasons.push('冻结梯队日期不一致')
+  if (evidence.imported && evidence.imported.asof !== analysis.asof) reasons.push('冻结导入日期不一致')
+  if (!evidence.eventGate || !evidence.themeAnchors || !evidence.roleMap || !evidence.promotionLanes) {
+    reasons.push('缺少冻结的消息闸门、题材锚点、角色或晋级层证据')
+  }
+  const formalCodes = analysis.stocks.filter((stock) => mainBoardCode(stock.code) && !/ST|\*ST/i.test(stock.name) && !/^(N|C)/i.test(stock.name)).map((stock) => stock.code)
+  if (formalCodes.some((code) => !evidence.klines[code])) reasons.push('冻结K线缺少正式股票')
+  if (Object.values(evidence.klines).some((bars) => bars.length === 0 || bars.at(-1)?.date !== analysis.asof || bars.some((bar) => bar.date > analysis.asof))) {
+    reasons.push('冻结K线不是分析日完整收盘数据')
+  }
+  if (Object.values(evidence.rawKlines ?? {}).some((bars) => bars.some((bar) => bar.date > analysis.asof))) reasons.push('冻结原始K线包含未来日期')
+  return { eligible: reasons.length === 0, reasons: Array.from(new Set(reasons)) }
+}
+
 function maybeArchive(
   analysis: LimitLadderAnalysis,
   evidence: EvidenceArchive,
-): boolean {
-  const eligibility = canFinalizeLadderArchive(analysis, evidence)
-  if (!eligibility.eligible) return false
+  frozenRecovery = false,
+): Pick<LimitLadderAnalysis, 'archived' | 'archiveStage' | 'formalSignalEligible'> {
+  const coreEligibility = frozenRecovery ? canRecoverLadderArchive(analysis, evidence) : canArchiveLadderCore(analysis, evidence)
+  if (!coreEligibility.eligible) return { archived: false }
+  const formalEligibility = frozenRecovery
+    ? { eligible: ladderEnrichmentReasons(analysis, evidence).length === 0 }
+    : canUseLadderAsFormalSignal(analysis, evidence)
+  const archiveStage = formalEligibility.eligible ? 'enriched' : 'core-settled'
+  const formalSignalEligible = formalEligibility.eligible
+  const archivedAnalysis: LimitLadderAnalysis = {
+    ...analysis,
+    archiveStage,
+    formalSignalEligible,
+    quality: {
+      ...analysis.quality,
+      archiveStage,
+      formalSignalEligible,
+    },
+  }
+  const archivedEvidence: EvidenceArchive = {
+    ...evidence,
+    archiveStage,
+    formalSignalEligible,
+  }
   const existingPath = latestRevisionedArchivePath(
     analysis.asof,
     LIMIT_LADDER_RULE_VERSION,
     'evidence',
   )
   const existing = existingPath ? readJson<EvidenceArchive>(existingPath) : null
-  if (existing && existing.qualityRank >= evidence.qualityRank) return false
-  const previousAnalysisPath = latestRevisionedArchivePath(
-    analysis.asof,
-    LIMIT_LADDER_RULE_VERSION,
-    'analysis',
-  )
+  const previousAnalysisPath = latestRevisionedArchivePath(analysis.asof, LIMIT_LADDER_RULE_VERSION, 'analysis')
+  const previousAnalysis = previousAnalysisPath ? readJson<LimitLadderAnalysis>(previousAnalysisPath) : null
+  const previousFlow = existing?.fundFlow ?? {}
+  const nextFlow = archivedEvidence.fundFlow ?? {}
+  const flowPreserved = Object.entries(previousFlow).every(([code, value]) => JSON.stringify(nextFlow[code]) === JSON.stringify(value))
+  const enrichmentImproved = (!previousAnalysis?.quality.fundFlowComplete && analysis.quality.fundFlowComplete)
+    || Object.keys(nextFlow).length > Object.keys(previousFlow).length
+    || (!existing?.formalSignalEligible && formalSignalEligible)
+  const weakened = (previousAnalysis?.quality.fundFlowComplete && !analysis.quality.fundFlowComplete)
+    || (existing?.providerAt && !evidence.providerAt)
+    || (existing?.formalSignalEligible && !formalSignalEligible)
+    || (previousAnalysis && !previousAnalysis.quality.degraded && analysis.quality.degraded)
+    || !flowPreserved
+  if (existing && (weakened || existing.qualityRank > archivedEvidence.qualityRank
+    || (existing.qualityRank === archivedEvidence.qualityRank && !enrichmentImproved))) {
+    return {
+      archived: true,
+      archiveStage: existing.archiveStage ?? archiveStage,
+      formalSignalEligible: existing.formalSignalEligible ?? formalSignalEligible,
+    }
+  }
   const revision = existing ? Math.max(1, existing.revision ?? 1) + 1 : 1
   const nextEvidencePath = archiveWritePath(evidencePath(analysis.asof), revision)
   const nextAnalysisPath = archiveWritePath(analysisPath(analysis.asof), revision)
   writeJsonAtomic(nextEvidencePath, {
-    ...evidence,
+    ...archivedEvidence,
     revision,
     supersedes: existingPath,
   })
   writeJsonAtomic(nextAnalysisPath, {
-    ...analysis,
+    ...archivedAnalysis,
     archived: true,
     revision,
     supersedes: previousAnalysisPath,
   })
-  if (analysis.eventGate) {
+  if (analysis.eventGate && !frozenRecovery) {
     writeJsonAtomic(eventGatePath(analysis.asof), analysis.eventGate)
   }
-  return true
+  return { archived: true, archiveStage, formalSignalEligible }
 }
 
 async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis> {
@@ -2941,6 +3096,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     kplLadder?.stocks ?? [],
     imported,
     profiles,
+    kplLadder?.source ?? 'kaipanla',
   )
   if (merged.length === 0) throw new Error('涨停池为空，拒绝生成连板天梯')
 
@@ -2960,6 +3116,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     kplLadder?.missingTiers.filter(
       (tier) => !merged.some((stock) => stock.consecutiveDays === tier),
     ) ?? []
+  const ladderProviderSource: LadderDataQuality['source'] = kplLadder?.source === 'quicktiny' ? 'quicktiny' : 'kaipanla'
   const source: LadderDataQuality['source'] = imported
     ? ashareLimitUpStocks.length || kplLadder?.stocks.length
       ? 'mixed'
@@ -2967,7 +3124,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     : kplLadder?.stocks.length && ashareLimitUpStocks.length
       ? 'mixed'
       : kplLadder?.stocks.length
-        ? 'kaipanla'
+        ? ladderProviderSource
     : limitFieldsComplete
       ? 'eastmoney'
       : 'sina'
@@ -3129,35 +3286,62 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
   )
   const lhbForDay = lhbIndex.get(asof) ?? new Map<string, LhbDay>()
   const fundFlowComplete = lhbForDay.size > 0
-  const klineComplete = technicalResults.filter(([, result]) => result.evidence.available && result.evidence.settled).length
-  const klineProviderAts = technicalResults
+  const formalDataCodes = new Set(formalDataUniverse.map((stock) => stock.code))
+  const archivalTechnicalResults = technicalResults.filter(([code]) => formalDataCodes.has(code))
+  const klineComplete = archivalTechnicalResults.filter(([, result]) => result.evidence.available && result.evidence.settled).length
+  const klineUnavailableCodes = archivalTechnicalResults
+    .filter(([, result]) => !result.evidence.available || !result.evidence.settled)
+    .map(([code]) => code)
+  const observationKlineUnavailableCodes = technicalResults
+    .filter(([code]) => !formalDataCodes.has(code))
+    .filter(([, result]) => !result.evidence.available || !result.evidence.settled)
+    .map(([code]) => code)
+  const klineProviderAts = archivalTechnicalResults
     .map(([, result]) => result.providerAt)
     .filter((value): value is string => !!value)
-  const klineReceivedAts = technicalResults
+  const klineReceivedAts = archivalTechnicalResults
     .map(([, result]) => result.receivedAt)
     .filter((value): value is string => !!value)
   const klineAdjustments = Array.from(
     new Set(
-      technicalResults
+      archivalTechnicalResults
         .map(([, result]) => result.adjustment)
         .filter((value): value is NonNullable<KlineBar['adjustment']> => !!value),
     ),
   )
   const klineMetadataComplete =
-    technicalResults.length === merged.length &&
-    technicalResults.every(
+    archivalTechnicalResults.length === formalDataUniverse.length &&
+    archivalTechnicalResults.every(
       ([, result]) =>
         !!result.provider &&
         !!result.providerAt &&
         !!result.receivedAt &&
         !!result.adjustment,
     )
+  const klineCoreMetadataComplete =
+    archivalTechnicalResults.length === formalDataUniverse.length &&
+    archivalTechnicalResults.every(
+      ([, result]) =>
+        !!result.provider &&
+        !!result.receivedAt &&
+        !!result.adjustment &&
+        result.evidence.available &&
+        result.evidence.settled,
+    )
+  const coreDataComplete =
+    (!kplLadder?.date || kplLadder.date === asof) &&
+    limitFieldsComplete &&
+    sentiment.status === 'full' &&
+    sessionSettled &&
+    unresolvedKplTiers.length === 0 &&
+    klineComplete === formalDataUniverse.length &&
+    klineCoreMetadataComplete
   const qualityProviderAt =
-    klineProviderAts.length === technicalResults.length
+    klineProviderAts.length === archivalTechnicalResults.length
       ? klineProviderAts.slice().sort().at(-1) ?? null
       : null
   const qualityReceivedAt =
-    klineReceivedAts.length === technicalResults.length
+    klineReceivedAts.length === archivalTechnicalResults.length
       ? klineReceivedAts.slice().sort().at(-1) ?? null
       : null
   const qualityAdjustment =
@@ -3180,7 +3364,13 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
   if (sentiment.status !== 'full') {
     qualityWarnings.push(`情绪数据状态为${sentiment.status}，拒绝高置信结论和归档`)
   }
-  if (klineComplete < merged.length) qualityWarnings.push(`${merged.length - klineComplete}只股票K线不完整`)
+  if (klineComplete < formalDataUniverse.length) {
+    qualityWarnings.push(`${formalDataUniverse.length - klineComplete}只正式归档股票K线不完整`)
+    qualityWarnings.push(`K线缺失股票：${klineUnavailableCodes.join(',')}`)
+  }
+  if (observationKlineUnavailableCodes.length > 0) {
+    qualityWarnings.push(`观察标的K线不完整：${observationKlineUnavailableCodes.join(',')}`)
+  }
   if (!sessionSettled) qualityWarnings.push('交易时段内仅供预览，未完成K线不得生成次日候选')
   if (!fundFlowComplete) qualityWarnings.push('当日龙虎榜席位尚未发布，资金流维度不可用，不取中性分')
   if (!klineMetadataComplete) qualityWarnings.push('K线缺少provider、providerAt、receivedAt或复权口径，禁止高置信归档')
@@ -3201,7 +3391,8 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     sentimentStatus: sentiment.status,
     limitFieldsComplete,
     klineComplete,
-    klineTotal: merged.length,
+    klineTotal: formalDataUniverse.length,
+    coreDataComplete,
     degraded:
       !limitFieldsComplete ||
       sentiment.status !== 'full' ||
@@ -3213,7 +3404,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     providerAt: qualityProviderAt,
     receivedAt: qualityReceivedAt,
     adjustment: qualityAdjustment,
-    settled: sessionSettled && klineComplete === merged.length,
+    settled: sessionSettled && klineComplete === formalDataUniverse.length,
     warnings: qualityWarnings,
   }
   const currentMarks = Object.fromEntries(
@@ -3256,6 +3447,7 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
   })
   if (sessionSettled) writeLadderSentimentQuant(sentimentQuant)
   const stocks = rankAndClassifyStocks({
+    asof,
     stocks: merged,
     themes,
     technical: technicalMap,
@@ -3264,7 +3456,10 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     lhb: lhbForDay,
     lanes: promotionLanes,
     hotRanks: buildHotRankMap(hotList ?? undefined),
-    hotListAvailable: !!hotList && (hotList.eastmoney.length > 0 || hotList.ths.length > 0),
+    hotListAvailable: !!hotList && (
+      (hotList.sourceStatus.eastmoney.status === 'full' && hotList.eastmoney.length > 0)
+      || (hotList.sourceStatus.ths.status === 'full' && hotList.ths.length > 0)
+    ),
     roleMap,
     eventGate,
     expectations: relayExpectations,
@@ -3331,8 +3526,8 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     kplLadder,
     limitUpStocks: ashare.limitUpStocks,
     imported,
-    klines: Object.fromEntries(technicalResults.map(([code, result]) => [code, result.bars])),
-    rawKlines: technicalResults.reduce<Record<string, KlineBar[]>>((acc, [code, result]) => {
+    klines: Object.fromEntries(archivalTechnicalResults.map(([code, result]) => [code, result.bars])),
+    rawKlines: archivalTechnicalResults.reduce<Record<string, KlineBar[]>>((acc, [code, result]) => {
       if (result.rawBars && result.rawBars.length > 0) acc[code] = result.rawBars
       return acc
     }, {}),
@@ -3350,10 +3545,11 @@ async function computeCurrentAnalysis(asof: string): Promise<LimitLadderAnalysis
     roleMap,
     eventGate,
     promotionStatistics,
+    fundFlow: Object.fromEntries(lhbForDay),
   }
   await maybeArchivePreviousOutcome(asof, analysis, previous)
-  const archived = maybeArchive(analysis, evidence)
-  return { ...analysis, archived }
+  const archiveResult = maybeArchive(analysis, evidence)
+  return { ...analysis, ...archiveResult }
 }
 
 export interface AuctionMarketSnapshot {
@@ -4348,11 +4544,10 @@ function auctionComparisonRows(analysis: LimitLadderAnalysis): LadderStockAnalys
   )
   const related = analysis.stocks.filter(
     (stock) =>
-      stock.boardType === 'main' &&
-      (highBoardCodes.has(stock.code) ||
-        (stock.consecutiveDays <= 3 &&
-          (candidateThemes.has(stock.primaryTheme) ||
-            stock.themes.some((theme) => candidateThemes.has(theme))))),
+      highBoardCodes.has(stock.code) ||
+      (stock.consecutiveDays <= 3 &&
+        (candidateThemes.has(stock.primaryTheme) ||
+          stock.themes.some((theme) => candidateThemes.has(theme)))),
   )
   return Array.from(new Map([...monitored, ...related].map((stock) => [stock.code, stock])).values())
 }
@@ -4401,8 +4596,8 @@ async function captureAuctionProcess(
   const sources: string[] = Array.from(
     new Set([...quotes.values()].map((quote) => quote.source as string)),
   )
-  if (analysis.quality.source === 'kaipanla' || analysis.quality.source === 'mixed') {
-    sources.push('kaipanla-analysis')
+  if (analysis.quality.source === 'kaipanla' || analysis.quality.source === 'quicktiny' || analysis.quality.source === 'mixed') {
+    sources.push(`${analysis.quality.source}-analysis`)
   }
   const warnings: string[] = []
   const coverage =
@@ -5240,6 +5435,18 @@ export function scoreNextDayConfirmations(args: {
         ) {
           state = 'waiting'
           gateReasons.push('板块尚未获得独立行情许可')
+        } else if (
+          themePermission &&
+          !themePermission.independentStrength &&
+          (state === 'confirmed' || state === 'auction-qualified')
+        ) {
+          // A permissive market backdrop alone is not a relay confirmation.
+          // The checklist requires a leading core, at least two assistants,
+          // and a directional theme move; see buildThemePermissions.
+          state = 'waiting'
+          gateReasons.push(
+            '接力确认流程未完成：需确认核心带动、至少2只小弟助攻并形成题材单边扩散',
+          )
         }
         if (
           liquidityStyle.confirmationCapped &&
@@ -5648,11 +5855,37 @@ async function resolveNextTradeDate(
   return null
 }
 
+export class LadderFormalEligibilityError extends Error {
+  readonly code = 'LADDER_FORMAL_INELIGIBLE'
+  constructor(message: string, readonly reasons: string[] = []) {
+    super(reasons.length ? `${message}：${reasons.join('；')}` : message)
+  }
+}
+
+/** An unarchived preview has no formal flag yet; absence must not mean eligible. */
+export function assertLadderFormalSignal(analysis: LimitLadderAnalysis): void {
+  if (analysis.archived === false || analysis.formalSignalEligible === false || analysis.quality.degraded) {
+    const path = analysis.archived
+      ? latestRevisionedArchivePath(analysis.asof, analysis.ruleVersion, 'evidence') : null
+    const evidence = path ? readJson<EvidenceArchive>(path) : null
+    const reasons = evidence
+      ? [...ladderCoreEvidenceReasons(analysis, evidence), ...ladderEnrichmentReasons(analysis, evidence)]
+      : [...ladderAnalysisCoreReasons(analysis), ...ladderEnrichmentReasons(analysis, null), '缺少对应版本的冻结证据归档']
+    throw new LadderFormalEligibilityError(
+      analysis.archived
+        ? `连板归档 ${analysis.asof} 仅为${analysis.archiveStage ?? 'core-settled'}，未达到正式信号条件`
+        : `连板分析 ${analysis.asof} 尚未完成合格归档，正式候选未生成`,
+      Array.from(new Set(reasons)),
+    )
+  }
+}
+
 export async function fetchLimitLadderNextDay(
   signalDate: string,
 ): Promise<LimitLadderNextDay> {
   if (!safeDate(signalDate)) throw new Error('signalDate 必须是 YYYY-MM-DD')
   const analysis = await fetchLimitLadderAnalysis(signalDate)
+  assertLadderFormalSignal(analysis)
   const sentimentQuant = analysis.sentimentQuant ?? readLadderSentimentQuant(signalDate)
   const baseRows = candidateMonitorRows(analysis)
   const comparisonRows = auctionComparisonRows(analysis)
@@ -6065,6 +6298,16 @@ export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<
     if (!archived) throw new Error(`未找到${asof}的连板天梯归档`)
     return { ...archived, archived: true, strategyStatus: 'research' }
   }
+  const imported = importsByDate.get(asof) ?? null
+  const sessionSettled = isLadderSettledWindow()
+  const pending = analysisRequests.get(asof)
+  if (pending) {
+    if (pending.imported === imported && pending.sessionSettled === sessionSettled) return pending.request
+    // A new import or the close requires fresh inputs. Finish the prior writer
+    // first, including failures, then compute against the latest context.
+    await pending.request.catch(() => undefined)
+    return fetchLimitLadderAnalysis(asof)
+  }
   // 收盘后的同日快照是定盘数据。服务重启或页面再次打开时直接读盘，零上游 API 请求。
   // 当日有手工导入时允许重算并覆盖快照。
   if (isLadderSettledWindow() && !importsByDate.has(asof)) {
@@ -6089,13 +6332,97 @@ export async function fetchLimitLadderAnalysis(asof = todayShanghai()): Promise<
   }
   const cached = analysisCache.get(asof)
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.value
-  try {
-    const value = await computeCurrentAnalysis(asof)
-    analysisCache.set(asof, { at: Date.now(), value })
-    return value
-  } finally {
-    forcedRecomputeDates.delete(asof)
+  // Page loads, refreshes and the settlement scheduler share one computation.
+  // Clearing the result cache must not launch a second in-flight market scan.
+  const request = computeCurrentAnalysis(asof)
+    .then((value) => {
+      if ((importsByDate.get(asof) ?? null) === imported && isLadderSettledWindow() === sessionSettled) {
+        analysisCache.set(asof, { at: Date.now(), value })
+      }
+      return value
+    })
+    .finally(() => {
+      analysisRequests.delete(asof)
+      forcedRecomputeDates.delete(asof)
+    })
+  analysisRequests.set(asof, { imported, sessionSettled, request })
+  return request
+}
+
+const archiveRecoveryRequests = new Map<string, Promise<LimitLadderAnalysis>>()
+
+/** Explicit enrichment never fetches current quotes, K-lines, hotlists or news. */
+export async function refreshLimitLadderAnalysis(asof: string): Promise<LimitLadderAnalysis> {
+  if (!safeDate(asof)) throw new Error('date 必须是 YYYY-MM-DD')
+  if (asof === todayShanghai() && (!isLadderSettledWindow() || !archivedAnalysisPath(asof))) {
+    clearLimitLadderCache()
+    return fetchLimitLadderAnalysis(asof)
   }
+  const pending = archiveRecoveryRequests.get(asof)
+  if (pending) return pending
+  const request = recoverFrozenLadderAnalysis(asof)
+  archiveRecoveryRequests.set(asof, request)
+  try { return await request } finally { archiveRecoveryRequests.delete(asof) }
+}
+
+async function recoverFrozenLadderAnalysis(asof: string): Promise<LimitLadderAnalysis> {
+  const path = archivedAnalysisPath(asof)
+  const archived = path ? readJson<LimitLadderAnalysis>(path) : null
+  if (!archived) throw new Error(`未找到${asof}的连板天梯归档`)
+  const frozenPath = latestRevisionedArchivePath(asof, archived.ruleVersion, 'evidence')
+  const evidence = frozenPath ? readJson<EvidenceArchive>(frozenPath) : null
+  if (!evidence) throw new Error('缺少对应版本的冻结证据归档，禁止使用实时行情补历史')
+  const eligibility = canRecoverLadderArchive(archived, evidence)
+  if (!eligibility.eligible) throw new Error(eligibility.reasons.join('；'))
+  if ((evidence.revision ?? 1) !== (archived.revision ?? 1)) throw new Error('分析与证据归档修订号不一致')
+  const merged = mergeStocks(evidence.limitUpStocks ?? [], evidence.kplLadder?.stocks ?? [], evidence.imported,
+    new Map(Object.entries(evidence.marketProfiles ?? {})), evidence.kplLadder?.source ?? 'kaipanla')
+  const archivedByCode = new Map(archived.stocks.map((stock) => [stock.code, stock]))
+  if (merged.length !== archived.stocks.length || merged.some((stock) => !archivedByCode.has(stock.code))) {
+    throw new Error('冻结行情股票池与分析归档不一致，拒绝补全')
+  }
+  const lhbIndex = await buildLhbIndex([asof], { institutional: true, concurrency: 1 })
+  const lhb = lhbIndex.get(asof) ?? new Map<string, LhbDay>()
+  if (!lhb.size) return { ...archived, archived: true, strategyStatus: 'research' }
+  const quality = {
+    ...archived.quality,
+    fundFlowComplete: true,
+    warnings: archived.quality.warnings.filter((warning) => warning !== '当日龙虎榜席位尚未发布，资金流维度不可用，不取中性分'),
+  }
+  const expectations: NonNullable<Parameters<typeof rankAndClassifyStocks>[0]['expectations']> = new Map()
+  for (const stock of archived.stocks) {
+    if (stock.boardSequence && stock.expectation) expectations.set(stock.code, {
+      sequence: stock.boardSequence, expectation: stock.expectation,
+      relayPathEvidence: stock.relayPathEvidence, relayPathScore: stock.relayPathScore,
+    })
+  }
+  // Legacy hotlist archives omit sourceStatus. The frozen scoring rows preserve
+  // precisely which ranks were accepted at capture time.
+  const hotRanks = new Map(archived.stocks.map((stock) => [stock.code, {
+    eastmoneyRank: stock.popularity?.eastmoneyRank ?? null,
+    thsRank: stock.popularity?.thsRank ?? null,
+  }]))
+  const stocks = rankAndClassifyStocks({
+    asof, stocks: merged, themes: archived.themes,
+    technical: new Map(archived.stocks.map((stock) => [stock.code, stock.technical])),
+    market: archived.market.cycle, degraded: quality.degraded, lhb,
+    lanes: evidence.promotionLanes, roleMap: evidence.roleMap, eventGate: evidence.eventGate,
+    hotRanks, hotListAvailable: archived.stocks.some((stock) => stock.popularity?.hotRankScore != null),
+    expectations,
+  })
+  const analysis: LimitLadderAnalysis = {
+    ...archived, generatedAt: new Date().toISOString(), quality, stocks,
+    levels: archived.levels.map((level) => ({ ...level, stocks: stocks.filter((stock) => stock.consecutiveDays === level.boards) })),
+    firstBoards: stocks.filter((stock) => stock.consecutiveDays === 1),
+    nextDayCandidates: stocks.filter((stock) => stock.state === 'candidate'),
+    warnings: archived.warnings.filter((warning) => warning !== '当日龙虎榜席位尚未发布，资金流维度不可用，不取中性分'),
+    strategyStatus: 'research',
+  }
+  const result = maybeArchive(analysis, { ...evidence, fundFlow: Object.fromEntries(lhb), enrichmentReceivedAt: new Date().toISOString() }, true)
+  if (!result.archived) throw new Error('补全期间已越过允许的时间窗口，未修订冻结归档')
+  analysisCache.delete(asof)
+  const savedPath = archivedAnalysisPath(asof)
+  return (savedPath ? readJson<LimitLadderAnalysis>(savedPath) : null) ?? archived
 }
 
 export async function importLimitLadder(input: unknown): Promise<LimitLadderAnalysis> {
@@ -6111,5 +6438,6 @@ export async function importLimitLadder(input: unknown): Promise<LimitLadderAnal
 export function clearLimitLadderCache(): void {
   analysisCache.clear()
   clearKplLadderCache()
+  clearSentimentCache()
   forcedRecomputeDates.add(todayShanghai())
 }

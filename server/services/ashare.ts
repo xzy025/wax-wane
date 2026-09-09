@@ -25,9 +25,31 @@ function decodeGbk(buf: ArrayBuffer): string {
   return (gbkDecoder ?? new TextDecoder()).decode(buf)
 }
 
+/**
+ * Keep market-data fallbacks bounded for the scheduler. The generic proxy
+ * helper is also used by LLM calls, so its timeout policy must stay local to
+ * this market-data module.
+ */
+async function fetchMarketJson<T>(
+  url: string,
+  init: RequestInit = {},
+  timeoutMs = 8_000,
+): Promise<{ response: Awaited<ReturnType<typeof fetchWithProxy>>; data: T }> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const response = await fetchWithProxy(url, { ...init, signal: controller.signal })
+    const data = (await response.json()) as T
+    return { response, data }
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 // ── Types ──────────────────────────────────────────────────
 
 export interface IndexQuote {
+  dataAsOf?: string | null
   code: string
   name: string
   price: number
@@ -197,7 +219,7 @@ interface IndicesAndBreadth {
 async function fetchIndicesAndBreadth(): Promise<IndicesAndBreadth> {
   // Try EastMoney first
   try {
-    const fields = 'f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18,f104,f105,f106'
+    const fields = 'f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18,f104,f105,f106,f124'
     const url = `https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=1.000001,0.399001,0.399006&fields=${fields}`
     const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
 
@@ -214,6 +236,8 @@ async function fetchIndicesAndBreadth(): Promise<IndicesAndBreadth> {
           const code = toStr(item.f12)
           if (['000001', '399001', '399006'].includes(code)) {
             indices.push({
+              dataAsOf: typeof (item as unknown as { f124?: number }).f124 === 'number'
+                ? new Date(((item as unknown as { f124: number }).f124 * 1000) + 8 * 3600_000).toISOString().slice(0, 10) : null,
               code,
               name: toStr(item.f14),
               price: toNum(item.f2),
@@ -283,6 +307,7 @@ async function fetchIndicesAndBreadth(): Promise<IndicesAndBreadth> {
 
         indices.push({
           code: meta.code,
+          dataAsOf: /^\d{4}-\d{2}-\d{2}$/.test(parts[30] ?? '') ? parts[30] : null,
           name: meta.name,
           price,
           changePct: prevClose ? ((price - prevClose) / prevClose) * 100 : 0,
@@ -344,6 +369,30 @@ async function fetchLimitPool(type: 'up' | 'down'): Promise<{ count: number; sto
   return { count, stocks }
 }
 
+/**
+ * Fallback snapshot for the intraday first-board scanner.
+ *
+ * This deliberately exposes only the East Money limit-up pool. It is not
+ * presented as a KPL-equivalent feed: fields that East Money does not provide
+ * (themes, seal amount, amplitude) remain unavailable and the caller marks
+ * the resulting observation as degraded.
+ */
+export interface EastMoneyLimitUpPoolSnapshot {
+  date: string
+  stocks: LimitStock[]
+  capturedAt: string
+  source: 'eastmoney-limit-pool'
+}
+
+export async function fetchEastMoneyLimitUpPoolForLadder(): Promise<EastMoneyLimitUpPoolSnapshot> {
+  return {
+    date: todayShanghai(),
+    stocks: (await fetchLimitPool('up')).stocks,
+    capturedAt: new Date().toISOString(),
+    source: 'eastmoney-limit-pool',
+  }
+}
+
 // ── Sina fallback for limit-up/limit-down ───────────────────
 
 interface SinaStock {
@@ -385,10 +434,11 @@ async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: nu
 
   for (let page = 1; page <= MAX_PAGES; page++) {
     const url = `https://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=${page}&num=${PAGE_SIZE}&sort=changepercent&asc=${asc}&node=hs_a&symbol=&_s_r_a=srt`
-    const res = await fetchWithProxy(url, { headers: SINA_HEADERS })
+    const { response: res, data } = await fetchMarketJson<SinaStock[]>(url, {
+      headers: SINA_HEADERS,
+    })
     if (!res.ok) throw new Error(`Sina limit pool: ${res.status}`)
 
-    const data: SinaStock[] = (await res.json()) as any
     if (!Array.isArray(data) || data.length === 0) break
 
     let hitLimit = false
@@ -836,6 +886,17 @@ export interface KlineBar {
 
 export type KlineAdjustment = 'raw' | 'qfq' | 'hfq' | 'none' | 'unknown'
 
+/** Beijing Stock Exchange symbols must use the bj market namespace in Sina/Tencent URLs. */
+export function isBeijingStockCode(stockCode: string): boolean {
+  return /^(4|8|920)/.test(stockCode)
+}
+
+export function sinaMarketSymbol(stockCode: string): string {
+  if (stockCode.startsWith('6')) return `sh${stockCode}`
+  if (isBeijingStockCode(stockCode)) return `bj${stockCode}`
+  return `sz${stockCode}`
+}
+
 /**
  * K-line response metadata is intentionally optional for old fixture callers,
  * but every production response returned below populates it. Consumers that
@@ -878,10 +939,11 @@ export async function fetchStockKline(
   stockCode: string,
   period: number = 101, // 101=daily, 102=weekly, 103=monthly
   count: number = 30,
-  options: { adjustment?: KlineAdjustment } = {},
+  options: { adjustment?: KlineAdjustment; timeoutMs?: number; eastmoneyOnly?: boolean } = {},
 ): Promise<KlineFetchResult> {
   const requestedAt = new Date().toISOString()
   const adjustment = options.adjustment ?? 'qfq'
+  const upstreamWarnings: string[] = []
   const response = (
     name: string,
     klines: KlineBar[],
@@ -889,6 +951,12 @@ export async function fetchStockKline(
     actualAdjustment: KlineAdjustment,
     warnings: string[] = [],
   ): KlineFetchResult => {
+    // These endpoints expose bar/session dates, not a verified K-line
+    // publication time. Quote timestamps and HTTP Date are not substitutes.
+    warnings = [...upstreamWarnings, ...warnings, `provider-time-unavailable:${provider ?? 'unknown'}`]
+    const endpointVersion = provider === 'tencent'
+      ? 'tencent-fqkline-v1'
+      : provider === 'sina' ? 'sina-get-kline-data-v1' : 'eastmoney-stock-kline-v1'
     const receivedAt = new Date().toISOString()
     const enriched = klines.map((bar) => ({
       ...bar,
@@ -910,7 +978,7 @@ export async function fetchStockKline(
       providerAt: null,
       requestedAt,
       receivedAt,
-      endpointVersion: 'eastmoney-stock-kline-v1',
+      endpointVersion,
       quality: warnings.length || (actualAdjustment !== 'raw' && adjustment === 'raw') ? 'degraded' : 'partial',
       warnings,
       evidence: buildPointInTimeEvidence({
@@ -920,7 +988,7 @@ export async function fetchStockKline(
         receivedAt,
         decisionAt: receivedAt,
         provider: provider ?? 'unknown',
-        endpointVersion: 'eastmoney-stock-kline-v1',
+        endpointVersion,
         adjustment: actualAdjustment,
         payload: enriched,
         missingReasons: warnings,
@@ -935,7 +1003,8 @@ export async function fetchStockKline(
     try {
       const fqt = adjustment === 'raw' || adjustment === 'none' ? 0 : adjustment === 'hfq' ? 2 : 1
       const url = `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=${secid}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=${period}&fqt=${fqt}&end=20500101&lmt=${count}`
-      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 5000 })
+      const timeoutMs = Math.min(20_000, Math.max(1000, options.timeoutMs ?? 5000))
+      const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs })
 
       if (res.ok) {
         const json = (await res.json()) as any
@@ -954,7 +1023,7 @@ export async function fetchStockKline(
                 high: parseFloat(parts[3]) || 0,
                 low: parseFloat(parts[4]) || 0,
                 volume: parseFloat(parts[5]) || 0,
-                turnover: parseFloat(parts[6]) || 0,
+                turnover: Number.isFinite(parseFloat(parts[6])) ? parseFloat(parts[6]) : null,
                 amplitude: parseFloat(parts[7]) || 0,
                 changePct: parseFloat(parts[8]) || 0,
               })
@@ -964,23 +1033,23 @@ export async function fetchStockKline(
           return response(name, klines, 'eastmoney', adjustment, [])
         }
       }
+      upstreamWarnings.push(res.ok ? 'eastmoney-empty-payload' : `eastmoney-http:${res.status}`)
       tripKlineHost('em') // non-ok or empty payload → cool down for the rest of the batch
-    } catch {
+    } catch (error) {
+      upstreamWarnings.push(`eastmoney-request-failed:${error instanceof Error ? error.name : 'unknown'}`)
       tripKlineHost('em')
     }
   }
 
+  if (options.eastmoneyOnly) return response('', [], 'eastmoney', adjustment, ['eastmoney-unavailable-or-cooldown'])
+
   // Fallback 1: Tencent fqkline — 前复权(qfq), matches EM fqt=1 basis.
   // Critical: keeps adjustment consistent so pivot/52w-high/MA口径 stay correct
   // when EM is rate-limited. (Sina below is 不复权, used only as last resort.)
-  if (!klineHostCooling('tencent')) {
+  if (period >= 101 && !klineHostCooling('tencent')) {
     try {
       const tcPeriod = period === 102 ? 'week' : period === 103 ? 'month' : 'day'
-      const tcSym = stockCode.startsWith('6')
-        ? `sh${stockCode}`
-        : /^[489]/.test(stockCode)
-          ? `bj${stockCode}` // 北交所 43/83/87/88/920…
-          : `sz${stockCode}`
+      const tcSym = sinaMarketSymbol(stockCode)
       const tcMode = adjustment === 'raw' || adjustment === 'none' ? '' : adjustment === 'hfq' ? 'hfq' : 'qfq'
       const tcUrl = `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${tcSym},${tcPeriod},,,${count},${tcMode}`
       const controller = new AbortController()
@@ -1012,13 +1081,17 @@ export async function fetchStockKline(
               high,
               low,
               volume: parseFloat(String(r[5])) || 0,
-              turnover: 0, // Tencent basic row has no turnover
+              turnover: null, // Tencent basic row has no turnover
               amplitude: prevClose ? ((high - low) / prevClose) * 100 : 0,
               changePct: prevClose ? ((close - prevClose) / prevClose) * 100 : 0,
             })
           }
           clearKlineHost('tencent')
-          return response(name, klines, 'tencent', adjustment, ['source-fallback:eastmoney->tencent'])
+          const actualAdjustment = tcMode && !node?.[`${tcMode}${tcPeriod}`] ? 'raw' : adjustment
+          return response(name, klines, 'tencent', actualAdjustment, [
+            'source-fallback:eastmoney->tencent',
+            ...(actualAdjustment !== adjustment ? [`adjustment-fallback:${adjustment}->${actualAdjustment}`] : []),
+          ])
         }
       }
       tripKlineHost('tencent') // non-ok (e.g. 501 rate-limit) or empty → cool down
@@ -1028,8 +1101,9 @@ export async function fetchStockKline(
   }
 
   // Fallback 2: Sina API (不复权 — last resort; adjustment basis differs from EM/Tencent)
+  if (period < 101) throw new Error(`No verified adjusted intraday provider for period ${period}`)
   const scale = period === 102 ? 1680 : period === 103 ? 7200 : 240
-  const symbol = stockCode.startsWith('6') ? `sh${stockCode}` : `sz${stockCode}`
+  const symbol = sinaMarketSymbol(stockCode)
   const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${symbol}&scale=${scale}&ma=no&datalen=${count}`
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 5000)
@@ -1055,7 +1129,7 @@ export async function fetchStockKline(
         high,
         low,
         volume: parseFloat(item.volume) || 0,
-        turnover: 0, // Sina doesn't provide turnover
+        turnover: null, // Sina doesn't provide turnover
         amplitude: prevClose ? ((high - low) / prevClose) * 100 : 0,
         changePct: prevClose ? ((close - prevClose) / prevClose) * 100 : 0,
       })
@@ -1340,9 +1414,10 @@ export async function fetchIndexKline(secid: string, count: number): Promise<Ind
 /** Fetch one index's 7-day kline from Sina (no turnover → estimate via avg price). */
 async function fetchSinaKline(symbol: string): Promise<Map<string, { volume: number; turnover: number }>> {
   const url = `https://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${symbol}&scale=240&ma=no&datalen=7`
-  const res = await fetchWithProxy(url, { headers: SINA_HEADERS })
+  const { response: res, data } = await fetchMarketJson<
+    Array<{ day: string; open: string; close: string; volume: string }>
+  >(url, { headers: SINA_HEADERS })
   if (!res.ok) throw new Error(`Sina ${symbol}: ${res.status}`)
-  const data = await res.json() as Array<{ day: string; open: string; close: string; volume: string }>
   if (!Array.isArray(data) || data.length === 0) throw new Error(`Sina ${symbol}: empty`)
   const map = new Map<string, { volume: number; turnover: number }>()
   for (const item of data) {

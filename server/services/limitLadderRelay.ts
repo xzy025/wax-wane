@@ -139,7 +139,7 @@ function buildRelayFeedbacks(
   }
 
   const themeFeedback = (row: LadderStockAnalysis): NextDayRelayFeedback => {
-const researchTheme = relayResearchTheme(row, args.signalDate)
+    const researchTheme = relayResearchTheme(row, args.signalDate)
     const themeRows = rows.filter((item) => relayResearchTheme(item, args.signalDate) === researchTheme)
     const direction = args.auctionContext?.themes.find((item) =>
       item.theme === researchTheme ||
@@ -396,7 +396,7 @@ function strictExecutionGateReasons(args: {
 }
 export function buildNextDayRelayPlan(args: RelayBuilderArgs): NextDayRelayPlan {
   const formalCodes = new Set((args.formalRows ?? []).map((row) => row.code))
-const parentThemes = new Set((args.formalRows ?? []).map((row) => relayResearchTheme(row, args.signalDate)))
+  const parentThemes = new Set((args.formalRows ?? []).map((row) => relayResearchTheme(row, args.signalDate)))
 
   const rankedRows = args.rows
     .filter((row) =>

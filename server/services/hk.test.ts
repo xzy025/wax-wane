@@ -15,7 +15,7 @@ describe('mapTencentHKRows', () => {
       high: 262.8,
       low: 234,
       volume: 11197507,
-      turnover: 0,
+      turnover: null,
     })
     expect(bars[1].changePct).toBeCloseTo(10.91, 2)
     expect(bars[1].amplitude).toBeCloseTo(12.47, 2)

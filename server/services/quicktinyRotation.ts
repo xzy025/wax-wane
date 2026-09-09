@@ -2,6 +2,8 @@
 // 页面当前提供三套口径：开盘啦题材、财联社行业、财联社概念。
 // 这是外部只读数据源，调用失败时由 rotation.ts 决定是否降级到东方财富。
 
+import { fetchWithProxy } from '../lib/llm'
+
 export type QuickTinySource = 'kpl' | 'industry' | 'cls_concept'
 export type QuickTinyResponseSource = 'kpl' | 'cls_industry' | 'cls_concept'
 export type QuickTinyQuadrantKey = 'highStrong' | 'lowStrong' | 'highWeak' | 'lowWeak'
@@ -120,7 +122,7 @@ function apiBase(): string {
 async function fetchJson<T>(path: string, params: Record<string, string | number>): Promise<T> {
   const url = new URL(`${apiBase()}${path}`)
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, String(value))
-  const res = await fetch(url, {
+  const res = await fetchWithProxy(url.toString(), {
     headers: {
       Accept: 'application/json',
       Referer: 'https://stock.quicktiny.cn/sector-analysis',

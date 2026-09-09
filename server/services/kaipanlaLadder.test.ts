@@ -1,12 +1,25 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { fetchWithProxy } from '../lib/llm'
 import {
   fetchKplRealtimeLadder,
   parseKplRealtimeRow,
   parseKplReasonPayload,
 } from './kaipanlaLadder'
 
+vi.mock('../lib/llm', () => ({
+  fetchWithProxy: vi.fn(),
+}))
+
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.unstubAllEnvs()
+  vi.resetAllMocks()
+})
+
+beforeEach(() => {
+  // These tests exercise the native KPL adapter. Keep the result independent
+  // from a developer machine that enables the QuickTiny provider in .env.
+  vi.stubEnv('QUICKTINY_LADDER_PROVIDER', '')
 })
 
 describe('kaipanla realtime ladder parser', () => {
@@ -86,8 +99,9 @@ describe('kaipanla realtime ladder parser', () => {
   })
 
   it('retries transient tier failures once and preserves every failed tier in the error', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 503 })
-    vi.stubGlobal('fetch', fetchMock)
+    const fetchMock = vi.mocked(fetchWithProxy).mockResolvedValue(
+      { ok: false, status: 503 } as Awaited<ReturnType<typeof fetchWithProxy>>,
+    )
 
     await expect(fetchKplRealtimeLadder()).rejects.toThrow(/1板：HTTP 503.*5板：HTTP 503/)
     expect(fetchMock).toHaveBeenCalledTimes(10)
