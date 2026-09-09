@@ -1,62 +1,65 @@
 ---
 name: daily-review
-description: 执行A股每日收盘后复盘流水线(五步回填+Claude撰写叙事+注入存档+累积日志)。当用户要求跑每日复盘、收盘复盘、战法复盘落盘、日度流水线、补当日/某日档,或直接输入 /daily-review [日期] 时触发。仅限交易日收盘后(≥15:10 北京时间)执行。
+description: 执行 A 股收盘复盘归档、叙事注入及日度日志，或响应 /daily-review [日期]。仅适用于上游数据仍对应目标收盘日的窗口；单纯分析行情不触发落盘。
 ---
 
-# /daily-review — 每日收盘复盘 SOP
+# 每日收盘复盘
 
-## 输入
+这是写入工作流：`server/scripts/backfillDay.ts` 当前默认运行六步
+`ladder,screener,structure,tempo,review,forward`，写入 `docs/ladder/`、
+`docs/screener/`，PG 可用时同步快照；叙事另行注入日志。
 
-`/daily-review [YYYY-MM-DD]` — 省略日期=今天(上海时区)。周末给日期默认指上周五,先与用户确认。
+## 日期与前置条件
 
-## 步骤
+- 输入 `/daily-review [YYYY-MM-DD]`。省略日期取最近已完成交易日并说明选择，
+  结合上海时区、交易日历及上游真实日期；周末不机械询问或假定周五一定开市。
+- 今日归档等到上海时间 15:10 后，并确认数据已定盘。脚本的工作日时间推算
+  和 15:30 时钟垫片不能证明上游数据日期正确，也不提供任意历史回放。
+- 检查项目依赖与 PG 状态。PG 缺失不阻断磁盘归档，但说明入库及连续性限制；
+  环境修复仅在任务需要时进行，不默认要求启动 Docker Desktop。
+- 日期不符时先诊断。`--force` 仅用于日历判断错误且已核实上游为目标日定盘数据；
+  不用于绕过盘中、未来或错日数据限制。窗口关闭后改用真实历史数据或报告阻塞。
 
-0. **前置检查**
-   - Docker/PG 探活:`docker ps` 应见 `trade-review-pg`;引擎没起先启动 Docker Desktop(容器随之自启)。PG 掉线非致命(快照仅落磁盘),但丢 appearStreak 连续性,能修先修。
-   - 时间闸门:目标日=今天时必须 ≥15:10 北京时间,盘中拒绝执行(数据未定盘)。**注意沙箱 shell 的 `date` 可能显示 UTC,判断北京时间用 `date -u` 加 8 小时**。
+## 运行与核验
 
-1. **跑流水线**(cwd 必须是 server 目录,`npm --prefix` 不切换 cwd 会 ERR_MODULE_NOT_FOUND)
-   `cd server && npx tsx scripts/backfillDay.ts <date>`
-   - 五步=选股快照/structure/tempo/review/forward。闸门报「完结交易日不符」而你确认确为目标日盘后(如法定节假日调休):加 `--force`。
+将 shell 工作目录设为 `server/`，使用已安装的 tsx：
 
-2. **核验快照质量(clist 限流陷阱)**
-   读 `docs/screener/<date>.json` 的 `universe`:应≈5540。**<3000 = 东财 clist 限流静默降级档**,等约 20 分钟冷却后重跑 `npx tsx scripts/backfillDay.ts <date> --only=screener,review,forward`;不要立即连环重试(延长封锁)。PG 在跑时对照:`docker exec trade-review-pg psql -U postgres -d trade_review -tAc "SELECT asof,universe,regime_phase FROM screener_snapshots ORDER BY asof DESC LIMIT 3"`。
-
-3. **structure 失败处理(东财板块K线断供常态)**
-   structure 步 ❌ 时同日执行 `npx tsx scripts/backfillStructure.ts <date>`(recon-eqw 等权重构)。
-   **假✅陷阱:必须核验 `structure-<date>.json` 的 `generatedAt` 是刚才的真实时间**——磁盘兜底旧档会伪装成功;重构档应带 `reconstructed:true`。次日 09:20–09:35 若东财板块日K放行,可 `backfillStructure.ts <date> --overwrite` 升级为精确档。
-
-4. **Claude 撰写叙事**(会话内完成,不依赖 Gemini)
-   材料=`review-<date>.json` 数据区(外围/消息/龙虎榜/A股/结构)+ `<date>.json` 的 regime 与各战法命中。硬规则与 `server/services/dailyReviewPrompt.ts` 的 REVIEW_SYSTEM_PROMPT 一致:
-   - 只用档案数据,禁止编造数字/个股/事件;缺失段落直接跳过。
-   - 不做投资建议、不荐股、不预测点位;用「关注/留意」,禁用「买入/看多」。
-   - 全文 ≤350 字,严格三段:`**一句话定调**:<≤40字>` → `### 今日主线`(2~4条) → `### 明日关注`(2~3条),无前言无代码围栏。
-   - 用 Write 工具存到 scratchpad 临时文件(UTF-8),**绝不经 PowerShell/bash 引号传中文多行文本**。
-
-5. **注入 + 日志**
-   `cd server && npx tsx scripts/injectNarrative.ts <date> <叙事md绝对路径>`
-   - 一条命令完成:review 档注入(prior 复用机制保证对后续一切重算持久)+ `docs/screener/daily-journal.md` 幂等 upsert(最新在前,同日重跑整块替换不重复;数据摘要由脚本从五档磁盘真值自动生成)。
-   - 修订已注入的叙事:加 `--force`(注入错稿不会自愈,这是唯一修复途径)。
-
-6. **终验与汇报**
-   - 文件级:`review-<date>.json` 的 narrative.tone 非空;`daily-journal.md` 顶部有 `## <date>` 条目。
-   - API 级(dev server 在跑时):`curl -X POST localhost:3002/api/refresh?market=daily-review` 后 `GET /api/screener/daily-review` narrative 非 null(前端复盘卡即显示)。
-   - 聊天末尾输出当日总结(见「输出」)。
-
-## 输出
-
-```
-## 📋 每日复盘 — <date>
-定调:<一句话定调>
-市况:<regime·温度·涨停/跌停·上涨/下跌>
-命中:<各战法计数一行>
-落盘:<n>/5 ✅(universe <n> / structure <实跑|重构> / 叙事已注入 / 日志已更新)
-> 数据自动生成,仅供复盘参考,不构成投资建议。
+```powershell
+node node_modules/tsx/dist/cli.mjs scripts/backfillDay.ts <YYYY-MM-DD>
 ```
 
-## 注意
+1. 检查退出码和六步摘要，核对计算/磁盘 `asof`、覆盖及实际生成时间。
+   连板档检查 `archiveStage`；`core-settled` 必须保留
+   `formalSignalEligible=false`，文件存在不代表完整或可交易。
+2. 选股质量以当前服务的覆盖率、日期与降级标记为准；`universe<3000`
+   只是遗留告警，超过它不等于质量通过。不得用固定全市场家数放行归档。
+3. 失败只重跑受影响步骤及其依赖，例如选股恢复后
+   `--only=screener,review,forward`。限流时换可用来源或有依据地退避；
+   没有状态变化不反复重试，记录未完成部分。
+4. structure 缺失时可运行
+   `node node_modules/tsx/dist/cli.mjs scripts/backfillStructure.ts <日期>`。
+   核对数据来源、日期、生成时间与重构标记；默认已有档会跳过。
+   `--overwrite` 只用于已确认的档案修复，不能以更弱数据覆盖较强档。
 
-- 本技能只写 `docs/screener/`(生成物)与 scratchpad 临时文件;不修改 `src/`、`server/services/` 源码。
-- `docs/screener/` 已 gitignore,daily-journal.md 不在版本控制内,勿当唯一留存。
-- 周末:backfillDay 拒绝周末日期,补周五用周五的日期(时钟垫片会伪装成周五 15:30)。
-- 叙事失败/跳过不阻断落盘(narrative=null 也能落),但本 SOP 的意义就是叙事不再依赖外部 LLM——第 4 步由执行本技能的 Claude 本体完成。
+## 叙事与交付
+
+读取目标日复盘和选股档的数据区；已有合格叙事无需重写。需要补写或修订时，
+由当前执行助手根据 `server/services/dailyReviewPrompt.ts` 的
+`REVIEW_SYSTEM_PROMPT` 撰写：只用档案事实，全文不超过350字，保留
+`**一句话定调**`、`### 今日主线`、`### 明日关注` 格式及其内容边界。
+用文件编辑工具保存 UTF-8 临时文件，避免通过 shell 插值传递多行正文。
+
+在 `server/` 运行：
+
+```powershell
+node node_modules/tsx/dist/cli.mjs scripts/injectNarrative.ts <日期> <叙事文件绝对路径>
+```
+
+已授权修订现有叙事时使用 `--force`。核对目标 review 的
+`narrative.markdown/tone` 和 `docs/screener/daily-journal.md` 同日条目。
+日志是幂等更新；`docs/screener/` 被 gitignore，不是唯一留存。
+
+仅在需要刷新运行中页面且服务对应目标日期时，刷新 daily-review 缓存后读取
+`/api/screener/daily-review`；历史归档以目标文件为准，不因 API 返回最新日重跑。
+汇报目标日、市场摘要、实际成功步数/请求步数、降级项、叙事/日志及 PG 状态。
+部分成功应保留有效成果并说明余项，不把叙事缺失报告为完整交付。

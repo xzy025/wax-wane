@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: lint + test
@@ -30,7 +37,7 @@ jobs:
       - name: Lint (src/ + server/)
         run: npm run lint
 
-      # server 全量类型检查(2026-07-06 引入,0 容忍);src/ 另有 46 个历史基线错误,清零前不进 CI 闸。
+      # Server typecheck is the current gate; frontend typecheck is not configured here.
       - name: Typecheck (server/)
         run: npm run typecheck:server
 
@@ -38,4 +45,7 @@ jobs:
         run: npm test
 
       - name: Server tests (node)
-        run: npx vitest run --config vitest.server.config.ts
+        run: npm run test:server
+
+      - name: Production build
+        run: npm run build

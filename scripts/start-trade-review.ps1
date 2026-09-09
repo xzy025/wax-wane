@@ -98,4 +98,11 @@ if (-not (Test-ListeningPort -Port 3002)) {
   exit 1
 }
 
+if (-not (Test-ListeningPort -Port 3000)) {
+  $message = "Frontend port 3000 is not listening. Log: $(Join-Path $runtimeDir 'web.err.log')"
+  Add-Content -LiteralPath (Join-Path $runtimeDir 'startup.err.log') -Value $message
+  Send-StartupFailure -Message $message
+  exit 1
+}
+
 exit 0

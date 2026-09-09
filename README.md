@@ -91,12 +91,26 @@ server/          Express API(按领域分层,独立 package.json)
 # 1. 安装前端依赖
 npm install
 
-# 2. 安装并启动后端(独立 package.json,端口 3002)
+# 2. 安装后端依赖(独立 package.json,端口 3002)
 cd server && npm install
 cp .env.example .env   # 配置 LLM_API_URL / LLM_API_KEY / 数据库连接
-npm run dev            # tsx watch index.ts
 
-# 3. 启动前端(另开终端,默认 :3000)
+# 3. Windows 推荐：从仓库根目录一条命令检查并启动前后端
+cd ..
+npm run start:local
+```
+
+`npm run start:local` 不会强制重启已运行的服务：缺少后端 `:3002` 或前端 `:3000`
+时才会补齐启动，启动失败会把日志写入 `.runtime/`。选股、行情、板块、龙虎榜或轮动页同时出现加载失败时，先运行这一条命令再刷新页面。
+
+需要监听代码改动时，也可以分两个终端单独启动：
+
+```bash
+# 后端（端口 :3002）
+cd server
+npm run dev
+
+# 前端（另开终端，默认 :3000）
 npm run dev
 ```
 
@@ -104,6 +118,7 @@ npm run dev
 
 ```bash
 npm run dev       # 启动开发服务器
+npm run start:local # Windows：检查并补齐前后端服务
 npm run build     # 生产构建
 npm test          # 前端测试(373 用例,jsdom)
 npm run lint      # ESLint 检查(覆盖 src/ 与 server/)
