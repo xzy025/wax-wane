@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { LadderFormalEligibilityError } from './limitLadder'
 import {
   isSettledArchiveWindowAt,
   runSettledArchivePipeline,
@@ -35,6 +36,13 @@ function depsFor(archives = new Set<string>()): SettlementArchiveDeps {
 }
 
 describe('settled archive pipeline', () => {
+  it('does not retry a formally ineligible previous ladder as an upstream failure', async () => {
+    const deps = depsFor()
+    deps.listLimitLadderArchiveDates = () => ['2026-08-28']
+    deps.fetchLimitLadderNextDay = async () => { throw new LadderFormalEligibilityError('research-only') }
+    const result = await runSettledArchivePipeline(date, deps)
+    expect(result.steps.find((step) => step.name === 'previous-outcome')).toMatchObject({ status: 'skipped' })
+  })
   it('materializes the required archive chain and remains safe to rerun', async () => {
     const archives = new Set<string>()
     const first = await runSettledArchivePipeline(date, depsFor(archives))
@@ -80,6 +88,25 @@ describe('settled archive pipeline', () => {
   it('opens only after the settled checkpoint on a trading weekday', () => {
     expect(isSettledArchiveWindowAt(Date.parse('2026-08-31T15:09:59+08:00'))).toBe(false)
     expect(isSettledArchiveWindowAt(Date.parse('2026-08-31T15:10:00+08:00'))).toBe(true)
+    expect(isSettledArchiveWindowAt(Date.parse('2026-08-31T23:29:59+08:00'))).toBe(true)
+    expect(isSettledArchiveWindowAt(Date.parse('2026-08-31T23:30:00+08:00'))).toBe(false)
     expect(isSettledArchiveWindowAt(Date.parse('2026-08-29T15:10:00+08:00'))).toBe(false)
+  })
+
+  it('bounds a hanging external step instead of blocking the whole archive attempt', async () => {
+    const deps = depsFor()
+    deps.fetchLimitLadderAnalysis = () => new Promise<never>(() => undefined)
+
+    const result = await runSettledArchivePipeline(date, deps, {
+      nowMs: Date.parse('2026-08-31T15:20:00+08:00'),
+      attemptCount: 1,
+      stepTimeoutMs: 5,
+    })
+
+    expect(result.action).toBe('partial')
+    expect(result.steps.find((step) => step.name === 'ladder')).toMatchObject({
+      status: 'failed',
+    })
+    expect(result.steps.find((step) => step.name === 'ladder')?.reason).toContain('超过 5ms')
   })
 })

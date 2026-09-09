@@ -1,7 +1,8 @@
-import { existsSync, readdirSync, readFileSync } from 'fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { todayShanghai } from '../lib/time'
+import { validSettlementArchive, type ArchiveKind } from './settlementQuality'
 import { isTradingDayAt, shanghaiClockAt } from './tradingCalendar'
 import {
   clearScreenerCache,
@@ -30,6 +31,7 @@ import {
 } from './screenerForward'
 import {
   clearLimitLadderCache,
+  LadderFormalEligibilityError,
   fetchLimitLadderAnalysis,
   fetchLimitLadderNextDay,
   listLimitLadderArchiveDates,
@@ -42,11 +44,19 @@ import {
   type PromotionReview,
 } from './promotionReview'
 import { syncDailyJournal, type DailyJournalResult } from './dailyJournal'
+import {
+  SETTLEMENT_ARCHIVE_ATTEMPT_TIMEOUT_MS,
+  SETTLEMENT_ARCHIVE_DEADLINE_MINUTES,
+  SETTLEMENT_ARCHIVE_START_MINUTES,
+  SETTLEMENT_ARCHIVE_STEP_TIMEOUT_MS,
+  settlementDeadlineAt,
+  settlementNextRetryAt,
+} from './settlementArchiveRetry'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_ROOT = join(__dirname, '..', '..', 'docs', 'screener')
 const LADDER_ROOT = join(__dirname, '..', '..', 'docs', 'ladder')
-const RETRY_MS = 5 * 60_000
+const SETTLEMENT_RUNTIME_PATH = join(__dirname, '..', '..', '.runtime', 'settlement-archive-scheduler.json')
 
 export type SettlementStepName =
   | 'screener'
@@ -70,8 +80,17 @@ export interface SettledArchiveSchedulerStatus {
   lastAttemptAt: string | null
   nextRetryAt: string | null
   action: 'idle' | 'running' | 'partial' | 'completed'
+  completionLevel?: 'core-incomplete' | 'core-complete-with-gaps' | 'complete'
   steps: SettlementStepStatus[]
   error: string | null
+  attemptCount?: number
+  deadlineAt?: string | null
+  terminalReason?: 'deadline-exceeded' | 'historical-replay-required' | null
+}
+
+interface PersistedSettlementSchedulerState {
+  version: 1
+  statuses: Record<string, SettledArchiveSchedulerStatus>
 }
 
 export interface SettlementArchiveDeps {
@@ -95,22 +114,26 @@ export interface SettlementArchiveDeps {
   syncDailyJournal: (date: string) => DailyJournalResult
 }
 
-const readAsOf = (path: string, date: string): boolean => {
+
+/** Presence + date is not enough: reject legacy/weak archives so retries can
+ * repair them instead of treating them as permanently complete. */
+const readAsOf = (path: string, date: string, kind?: ArchiveKind): boolean => {
   if (!existsSync(path)) return false
   try {
-    const value = JSON.parse(readFileSync(path, 'utf8')) as { asof?: unknown }
-    return value.asof === date
+    const value = JSON.parse(readFileSync(path, 'utf8')) as { asof?: string }
+    return kind ? validSettlementArchive(value, date, kind) : value.asof === date
   } catch {
     return false
   }
 }
 
 function screenerArchive(date: string): boolean {
-  return readAsOf(join(SCREENER_ROOT, `${date}.json`), date)
+  return readAsOf(join(SCREENER_ROOT, `${date}.json`), date, 'screener')
 }
 
 function datedArchive(root: string, prefix: string, date: string): boolean {
-  return readAsOf(join(root, `${prefix}-${date}.json`), date)
+  const kind = prefix as ArchiveKind
+  return readAsOf(join(root, `${prefix}-${date}.json`), date, kind)
 }
 
 function ladderArchive(date: string): boolean {
@@ -119,7 +142,7 @@ function ladderArchive(date: string): boolean {
   if (!existsSync(root)) return false
   return readdirSync(root).some((name) => {
     if (!/^analysis-limit-ladder-v\d+(?:-r\d+)?\.json$/i.test(name)) return false
-    return readAsOf(join(root, name), date)
+    return readAsOf(join(root, name), date, 'ladder')
   })
 }
 
@@ -162,15 +185,72 @@ const defaultDeps: SettlementArchiveDeps = {
   syncDailyJournal: (date) => syncDailyJournal(date, SCREENER_ROOT),
 }
 
-let busy = false
-let status: SettledArchiveSchedulerStatus = {
-  tradeDate: null,
-  lastAttemptAt: null,
-  nextRetryAt: null,
-  action: 'idle',
-  steps: [],
-  error: null,
+function emptyStatus(tradeDate: string | null = null): SettledArchiveSchedulerStatus {
+  return {
+    tradeDate,
+    lastAttemptAt: null,
+    nextRetryAt: null,
+    action: 'idle',
+    steps: [],
+    error: null,
+    attemptCount: 0,
+    deadlineAt: tradeDate ? new Date(settlementDeadlineAt(tradeDate)).toISOString() : null,
+    terminalReason: null,
+  }
 }
+
+function readPersistedState(): PersistedSettlementSchedulerState {
+  try {
+    const parsed = JSON.parse(readFileSync(SETTLEMENT_RUNTIME_PATH, 'utf8')) as Partial<PersistedSettlementSchedulerState>
+    if (parsed.version !== 1 || !parsed.statuses || typeof parsed.statuses !== 'object') {
+      return { version: 1, statuses: {} }
+    }
+    return { version: 1, statuses: parsed.statuses as Record<string, SettledArchiveSchedulerStatus> }
+  } catch {
+    return { version: 1, statuses: {} }
+  }
+}
+
+function persistStatus(next: SettledArchiveSchedulerStatus): void {
+  if (!next.tradeDate) return
+  const state = readPersistedState()
+  const statuses = {
+    ...state.statuses,
+    [next.tradeDate]: {
+      ...next,
+      steps: next.steps.map((step) => ({ ...step })),
+    },
+  }
+  // Keep enough history for an operator to inspect recent missed dates while
+  // preventing this runtime file from growing without bound.
+  const retainedDates = Object.keys(statuses).sort().slice(-30)
+  const retained = Object.fromEntries(retainedDates.map((date) => [date, statuses[date]]))
+  mkdirSync(dirname(SETTLEMENT_RUNTIME_PATH), { recursive: true })
+  const temp = `${SETTLEMENT_RUNTIME_PATH}.${process.pid}.tmp`
+  writeFileSync(temp, JSON.stringify({ version: 1, statuses: retained }, null, 2), 'utf8')
+  renameSync(temp, SETTLEMENT_RUNTIME_PATH)
+}
+
+function persistStatusSafely(next: SettledArchiveSchedulerStatus): void {
+  try {
+    persistStatus(next)
+  } catch (error) {
+    // Runtime diagnostics must never turn a recoverable market-data failure
+    // into a process failure. The in-memory status remains available to the
+    // read-only endpoint for this process.
+    console.warn(`[SettledArchive] 无法保存调度状态: ${errorMessage(error)}`)
+  }
+}
+
+function persistedStatusFor(date: string): SettledArchiveSchedulerStatus | null {
+  const candidate = readPersistedState().statuses[date]
+  return candidate?.tradeDate === date
+    ? { ...candidate, steps: Array.isArray(candidate.steps) ? candidate.steps.map((step) => ({ ...step })) : [] }
+    : null
+}
+
+let busy = false
+let status: SettledArchiveSchedulerStatus = persistedStatusFor(todayShanghai()) ?? emptyStatus()
 
 export function getSettledArchiveSchedulerStatus(): SettledArchiveSchedulerStatus {
   return { ...status, steps: status.steps.map((step) => ({ ...step })) }
@@ -178,11 +258,30 @@ export function getSettledArchiveSchedulerStatus(): SettledArchiveSchedulerStatu
 
 export function isSettledArchiveWindowAt(nowMs = Date.now()): boolean {
   const clock = shanghaiClockAt(nowMs)
-  return isTradingDayAt(nowMs) && clock.minutes >= 15 * 60 + 10
+  return isTradingDayAt(nowMs) &&
+    clock.minutes >= SETTLEMENT_ARCHIVE_START_MINUTES &&
+    clock.minutes < SETTLEMENT_ARCHIVE_DEADLINE_MINUTES
 }
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+async function runBounded<T>(label: string, run: () => Promise<T>, timeoutMs: number): Promise<T> {
+  if (timeoutMs <= 0) throw new Error(`${label} 已达到本次尝试截止时间`)
+  let timeout: ReturnType<typeof setTimeout> | null = null
+  const operation = run()
+  void operation.catch(() => undefined)
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error(`${label} 任务超过 ${timeoutMs}ms`)), timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timeout) clearTimeout(timeout)
+  }
 }
 
 async function runStep<T extends { asof?: string }>(
@@ -190,26 +289,39 @@ async function runStep<T extends { asof?: string }>(
   step: SettlementStepName,
   hasArchive: (date: string) => boolean,
   run: () => Promise<T>,
-  steps: SettlementStepStatus[],
-): Promise<boolean> {
+  timeoutMs: number,
+): Promise<SettlementStepStatus> {
   if (hasArchive(date)) {
-    steps.push({ name: step, status: 'skipped', reason: '当日归档已存在' })
-    return true
+    return { name: step, status: 'skipped', reason: '当日归档已存在' }
+  }
+  if (timeoutMs <= 0) {
+    return { name: step, status: 'failed', reason: `${step} 已达到本次尝试截止时间` }
   }
   try {
-    const result = await run()
+    // The provider adapters own request-level AbortSignal timeouts. This
+    // second boundary protects the scheduler when a whole adapter hangs or a
+    // fan-out forgets to settle; a late rejection is consumed below so it
+    // cannot become an unhandled process-level error.
+    const result = await runBounded(step, run, timeoutMs)
     if (result.asof !== date) {
       throw new Error(`结果 asof=${result.asof ?? '未知'} 与 ${date} 不一致`)
     }
     if (!hasArchive(date)) {
       throw new Error('计算完成但目标归档未生成')
     }
-    steps.push({ name: step, status: 'completed' })
-    return true
+    return { name: step, status: 'completed' }
   } catch (error) {
-    steps.push({ name: step, status: 'failed', reason: errorMessage(error) })
-    return false
+    return { name: step, status: 'failed', reason: errorMessage(error) }
   }
+}
+
+interface SettlementPipelineOptions {
+  nowMs?: number
+  attemptCount?: number
+  deadlineAt?: number
+  /** Scheduler-provided hard cutoff for this one pipeline attempt. */
+  attemptDeadlineAt?: number
+  stepTimeoutMs?: number
 }
 
 /**
@@ -219,25 +331,39 @@ async function runStep<T extends { asof?: string }>(
 export async function runSettledArchivePipeline(
   date: string,
   deps: SettlementArchiveDeps = defaultDeps,
+  options: SettlementPipelineOptions = {},
 ): Promise<SettledArchiveSchedulerStatus> {
-  const steps: SettlementStepStatus[] = []
+  const nowMs = options.nowMs ?? Date.now()
+  const attemptCount = Math.max(1, options.attemptCount ?? 1)
+  const deadlineMs = options.deadlineAt ?? settlementDeadlineAt(date)
+  const stepTimeoutMs = options.stepTimeoutMs ?? SETTLEMENT_ARCHIVE_STEP_TIMEOUT_MS
+  const timeoutForNextStep = (): number => {
+    if (options.attemptDeadlineAt === undefined) return stepTimeoutMs
+    return Math.max(0, Math.min(stepTimeoutMs, options.attemptDeadlineAt - Date.now()))
+  }
+
   // The ladder is a smaller, independent settled snapshot. Run it first so a
   // slow full-market screener scan cannot postpone the ladder archive and its
   // outcome/promotion refresh indefinitely.
-  const ladderOk = await runStep(
-    date,
-    'ladder',
-    deps.hasLadderArchive,
-    () => deps.fetchLimitLadderAnalysis(date),
-    steps,
-  )
-  const screenerOk = await runStep(date, 'screener', deps.hasScreenerArchive, deps.scanScreener, steps)
-  const structureOk = await runStep(date, 'structure', deps.hasStructureArchive, deps.fetchMarketStructure, steps)
-  const tempoOk = await runStep(date, 'tempo', deps.hasTempoArchive, deps.fetchRotationTempo, steps)
-  const reviewOk = await runStep(date, 'review', deps.hasReviewArchive, deps.fetchDailyReview, steps)
+  // The five source captures are independent. Running them as a bounded
+  // all-settled batch prevents a slow screener or narrative request from
+  // delaying the ladder retry window.
+  const [ladder, screener, structure, tempo, review] = await Promise.all([
+    runStep(date, 'ladder', deps.hasLadderArchive, () => deps.fetchLimitLadderAnalysis(date), timeoutForNextStep()),
+    runStep(date, 'screener', deps.hasScreenerArchive, deps.scanScreener, timeoutForNextStep()),
+    runStep(date, 'structure', deps.hasStructureArchive, deps.fetchMarketStructure, timeoutForNextStep()),
+    runStep(date, 'tempo', deps.hasTempoArchive, deps.fetchRotationTempo, timeoutForNextStep()),
+    runStep(date, 'review', deps.hasReviewArchive, deps.fetchDailyReview, timeoutForNextStep()),
+  ])
+  const steps: SettlementStepStatus[] = [ladder, screener, structure, tempo, review]
+  const ladderOk = ladder.status === 'completed' || ladder.status === 'skipped'
+  const screenerOk = screener.status === 'completed' || screener.status === 'skipped'
+  const structureOk = structure.status === 'completed' || structure.status === 'skipped'
+  const tempoOk = tempo.status === 'completed' || tempo.status === 'skipped'
+  const reviewOk = review.status === 'completed' || review.status === 'skipped'
 
   if (screenerOk) {
-    await runStep(date, 'forward', deps.hasForwardArchive, deps.fetchScreenerForward, steps)
+    steps.push(await runStep(date, 'forward', deps.hasForwardArchive, deps.fetchScreenerForward, timeoutForNextStep()))
   } else {
     steps.push({ name: 'forward', status: 'skipped', reason: '选股正式归档缺失，禁止生成错标 forward' })
   }
@@ -249,10 +375,10 @@ export async function runSettledArchivePipeline(
       .at(-1)
     if (previous) {
       try {
-        await deps.fetchLimitLadderNextDay(previous)
+        await runBounded('previous-outcome', () => deps.fetchLimitLadderNextDay(previous), timeoutForNextStep())
         steps.push({ name: 'previous-outcome', status: 'completed', reason: `已尝试结算 ${previous} 的次日结果` })
       } catch (error) {
-        steps.push({ name: 'previous-outcome', status: 'failed', reason: errorMessage(error) })
+        steps.push({ name: 'previous-outcome', status: error instanceof LadderFormalEligibilityError ? 'skipped' : 'failed', reason: errorMessage(error) })
       }
     } else {
       steps.push({ name: 'previous-outcome', status: 'skipped', reason: '没有更早的连板分析归档' })
@@ -293,28 +419,87 @@ export async function runSettledArchivePipeline(
 
   const required = [screenerOk, structureOk, tempoOk, reviewOk, ladderOk]
   const nextAction = required.every(Boolean) ? 'completed' : 'partial'
+  const lastAttemptAt = new Date(nowMs).toISOString()
+  const nextRetry = nextAction === 'completed'
+    ? null
+    : settlementNextRetryAt(date, attemptCount, nowMs)
   return {
     tradeDate: date,
-    lastAttemptAt: new Date().toISOString(),
-    nextRetryAt: nextAction === 'completed' ? null : new Date(Date.now() + RETRY_MS).toISOString(),
+    lastAttemptAt,
+    nextRetryAt: nextRetry === null ? null : new Date(nextRetry).toISOString(),
     action: nextAction,
+    completionLevel: nextAction !== 'completed' ? 'core-incomplete'
+      : steps.some((step) => step.status !== 'completed' && step.reason !== '当日归档已存在') ? 'core-complete-with-gaps' : 'complete',
     steps,
     error: steps.find((step) => step.status === 'failed')?.reason ?? null,
+    attemptCount,
+    deadlineAt: Number.isFinite(deadlineMs) ? new Date(deadlineMs).toISOString() : null,
+    terminalReason: nextAction === 'partial' && nextRetry === null ? 'deadline-exceeded' : null,
   }
 }
 
 export async function runSettledArchiveSchedulerTick(nowMs = Date.now()): Promise<void> {
-  if (!isSettledArchiveWindowAt(nowMs) || busy) return
   const date = todayShanghai(nowMs)
+  if (!isTradingDayAt(nowMs)) return
   if (status.tradeDate !== date) {
-    status = { tradeDate: date, lastAttemptAt: null, nextRetryAt: null, action: 'idle', steps: [], error: null }
+    status = persistedStatusFor(date) ?? emptyStatus(date)
   }
-  if (status.action === 'completed') return
+  if (status.action === 'completed') {
+    const checks = [defaultDeps.hasScreenerArchive, defaultDeps.hasStructureArchive, defaultDeps.hasTempoArchive,
+      defaultDeps.hasReviewArchive, defaultDeps.hasLadderArchive]
+    if (checks.every((check) => check(date))) return
+    status = { ...status, action: 'partial', completionLevel: 'core-incomplete', nextRetryAt: null, error: '归档重新验收失败' }
+    persistStatusSafely(status)
+  }
+  const deadlineMs = settlementDeadlineAt(date)
+  if (Number.isFinite(deadlineMs) && nowMs >= deadlineMs) {
+    if (status.action !== 'completed' && status.terminalReason !== 'deadline-exceeded') {
+      status = {
+        ...status,
+        action: 'partial',
+        nextRetryAt: null,
+        deadlineAt: new Date(deadlineMs).toISOString(),
+        terminalReason: 'deadline-exceeded',
+        error: status.error ?? '当日归档截止时间已到，等待次日历史回放',
+      }
+      persistStatusSafely(status)
+    }
+    return
+  }
+  if (!isSettledArchiveWindowAt(nowMs) || busy) return
   if (status.nextRetryAt && Date.parse(status.nextRetryAt) > nowMs) return
+
+  const attemptCount = (status.attemptCount ?? 0) + 1
   busy = true
-  status = { ...status, action: 'running', lastAttemptAt: new Date(nowMs).toISOString(), error: null }
+  status = {
+    ...status,
+    action: 'running',
+    attemptCount,
+    lastAttemptAt: new Date(nowMs).toISOString(),
+    deadlineAt: new Date(deadlineMs).toISOString(),
+    terminalReason: null,
+    error: null,
+  }
+  persistStatusSafely(status)
   try {
-    status = await runSettledArchivePipeline(date)
+    status = await runSettledArchivePipeline(date, defaultDeps, {
+      nowMs,
+      attemptCount,
+      deadlineAt: deadlineMs,
+      attemptDeadlineAt: Math.min(deadlineMs, nowMs + SETTLEMENT_ARCHIVE_ATTEMPT_TIMEOUT_MS),
+    })
+    // The pipeline is bounded per step. Re-evaluate the wall-clock deadline
+    // after it returns so a slow final step cannot schedule a retry over the
+    // Shanghai date boundary.
+    const effectiveNowMs = Math.max(nowMs, Date.now())
+    if (status.action !== 'completed' && effectiveNowMs >= deadlineMs) {
+      status = {
+        ...status,
+        nextRetryAt: null,
+        terminalReason: 'deadline-exceeded',
+        error: status.error ?? '当日归档截止时间已到，等待次日历史回放',
+      }
+    }
     console.log(`[SettledArchive] ${date} action=${status.action}`)
     for (const step of status.steps) {
       console.log(`[SettledArchive] ${step.status} ${step.name}${step.reason ? `: ${step.reason}` : ''}`)
@@ -323,12 +508,21 @@ export async function runSettledArchiveSchedulerTick(nowMs = Date.now()): Promis
     status = {
       ...status,
       action: 'partial',
-      nextRetryAt: new Date(nowMs + RETRY_MS).toISOString(),
+      nextRetryAt: (() => {
+        const next = settlementNextRetryAt(date, attemptCount, Math.max(nowMs, Date.now()))
+        return next === null ? null : new Date(next).toISOString()
+      })(),
+      attemptCount,
+      deadlineAt: new Date(deadlineMs).toISOString(),
+      terminalReason: settlementNextRetryAt(date, attemptCount, Math.max(nowMs, Date.now())) === null
+        ? 'deadline-exceeded'
+        : null,
       error: errorMessage(error),
     }
     console.warn(`[SettledArchive] ${date} action=partial: ${status.error}`)
   } finally {
     busy = false
+    persistStatusSafely(status)
   }
 }
 

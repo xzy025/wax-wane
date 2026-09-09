@@ -33,7 +33,59 @@ export interface SchedulerCoordinatorOptions {
 }
 
 let coordinatorTimer: ReturnType<typeof setInterval> | null = null
-let coordinatorBusy = false
+type SchedulerJobName = keyof SchedulerCoordinatorJobs
+
+export interface SchedulerJobRuntimeStatus {
+  running: boolean
+  lastStartedAt: string | null
+  lastFinishedAt: string | null
+  lastError: string | null
+}
+
+const jobBusy = new Set<SchedulerJobName>()
+const jobRuntime = new Map<SchedulerJobName, SchedulerJobRuntimeStatus>()
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+
+async function runJob(
+  name: SchedulerJobName,
+  job: SchedulerJob,
+  nowMs: number,
+): Promise<void> {
+  // A slow source is isolated to its own job. Other jobs still get a chance
+  // on every coordinator tick, while the same job remains single-flight.
+  if (jobBusy.has(name)) return
+  jobBusy.add(name)
+  const previous = jobRuntime.get(name)
+  jobRuntime.set(name, {
+    running: true,
+    lastStartedAt: new Date(nowMs).toISOString(),
+    lastFinishedAt: previous?.lastFinishedAt ?? null,
+    lastError: null,
+  })
+  try {
+    await job(nowMs)
+    const current = jobRuntime.get(name)
+    jobRuntime.set(name, {
+      running: false,
+      lastStartedAt: current?.lastStartedAt ?? new Date(nowMs).toISOString(),
+      lastFinishedAt: new Date().toISOString(),
+      lastError: null,
+    })
+  } catch (error) {
+    const current = jobRuntime.get(name)
+    jobRuntime.set(name, {
+      running: false,
+      lastStartedAt: current?.lastStartedAt ?? new Date(nowMs).toISOString(),
+      lastFinishedAt: new Date().toISOString(),
+      lastError: errorMessage(error),
+    })
+  } finally {
+    jobBusy.delete(name)
+  }
+}
 
 function defaultJobs(handlers: CheckpointHandlers): SchedulerCoordinatorJobs {
   return {
@@ -54,14 +106,10 @@ export function startSchedulerCoordinator(options: SchedulerCoordinatorOptions =
   }
   const intervalMs = options.intervalMs ?? 5_000
   const tick = async () => {
-    if (coordinatorBusy) return
-    coordinatorBusy = true
     const nowMs = Date.now()
-    try {
-      await Promise.allSettled(Object.values(jobs).map((job) => job(nowMs)))
-    } finally {
-      coordinatorBusy = false
-    }
+    await Promise.all(Object.entries(jobs).map(([name, job]) =>
+      runJob(name as SchedulerJobName, job, nowMs),
+    ))
   }
   coordinatorTimer = setInterval(() => void tick(), intervalMs)
   coordinatorTimer.unref?.()
@@ -74,5 +122,19 @@ export function resetSchedulerCoordinator(): void {
     clearInterval(coordinatorTimer)
     coordinatorTimer = null
   }
-  coordinatorBusy = false
+  jobBusy.clear()
+  jobRuntime.clear()
+}
+
+/** Read-only diagnostics for the scheduler status endpoint and operator UI. */
+export function getSchedulerCoordinatorStatus(): {
+  running: boolean
+  jobs: Record<string, SchedulerJobRuntimeStatus>
+} {
+  return {
+    running: coordinatorTimer !== null,
+    jobs: Object.fromEntries(
+      [...jobRuntime.entries()].map(([name, status]) => [name, { ...status, running: jobBusy.has(name) }]),
+    ),
+  }
 }

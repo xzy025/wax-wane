@@ -8,12 +8,12 @@
  * 放行落盘、shouldGenerateNarrative(≥15:10)放行 LLM 叙事,与目标日盘后实跑等价。
  *
  * 运行:  npm --prefix server exec -- tsx scripts/backfillDay.ts 2026-07-13
- * 越过窗口校验(如节假日致「上一工作日≠上一交易日」):加 --force。
+ * 不支持跨交易日强制回填；历史输入须走独立隔离验收。
  *
  * PG 快照入库 best-effort:连不上只落磁盘,事后可用 backfillScreenerSnapshots.ts 补灌。
  */
 import { config } from 'dotenv'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -21,16 +21,32 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 config({ path: join(__dirname, '..', '.env') })
 
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
+const LADDER_ROOT = join(__dirname, '..', '..', 'docs', 'ladder')
 
 // ── 参数与窗口校验(垫片安装前,全部用真实时钟) ──────────────────────────
 const args = process.argv.slice(2)
-const force = args.includes('--force')
-const target = args.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a))
+const targetArg = args.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a))
+const isolatedOutput = args.find((arg) => arg.startsWith('--output='))?.slice(9)
+if (isolatedOutput) {
+  const manifest = args.find((arg) => arg.startsWith('--input-manifest='))?.slice(17)
+  if (!manifest) throw new Error('--output requires --input-manifest; live services cannot run in isolated mode')
+  const { stageSettlement } = await import('../services/isolatedSettlement')
+  const input = JSON.parse(readFileSync(manifest, 'utf8'))
+  if (!targetArg || input.date !== targetArg) throw new Error('Target date must match input manifest')
+  console.log(JSON.stringify(stageSettlement(input, isolatedOutput), null, 2))
+  process.exit(0)
+}
 const onlyArg = args.find((a) => a.startsWith('--only='))
 const only = onlyArg ? new Set(onlyArg.slice(7).split(',')) : null
-if (!target) {
-  console.error('用法: tsx scripts/backfillDay.ts YYYY-MM-DD [--force] [--only=structure,review]')
-  console.error('  步骤名: screener / structure / tempo / review / forward(默认全部,按此顺序)')
+if (!targetArg) {
+  console.error('用法: tsx scripts/backfillDay.ts YYYY-MM-DD [--only=ladder,screener,structure,tempo,review,forward]')
+  console.error('  步骤名: ladder / screener / structure / tempo / review / forward(默认全部,按此顺序)')
+  process.exit(1)
+}
+const target = targetArg
+const validStepKeys = new Set(['ladder', 'screener', 'structure', 'tempo', 'review', 'forward'])
+if (only && [...only].some((key) => !validStepKeys.has(key))) {
+  console.error(`[backfillDay] --only 包含未知步骤，仅支持: ${[...validStepKeys].join(',')}`)
   process.exit(1)
 }
 // 用上海正午取 weekday 避免时区边界:上海当日正午的 UTC weekday == 上海 weekday
@@ -60,10 +76,10 @@ function lastSettledTradingDay(): string | null {
 }
 
 const settled = lastSettledTradingDay()
-if (settled !== target && !force) {
+if (settled !== target) {
   console.error(
     `[backfillDay] 当前上游数据对应的完结交易日=${settled ?? '(盘中,无)'},与目标 ${target} 不符。` +
-      `盘中禁止回填;节假日等特殊情况确认无误后加 --force。`,
+      `此脚本没有历史输入能力，--force 不能跳过；请使用经过验证的隔离输入。`,
   )
   process.exit(1)
 }
@@ -97,11 +113,73 @@ async function main() {
 
   // 每步必须先 clear 再 fetch:盘后冷启动 createCache 会直接端「磁盘种子」(最新历史档,
   // 如 07-10)而不跑 fetcher;clear() 解除种子武装,才能强制真算出目标日的档。
-  const steps: Array<{ name: string; key: string; file: string; run: () => Promise<{ asof: string }> }> = [
+  type Step = { name: string; key: string; archivePath: string; run: () => Promise<{ asof: string }> }
+  const latestLadderAnalysis = (): { path: string; asof?: string; archiveStage?: string; formalSignalEligible?: boolean } | null => {
+    const [year, month, day] = target.split('-')
+    const root = join(LADDER_ROOT, year, month, day)
+    if (!existsSync(root)) return null
+    const candidates = readdirSync(root)
+      .map((name) => {
+        const match = name.match(/^analysis-limit-ladder-v\d+(?:-r(\d+))?\.json$/i)
+        return match ? { name, revision: Number(match[1] ?? 1) } : null
+      })
+      .filter((item): item is { name: string; revision: number } => !!item)
+      .sort((a, b) => b.revision - a.revision)
+    for (const candidate of candidates) {
+      const path = join(root, candidate.name)
+      try {
+        const value = JSON.parse(readFileSync(path, 'utf8')) as {
+          asof?: string
+          archiveStage?: string
+          formalSignalEligible?: boolean
+        }
+        if (value.asof === target) return { path, ...value }
+      } catch {
+        // Ignore a broken older revision and continue to the latest readable one.
+      }
+    }
+    return null
+  }
+
+  const steps: Step[] = [
+    {
+      name: '连板天梯',
+      key: 'ladder',
+      archivePath: join(LADDER_ROOT, target.slice(0, 4), target.slice(5, 7), target.slice(8, 10), 'analysis-limit-ladder-v*.json'),
+      run: async () => {
+        const m = await import('../services/limitLadder')
+        m.clearLimitLadderCache()
+        const result = await m.fetchLimitLadderAnalysis(target)
+        const archive = latestLadderAnalysis()
+        if (!archive) {
+          const quality = result.quality
+          const details = [
+            `source=${quality.source}`,
+            `sourceDate=${quality.sourceDate || '缺失'}`,
+            `sentiment=${quality.sentimentStatus}`,
+            `limitFields=${quality.limitFieldsComplete}`,
+            `core=${quality.coreDataComplete ?? '缺失'}`,
+            `kline=${quality.klineComplete}/${quality.klineTotal}`,
+            `settled=${quality.settled ?? '缺失'}`,
+            `receivedAt=${quality.receivedAt ?? '缺失'}`,
+            `adjustment=${quality.adjustment ?? '缺失'}`,
+            ...(quality.warnings ?? []).slice(0, 8),
+          ]
+          throw new Error(`计算完成但未生成目标日期的连板分析归档；${details.join('；')}`)
+        }
+        if (archive.archiveStage !== 'core-settled' && archive.archiveStage !== 'enriched') {
+          throw new Error(`连板归档阶段无效：${archive.archiveStage ?? '缺失'}`)
+        }
+        if (archive.archiveStage === 'core-settled' && archive.formalSignalEligible !== false) {
+          throw new Error('core-settled 连板归档未明确标记 formalSignalEligible=false')
+        }
+        return { asof: result.asof }
+      },
+    },
     {
       name: '选股快照',
       key: 'screener',
-      file: `${target}.json`,
+      archivePath: join(SCREENER_DIR, `${target}.json`),
       run: async () => {
         const m = await import('../services/screener')
         m.clearScreenerCache()
@@ -111,7 +189,7 @@ async function main() {
     {
       name: '市场结构',
       key: 'structure',
-      file: `structure-${target}.json`,
+      archivePath: join(SCREENER_DIR, `structure-${target}.json`),
       run: async () => {
         const m = await import('../services/marketStructure')
         m.clearMarketStructureCache()
@@ -121,7 +199,7 @@ async function main() {
     {
       name: '节奏表',
       key: 'tempo',
-      file: `tempo-${target}.json`,
+      archivePath: join(SCREENER_DIR, `tempo-${target}.json`),
       run: async () => {
         const m = await import('../services/rotationTempo')
         m.clearRotationTempoCache()
@@ -131,7 +209,7 @@ async function main() {
     {
       name: '每日复盘',
       key: 'review',
-      file: `review-${target}.json`,
+      archivePath: join(SCREENER_DIR, `review-${target}.json`),
       run: async () => {
         const m = await import('../services/dailyReview')
         m.clearDailyReviewCache()
@@ -141,7 +219,7 @@ async function main() {
     {
       name: '实盘战绩',
       key: 'forward',
-      file: `forward-${target}.json`,
+      archivePath: join(SCREENER_DIR, `forward-${target}.json`),
       run: async () => {
         const screenerPath = join(SCREENER_DIR, `${target}.json`)
         const screenerAsof = existsSync(screenerPath)
@@ -164,12 +242,15 @@ async function main() {
     try {
       const r = await s.run()
       const secs = ((RealDate.now() - t0) / 1000).toFixed(1)
-      const path = join(SCREENER_DIR, s.file)
-      const onDisk = existsSync(path)
-      const diskAsof = onDisk ? (JSON.parse(readFileSync(path, 'utf8')) as { asof?: string }).asof : undefined
+      const path = s.archivePath
+      const archive = s.key === 'ladder' ? latestLadderAnalysis() : null
+      const onDisk = s.key === 'ladder' ? !!archive : existsSync(path)
+      const diskAsof = onDisk && !path.includes('*')
+        ? (JSON.parse(readFileSync(path, 'utf8')) as { asof?: string }).asof
+        : archive?.asof
       const ok = r.asof === target && onDisk && diskAsof === target
       summary.push(
-        `${ok ? '✅' : '❌'} ${s.name}: 计算 asof=${r.asof} / 磁盘 ${s.file} ${onDisk ? `asof=${diskAsof}` : '缺失'} (${secs}s)`,
+        `${ok ? '✅' : '❌'} ${s.name}: 计算 asof=${r.asof} / 磁盘 ${s.key === 'ladder' ? archive?.path ?? '缺失' : s.archivePath} ${onDisk ? `asof=${diskAsof}` : '缺失'}${archive?.archiveStage ? ` stage=${archive.archiveStage} formal=${archive.formalSignalEligible ?? '缺失'}` : ''} (${secs}s)`,
       )
       if (!ok) process.exitCode = 1
     } catch (e) {

@@ -41,5 +41,36 @@ describe('scheduler coordinator', () => {
     await vi.advanceTimersByTimeAsync(1000)
     expect(calls).toBe(2)
   })
+
+  it('does not let a slow job block other jobs on the next tick', async () => {
+    vi.useFakeTimers()
+    let releaseSlowJob: () => void = () => undefined
+    let slowCalls = 0
+    let fastCalls = 0
+    const jobs: SchedulerCoordinatorJobs = {
+      checkpoint: async () => {
+        slowCalls += 1
+        await new Promise<void>((resolve) => {
+          releaseSlowJob = resolve
+        })
+      },
+      crossMarket: () => undefined,
+      limitLadder: () => undefined,
+      moneyFlow: () => undefined,
+      firstBoard: () => {
+        fastCalls += 1
+      },
+      settlement: () => undefined,
+    }
+
+    startSchedulerCoordinator({ intervalMs: 1000, runImmediately: false, jobs })
+    await vi.advanceTimersByTimeAsync(1000)
+    await vi.advanceTimersByTimeAsync(1000)
+
+    expect(slowCalls).toBe(1)
+    expect(fastCalls).toBe(2)
+    releaseSlowJob()
+    await Promise.resolve()
+  })
 })
 

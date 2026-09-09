@@ -10,6 +10,9 @@ import { readCrossMarketSnapshot } from '../services/crossMarketMapping'
 import type { CrossMarketPhase } from '../services/crossMarketMapping'
 import { buildPremarketWorkbench } from '../services/premarketWorkbench'
 import { getSettledArchiveSchedulerStatus } from '../services/settlementArchive'
+import { getSchedulerCoordinatorStatus } from '../services/schedulerCoordinator'
+import { getFirstBoardProviderHealth } from '../services/firstBoardScan'
+import { getQuickTinyMcpHealth, probeQuickTinyMcp } from '../services/quicktinyMcp'
 
 const router = Router()
 
@@ -48,7 +51,21 @@ router.get('/api/ops/scheduler-status', (_req, res) => {
     schedule: CHECKPOINT_SCHEDULE.map((row) => row.checkpoint),
     crossMarketSnapshots: crossMarket,
     settledArchive: getSettledArchiveSchedulerStatus(),
+    coordinator: getSchedulerCoordinatorStatus(),
+    firstBoardProviders: getFirstBoardProviderHealth(),
+    quicktinyMcp: getQuickTinyMcpHealth(),
   })
+})
+
+// Explicitly requested read-only probe. Unlike scheduler-status this endpoint
+// performs one external tools/list request and never invokes a market-data tool.
+router.get('/api/ops/quicktiny-mcp-probe', async (_req, res) => {
+  try {
+    const status = await probeQuickTinyMcp()
+    res.status(status.state === 'unavailable' ? 503 : 200).json(status)
+  } catch {
+    res.status(503).json(getQuickTinyMcpHealth())
+  }
 })
 
 export default router
