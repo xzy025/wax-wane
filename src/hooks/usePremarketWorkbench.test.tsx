@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { usePremarketWorkbench } from './usePremarketWorkbench'
+import { isUsCashSession, usePremarketWorkbench } from './usePremarketWorkbench'
 
 function responseFor(tradeDate: string): Response {
   return {
@@ -54,6 +54,12 @@ describe('usePremarketWorkbench', () => {
     deferred[0].resolve(responseFor('2026-08-24'))
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(result.current.data?.tradeDate).toBe('2026-08-25')
+  })
+
+  it('uses New York cash-session hours for the live US refresh exception', () => {
+    expect(isUsCashSession(new Date('2026-08-10T13:30:00.000Z'))).toBe(true)
+    expect(isUsCashSession(new Date('2026-08-10T20:00:00.000Z'))).toBe(false)
+    expect(isUsCashSession(new Date('2026-08-08T15:00:00.000Z'))).toBe(false)
   })
 })
 

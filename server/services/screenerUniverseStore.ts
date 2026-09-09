@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const SCREENER_UNIVERSE_VERSION = 1
+export const SCREENER_UNIVERSE_VERSION = 2
 
 export interface StoredScreenerUniverse {
   version: number
@@ -10,7 +10,7 @@ export interface StoredScreenerUniverse {
   tradeDate: string
   expectedTotal: number
   validCount: number
-  /** 唯一有效股票数 / 上游 total；旧格式缓存无法验证，标记 legacy 后归 0。 */
+  /** 唯一有效股票数 / 可处理股票分母；旧格式缓存无法验证，标记 legacy 后归 0。 */
   coverage: number
   sources: string[]
   validatedAt: string

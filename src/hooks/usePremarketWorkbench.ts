@@ -89,6 +89,28 @@ export interface PremarketWorkbenchData {
   auction: WorkbenchAuctionResearch
 }
 
+/**
+ * Use the exchange timezone rather than the browser timezone so a Shanghai
+ * desktop keeps refreshing the overnight context exactly while US cash equity
+ * trading is open (DST included). Holidays still resolve to a harmless stale
+ * refresh rather than inventing a quote.
+ */
+export function isUsCashSession(now = new Date()): boolean {
+  const fields = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(now)
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    fields.find((field) => field.type === type)?.value ?? ''
+  const weekday = value('weekday')
+  if (weekday === 'Sat' || weekday === 'Sun') return false
+  const minutes = Number(value('hour')) * 60 + Number(value('minute'))
+  return minutes >= 9 * 60 + 30 && minutes < 16 * 60
+}
+
 export function usePremarketWorkbench(enabled = true, refreshKey = 0) {
   const [result, setResult] = useState<{
     data: PremarketWorkbenchData | null
@@ -129,7 +151,11 @@ export function usePremarketWorkbench(enabled = true, refreshKey = 0) {
   useEffect(() => {
     if (!enabled) return
     void load()
-    const timer = setInterval(() => void load(), 30_000)
+    // The workbench has a live exception for the overnight US session. All
+    // settled A-share selections are intentionally served as frozen snapshots.
+    const timer = setInterval(() => {
+      if (isUsCashSession()) void load()
+    }, 30_000)
     return () => {
       requestId.current += 1
       abortRef.current?.abort()
