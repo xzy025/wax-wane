@@ -2,6 +2,7 @@
 // conversion, and per-provider presets. Extracted from index.ts.
 
 import { SocksProxyAgent } from 'socks-proxy-agent'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
 
 // ── Proxy ──────────────────────────────────────────────────
@@ -11,6 +12,8 @@ import fetch from 'node-fetch'
 
 let proxyAgent: SocksProxyAgent | undefined
 let proxyResolved = false
+let marketHttpAgent: HttpsProxyAgent<string> | undefined
+let marketHttpProxy: string | undefined
 
 function getProxyAgent(): SocksProxyAgent | undefined {
   if (!proxyResolved) {
@@ -28,6 +31,20 @@ function getProxyAgent(): SocksProxyAgent | undefined {
 }
 
 export async function fetchWithProxy(url: string, options: any = {}) {
+  const hostname = new URL(url).hostname
+  const isMarket = ['eastmoney.com', 'sinajs.cn', 'gtimg.cn', 'longhuvip.com', 'quicktiny.cn']
+    .some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+  // Explicit market-only routing; never silently route LLM traffic through it.
+  const configuredMarketProxy = process.env.MARKET_DATA_HTTP_PROXY
+  if (isMarket && configuredMarketProxy) {
+    if (marketHttpProxy !== configuredMarketProxy) {
+      const proxy = new URL(configuredMarketProxy)
+      if (!['http:', 'https:'].includes(proxy.protocol)) throw new Error('Invalid market HTTP proxy protocol')
+      marketHttpAgent = new HttpsProxyAgent(configuredMarketProxy)
+      marketHttpProxy = configuredMarketProxy
+    }
+    return fetch(url, { ...options, agent: marketHttpAgent } as any)
+  }
   const needsProxy =
     url.includes('googleapis.com') ||
     url.includes('google.com') ||
@@ -36,7 +53,8 @@ export async function fetchWithProxy(url: string, options: any = {}) {
     url.includes('eastmoney.com') ||
     url.includes('sinajs.cn') ||
     url.includes('gtimg.cn') ||
-    url.includes('longhuvip.com')
+    url.includes('longhuvip.com') ||
+    url.includes('quicktiny.cn')
 
   const agent = getProxyAgent()
   if (agent && needsProxy) {

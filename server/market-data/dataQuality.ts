@@ -3,7 +3,7 @@
  * observation; unknown data is represented by null together with one of these
  * diagnostics instead of being silently normalised to zero.
  */
-export type DataStatus = 'full' | 'degraded' | 'stale' | 'unavailable'
+export type DataStatus = 'full' | 'degraded' | 'partial' | 'empty' | 'stale' | 'unavailable'
 
 export interface SourceDiagnostic {
   /** Provider or derivation that produced (or failed to produce) the value. */
@@ -36,6 +36,14 @@ export interface DataComponentQuality extends SourceDiagnostic {
 export interface DataEnvelope<T> extends SourceDiagnostic {
   data: T | null
   components?: Record<string, DataComponentQuality>
+  /** Optional v1 fields; legacy envelopes remain source-compatible. */
+  datasetId?: string
+  schemaVersion?: string
+  coverage?: number | null
+  rawHash?: string | null
+  fallbackChain?: string[]
+  license?: 'public' | 'authorized' | 'unknown'
+  credentialMode?: 'anonymous' | 'configured' | 'unknown'
 }
 
 export interface DiagnosticInput {
@@ -96,6 +104,7 @@ export function envelopeStatus(components: Iterable<Pick<SourceDiagnostic, 'stat
   const statuses = [...components].map((component) => component.status)
   if (statuses.length === 0 || statuses.every((status) => status === 'unavailable')) return 'unavailable'
   if (statuses.some((status) => status === 'stale')) return 'stale'
-  if (statuses.some((status) => status === 'unavailable' || status === 'degraded')) return 'degraded'
+  if (statuses.every((status) => status === 'empty' || status === 'unavailable')) return 'empty'
+  if (statuses.some((status) => status === 'unavailable' || status === 'degraded' || status === 'partial' || status === 'empty')) return 'degraded'
   return 'full'
 }

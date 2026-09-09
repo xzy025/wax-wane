@@ -9,6 +9,14 @@ export interface CanonicalJsonOptions {
   sortKeys?: Array<{ path: string; keyOf: (item: unknown) => string }>
 }
 
+/**
+ * Hash contract for v1 numbers: keep finite JavaScript numbers exactly as
+ * JSON.stringify emits them. No implicit rounding or business-scale decimal
+ * policy is applied, so historical hashes cannot change because of a hidden
+ * precision rule.
+ */
+export const CANONICAL_JSON_NUMBER_POLICY = 'ecmascript-json-number-v1' as const
+
 function canonicalStable(value: unknown, path: string, sortKeys: NonNullable<CanonicalJsonOptions['sortKeys']>): unknown {
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) throw new Error(`canonicalJson: 非有限数字出现在 ${path}`)
@@ -43,9 +51,10 @@ function canonicalStable(value: unknown, path: string, sortKeys: NonNullable<Can
 
 /**
  * Deterministic serialization: object keys sorted lexicographically, arrays in
- * caller order unless a sortKeys rule matches, non-finite numbers rejected so a
- * NaN/Infinity can never silently change a hash. `null` and absent fields stay
- * distinct.
+ * caller order unless a sortKeys rule matches, finite numbers use the
+ * `ecmascript-json-number-v1` policy above, and non-finite numbers are rejected
+ * so NaN/Infinity can never silently change a hash. `null` and absent fields
+ * stay distinct.
  */
 export function canonicalStringify(value: unknown, options: CanonicalJsonOptions = {}): string {
   return JSON.stringify(canonicalStable(value, '', options.sortKeys ?? []))

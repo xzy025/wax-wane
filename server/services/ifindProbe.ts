@@ -1,5 +1,16 @@
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import {
+  createIFindTransport,
+  ThsIFindConfigurationError as IFindConfigurationError,
+  type IFindClient,
+  type IFindFetch,
+  type IFindHttpResponse,
+  type IFindJsonObject,
+} from '../market-data/providers/ths/ifind';
+
+export type { IFindClient, IFindFetch, IFindHttpResponse, IFindJsonObject } from '../market-data/providers/ths/ifind';
+export { ThsIFindConfigurationError as IFindConfigurationError } from '../market-data/providers/ths/ifind';
 
 export const IFIND_DEFAULT_BASE_URL = 'https://quantapi.51ifind.com/api/v1';
 export const IFIND_DEFAULT_TIMEOUT_MS = 12_000;
@@ -29,8 +40,6 @@ export type IFindProbeStatus =
   | 'empty'
   | 'error'
   | 'not-configured';
-
-export type IFindJsonObject = Record<string, unknown>;
 
 export interface IFindProbeRequest {
   id: string;
@@ -100,32 +109,6 @@ export interface IFindProbeOptions {
   now?: () => Date;
   customRequests?: IFindProbeRequest[];
   l2Indicators?: string[];
-}
-
-export interface IFindHttpResponse {
-  httpStatus: number;
-  ok: boolean;
-  body: unknown;
-  rawText: string;
-  jsonParsed: boolean;
-}
-
-export type IFindFetch = (
-  input: string,
-  init?: RequestInit,
-) => Promise<Response>;
-
-export class IFindConfigurationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'IFindConfigurationError';
-  }
-}
-
-export interface IFindClient {
-  readonly isConfigured: boolean;
-  ensureAccessToken(): Promise<string>;
-  request(endpoint: string, body: IFindJsonObject): Promise<IFindHttpResponse>;
 }
 
 function optionalEnv(name: string): string | undefined {
@@ -211,112 +194,24 @@ function redactSecrets(value: string, secrets: Array<string | undefined>): strin
   );
 }
 
-function buildUrl(baseUrl: string, endpoint: string): string {
-  if (!endpoint || endpoint.includes('://') || endpoint.includes('?')) {
-    throw new IFindConfigurationError(`Invalid iFinD endpoint: ${endpoint}`);
-  }
-  return `${baseUrl}/${endpoint.replace(/^\/+/, '')}`;
-}
-
-function createAbortSignal(timeoutMs: number): { signal: AbortSignal; dispose: () => void } {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  return { signal: controller.signal, dispose: () => clearTimeout(timer) };
-}
-
-async function parseResponseBody(response: Response): Promise<{ body: unknown; rawText: string; jsonParsed: boolean }> {
-  const rawText = await response.text();
-  if (!rawText.trim()) return { body: undefined, rawText, jsonParsed: true };
-  try {
-    return { body: JSON.parse(rawText) as unknown, rawText, jsonParsed: true };
-  } catch {
-    return { body: rawText, rawText, jsonParsed: false };
-  }
-}
-
 export function createIFindClient(options: {
   baseUrl: string;
   accessToken?: string;
   refreshToken?: string;
   timeoutMs?: number;
+  requestGapMs?: number;
   fetchImpl?: IFindFetch;
+  sleepImpl?: (ms: number) => Promise<void>;
 }): IFindClient {
-  const baseUrl = normalizeBaseUrl(options.baseUrl);
-  const timeoutMs = options.timeoutMs ?? IFIND_DEFAULT_TIMEOUT_MS;
-  const fetchImpl = options.fetchImpl ?? fetch;
-  let accessToken = options.accessToken?.trim() || undefined;
-  let tokenPromise: Promise<string> | undefined;
-  const isConfigured = Boolean(accessToken || options.refreshToken?.trim());
-
-  const ensureAccessToken = async (): Promise<string> => {
-    if (accessToken) return accessToken;
-    if (!options.refreshToken?.trim()) {
-      throw new IFindConfigurationError('Missing IFIND_ACCESS_TOKEN or IFIND_REFRESH_TOKEN');
-    }
-    if (tokenPromise) return tokenPromise;
-    tokenPromise = (async () => {
-      const abort = createAbortSignal(timeoutMs);
-      try {
-        const response = await fetchImpl(buildUrl(baseUrl, 'get_access_token'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            refresh_token: options.refreshToken as string,
-          },
-          signal: abort.signal,
-        });
-        const parsed = await parseResponseBody(response);
-        const candidate = parsed.body && typeof parsed.body === 'object'
-          ? (parsed.body as IFindJsonObject).access_token
-            ?? ((parsed.body as IFindJsonObject).data as IFindJsonObject | undefined)?.access_token
-          : undefined;
-        if (!response.ok || typeof candidate !== 'string' || !candidate) {
-          throw new Error(redactSecrets(
-            `iFinD access token request failed (${response.status}): ${parsed.rawText.slice(0, 300)}`,
-            [options.refreshToken],
-          ));
-        }
-        accessToken = candidate;
-        return candidate;
-      } finally {
-        abort.dispose();
-      }
-    })();
-    try {
-      return await tokenPromise;
-    } catch (error) {
-      tokenPromise = undefined;
-      throw error;
-    }
-  };
-
-  const request = async (endpoint: string, body: IFindJsonObject): Promise<IFindHttpResponse> => {
-    const token = await ensureAccessToken();
-    const abort = createAbortSignal(timeoutMs);
-    try {
-      const response = await fetchImpl(buildUrl(baseUrl, endpoint), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          access_token: token,
-        },
-        body: JSON.stringify(body),
-        signal: abort.signal,
-      });
-      const parsed = await parseResponseBody(response);
-      return {
-        httpStatus: response.status,
-        ok: response.ok && response.status < 400,
-        body: parsed.body,
-        rawText: parsed.rawText,
-        jsonParsed: parsed.jsonParsed,
-      };
-    } finally {
-      abort.dispose();
-    }
-  };
-
-  return { isConfigured, ensureAccessToken, request };
+  return createIFindTransport({
+    baseUrl: options.baseUrl,
+    accessToken: options.accessToken,
+    refreshToken: options.refreshToken,
+    timeoutMs: options.timeoutMs ?? IFIND_DEFAULT_TIMEOUT_MS,
+    requestGapMs: options.requestGapMs,
+    fetchImpl: options.fetchImpl,
+    sleepImpl: options.sleepImpl,
+  });
 }
 
 function codesBody(codes: string[]): string {
@@ -580,7 +475,6 @@ export async function probeIFindCapabilities(options: IFindProbeOptions = {}): P
       results.push(notConfiguredResult(request, now, config.codes));
       continue;
     }
-    if (index > 0 && config.requestGapMs > 0) await new Promise((resolvePromise) => setTimeout(resolvePromise, config.requestGapMs));
     const startedAt = toIso(now);
     const startMs = Date.now();
     try {
