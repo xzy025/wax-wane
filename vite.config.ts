@@ -25,6 +25,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
+      input: { main: 'index.html', huishouResearch: 'huishou-research.html' },
       output: {
         // Split rarely-changing vendor code into cacheable chunks so app-code
         // changes don't invalidate the whole bundle. xlsx is excluded here:

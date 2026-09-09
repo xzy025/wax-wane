@@ -5323,6 +5323,17 @@ body {
   color: var(--red);
 }
 
+.ladder-error--unavailable {
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.ladder-error--unavailable strong {
+  color: var(--ink);
+}
+
 .ladder-board {
   min-height: 440px;
   padding: 14px 0 18px;
@@ -6892,3 +6903,7 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.sc-minute-checklist { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border, #d4d4d4); font-size: 12px; line-height: 1.6; }
+.sc-minute-check { display: flex; align-items: flex-start; gap: 6px; margin-top: 6px; }
+.sc-minute-check svg { flex: 0 0 16px; margin-top: 2px; }
+.sc-minute-check span { min-width: 0; overflow-wrap: anywhere; }

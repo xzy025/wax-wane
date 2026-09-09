@@ -610,6 +610,8 @@ export interface Translation {
     empty: string
     loading: string
     loadFail: string
+    archiveUnavailable: string
+    archiveUnavailableHint: string
     importOk: string
     importFail: string
     limitUp: string

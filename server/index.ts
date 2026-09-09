@@ -19,6 +19,8 @@ import intelRoutes from './routes/intel'
 import holdingsRoutes from './routes/holdings'
 import ladderRoutes from './routes/ladder'
 import opsRoutes from './routes/ops'
+import hithinkResearchRoutes from './routes/hithinkResearch'
+import huishouResearchRoutes from './routes/huishouResearch'
 import { startSchedulerCoordinator } from './services/schedulerCoordinator'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -66,6 +68,8 @@ app.use(intelRoutes)
 app.use(holdingsRoutes)
 app.use(ladderRoutes)
 app.use(opsRoutes)
+app.use(hithinkResearchRoutes)
+app.use(huishouResearchRoutes)
 
 // Initialize database and start server
 async function startServer() {
