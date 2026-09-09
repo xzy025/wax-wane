@@ -65,3 +65,20 @@ docs/电力交易岗*
 /build_power_trading_resume.py
 /build_supabase_frontend_resume.py
 /.codex_read_docs.py
+
+# ---- Agent/tool run-time artifacts (never commit) ----
+# agent recovery context, provider routing configs
+docs/agent/
+# workbuddy assistant memory
+docs/.workbuddy-ai/
+
+# Personal job-hunt workspace (resumes, search results)
+docs/job-hunt-2026-09/
+
+# Scratch files and caches
+tmp/
+__pycache__/
+
+# Heavy generated limit-ladder analysis archives (per-stock research rows; snapshots, not source)
+docs/ladder/**/analysis-limit-ladder-v6*.json
+docs/ladder/**/evidence-limit-ladder-v6*.json
