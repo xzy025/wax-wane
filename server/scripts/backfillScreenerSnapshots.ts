@@ -6,7 +6,7 @@
  * 运行(cwd=server,以加载 server/.env 的 PG 配置):
  *   npm --prefix server exec -- tsx scripts/backfillScreenerSnapshots.ts
  *
- * 幂等:upsertScreenerSnapshot 用 ON CONFLICT(asof) DO UPDATE,重复运行只覆盖。
+ * 幂等:upsertScreenerSnapshot 会比较当前投影并记录追加式 revision；相同内容重复运行不产生新 revision。
  */
 import { readdirSync, readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
@@ -47,7 +47,7 @@ async function main() {
         console.warn(`[backfill] 跳过(形状不符): ${date}`)
         continue
       }
-      await upsertScreenerSnapshot({
+      const committed = await upsertScreenerSnapshot({
         asof: raw.asof,
         resultJson: JSON.stringify(raw),
         regimePhase: raw.regime?.phase,
@@ -55,8 +55,13 @@ async function main() {
         scanned: raw.scanned,
         closed: raw.closed,
       })
-      ok++
-      console.log(`[backfill] 入库 ${date} (universe=${raw.universe ?? '?'} scanned=${raw.scanned ?? '?'})`)
+      if (committed) {
+        ok++
+        console.log(`[backfill] 入库 ${date} (universe=${raw.universe ?? '?'} scanned=${raw.scanned ?? '?'})`)
+      } else {
+        skip++
+        console.warn(`[backfill] 跳过低质量/回退快照 ${date}`)
+      }
     } catch (err) {
       skip++
       console.warn(`[backfill] 跳过(损坏/读取失败): ${date}`, err)

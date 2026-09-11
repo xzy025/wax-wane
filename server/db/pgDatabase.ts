@@ -1,6 +1,11 @@
 // PostgreSQL database layer with pgvector support
 import pg from 'pg'
 import { config } from 'dotenv'
+import {
+  evaluateFormalScreenerSnapshot,
+  shouldReplaceCompatibleScreenerSnapshot,
+  type FormalScreenerSnapshot,
+} from '../market-data/snapshotPolicy'
 
 config()
 
@@ -144,6 +149,23 @@ export async function initDatabase(): Promise<void> {
       )
     `)
 
+    // Append-only audit trail for accepted snapshot writes. The legacy table
+    // remains the read projection used by existing consumers; every accepted
+    // new version is also recorded here and is never updated in place.
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS screener_snapshot_revisions (
+        asof TEXT NOT NULL,
+        revision INTEGER NOT NULL,
+        result_json TEXT NOT NULL,
+        regime_phase TEXT,
+        universe INTEGER,
+        scanned INTEGER,
+        closed BOOLEAN,
+        created_at TEXT NOT NULL,
+        PRIMARY KEY (asof, revision)
+      )
+    `)
+
     // Create indexes
     await client.query('CREATE INDEX IF NOT EXISTS idx_trades_date ON trades(trade_date)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_trades_stock ON trades(stock_code, trade_date)')
@@ -151,6 +173,7 @@ export async function initDatabase(): Promise<void> {
     await client.query('CREATE INDEX IF NOT EXISTS idx_trade_groups_status ON trade_groups(status)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_review_notes_group ON review_notes(trade_group_id)')
     await client.query('CREATE INDEX IF NOT EXISTS idx_fundamental_stock ON fundamental_reports(stock_code)')
+    await client.query('CREATE INDEX IF NOT EXISTS idx_screener_snapshot_revisions_asof ON screener_snapshot_revisions(asof, revision DESC)')
 
     dbReady = true
     console.log('[PostgreSQL] Database initialized successfully')
@@ -498,7 +521,22 @@ export async function upsertAgentMemory(memory: {
 
 // ── Screener Snapshots ─────────────────────────────────────
 
-/** 落库当日选股快照(同日重扫覆盖)。result_json = JSON.stringify(ScreenerResult)。 */
+function parseScreenerSnapshot(value: string): FormalScreenerSnapshot | null {
+  try {
+    const parsed = JSON.parse(value) as Partial<FormalScreenerSnapshot> | null
+    return parsed && typeof parsed === 'object' && typeof parsed.asof === 'string'
+      ? parsed as FormalScreenerSnapshot
+      : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Persist a snapshot through a monotonic current projection and an append-only
+ * revision log. The return value is false when a lower-quality same-day write
+ * is rejected; callers must not treat that as a successful replacement.
+ */
 export async function upsertScreenerSnapshot(snap: {
   asof: string
   resultJson: string
@@ -506,23 +544,124 @@ export async function upsertScreenerSnapshot(snap: {
   universe?: number
   scanned?: number
   closed?: boolean
-}): Promise<void> {
+}): Promise<boolean> {
   const now = new Date().toISOString()
-  await pool.query(
-    `INSERT INTO screener_snapshots (asof, result_json, regime_phase, universe, scanned, closed, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
-     ON CONFLICT (asof) DO UPDATE SET
-       result_json = EXCLUDED.result_json,
-       regime_phase = EXCLUDED.regime_phase,
-       universe = EXCLUDED.universe,
-       scanned = EXCLUDED.scanned,
-       closed = EXCLUDED.closed,
-       created_at = EXCLUDED.created_at`,
-    [
-      snap.asof, snap.resultJson, snap.regimePhase ?? null,
-      snap.universe ?? null, snap.scanned ?? null, snap.closed ?? null, now,
-    ],
-  )
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    // A missing row cannot be locked by SELECT ... FOR UPDATE. Serialize
+    // writers by trading date as well, so two first-time commits cannot pick
+    // the same revision number concurrently.
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`screener_snapshot:${snap.asof}`])
+    const current = await client.query<{
+      result_json: string
+      regime_phase: string | null
+      universe: number | null
+      scanned: number | null
+      closed: boolean | null
+      created_at: string
+    }>(
+      `SELECT result_json, regime_phase, universe, scanned, closed, created_at
+       FROM screener_snapshots WHERE asof = $1 FOR UPDATE`,
+      [snap.asof],
+    )
+    const previous = current.rows[0]
+    const previousSnapshot = previous ? parseScreenerSnapshot(previous.result_json) : null
+    const nextSnapshot = parseScreenerSnapshot(snap.resultJson)
+    if (previous && previous.result_json === snap.resultJson) {
+      // An older installation may already have the current projection but no
+      // append-only history. Replaying the same snapshot must still seed its
+      // immutable first revision; otherwise a successful idempotent backfill
+      // leaves the projection unverifiable by the audit path.
+      const history = await client.query(
+        'SELECT 1 FROM screener_snapshot_revisions WHERE asof = $1 LIMIT 1',
+        [snap.asof],
+      )
+      if (history.rows.length === 0) {
+        await client.query(
+          `INSERT INTO screener_snapshot_revisions
+            (asof, revision, result_json, regime_phase, universe, scanned, closed, created_at)
+           VALUES ($1, 1, $2, $3, $4, $5, $6, $7)
+           ON CONFLICT (asof, revision) DO NOTHING`,
+          [snap.asof, previous.result_json, previous.regime_phase, previous.universe, previous.scanned, previous.closed, previous.created_at],
+        )
+      }
+      await client.query('COMMIT')
+      return true
+    }
+    if (previousSnapshot && nextSnapshot && !shouldReplaceCompatibleScreenerSnapshot(previousSnapshot, nextSnapshot)) {
+      await client.query('COMMIT')
+      return false
+    }
+
+    const revisions = await client.query<{ revision: number }>(
+      'SELECT COALESCE(MAX(revision), 0) + 1 AS revision FROM screener_snapshot_revisions WHERE asof = $1',
+      [snap.asof],
+    )
+    let revision = Number(revisions.rows[0]?.revision ?? 1)
+
+    // Older installations have current rows but no revision history. Seed the
+    // first revision from that row before appending the accepted new version.
+    if (previous && revision === 1) {
+      await client.query(
+        `INSERT INTO screener_snapshot_revisions
+          (asof, revision, result_json, regime_phase, universe, scanned, closed, created_at)
+         VALUES ($1, 1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT (asof, revision) DO NOTHING`,
+        [snap.asof, previous.result_json, previous.regime_phase, previous.universe, previous.scanned, previous.closed, previous.created_at],
+      )
+      revision = 2
+    }
+
+    await client.query(
+      `INSERT INTO screener_snapshot_revisions
+        (asof, revision, result_json, regime_phase, universe, scanned, closed, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        snap.asof, revision, snap.resultJson, snap.regimePhase ?? null,
+        snap.universe ?? null, snap.scanned ?? null, snap.closed ?? null, now,
+      ],
+    )
+    await client.query(
+      `INSERT INTO screener_snapshots (asof, result_json, regime_phase, universe, scanned, closed, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (asof) DO UPDATE SET
+         result_json = EXCLUDED.result_json,
+         regime_phase = EXCLUDED.regime_phase,
+         universe = EXCLUDED.universe,
+         scanned = EXCLUDED.scanned,
+         closed = EXCLUDED.closed,
+         created_at = EXCLUDED.created_at`,
+      [
+        snap.asof, snap.resultJson, snap.regimePhase ?? null,
+        snap.universe ?? null, snap.scanned ?? null, snap.closed ?? null, now,
+      ],
+    )
+    await client.query('COMMIT')
+    return true
+  } catch (error) {
+    await client.query('ROLLBACK')
+    throw error
+  } finally {
+    client.release()
+  }
+}
+
+/** Formal live path: reject anything that cannot be reproduced as a settled close snapshot. */
+export async function commitScreenerSnapshot(snap: {
+  asof: string
+  resultJson: string
+  regimePhase?: string
+  universe?: number
+  scanned?: number
+  closed?: boolean
+}): Promise<boolean> {
+  const snapshot = parseScreenerSnapshot(snap.resultJson)
+  if (!snapshot) return false
+  if (snapshot.asof !== snap.asof) return false
+  const decision = evaluateFormalScreenerSnapshot(snapshot)
+  if (!decision.allowed) return false
+  return upsertScreenerSnapshot(snap)
 }
 
 /** 取最近 N 天快照(DESC),给「连续出现天数」回溯历史用。 */
@@ -530,6 +669,26 @@ export async function getRecentScreenerSnapshots(limit: number): Promise<{ asof:
   const result = await pool.query(
     `SELECT asof, result_json FROM screener_snapshots ORDER BY asof DESC LIMIT $1`,
     [limit],
+  )
+  return result.rows
+}
+
+export async function getScreenerSnapshotRevisions(
+  asof: string,
+  limit = 100,
+): Promise<Array<{
+  asof: string
+  revision: number
+  result_json: string
+  created_at: string
+}>> {
+  const result = await pool.query(
+    `SELECT asof, revision, result_json, created_at
+     FROM screener_snapshot_revisions
+     WHERE asof = $1
+     ORDER BY revision DESC
+     LIMIT $2`,
+    [asof, limit],
   )
   return result.rows
 }

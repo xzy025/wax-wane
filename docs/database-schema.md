@@ -199,7 +199,7 @@ CREATE INDEX idx_fundamental_stock ON fundamental_reports(stock_code);
 
 ### screener_snapshots — 选股盘后快照
 
-整份 `ScreenerResult` 按上海交易日落库,一天一行(同日重扫 `ON CONFLICT (asof) DO UPDATE` 覆盖)。与磁盘 `docs/screener/YYYY-MM-DD.json` 并存(best-effort,`isDbReady()` 为假时仅落盘),并作为「连续出现天数」(`appearStreak`)回溯历史的来源。
+整份 `ScreenerResult` 按上海交易日维护一个当前投影,同时把每次被质量闸门接受的版本追加到 `screener_snapshot_revisions`。同日重扫只有在状态、行情日期和覆盖率不倒退时才允许更新当前投影。与磁盘 `docs/screener/YYYY-MM-DD.json` 并存(best-effort,`isDbReady()` 为假时仅落盘),并作为「连续出现天数」(`appearStreak`)回溯历史的来源。
 
 ```sql
 CREATE TABLE screener_snapshots (
@@ -210,6 +210,20 @@ CREATE TABLE screener_snapshots (
   scanned INTEGER,              -- 新高初筛入围只数
   closed BOOLEAN,               -- 是否盘后快照
   created_at TEXT NOT NULL
+);
+```
+
+```sql
+CREATE TABLE screener_snapshot_revisions (
+  asof TEXT NOT NULL,
+  revision INTEGER NOT NULL,
+  result_json TEXT NOT NULL,
+  regime_phase TEXT,
+  universe INTEGER,
+  scanned INTEGER,
+  closed BOOLEAN,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (asof, revision)
 );
 ```
 

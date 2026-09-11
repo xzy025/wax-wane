@@ -7,6 +7,7 @@
 // strict ^YYYY-MM-DD.json$ regex is what keeps those out of the latest pick.
 import type { ScreenerResult } from './screener'
 import { evaluateScreenerQuality } from './screenerScan'
+import { evaluateFormalScreenerSnapshot, type FormalScreenerSnapshot } from '../market-data/snapshotPolicy'
 
 export interface ScreenerArchiveRef {
   filename: string
@@ -124,7 +125,9 @@ export function normalizeConfirmedScreenerArchive(v: unknown): ScreenerResult | 
     freshQuoteCoverage: dq.freshQuoteCoverage,
   })
   if (!normalizedQuality.passed) return null
-  return { ...(v as ScreenerResult), dataQuality: normalizedQuality }
+  const normalized = { ...(v as ScreenerResult), dataQuality: normalizedQuality }
+  if (!evaluateFormalScreenerSnapshot(normalized as unknown as FormalScreenerSnapshot).allowed) return null
+  return normalized
 }
 
 /** 同日快照择优:新扫描结果是否允许覆盖已存档的同日快照。
