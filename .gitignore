@@ -57,9 +57,10 @@ server/knowledge/teacher/
 # 研究运行产物与交接文档
 /huishou-research.html
 /TASK_HANDOFF_*.md
-docs/task-progress/*huishou*
-docs/task-progress/*ynmc*
-docs/task-progress/*v13*
+# 整个目录：内部交接稿全部与策略/战法相关（first-board / relay / screener /
+# dragon / breakout 等），公开仓库不应包含。原先只 glob 了 huishou|ynmc|v13 三类，
+# 2026-09-11 改为整目录下架。
+docs/task-progress/
 
 # ---- Personal / non-source artifacts (never commit) ----
 # Job-search resumes, career planning, interview cheatsheets
@@ -108,3 +109,26 @@ __pycache__/
 # Heavy generated limit-ladder analysis archives (per-stock research rows; snapshots, not source)
 docs/ladder/**/analysis-limit-ladder-v6*.json
 docs/ladder/**/evidence-limit-ladder-v6*.json
+
+# ── 私有战法层的前端覆盖（superposition 工作树）────────────────────────────
+# 这些路径的文件属私有层。公开仓库里不存在；启用私有层时从
+# `wax-wane-strategy/src/**` 复制回来（零改写，保持相对 import 有效）。
+# src/strategy-ui/index.tsx 通过 import.meta.glob 按名单挂载，缺失即回退占位。
+src/views/ScreenerView.tsx
+src/views/RotationView.tsx
+src/views/ResearchPanel.tsx
+src/views/TrackRecordPanel.tsx
+src/components/HuishouResearchPanel.tsx
+src/components/HuishouResearchPanel.css
+src/components/HuishouMinuteChecklist.tsx
+src/components/HuishouQuality.tsx
+src/components/RotationRhythmSummary.tsx
+src/components/RotationTempoGrid.tsx
+src/hooks/useScreener.ts
+src/hooks/useScreenerForward.ts
+src/hooks/useRotation.ts
+src/hooks/useRotationTempo.ts
+src/utils/rotationBoardLinks.ts
+src/utils/rotationRhythm.ts
+src/utils/screenerScanWindow.ts
+src/huishouResearchMain.tsx

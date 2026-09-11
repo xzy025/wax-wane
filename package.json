@@ -1,8 +1,11 @@
 {
-  "name": "trade-review",
+  "name": "wax-wane",
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "exports": {
+    "./host": "./server/host/index.ts"
+  },
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "start:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/start-trade-review.ps1",

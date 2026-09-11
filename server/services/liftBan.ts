@@ -10,7 +10,7 @@
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { sessionTtl } from '../lib/cache'
-import { LIFTBAN } from '../config/screener'
+import { LIFTBAN } from '../config/market'
 
 /** 一批解禁:解禁日 + 限售股类型 + 占流通股本比(%) + 实际可流通股数(万股)。 */
 export interface LiftBanEvent {

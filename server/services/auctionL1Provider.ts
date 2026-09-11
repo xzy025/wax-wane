@@ -19,7 +19,7 @@ import {
   fetchSinaBatchQuotes,
   fetchTencentBatchQuotes,
 } from './screenerLiveQuotes'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 
 export function exchangeFromCode(code: string): AuctionExchange {
   if (code.startsWith('4') || code.startsWith('8')) return 'BSE'

@@ -37,7 +37,7 @@ import {
   type ThemeAnalysis,
 } from './limitLadder'
 import type { KlineBar } from './ashare'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 import { buildNextDayRelayPlan } from './limitLadderRelay'
 import type { HighBoardRiskContext } from './ladderV4'
 import type { MarketRiskGate } from './ladderMarketGate'

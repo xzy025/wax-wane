@@ -1,6 +1,7 @@
 import { todayShanghai } from '../lib/time'
 import { isTradingDayAt, shanghaiClockAt } from './tradingCalendar'
 import { clearMoneyFlowCache, fetchDragonTiger } from './moneyflow'
+import { getStrategy } from '../strategy/loader'
 import { buildLhbIndex } from './lhbHistory'
 
 const POLL_MINUTES = new Set([
@@ -27,8 +28,7 @@ export async function refreshMoneyFlowSnapshot(): Promise<boolean> {
   }
 
   await buildLhbIndex([today], { institutional: true, concurrency: 1, force: true })
-  const { clearInstitutionAccumCache } = await import('./institutionAccum')
-  clearInstitutionAccumCache()
+  getStrategy()?.panels?.clearInstitutionAccumCache?.()
   const { clearHotListCache } = await import('./hotlist')
   clearHotListCache()
   console.log(

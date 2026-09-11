@@ -6,7 +6,7 @@
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { fetchIndexKline } from './ashare'
-import { SCREENER } from '../config/screener'
+import { MARKET_INDEX_SECID } from '../config/market'
 
 const SURVEY_RPT = 'RPT_ORG_SURVEYNEW'
 const PAGE_SIZE = 500
@@ -37,7 +37,7 @@ export interface OrgSurveyAgg {
  *  失败回退日历天近似(N×1.5,吃掉周末;节假日误差可接受,best-effort 语义)。 */
 export async function surveyWindowStart(lookback: number): Promise<string> {
   try {
-    const bars = await fetchIndexKline(SCREENER.MARKET_INDEX_SECID, lookback + 5)
+    const bars = await fetchIndexKline(MARKET_INDEX_SECID, lookback + 5)
     const dates = bars.map((b) => b.date).filter(Boolean)
     if (dates.length) return dates[Math.max(0, dates.length - lookback)]
   } catch {

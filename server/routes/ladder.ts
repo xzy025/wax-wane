@@ -23,10 +23,10 @@ import {
 } from '../services/crossMarketMapping'
 import { resolveCrossMarketSnapshot } from '../services/crossMarketRuntime'
 import { buildAuctionBehaviorResearch } from '../services/auctionBehaviorResearch'
-import { fetchFirstBoardScan } from '../services/firstBoardScan'
 import { listLadderSentimentQuant, readLadderSentimentQuant } from '../services/ladderSentimentQuant'
 import { listTradingDates, tradingCalendarSource, tradingCalendarVersion } from '../services/tradingCalendar'
 import { todayShanghai } from '../lib/time'
+import { getStrategy } from '../strategy/loader'
 import { envelopeForTradingCalendar } from '../market-data/marketDataSource'
 import {
   applyManualReviews,
@@ -185,7 +185,12 @@ router.get('/api/ladder/first-board-scan', async (req, res) => {
     return
   }
   try {
-    res.json(await fetchFirstBoardScan(Date.now(), tradeDate))
+    const scan = getStrategy()?.ladder?.fetchFirstBoardScan
+    if (!scan) {
+      res.status(503).json({ error: '未安装私有战法层，首板扫描不可用' })
+      return
+    }
+    res.json(await scan(tradeDate ?? todayShanghai()))
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     res.status(502).json({ error: message })

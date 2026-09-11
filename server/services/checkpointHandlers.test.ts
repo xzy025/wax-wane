@@ -3,7 +3,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import { describe, expect, it } from 'vitest'
 import { auctionSnapshotFromQuote, resolveAuctionUniverse } from './checkpointHandlers'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 import { persistScreenerUniverse } from './screenerUniverseStore'
 
 const row = (code: string) => ({ f12: code, f2: 10, f14: `股票${code}` })

@@ -4,7 +4,7 @@ import { createCache, sessionTtl } from '../lib/cache'
 import { fetchRecentOrgSurvey, surveyWindowStart, type OrgSurveyAgg } from './orgSurvey'
 import { fetchQuotesByCodes, type IndexQuote } from './emQuotes'
 import { fetchFundFlowForCodes } from './fundFlow'
-import { ORG_SURVEY_BOARD } from '../config/screener'
+import { ORG_SURVEY_BOARD } from '../config/market'
 
 const QUOTE_CHUNK = 100 // fetchQuotesByCodes 无内置分块,仿 fundFlow.ts 的 ULIST_CHUNK 自行分块
 

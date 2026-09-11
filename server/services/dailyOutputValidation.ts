@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { evaluateFormalScreenerSnapshot, type FormalScreenerSnapshot } from '../market-data/snapshotPolicy'
 import { isScreenerResult, normalizeConfirmedScreenerArchive } from './screenerArchive'
-import type { ResearchRun } from '../../shared/huishouResearch'
+import type { ResearchRun } from '../../shared/researchContract'
 
 const SCREENER_ARRAYS = [
   'breakout', 'trigger', 'watch', 'pullback', 'highdiv', 'volbreak', 'fundres',

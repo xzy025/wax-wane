@@ -5,8 +5,8 @@
 // Trap: docs/screener/ also holds backtest-YYYY-MM-DD.json and dot-prefixed
 // scratch caches (.bars-*, .lhb-*, .stock-boards-*, .board-closes-*). The
 // strict ^YYYY-MM-DD.json$ regex is what keeps those out of the latest pick.
-import type { ScreenerResult } from './screener'
-import { evaluateScreenerQuality } from './screenerScan'
+import type { ScreenerSnapshot } from './screenerDataContract'
+import { evaluateScreenerQuality } from './screenerDataContract'
 import { evaluateFormalScreenerSnapshot, type FormalScreenerSnapshot } from '../market-data/snapshotPolicy'
 
 export interface ScreenerArchiveRef {
@@ -54,7 +54,7 @@ export function pickLatestValidArchive<T>(filenames: string[], load: (ref: Scree
 }
 
 /** Minimal shape guard so a corrupt/foreign JSON can't be served as a result. */
-export function isScreenerResult(v: unknown): v is ScreenerResult {
+export function isScreenerResult(v: unknown): v is ScreenerSnapshot {
   if (typeof v !== 'object' || v === null) return false
   const r = v as unknown as Record<string, unknown>
   return (
@@ -92,7 +92,7 @@ const isFiniteRatio = (value: unknown): value is number =>
  * cache/fallback result. Legacy, provisional, degraded, and under-covered
  * snapshots return null so callers can continue to an older last-good file.
  */
-export function normalizeConfirmedScreenerArchive(v: unknown): ScreenerResult | null {
+export function normalizeConfirmedScreenerArchive(v: unknown): ScreenerSnapshot | null {
   if (!isScreenerResult(v)) return null
   const r = v as unknown as Record<string, unknown>
   if (r.scanMode !== 'close' || r.signalState !== 'confirmed' || r.closed !== true || r.marketDataDegraded === true) {
@@ -125,7 +125,7 @@ export function normalizeConfirmedScreenerArchive(v: unknown): ScreenerResult | 
     freshQuoteCoverage: dq.freshQuoteCoverage,
   })
   if (!normalizedQuality.passed) return null
-  const normalized = { ...(v as ScreenerResult), dataQuality: normalizedQuality }
+  const normalized = { ...(v as ScreenerSnapshot), dataQuality: normalizedQuality }
   if (!evaluateFormalScreenerSnapshot(normalized as unknown as FormalScreenerSnapshot).allowed) return null
   return normalized
 }
@@ -140,7 +140,7 @@ export function normalizeConfirmedScreenerArchive(v: unknown): ScreenerResult | 
  *      (无从比较;新档带上 fetched 后即受保护),新档缺 fetched(异常)→ 保旧。
  *  已知可接受边界:开盘前扫描会存成 closed=true,同日盘中(closed=false)不覆盖它——
  *  实际不发生(盘前命中前一晚的 12h 缓存,不触发重扫)。 */
-export function shouldReplaceArchive(prev: ScreenerResult | null, next: ScreenerResult): boolean {
+export function shouldReplaceArchive(prev: ScreenerSnapshot | null, next: ScreenerSnapshot): boolean {
   if (next.marketDataDegraded || (next.marketDataAsOf != null && next.marketDataAsOf < next.asof)) return false
   if (!prev || prev.asof !== next.asof) return true
   const prevClosed = prev.closed === true

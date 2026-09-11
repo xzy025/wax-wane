@@ -7,7 +7,7 @@ import {
   type TechnicalEvidence,
 } from './limitLadder'
 import { buildLadderSentimentQuantSnapshot } from './ladderSentimentQuant'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 
 const stock = (): NormalizedStock => ({
   code: '600001',

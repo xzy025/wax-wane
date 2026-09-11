@@ -10,8 +10,9 @@ import {
   runLimitLadderAuctionSchedulerTick,
 } from './limitLadder'
 import { runMoneyFlowSchedulerTick } from './moneyflowScheduler'
-import { runFirstBoardScanSchedulerTick } from './firstBoardScan'
 import { runSettledArchiveSchedulerTick } from './settlementArchive'
+import { getStrategy } from '../strategy/loader'
+import { todayShanghai } from '../lib/time'
 
 export type SchedulerJob = (nowMs: number) => Promise<void> | void
 
@@ -93,7 +94,11 @@ function defaultJobs(handlers: CheckpointHandlers): SchedulerCoordinatorJobs {
     crossMarket: (nowMs) => runCrossMarketSchedulerTick(nowMs),
     limitLadder: (nowMs) => runLimitLadderAuctionSchedulerTick(nowMs),
     moneyFlow: (nowMs) => runMoneyFlowSchedulerTick(nowMs),
-    firstBoard: (nowMs) => runFirstBoardScanSchedulerTick(nowMs),
+    // 首板扫描属私有战法层；未安装时该 job 空转（其余采集/归档照常）。
+    firstBoard: async () => {
+      const tick = getStrategy()?.ladder?.runFirstBoardScanSchedulerTick
+      if (tick) await tick(todayShanghai())
+    },
     settlement: (nowMs) => runSettledArchiveSchedulerTick(nowMs),
   }
 }

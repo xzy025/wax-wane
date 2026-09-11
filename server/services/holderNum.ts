@@ -9,7 +9,7 @@
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { sessionTtl } from '../lib/cache'
-import { HOLDERNUM } from '../config/screener'
+import { HOLDERNUM } from '../config/market'
 
 /** 挂在吸筹候选上的股东户数徽标(最新一期;纯展示确认因子)。 */
 export interface HolderNumBadge {

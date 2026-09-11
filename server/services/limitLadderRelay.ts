@@ -1,4 +1,4 @@
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 import type {
   AuctionThemeDirection,
   LadderAuctionContext,

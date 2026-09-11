@@ -3,12 +3,9 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { todayShanghai } from '../lib/time'
 import { validSettlementArchive, type ArchiveKind } from './settlementQuality'
+import type { ScreenerSnapshot } from './screenerDataContract'
+import { getStrategy } from '../strategy/loader'
 import { isTradingDayAt, shanghaiClockAt } from './tradingCalendar'
-import {
-  clearScreenerCache,
-  scanScreener,
-  type ScreenerResult,
-} from './screener'
 import {
   clearMarketStructureCache,
   fetchMarketStructure,
@@ -24,11 +21,6 @@ import {
   fetchDailyReview,
   type DailyReviewData,
 } from './dailyReview'
-import {
-  clearScreenerForwardCache,
-  fetchScreenerForward,
-  type ScreenerForwardResult,
-} from './screenerForward'
 import {
   clearLimitLadderCache,
   LadderFormalEligibilityError,
@@ -100,11 +92,11 @@ export interface SettlementArchiveDeps {
   hasReviewArchive: (date: string) => boolean
   hasForwardArchive: (date: string) => boolean
   hasLadderArchive: (date: string) => boolean
-  scanScreener: () => Promise<ScreenerResult>
+  scanScreener?: () => Promise<ScreenerSnapshot>
   fetchMarketStructure: () => Promise<MarketStructureSummary>
   fetchRotationTempo: () => Promise<RotationTempoResult>
   fetchDailyReview: () => Promise<DailyReviewData>
-  fetchScreenerForward: () => Promise<ScreenerForwardResult>
+  fetchScreenerForward?: () => Promise<{ asof: string }>
   fetchLimitLadderAnalysis: (date: string) => Promise<LimitLadderAnalysis>
   fetchLimitLadderNextDay: (date: string) => Promise<unknown>
   listLimitLadderArchiveDates: (limit: number) => string[]
@@ -153,10 +145,6 @@ const defaultDeps: SettlementArchiveDeps = {
   hasReviewArchive: (date) => datedArchive(SCREENER_ROOT, 'review', date),
   hasForwardArchive: (date) => datedArchive(SCREENER_ROOT, 'forward', date),
   hasLadderArchive: ladderArchive,
-  scanScreener: async () => {
-    clearScreenerCache()
-    return scanScreener('close')
-  },
   fetchMarketStructure: async () => {
     clearMarketStructureCache()
     return fetchMarketStructure()
@@ -169,10 +157,6 @@ const defaultDeps: SettlementArchiveDeps = {
     clearDailyReviewCache()
     return fetchDailyReview()
   },
-  fetchScreenerForward: async () => {
-    clearScreenerForwardCache()
-    return fetchScreenerForward()
-  },
   fetchLimitLadderAnalysis: async (date) => {
     clearLimitLadderCache()
     return fetchLimitLadderAnalysis(date)
@@ -183,6 +167,35 @@ const defaultDeps: SettlementArchiveDeps = {
   buildPromotionReview,
   writePromotionReview: (review) => writePromotionReview(LADDER_ROOT, review),
   syncDailyJournal: (date) => syncDailyJournal(date, SCREENER_ROOT),
+}
+
+/**
+ * 把私有战法层提供的面板接到 deps 上。
+ *
+ * 公开侧只认「有没有这个能力」；具体实现（选股扫描 / 前瞻战绩）在私有包里，
+ * 未安装时保持 undefined，对应步骤在 runStep 里降级为 skipped。
+ */
+function withStrategy(deps: SettlementArchiveDeps): SettlementArchiveDeps {
+  const panels = getStrategy()?.panels
+  return {
+    ...deps,
+    scanScreener:
+      deps.scanScreener ??
+      (panels?.scanScreener
+        ? async () => {
+            panels.clearScreenerCache?.()
+            return panels.scanScreener!('close')
+          }
+        : undefined),
+    fetchScreenerForward:
+      deps.fetchScreenerForward ??
+      (panels?.fetchScreenerForward
+        ? async () => {
+            panels.clearScreenerForwardCache?.()
+            return panels.fetchScreenerForward!()
+          }
+        : undefined),
+  }
 }
 
 function emptyStatus(tradeDate: string | null = null): SettledArchiveSchedulerStatus {
@@ -288,9 +301,11 @@ async function runStep<T extends { asof?: string }>(
   date: string,
   step: SettlementStepName,
   hasArchive: (date: string) => boolean,
-  run: () => Promise<T>,
+  run: (() => Promise<T>) | undefined,
   timeoutMs: number,
 ): Promise<SettlementStepStatus> {
+  // 该步骤由私有战法层提供；未安装时跳过，不算失败。
+  if (!run) return { name: step, status: 'skipped', reason: '未安装私有战法层，该步骤跳过' }
   if (hasArchive(date)) {
     return { name: step, status: 'skipped', reason: '当日归档已存在' }
   }
@@ -333,6 +348,8 @@ export async function runSettledArchivePipeline(
   deps: SettlementArchiveDeps = defaultDeps,
   options: SettlementPipelineOptions = {},
 ): Promise<SettledArchiveSchedulerStatus> {
+  // 选股快照 / 实盘战绩来自私有战法层 —— 在这里接上，缺失时上面两个步骤跳过。
+  deps = withStrategy(deps)
   const nowMs = options.nowMs ?? Date.now()
   const attemptCount = Math.max(1, options.attemptCount ?? 1)
   const deadlineMs = options.deadlineAt ?? settlementDeadlineAt(date)
@@ -482,7 +499,7 @@ export async function runSettledArchiveSchedulerTick(nowMs = Date.now()): Promis
   }
   persistStatusSafely(status)
   try {
-    status = await runSettledArchivePipeline(date, defaultDeps, {
+    status = await runSettledArchivePipeline(date, withStrategy(defaultDeps), {
       nowMs,
       attemptCount,
       deadlineAt: deadlineMs,

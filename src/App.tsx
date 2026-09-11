@@ -39,10 +39,14 @@ import AnalyticsView from './views/AnalyticsView'
 import AgentView from './views/AgentView'
 import ThemesView from './views/ThemesView'
 import MoneyFlowView from './views/MoneyFlowView'
-import ScreenerView from './views/ScreenerView'
-import RotationView from './views/RotationView'
+import { strategyView } from './strategy-ui'
+
+// 选股器 / 板块轮动视图属私有战法层，通过挂载点按需加载（未安装时回退占位）。
+const ScreenerView = strategyView('ScreenerView')
+const RotationView = strategyView('RotationView')
 import IntelView from './views/IntelView'
 import LadderView from './views/LadderView'
+import { Suspense } from 'react'
 import type { Translation } from './types'
 
 const navItems = [
@@ -188,9 +192,9 @@ function AppLayout() {
           <Route path="/intel" element={<IntelView t={t} />} />
           <Route path="/themes" element={<ThemesView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/moneyflow" element={<MoneyFlowView t={t} language={language as 'zh' | 'en'} />} />
-          <Route path="/rotation" element={<RotationView t={t} language={language as 'zh' | 'en'} />} />
+          <Route path="/rotation" element={<Suspense fallback={null}><RotationView t={t} language={language as 'zh' | 'en'} /></Suspense>} />
           <Route path="/ladder" element={<LadderView t={t} language={language as 'zh' | 'en'} />} />
-          <Route path="/screener" element={<ScreenerView t={t} language={language as 'zh' | 'en'} />} />
+          <Route path="/screener" element={<Suspense fallback={null}><ScreenerView t={t} language={language as 'zh' | 'en'} /></Suspense>} />
           <Route path="/dashboard" element={<Dashboard t={t} range={range} />} />
           <Route path="/import" element={<ImportView t={t} />} />
           <Route path="/ledger" element={<LedgerView t={t} range={range} />} />

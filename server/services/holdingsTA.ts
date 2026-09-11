@@ -9,25 +9,24 @@ import { fileURLToPath } from 'url'
 import { shanghaiClock } from '../lib/cache'
 import { todayShanghai } from '../lib/time'
 import { llmComplete, isLLMConfigured } from '../lib/llmComplete'
-import { HOLDINGS, SCREENER } from '../config/screener'
+import { HOLDINGS, MARKET_INDEX_SECID, CHINEXT_INDEX_SECID, STAR50_INDEX_SECID, RELSTR } from '../config/market'
 import { fetchStockKline, fetchIndexKline, mapLimit } from './ashare'
 import { fetchHKData, fetchHKStockKline } from './hk'
-import { enrichRelStrength, type Bar } from './screenerRules'
+import type { Bar } from './taMath'
+import { getStrategy } from '../strategy/loader'
 import { normalizeSecurityCode, type SecurityMarket } from './securityCode'
 import { shouldGenerateNarrative } from './dailyReview'
 import { extractTone } from './dailyReviewPrompt'
 import { buildHoldingsTAFacts, HOLDINGS_TA_SYSTEM_PROMPT } from './holdingsTAPrompt'
 import {
-  buildHoldingTAFromBars,
   codesKey,
-  diffHoldingTA,
   isHoldingsTAResult,
   isSettledClock,
   pickPrevArchiveName,
   shouldReplaceHoldingsArchive,
   type HoldingTAItem,
   type HoldingsTAResult,
-} from './holdingsTARules'
+} from './holdingsTAContract'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SCREENER_DIR = join(__dirname, '..', '..', 'docs', 'screener')
@@ -109,9 +108,9 @@ async function fetchBenchmarks(markets: ReadonlySet<SecurityMarket>): Promise<Ho
   }
   const aBench = markets.has('A')
     ? Promise.all([
-        chgOf(SCREENER.MARKET_INDEX_SECID),
-        chgOf(SCREENER.CHINEXT_INDEX_SECID),
-        chgOf(SCREENER.STAR50_INDEX_SECID),
+        chgOf(MARKET_INDEX_SECID),
+        chgOf(CHINEXT_INDEX_SECID),
+        chgOf(STAR50_INDEX_SECID),
       ])
     : Promise.resolve([0, 0, 0])
   const hkBench = markets.has('HK')
@@ -193,6 +192,8 @@ function writeArchive(result: HoldingsTAResult): void {
 }
 
 async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResult> {
+  // 趋势模板 / VCP / RS / N字 / 三法合成属私有战法层；未安装时持仓卡只出基础均线与 ATR。
+  const technical = getStrategy()?.technical
   const markets = new Set(positions.map((p) => p.market ?? 'A'))
   const [items, benchmarks] = await Promise.all([
     mapLimit(positions, HOLDINGS.CONCURRENCY, async (position): Promise<HoldingTAItem> => {
@@ -202,8 +203,9 @@ async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResul
         const { name, klines } = market === 'HK'
           ? await fetchHKStockKline(symbol, 101, HOLDINGS.KLINE_COUNT)
           : await fetchStockKline(symbol, 101, HOLDINGS.KLINE_COUNT)
-        return buildHoldingTAFromBars(position.code, name || position.code, klines as Bar[], HOLDINGS, market) ??
-          errorItem(position.code, market, 'K线不足')
+        const built = technical?.buildHoldingTA?.(position.code, name || position.code, klines as Bar[], market)
+        if (!built) return errorItem(position.code, market, technical ? 'K线不足' : '未安装私有战法层')
+        return built
       } catch (err) {
         return errorItem(position.code, market, err instanceof Error ? err.message : 'K线获取失败')
       }
@@ -217,11 +219,11 @@ async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResul
       : code.startsWith('688') ? benchmarks.star50
       : benchmarks.hs300
   const okItems = items.filter((i) => !i.error)
-  enrichRelStrength(okItems.filter((i) => (i.market ?? 'A') === 'A'), benchFor, SCREENER.RELSTR.CRASH_DAY_PCT)
-  enrichRelStrength(
+  technical?.enrichRelStrength?.(okItems.filter((i) => (i.market ?? 'A') === 'A'), benchFor, RELSTR.CRASH_DAY_PCT)
+  technical?.enrichRelStrength?.(
     okItems.filter((i) => i.market === 'HK'),
     () => benchmarks.hstech ?? benchmarks.hsi ?? 0,
-    SCREENER.RELSTR.CRASH_DAY_PCT,
+    RELSTR.CRASH_DAY_PCT,
   )
 
   const date = signalDate(items)
@@ -238,7 +240,7 @@ async function compute(positions: HoldingsTAPosition[]): Promise<HoldingsTAResul
       const prevByCode = new Map(prevArchive.items.filter((i) => !i.error).map((i) => [itemKey(i), i]))
       for (const it of items) {
         const prev = it.error ? undefined : prevByCode.get(itemKey(it))
-        if (prev) it.delta = diffHoldingTA(prev, it, prevRef.date)
+        if (prev) it.delta = technical?.diffHoldingTA?.(prev, it, prevRef.date) ?? null
       }
     }
   }

@@ -1,7 +1,7 @@
 import { createHash } from 'crypto'
 import { emFetch } from '../lib/emFetch'
 import { fetchNewsFlash, type NewsFlashItem } from './newsFlash'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 
 export type MarketPositionRole =
   | 'space-leader'

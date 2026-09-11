@@ -13,7 +13,7 @@ import { activeTradingCalendar, isTradingDayAt, shanghaiClockAt } from './tradin
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
 import { todayShanghai } from '../lib/time'
-import { SCREENER } from '../config/screener'
+import { CLIST_FS } from '../config/market'
 import {
   fetchAShareData,
   fetchStockKline,
@@ -29,14 +29,14 @@ import {
   type KplRealtimeLadder,
   type KplRealtimeStock,
 } from './kaipanlaLadder'
-import { isLimitUpDay } from './divergenceRules'
+import { isLimitUpDay } from '../market-rules/limitDay'
 import { buildLhbIndex, type LhbDay } from './lhbHistory'
 import { fetchHotList, type HotListData } from './hotlist'
 import {
   fetchSinaBatchQuotes,
   fetchTencentBatchQuotes,
 } from './screenerLiveQuotes'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 import { fetchTradingDates } from './moneyflow'
 import {
   auctionBriefPhaseForMinutes,
@@ -88,9 +88,8 @@ import {
   type ExpectationMatch,
   type RelayExpectation,
 } from './ladderExpectation'
-import { buildRelayPathEvidence } from './relayPathFeatures'
-import { scoreFirstBoardPath, scoreStreakPath, type RelayPathScore } from './relayPathScoring'
-import type { RelayPathEvidence } from './relayPathTypes'
+import { getStrategy } from '../strategy/loader'
+import type { RelayPathEvidence, RelayPathScore } from './relayPathTypes'
 import { aggregateLimitEventDay, type LimitEventArchive } from '../market-data/limitEventStore'
 import {
   buildLadderSentimentQuantSnapshot,
@@ -2894,7 +2893,14 @@ function buildRelayExpectations(args: {
   technicalResults: Array<[string, TechnicalResult]>
   asof: string
   sessionSettled: boolean
-}): Map<string, { sequence: BoardSequenceEvidence; expectation: RelayExpectation; relayPathEvidence: RelayPathEvidence; relayPathScore: RelayPathScore }> {
+}): Map<string, {
+  sequence: BoardSequenceEvidence
+  expectation: RelayExpectation
+  relayPathEvidence?: RelayPathEvidence
+  relayPathScore?: RelayPathScore
+}> {
+  // 接力路径评分属私有战法层；未安装时天梯只出原始梯队，不带路径分。
+  const ladder = getStrategy()?.ladder
   const technicalMap = new Map(args.technicalResults)
   const eventArchive = readJson<LimitEventArchive>(join(LADDER_ROOT, 'limit-event-history.json'))
   return new Map(args.stocks.map((stock) => {
@@ -2915,7 +2921,7 @@ function buildRelayExpectations(args: {
         }),
       ]),
     )
-    const relayPathEvidence = buildRelayPathEvidence({
+    const relayPathEvidence = ladder?.buildRelayPathEvidence?.({
       code: stock.code,
       signalDate: args.asof,
       signalCutoffAt: `${args.asof}T15:10:00+08:00`,
@@ -2937,9 +2943,10 @@ function buildRelayExpectations(args: {
         missingReasons: ['统一路径证据暂未接入历史lane完整池'],
       },
     })
-    const relayPathScore = stock.consecutiveDays === 1
-      ? scoreFirstBoardPath(relayPathEvidence)
-      : scoreStreakPath(relayPathEvidence)
+    const relayPathScore =
+      relayPathEvidence && ladder?.scoreRelayPath
+        ? ladder.scoreRelayPath(relayPathEvidence, stock.consecutiveDays)
+        : undefined
     return [stock.code, {
       sequence: boardResult.sequence,
       expectation: buildRelayExpectation(boardResult.sequence),
@@ -4249,7 +4256,7 @@ async function fetchAuctionMarketList(
     try {
       const url =
         `https://${host}/api/qt/clist/get?pn=1&pz=100&po=1&np=1&fltt=2&invt=2` +
-        `&fid=${fid}&fs=${encodeURIComponent(SCREENER.CLIST_FS)}` +
+        `&fid=${fid}&fs=${encodeURIComponent(CLIST_FS)}` +
         '&fields=f2,f3,f6,f12,f14,f20,f100,f124'
       const response = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 6_000 })
       if (!response.ok) continue

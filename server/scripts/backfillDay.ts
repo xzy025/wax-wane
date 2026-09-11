@@ -13,6 +13,7 @@
  * PG 快照入库 best-effort:连不上只落磁盘,事后可用 backfillScreenerSnapshots.ts 补灌。
  */
 import { config } from 'dotenv'
+import { getStrategy } from '../strategy/loader'
 import { existsSync, readFileSync, readdirSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
@@ -181,9 +182,10 @@ async function main() {
       key: 'screener',
       archivePath: join(SCREENER_DIR, `${target}.json`),
       run: async () => {
-        const m = await import('../services/screener')
-        m.clearScreenerCache()
-        return m.fetchScreener()
+        const panels = getStrategy()?.panels
+        if (!panels?.scanScreener) throw new Error('未安装私有战法层，选股快照无法回填')
+        panels.clearScreenerCache?.()
+        return panels.scanScreener('close')
       },
     },
     {
@@ -228,9 +230,10 @@ async function main() {
         if (screenerAsof !== target) {
           throw new Error(`选股正式归档缺失或日期不符(asof=${screenerAsof ?? '缺失'})，禁止生成错标 forward`)
         }
-        const m = await import('../services/screenerForward')
-        m.clearScreenerForwardCache()
-        return m.fetchScreenerForward()
+        const panels = getStrategy()?.panels
+        if (!panels?.fetchScreenerForward) throw new Error('未安装私有战法层，实盘战绩无法回填')
+        panels.clearScreenerForwardCache?.()
+        return (await panels.fetchScreenerForward()) as { asof: string }
       },
     },
   ]

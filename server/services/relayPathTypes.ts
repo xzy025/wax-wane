@@ -152,3 +152,40 @@ export interface RelayPathEvidence {
   sourceRefs: string[]
   sourceHash: string
 }
+
+// ── 接力路径评分结果（从 `relayPathScoring.ts` 移到公开侧）─────────────────
+//
+// 判定依据：这些是**数据结构**，不含任何权重或阈值 —— 权重表留在私有
+// `relayPathScoring.ts`。公开侧的天梯要把分数存进自己的类型并序列化输出，
+// 所以必须知道形状，但不需要知道怎么算。
+
+export interface RelayScoreComponent {
+  score: number | null
+  featureCoverage: number
+  sampleConfidence: number
+  evidence: string[]
+  failedConditions: string[]
+}
+
+export interface RelayPathScore {
+  scoreVersion: string
+  model: 'first-board-path-v4-shadow' | 'streak-path-v1-shadow'
+  pathResearchScore: number | null
+  pathCoverage: number
+  promotionResearchScore: number | null
+  tradabilityProxy: number | null
+  dataConfidence: number
+  probabilityStatus: 'research-score'
+  components: Record<string, RelayScoreComponent>
+  failedConditions: string[]
+}
+
+export interface RelayDecisionHeads {
+  pathResearchScore: number | null
+  pathCoverage: number
+  promotionResearchScore: number | null
+  tradabilityProxy: number | null
+  dataConfidence: number
+  probabilityStatus: 'unavailable' | 'research-score' | 'calibrated'
+  pathScoreVersion: string
+}

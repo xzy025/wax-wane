@@ -1,6 +1,17 @@
 /// <reference types="vitest/config" />
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+
+// The 挥手研究 console (huishou-research.html -> src/huishouResearchMain.tsx) is
+// a private strategy entry, gitignored in the public repo. Only register it as a
+// build input when the file is actually present, so a clean public checkout
+// still builds. `process.cwd()` is the Vite root here (no `root` override).
+const buildInput: Record<string, string> = { main: 'index.html' }
+if (existsSync(resolve(process.cwd(), 'huishou-research.html'))) {
+  buildInput.huishouResearch = 'huishou-research.html'
+}
 
 // Use the IPv4 loopback explicitly on Windows. localhost may resolve to
  // ::1 while Express is listening on IPv4, surfacing as Failed to fetch.
@@ -25,7 +36,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: { main: 'index.html', huishouResearch: 'huishou-research.html' },
+      input: buildInput,
       output: {
         // Split rarely-changing vendor code into cacheable chunks so app-code
         // changes don't invalidate the whole bundle. xlsx is excluded here:

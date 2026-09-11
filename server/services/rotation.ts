@@ -1,3 +1,10 @@
+// 板块轮动服务 · **公开数据层**。
+//
+// 本文件从私有战法层拆回：原 812 行里前 635 行是「板块宇宙 → 板块日线 → 长/短窗涨幅 →
+// 2×2 象限」的纯取数与统计，后 177 行才是「板块内强势股下钻」——那一部分要跑新高战法
+// `classify` / VCP / 分歧低吸等私有规则，已移到私有包的 `services/boardStrategyScan.ts`。
+//
+// 边界：本文件只回答「哪个板块在涨、成分股是谁」。任何「板块内哪只票该买」不属于本文件。
 // 板块轮动服务:东财 行业/概念 板块宇宙 → 板块日线(=指数)→ 长/短窗涨幅 → 2×2 象限 + 宽度概览。
 // 板块即指数(secid 90.BKxxxx),复用 fetchIndexKline 取日线;所有窗口从同一段 closes 现算。
 import { EM_HEADERS } from '../lib/emHeaders'
@@ -7,21 +14,12 @@ import { todayShanghai } from '../lib/time'
 import { fetchIndexKline, fetchStockKline, type IndexKlineBar } from './ashare'
 import { toSecids } from './emQuotes'
 import { resolveStock } from './stockSearch'
-import { BHOLD, HIGHDIV, PULLBACK, SCREENER, TRENDNEW, VOLBREAK } from '../config/screener'
 import { CONCEPT_BLOCKLIST } from './moneyflow'
 import { classifyQuadrant, type Quadrant } from './rotationRules'
-import { classify, finalScore, type Bar, type Candidate } from './screenerRules'
-import { classifyPullback } from './pullbackRules'
-import { classifyHighDivergence } from './divergenceRules'
-import { classifyVolBreakout } from './volBreakoutRules'
-import { classifyBreakoutHold } from './breakoutHoldRules'
-import { classifyTrendNewHigh } from './trendNewHighRules'
 import {
   fetchQuickTinyRotation,
-  fetchQuickTinyStockQuadrant,
   fetchQuickTinyStockSectors,
   makeQuickTinyBoardCode,
-  parseQuickTinyBoardCode,
   quickTinyResponseSourceForCategory,
   quickTinySourceForCategory,
   type QuickTinyQuadrantKey,
@@ -542,10 +540,22 @@ export function fetchRotation(category: RotationCategory, longWin: number, short
   return cacheFor(category, clampLong(longWin), clampShort(shortWin)).get()
 }
 
+/**
+ * 私有战法层注册的额外缓存清理器（板块下钻缓存等）。
+ *
+ * 公开侧不需要知道这些缓存是什么，只知道「清轮动缓存时要把它们一起清掉」——
+ * 否则私有层会短暂读到过期的下钻结果。
+ */
+const extraCacheClearers = new Set<() => void>()
+
+export function registerRotationCacheClearer(clear: () => void): void {
+  extraCacheClearers.add(clear)
+}
+
 export function clearRotationCache(): void {
   for (const c of resultCaches.values()) c.clear()
-  for (const c of drillCaches.values()) c.clear()
   barsCache.clear()
+  for (const clear of extraCacheClearers) clear()
 }
 
 /** 搜个股 → 解析 + 按当前分类取所属板块名(供前端过滤命中的板块)。 */
@@ -632,84 +642,10 @@ export async function resolveStockIndustryBoard(code: string): Promise<{ bk: str
   return { bk: pool[0].bk, name: pool[0].name }
 }
 
-// ── 板块内强势股下钻(复用选股器新高战法 classify)─────────────────────
-export interface BoardStock extends Candidate {
-  code: string
-  name: string
-  score: number
-}
-export interface BoardStocksResult {
-  code: string
-  name: string
-  scanned: number
-  breakout: BoardStock[]
-  trigger: BoardStock[]
-  /** 成分股当日涨跌幅榜(按 changePct 降序,前 TOP_MOVERS_N);不跑 K线/classify,
-   *  蓝筹反转板块(如保险)不符合新高战法趋势模板,靠这个才能看清"具体是谁在涨"。 */
-  topMovers: { code: string; name: string; changePct: number }[]
-  /** 与主选股器一致的并列形态命中；资金流共振需要披露日对齐的调研数据，不在板块下钻中伪造。 */
-  strategyHits: BoardStrategyHit[]
-  /** 全部成分股涨跌榜；QuickTiny 口径同时提供现价和行业。 */
-  members?: Array<{ code: string; name: string; changePct: number; price?: number; industry?: string }>
-  sourceLabel?: string
-}
-export type BoardStrategyGroup = 'pullback' | 'highdiv' | 'volbreak' | 'bhold' | 'trendnew'
-export interface BoardStrategyHit {
-  group: BoardStrategyGroup
-  code: string
-  name: string
-  price: number
-  score: number
-  tier?: number
-}
-
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n))
-const TOP_MOVERS_N = 10
-
 /** 成分股当日涨跌幅榜(按 changePct 降序取前 n);纯函数,不跑 K线/classify——
  *  蓝筹反转板块(如保险)成分股基本不符合新高战法趋势模板,靠这个才能看清"具体是谁在涨"。 */
 export function rankTopMovers<T extends { changePct: number }>(members: T[], n: number): T[] {
   return [...members].sort((a, b) => b.changePct - a.changePct).slice(0, n)
-}
-
-async function fetchQuickTinyBoardStocksFresh(
-  code: string,
-  parsed: NonNullable<ReturnType<typeof parseQuickTinyBoardCode>>,
-): Promise<BoardStocksResult> {
-  const payload = await fetchQuickTinyStockQuadrant(
-    parsed.source,
-    parsed.name,
-    ROTATION.DEFAULT_LONG,
-    ROTATION.DEFAULT_SHORT,
-  )
-  const members = rankTopMovers(
-    payload.allStocks
-      .map((stock) => ({
-        code: String(stock.code ?? ''),
-        name: String(stock.name ?? ''),
-        changePct: num(stock.todayChange),
-        price: num(stock.close) || undefined,
-        industry: stock.industry || undefined,
-      }))
-      .filter((stock) => stock.code && stock.name),
-    payload.allStocks.length,
-  )
-  const topMovers = members.slice(0, TOP_MOVERS_N).map(({ code: stockCode, name, changePct }) => ({
-    code: stockCode,
-    name,
-    changePct,
-  }))
-  return {
-    code,
-    name: payload.sectorName || parsed.name,
-    scanned: members.length,
-    breakout: [],
-    trigger: [],
-    topMovers,
-    strategyHits: [],
-    members,
-    sourceLabel: payload.meta.sourceLabel,
-  }
 }
 
 /** 板块成分股(报价调用 fs=b:BKxxxx,不受 kline 限流);按成交额降序。changePct=当日涨跌幅%(f3)。
@@ -737,76 +673,4 @@ export async function fetchBoardConstituents(
     }
   }
   return []
-}
-
-async function fetchBoardStocksFresh(bkCode: string): Promise<BoardStocksResult> {
-  const quickTiny = parseQuickTinyBoardCode(bkCode)
-  if (quickTiny) return fetchQuickTinyBoardStocksFresh(bkCode, quickTiny)
-  const allMembers = await fetchBoardConstituents(bkCode)
-  const topMovers = rankTopMovers(allMembers, TOP_MOVERS_N).map(({ code, name, changePct }) => ({ code, name, changePct }))
-  const members = allMembers.slice(0, ROTATION.DRILL_CAP)
-  const scanned = await mapLimit(members, ROTATION.CONCURRENCY, async (m): Promise<{
-    primary: (BoardStock & { liqAmount: number }) | null
-    hits: BoardStrategyHit[]
-  }> => {
-      try {
-        const { klines } = await fetchStockKline(m.code, 101, SCREENER.KLINE_COUNT)
-        const bars = klines as Bar[]
-        if (!klines || bars.length < SCREENER.MA_LONG + SCREENER.MA_LONG_RISE_LOOKBACK + 1) return { primary: null, hits: [] }
-        const cand = classify(bars)
-        const hits: BoardStrategyHit[] = []
-        const add = (group: BoardStrategyGroup, hit: { price: number; score: number; tier?: number } | null) => {
-          if (hit) hits.push({ group, code: m.code, name: m.name, price: hit.price, score: hit.score, tier: hit.tier })
-        }
-        add('pullback', classifyPullback(bars, PULLBACK))
-        add('highdiv', classifyHighDivergence(bars, m.code, HIGHDIV))
-        add('volbreak', classifyVolBreakout(bars, m.code, VOLBREAK))
-        add('bhold', classifyBreakoutHold(bars, m.code, BHOLD))
-        add('trendnew', classifyTrendNewHigh(bars, m.code, TRENDNEW))
-        return { primary: cand ? { ...cand, code: m.code, name: m.name, score: 0, liqAmount: m.amount } : null, hits }
-      } catch {
-        return { primary: null, hits: [] }
-      }
-    })
-  const enriched = scanned.map((x) => x.primary).filter((x): x is BoardStock & { liqAmount: number } => x != null)
-  const strategyHits = scanned
-    .flatMap((x) => x.hits)
-    .sort((a, b) => (b.tier ?? 0) - (a.tier ?? 0) || b.score - a.score)
-
-  // RS 百分位(板块内)+ 流动性归一 → 评分(与选股器一致)
-  const rs = enriched.map((c) => c.rsRaw).sort((a, b) => a - b)
-  const rsRank = (v: number) => (rs.length <= 1 ? 1 : rs.filter((x) => x <= v).length / rs.length)
-  for (const c of enriched) {
-    const liq01 = clamp01(Math.log10(Math.max(c.liqAmount, 1) / SCREENER.LIQUIDITY_MIN) / 2)
-    c.score = finalScore(c, rsRank(c.rsRaw), liq01)
-  }
-  const strip = ({ liqAmount: _liq, ...rest }: BoardStock & { liqAmount: number }) => rest
-  const breakout = enriched.filter((c) => c.group === 'breakout').sort((a, b) => b.score - a.score).map(strip)
-  const trigger = enriched.filter((c) => c.group === 'trigger').sort((a, b) => b.score - a.score).map(strip)
-  console.log(`[Rotation] 下钻 ${bkCode}:成分 ${members.length} → 突破 ${breakout.length}/扳机 ${trigger.length}/并列形态 ${strategyHits.length}`)
-  return {
-    code: bkCode,
-    name: bkCode,
-    scanned: members.length,
-    breakout,
-    trigger,
-    topMovers,
-    strategyHits,
-    members: rankTopMovers(allMembers, allMembers.length).map(({ code, name, changePct }) => ({ code, name, changePct })),
-    sourceLabel: '东方财富板块成分',
-  }
-}
-
-const drillCaches = new Map<string, Cache<BoardStocksResult>>()
-export function fetchBoardStocks(bkCode: string): Promise<BoardStocksResult> {
-  let c = drillCaches.get(bkCode)
-  if (!c) {
-    c = createCache<BoardStocksResult>({
-      name: `Rotation:drill:${bkCode}`,
-      ttl: sessionTtl(120_000, 30 * 60_000),
-      fetcher: () => fetchBoardStocksFresh(bkCode),
-    })
-    drillCaches.set(bkCode, c)
-  }
-  return c.get()
 }

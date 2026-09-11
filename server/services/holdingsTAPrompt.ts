@@ -2,7 +2,7 @@
 // 职责边界:把 HoldingsTAResult 压成每票一行的紧凑中文事实(缺哪段删哪段,
 // 绝不让 LLM 看到空段落去脑补);LLM 调用本身在 holdingsTA.ts。
 // avgCost 只在这里换算成浮盈%喂给叙事,原值不落盘。
-import type { HoldingTAItem, HoldingsTAResult } from './holdingsTARules'
+import type { HoldingTAItem, HoldingsTAResult } from './holdingsTAContract'
 
 export const HOLDINGS_TA_SYSTEM_PROMPT = `你是一位克制、专业的A/H股持仓技术面复盘助手。根据用户提供的持仓结构化技术数据,写一段简短的中文盘后持仓综述。硬性规则:
 1. 只使用提供的数据,禁止编造任何数字、个股、事件;数据缺失的部分直接跳过不提。

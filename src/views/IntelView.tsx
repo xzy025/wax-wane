@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import type { Translation } from '../types'
 import NewsFlashPanel from './NewsFlashPanel'
-import ResearchPanel from './ResearchPanel'
+import { Suspense } from 'react'
+import { strategyView } from '../strategy-ui'
+
+// 研报面板属私有战法层，未安装时回退占位。
+const ResearchPanel = strategyView('ResearchPanel')
 
 /** 消息面:7x24 实时快讯 + 每日研报 LLM 看板,双子 tab(同 ScreenerView 范式)。 */
 export default function IntelView({ t }: { t: Translation }) {
@@ -19,7 +23,11 @@ export default function IntelView({ t }: { t: Translation }) {
         </div>
       </div>
       {tab === 'flash' && <NewsFlashPanel t={t} />}
-      {tab === 'research' && <ResearchPanel t={t} />}
+      {tab === 'research' && (
+        <Suspense fallback={null}>
+          <ResearchPanel t={t} />
+        </Suspense>
+      )}
     </section>
   )
 }

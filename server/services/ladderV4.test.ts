@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 import {
   applyEventReactionToRiskContext,
   buildEventReaction,

@@ -13,7 +13,7 @@ import {
   fetchSinaBatchQuotes,
   fetchTencentBatchQuotes,
 } from './screenerLiveQuotes'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 import { exchangeFromCode } from './auctionL1Provider'
 import type { AuctionL1Snapshot } from './auctionL1'
 import { decodeAuctionLevel1 } from './auctionL1'

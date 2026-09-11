@@ -1,4 +1,4 @@
-import { SCREENER } from '../config/screener'
+import { CLIST_FS } from '../config/market'
 import { isTradingDayAt } from './tradingCalendar'
 import { emFetch } from '../lib/emFetch'
 import { EM_HEADERS } from '../lib/emHeaders'
@@ -132,7 +132,7 @@ async function fetchFullMarketLiquidity(tradeDate: string): Promise<FullMarketCa
     for (let offset = 0; offset < hosts.length; offset++) {
       const host = hosts[(page + offset) % hosts.length]
       try {
-        const url = `https://${host}/api/qt/clist/get?pn=${page}&pz=${pageSize}&po=1&np=1&fltt=2&invt=2&fid=f6&fs=${encodeURIComponent(SCREENER.CLIST_FS)}&fields=f3,f6,f12,f14,f20,f100,f124`
+        const url = `https://${host}/api/qt/clist/get?pn=${page}&pz=${pageSize}&po=1&np=1&fltt=2&invt=2&fid=f6&fs=${encodeURIComponent(CLIST_FS)}&fields=f3,f6,f12,f14,f20,f100,f124`
         const response = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 12_000 })
         if (!response.ok) continue
         const json = await response.json() as {

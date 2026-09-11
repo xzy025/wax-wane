@@ -6,7 +6,7 @@
 //   env 门控:FUNDRES_FUNDFLOW=0 关闭主力净流入取数(成交量排名不受影响,仍展示)。
 import { EM_HEADERS } from '../lib/emHeaders'
 import { emFetch } from '../lib/emFetch'
-import { SCREENER } from '../config/screener'
+import { CLIST_FS } from '../config/market'
 import { toSecids } from './emQuotes'
 
 // 资金流走 push2delay(实测对本机最宽松,fid=f62/ulist 须带 ut token)。多镜像轮换容错。
@@ -47,7 +47,7 @@ async function fetchRankPage(
     const host = FF_HOSTS[(pn + i) % FF_HOSTS.length]
     const url =
       `https://${host}/api/qt/clist/get?pn=${pn}&pz=${FF_PZ}&po=1&np=1&fltt=2&invt=2&ut=${FF_UT}&fid=${fid}` +
-      `&fs=${encodeURIComponent(SCREENER.CLIST_FS)}&fields=${fields}`
+      `&fs=${encodeURIComponent(CLIST_FS)}&fields=${fields}`
     try {
       const res = await emFetch(url, { headers: EM_HEADERS, timeoutMs: 8000 })
       if (!res.ok) throw new Error(`fundflow HTTP ${res.status}`)

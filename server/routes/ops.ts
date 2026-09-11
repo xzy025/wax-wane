@@ -11,7 +11,7 @@ import type { CrossMarketPhase } from '../services/crossMarketMapping'
 import { buildPremarketWorkbench } from '../services/premarketWorkbench'
 import { getSettledArchiveSchedulerStatus } from '../services/settlementArchive'
 import { getSchedulerCoordinatorStatus } from '../services/schedulerCoordinator'
-import { getFirstBoardProviderHealth } from '../services/firstBoardScan'
+import { getStrategy } from '../strategy/loader'
 import { getQuickTinyMcpHealth, probeQuickTinyMcp } from '../services/quicktinyMcp'
 import { buildDataQualityAudit } from '../services/dataQualityAudit'
 
@@ -53,7 +53,7 @@ router.get('/api/ops/scheduler-status', (_req, res) => {
     crossMarketSnapshots: crossMarket,
     settledArchive: getSettledArchiveSchedulerStatus(),
     coordinator: getSchedulerCoordinatorStatus(),
-    firstBoardProviders: getFirstBoardProviderHealth(),
+    firstBoardProviders: getStrategy()?.ladder?.getFirstBoardProviderHealth?.() ?? null,
     quicktinyMcp: getQuickTinyMcpHealth(),
   })
 })

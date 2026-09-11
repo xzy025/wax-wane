@@ -7,7 +7,7 @@ import {
   loadHoldingsTaArchiveByDate,
   type HoldingsTAPosition,
 } from '../services/holdingsTA'
-import { HOLDINGS } from '../config/screener'
+import { HOLDINGS } from '../config/market'
 import { normalizeSecurityCode } from '../services/securityCode'
 
 const router = Router()

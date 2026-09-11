@@ -7,12 +7,8 @@ import { fetchHotList, clearHotListCache } from '../services/hotlist'
 import { fetchSentiment, clearSentimentCache } from '../services/kaipanla'
 import { clearMacroCache } from '../services/macro'
 import { clearThemesCache } from '../services/themes'
-import { clearScreenerCache } from '../services/screener'
-import { clearScreenerForwardCache } from '../services/screenerForward'
 import { clearMarketStructureCache } from '../services/marketStructure'
 import { clearDailyReviewCache } from '../services/dailyReview'
-import { clearReboundCache } from '../services/reboundReview'
-import { clearFundResonanceBoardCache } from '../services/fundResonanceBoard'
 import { clearOrgSurveyBoardCache } from '../services/orgSurveyBoard'
 import { clearRotationCache } from '../services/rotation'
 import { clearRotationTempoCache } from '../services/rotationTempo'
@@ -21,8 +17,12 @@ import { clearNewsFlashCache } from '../services/newsFlash'
 import { clearResearchCache } from '../services/research'
 import { resetFeishuCooldown } from '../services/feishuSync'
 import { clearHoldingsTACache } from '../services/holdingsTA'
-import { clearInstitutionAccumCache } from '../services/institutionAccum'
 import { clearLimitLadderCache } from '../services/limitLadder'
+import { getStrategy } from '../strategy/loader'
+
+// 选股/战绩/共振榜/机构吸筹是私有战法层的面板 —— 缓存清理器也从战法层取。
+// 未安装私有包时这些项是空操作，行情横幅刷新照常。
+const strategyPanels = () => getStrategy()?.panels
 
 const router = Router()
 
@@ -39,17 +39,17 @@ const cacheClearers: Record<string, () => void> = {
   macro: clearMacroCache,
   themes: clearThemesCache,
   moneyflow: clearMoneyFlowCache,
-  screener: clearScreenerCache,
-  'screener-forward': clearScreenerForwardCache,
+  screener: () => strategyPanels()?.clearScreenerCache?.(),
+  'screener-forward': () => strategyPanels()?.clearScreenerForwardCache?.(),
   'market-structure': clearMarketStructureCache,
   // 复盘卡刷新连带反攻日区块(reboundDay 是 daily-review 的子区块,无独立刷新入口)
   'daily-review': () => {
     clearDailyReviewCache()
-    clearReboundCache()
+    strategyPanels()?.clearReboundCache?.()
   },
-  'fund-resonance-board': clearFundResonanceBoardCache,
+  'fund-resonance-board': () => strategyPanels()?.clearFundResonanceBoardCache?.(),
   'org-survey-board': clearOrgSurveyBoardCache,
-  'institution-accum': clearInstitutionAccumCache,
+  'institution-accum': () => strategyPanels()?.clearInstitutionAccumCache?.(),
   // rotation 清缓存连带节奏表:barsCache 被清后 tempo 不连清会短暂错拍(仿 daily-review 连带先例)
   rotation: () => {
     clearRotationCache()

@@ -8,9 +8,6 @@ import { getProtocol } from './lib/llm'
 import agentRoutes from './routes/agent'
 import marketRoutes from './routes/market'
 import themesRoutes from './routes/themes'
-import screenerRoutes from './routes/screener'
-import screenerForwardRoutes from './routes/screenerForward'
-import rotationRoutes from './routes/rotation'
 import mcpRoutes from './routes/mcp'
 import dbRoutes from './routes/db'
 import memoryRoutes from './routes/memory'
@@ -20,8 +17,8 @@ import holdingsRoutes from './routes/holdings'
 import ladderRoutes from './routes/ladder'
 import opsRoutes from './routes/ops'
 import hithinkResearchRoutes from './routes/hithinkResearch'
-import huishouResearchRoutes from './routes/huishouResearch'
 import { startSchedulerCoordinator } from './services/schedulerCoordinator'
+import { getStrategy, loadStrategy, logStrategyStatus } from './strategy/loader'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -57,9 +54,6 @@ app.use(express.json({ limit: '50mb' }))
 app.use(agentRoutes)
 app.use(marketRoutes)
 app.use(themesRoutes)
-app.use(screenerRoutes)
-app.use(screenerForwardRoutes)
-app.use(rotationRoutes)
 app.use(mcpRoutes)
 app.use(dbRoutes)
 app.use(memoryRoutes)
@@ -69,11 +63,16 @@ app.use(holdingsRoutes)
 app.use(ladderRoutes)
 app.use(opsRoutes)
 app.use(hithinkResearchRoutes)
-app.use(huishouResearchRoutes)
 
 // Initialize database and start server
 async function startServer() {
   let dbConnected = false
+
+  // 私有战法层（选股/轮动/挥手研究路由、Agent 策略工具）。
+  // 未安装时 loadStrategy() 返回 null —— 不抛错、不阻断启动，对应端点不存在。
+  const strategy = await loadStrategy()
+  logStrategyStatus()
+  strategy?.routes?.register(app)
 
   try {
     await initDatabase()

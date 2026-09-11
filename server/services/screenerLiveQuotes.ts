@@ -1,7 +1,7 @@
 import { SINA_HEADERS } from '../lib/emHeaders'
 import { fetchWithProxy } from '../lib/llm'
 import { marketPhaseForClockTime } from './auctionL1'
-import type { ScreenerLiveQuote } from './screenerScan'
+import type { ScreenerLiveQuote } from './screenerDataContract'
 
 const CHUNK_SIZE = 80
 // 公共批量报价是盘中 fallback 的关键路径；80 只/批、3 并发在代理环境下

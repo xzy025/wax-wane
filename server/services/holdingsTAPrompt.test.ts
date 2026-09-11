@@ -1,18 +1,40 @@
 import { describe, it, expect } from 'vitest'
 import { buildHoldingsTAFacts, HOLDINGS_TA_SYSTEM_PROMPT } from './holdingsTAPrompt'
-import { buildHoldingTAFromBars, type HoldingTAItem, type HoldingsTAResult } from './holdingsTARules'
-import type { Bar } from './screenerRules'
+import type { HoldingTAItem, HoldingsTAResult } from './holdingsTAContract'
 
-function mkBars(n: number): Bar[] {
-  const bars: Bar[] = []
-  for (let i = 0; i < n; i++) {
-    const c = 10 * Math.pow(1.005, i)
-    bars.push({ date: `2026-01-${String((i % 28) + 1).padStart(2, '0')}`, open: c, close: c, high: c * 1.01, low: c * 0.99, volume: 1000 })
-  }
-  return bars
+// 本测试只测**公开侧**的 prompt 拼装：把结构化 TA 压成中文事实。
+// 结构化 TA 本身由私有战法层产生，所以这里用手写字面量做夹具，不再依赖
+// `buildHoldingTAFromBars` —— 那个函数已随战法层移入私有包。
+const base: HoldingTAItem = {
+  code: '600176',
+  market: 'A',
+  name: '中国巨石',
+  date: '2026-07-21',
+  close: 20,
+  changePct: 2.5,
+  combo: {
+    score01: 0.68,
+    bias: 'demand',
+    distribution: false,
+    wyckoffPhase: '标记上涨',
+    tags: ['SOS'],
+    note: '需求占优',
+  },
+  trendTemplateOk: true,
+  ma: { ma5: 19.2, ma10: 18.6, ma20: 17.9, ma60: 16.4, ma250: 13.1 },
+  aboveMa: { ma5: true, ma10: true, ma20: true, ma60: true, ma250: true },
+  volRatio: 1.4,
+  breakoutVolRatio: 1.9,
+  hi52: 21.3,
+  dist52Pct: 6.1,
+  rsRaw: 0.42,
+  atr14: 0.6,
+  atrStop: 18.8,
+  pivotHigh250: 21.0,
+  pivots: { r1: 20.6, r2: 21.2, s1: 19.4, s2: 18.8 },
+  nPattern: null,
+  delta: null,
 }
-
-const base = buildHoldingTAFromBars('600176', '中国巨石', mkBars(300))!
 
 const mkResult = (items: HoldingTAItem[]): HoldingsTAResult => ({
   date: '2026-07-21',
