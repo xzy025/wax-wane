@@ -71,6 +71,7 @@ docs/电力交易岗*
 docs/agent/
 # workbuddy assistant memory
 docs/.workbuddy-ai/
+/.workbuddy-ai/
 
 # Personal job-hunt workspace (resumes, search results)
 docs/job-hunt-2026-09/
