@@ -399,6 +399,7 @@ interface SinaStock {
   code: string
   name: string
   trade: string
+  settlement?: string
   changepercent: number
   volume: number
   amount: number
@@ -406,26 +407,25 @@ interface SinaStock {
   turnoverratio: number
 }
 
-function isLimitUp(changePct: number, code: string): boolean {
-  // ChiNext (300xxx, 301xxx) and STAR (688xxx) have 20% limit
-  // Main board (others) has 10% limit
-  // New stocks (N prefix) have no limit on first day
-  if (code.startsWith('300') || code.startsWith('301') || code.startsWith('688')) {
-    return changePct >= 19.9
-  }
-  return changePct >= 9.9
+export function isSinaStockAtLimit(
+  stock: Pick<SinaStock, 'code' | 'name' | 'trade' | 'settlement'>,
+  direction: 'up' | 'down',
+): boolean {
+  if (/^(N|C)/i.test(stock.name)) return false
+  const previousClose = Number(stock.settlement)
+  const price = Number(stock.trade)
+  if (!(previousClose > 0) || !(price > 0) || !Number.isFinite(price) || !Number.isFinite(previousClose)) return false
+  const pct = isBeijingStockCode(stock.code) ? 30
+    : /^(300|301|688)/.test(stock.code) ? 20 : 10
+  // Provider percentages are rounded. Compare exchange price ticks instead;
+  // e.g. 71.20 / 64.77 (+9.927%) is below the actual upper limit of 71.25.
+  const previousCents = Math.round(previousClose * 100)
+  const limitCents = Math.round(previousCents * (100 + (direction === 'up' ? pct : -pct)) / 100)
+  return Math.abs(price * 100 - limitCents) < 0.000001
 }
 
-function isLimitDown(changePct: number, code: string): boolean {
-  if (code.startsWith('300') || code.startsWith('301') || code.startsWith('688')) {
-    return changePct <= -19.9
-  }
-  return changePct <= -9.9
-}
-
-async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: number; stocks: LimitStock[] }> {
+export async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: number; stocks: LimitStock[] }> {
   const asc = direction === 'up' ? 0 : 1
-  const limitFn = direction === 'up' ? isLimitUp : isLimitDown
   const PAGE_SIZE = 100
   const MAX_PAGES = 30
 
@@ -441,14 +441,12 @@ async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: nu
 
     if (!Array.isArray(data) || data.length === 0) break
 
-    let hitLimit = false
     for (const item of data) {
       if (item.changepercent === 0) continue
       // Skip new stocks (N prefix) - they have no price limit
       if (item.name.startsWith('N')) continue
 
-      if (limitFn(item.changepercent, item.code)) {
-        hitLimit = true
+      if (isSinaStockAtLimit(item, direction)) {
         totalCount++
         if (stocks.length < 50) {
           stocks.push({
@@ -468,8 +466,9 @@ async function fetchSinaLimitPool(direction: 'up' | 'down'): Promise<{ count: nu
       }
     }
 
-    // If this page has no limit stocks, no need to check further
-    if (!hitLimit) break
+    // A page without exact hits may still precede lower-percentage sealed
+    // stocks (price-tick rounding). Stop once sorted prices cross zero.
+    if (data.some((item) => direction === 'up' ? item.changepercent <= 0 : item.changepercent >= 0)) break
     // If we got fewer than PAGE_SIZE results, we've reached the end
     if (data.length < PAGE_SIZE) break
   }

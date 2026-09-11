@@ -3,6 +3,19 @@ const mocks = vi.hoisted(() => ({ em: vi.fn(), proxy: vi.fn() }))
 vi.mock('../lib/emFetch', () => ({ emFetch: mocks.em }))
 vi.mock('../lib/llm', () => ({ fetchWithProxy: mocks.proxy }))
 beforeEach(() => { vi.resetModules(); mocks.em.mockReset(); mocks.proxy.mockReset() })
+it('continues past a page of near-limit quotes and stops after a sorted zero crossing', async () => {
+  const row = { code: '002913', name: '奥士康', trade: '71.200', settlement: '64.770', changepercent: 9.927, amount: 1e8, turnoverratio: 3 }
+  mocks.proxy.mockResolvedValueOnce(new Response(JSON.stringify(Array.from({ length: 100 }, () => row))))
+  mocks.proxy.mockResolvedValueOnce(new Response(JSON.stringify([
+    { ...row, code: '600001', trade: '1.13', settlement: '1.03', changepercent: 9.709 },
+    ...Array.from({ length: 99 }, () => ({ ...row, trade: '64.77', changepercent: 0 })),
+  ])))
+  const { fetchSinaLimitPool } = await import('./ashare')
+  const result = await fetchSinaLimitPool('up')
+  expect(result.count).toBe(1)
+  expect(result.stocks.map((stock) => stock.code)).toEqual(['600001'])
+  expect(mocks.proxy).toHaveBeenCalledTimes(2)
+})
 it('marks Tencent plain fallback raw and missing amount null', async () => {
   mocks.em.mockRejectedValue(new Error('offline'))
   mocks.proxy.mockResolvedValue(new Response(JSON.stringify({ data: { sz000001: { day: [['2026-09-07', '10', '11', '12', '9', '100']] } } })))
