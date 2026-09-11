@@ -1,0 +1,17 @@
+{
+  "runId": "settled-2026-09-10-1789024203459-0p3h3d",
+  "tradeDate": "2026-09-10",
+  "phase": "settled",
+  "checkpoint": "settled",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "settled-archive-pipeline",
+  "providerTimestamp": "15:10:00",
+  "startedAt": "2026-09-10T07:10:03.402Z",
+  "finishedAt": "2026-09-10T07:10:03.402Z",
+  "dataAsOf": "2026-09-10T07:10:03.478Z",
+  "warnings": [
+    "结算检查点已登记；五类复盘、连板与晋级归档由盘后流水线异步物化"
+  ]
+}

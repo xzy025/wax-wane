@@ -1,0 +1,17 @@
+{
+  "runId": "auction-probe-2026-09-10-1789003050238-6zxtkt",
+  "tradeDate": "2026-09-10",
+  "phase": "auction",
+  "checkpoint": "auction-probe",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:17:33",
+  "startedAt": "2026-09-10T01:17:30.237Z",
+  "finishedAt": "2026-09-10T01:17:30.237Z",
+  "dataAsOf": "2026-09-10T01:17:30.571Z",
+  "warnings": [
+    "09:17 可撤单试盘结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

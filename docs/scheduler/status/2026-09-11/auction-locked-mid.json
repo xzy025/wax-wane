@@ -1,0 +1,17 @@
+{
+  "runId": "auction-locked-mid-2026-09-11-1789089750175-ouam1q",
+  "tradeDate": "2026-09-11",
+  "phase": "auction",
+  "checkpoint": "auction-locked-mid",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:22:41",
+  "startedAt": "2026-09-11T01:22:30.172Z",
+  "finishedAt": "2026-09-11T01:22:30.172Z",
+  "dataAsOf": "2026-09-11T01:22:30.233Z",
+  "warnings": [
+    "09:22 锁定阶段持续性检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

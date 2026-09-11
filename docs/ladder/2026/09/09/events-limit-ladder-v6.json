@@ -1,0 +1,398 @@
+{
+  "generatedAt": "2026-09-09T09:32:57.380Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5084807",
+      "publishedAt": "2026-09-09T17:29:33+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8884957.d.html",
+      "title": "测绘股份：控股股东减持致持股比例降至40%",
+      "summary": "测绘股份公告称，公司控股股东南京高投科技有限公司于2026年9月7日至9月8日，通过集中竞价及大宗交易方式合计减持公司股份240.34万股，占总股本的1.05%。本次减持后，控股股东持股数量从9369.15万股降至9128.81万股，持股比例从41.05%下降至40.00%，触及1%及5%整数倍。本次权益变动系实施此前预披露的减持计划，不触及要约收购，不会导致公司控股股东、实控人发生变化。目前本次减持计划期限尚未届满。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:29:33.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5084803",
+      "publishedAt": "2026-09-09T17:28:21+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8884222.d.html",
+      "title": "瑞尔特：股票交易异常波动 无应披露未披露重大事项",
+      "summary": "瑞尔特公告称，公司股票连续两个交易日（2026年9月8日、9月9日）日收盘价格涨幅偏离值累计超过20%，属于股票交易异常波动。公司为无控股股东、实际控制人的上市公司，经核查，公司前期披露信息不存在需更正补充之处，未发现对公司股票交易价格产生较大影响的未公开重大信息，近期经营情况正常，内外部经营环境未发生重大变化，公司及第一大股东、主要股东不存在应披露而未披露的重大事项，异常波动期间第一大股东及主要股东不存在买卖公司股票的情形。敬请广大投资者理性投资，注意风险。",
+      "codes": [
+        "002790"
+      ],
+      "themes": [
+        "地产链"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:28:21.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5084801",
+      "publishedAt": "2026-09-09T17:27:38+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8883877.d.html",
+      "title": "中国能建：上半年营收2083.12亿元 披露算电业务布局",
+      "summary": "中国能建公告称，2026年上半年公司实现营业收入2083.12亿元、归母净利润22.79亿元，能源电力及水利业务营收、利润总额分别同比增长1.64%、16.37%。公司布局算电协同业务，庆阳大数据中心产业园总投资约55亿元，设计约7000个机柜，目前A1、A2楼已投运，A4楼计划2026年底前投产，A3楼计划2027年投产；同时储备北京经开区、安徽芜湖等数据中心项目，“十五五”期间拟推进国内国际双布局。",
+      "codes": [],
+      "themes": [
+        "电力"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:27:38.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5084795",
+      "publishedAt": "2026-09-09T17:25:21+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcs5654542.d.html",
+      "title": "上海莱士：拟斥2.5亿-5亿元回购股份用于注销",
+      "summary": "上海莱士公告称，公司拟使用自有资金及银行专项贷款，以集中竞价方式回购A股股份，回购资金总额不低于2.5亿元、不超过5亿元，回购价格不超过7.18元/股。按回购价上限测算，预计回购股份数量约3481.89万股-6963.79万股，占总股本的0.53%-1.06%，所回购股份将全部用于注销并减少注册资本。回购实施期限为自2026年8月31日股东会审议通过之日起12个月内。截至公告披露日，公司董监高、控股股东、实控人及其一致行动人、持股5%以上股东均无回购期间及未来三到六个月的增减持计划。本次回购存在股价超上限、资金不到位等导致方案无法顺利实施的风险，敬请投资者注意投资风险。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:25:21.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "em-202609093869393550",
+      "publishedAt": "2026-09-09T17:23:37+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "众泰汽车：全新A0级车型进入批量试制阶段 目前尚未形成销售",
+      "summary": "众泰汽车9月9日公告，公司目前正全力推进整车板块的复工复产，各项工作已取得阶段性进展，全新A0级车型已正式进入批量试制阶段。该车型主要面向海外市场，目标市场的法规认证、渠道建设及市场需求存在不确定性，截至目前尚未形成销售。",
+      "codes": [
+        "000980"
+      ],
+      "themes": [
+        "汽车类"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:23:37.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5084789",
+      "publishedAt": "2026-09-09T17:22:17+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcs5652037.d.html",
+      "title": "华正新材：股票交易异常波动 定增事项尚待审核",
+      "summary": "华正新材公告称，公司股票于2026年9月7日、9月8日、9月9日连续3个交易日内收盘价格涨幅偏离值累计超过20%，属于股票交易异常波动情形。公司最新市盈率109.23倍、滚动市盈率74.27倍，高于同行业市盈率水平，期间日均换手率14.82%，换手率较高。经自查并问询控股股东及实控人，除已披露的2026年度向特定对象发行A股股票事项外，不存在其他应披露未披露的重大信息。前述定增拟发行不超4703.72万股，募资不超12.00亿元，已获上交所受理，尚需上交所审核通过及证监会注册，能否实施存在不确定性。敬请投资者注意投资风险。",
+      "codes": [
+        "603186"
+      ],
+      "themes": [
+        "通信"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:22:17.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5084788",
+      "publishedAt": "2026-09-09T17:21:56+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8879134.d.html",
+      "title": "众泰汽车：股票交易异常波动 无应披露未披露重大事项",
+      "summary": "众泰汽车公告称，公司股票于2026年9月8日、9月9日连续两个交易日收盘价涨幅偏离值累计超过20%，属于股票交易异常波动情形。经核查并向第一大股东函询，公司前期披露信息无需更正补充，未发现对股价有较大影响的未公开重大信息，第一大股东无应披露未披露重大事项，异动期间未主动买卖公司股票。公司目前推进整车板块复工复产，全新A0级车型进入批量试制阶段，该车型面向海外市场，尚未形成销售，公司仍面临一定资金压力，后续量产及市场投放资金到位情况存在不确定性，敬请投资者理性投资、注意风险。",
+      "codes": [
+        "000980"
+      ],
+      "themes": [
+        "汽车类"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:21:56.000Z",
+      "evidence": []
+    },
+    {
+      "id": "em-202609093869392134",
+      "publishedAt": "2026-09-09T17:21:35+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "仁智股份：终止控制权拟变更事项",
+      "summary": "9月9日，仁智股份(002629.SZ)公告称，公司控股股东、实际控制人陈泽虹及其一致行动人平达新材料与上海承适签署解除协议，一致同意解除原股份转让协议及表决权放弃协议，控制权拟变更事项终止。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:21:35.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5084780",
+      "publishedAt": "2026-09-09T17:19:46+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcs5649644.d.html",
+      "title": "花旗：IT服务及软件业AI变现开始兑现，首选中软国际及金蝶等",
+      "summary": "花旗发表研报指，经审视所评级的11家中国IT服务及软件公司今年第二季及上半年业绩，当中超过一半表现好过或符合预期，行业呈现明显分化。该行指，AI收入正从概念驱动，逐步转变为实际财务贡献，行业龙头的AI变现已开始兑现，中软国际全栈AI业务收入达15.3亿元，同比增长134%，金蝶则受惠于AI订阅模式动能，成功实现扭亏，但强调行业分化明显，预期面向政府的周期性项目、房地产或车企相关项目仍面临复苏周期较长的问题。该行对中软国际、金蝶、明源云及中航信评级均为“买入”，首选股为中软国际、金蝶及中科创达。",
+      "codes": [],
+      "themes": [
+        "科技"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:19:46.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5084779",
+      "publishedAt": "2026-09-09T17:19:40+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "",
+      "title": "纳斯达克100ETF招商：二级市场交易价格大幅溢价 提示风险",
+      "summary": "纳斯达克100ETF招商公告称，本基金二级市场交易价格明显高于基金份额参考净值（IOPV），出现较大幅度溢价。2026年9月9日，本基金二级市场收盘价为2.361元，收盘时基金份额参考净值（IOPV）为2.1542元。若2026年9月10日溢价幅度未有效回落，本基金有权申请盘中临时停牌、延长停牌时间及连续停牌等措施警示风险。截至目前，本基金运作正常，无其他应披露而未披露的重大信息。敬请投资者密切关注溢价风险，审慎投资。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:19:40.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "sina-5084778",
+      "publishedAt": "2026-09-09T17:19:36+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8876922.d.html",
+      "title": "纳斯达克ETF华安：二级市场交易价格大幅溢价 提示风险",
+      "summary": "纳斯达克ETF华安公告称，基金二级市场交易价格明显高于基金份额参考净值，出现较大幅度溢价。2026年9月9日，基金二级市场收盘价为2.472元，收盘时基金份额参考净值为2.2647元。若2026年9月10日溢价幅度未有效回落，基金有权申请盘中临时停牌、延长停牌时间及连续停牌等措施警示风险。截至目前，基金运作正常，无其他应披露而未披露的重大信息。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:19:36.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "sina-5084777",
+      "publishedAt": "2026-09-09T17:19:33+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8876887.d.html",
+      "title": "纳指ETF汇添富：二级市场交易价格溢价风险提示",
+      "summary": "纳指ETF汇添富公告称，2026年09月09日，本基金二级市场收盘价为2.371元，收盘时基金份额参考净值（IOPV）为2.1794元，二级市场交易价格明显高于基金份额参考净值，出现较大幅度溢价。若2026年09月10日溢价幅度未有效回落，基金有权申请盘中临时停牌、延长停牌时间及连续停牌等措施警示风险。目前基金运作正常，无应披露而未披露的重大信息。敬请投资者密切关注溢价风险，审慎投资。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:19:33.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "sina-5084775",
+      "publishedAt": "2026-09-09T17:19:27+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8876799.d.html",
+      "title": "豆粕ETF华夏：二级市场交易价格出现较大幅度溢价",
+      "summary": "豆粕ETF华夏公告称，2026年9月9日，本基金二级市场收盘价为2.394元，收盘时基金份额参考净值（IOPV）为2.2532元，二级市场交易价格明显高于基金份额参考净值，出现较大幅度溢价。若2026年9月10日溢价幅度未有效回落，本基金有权申请盘中临时停牌、延长停牌时间及连续停牌等措施警示风险。本基金跟踪大连商品交易所豆粕期货价格指数，目前运作正常，无其他应披露而未披露的重大信息。敬请投资者密切关注溢价风险，审慎投资。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:19:27.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "sina-5084772",
+      "publishedAt": "2026-09-09T17:19:09+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcs5649029.d.html",
+      "title": "标普500ETF国泰：二级市场价格大幅溢价 提示投资风险",
+      "summary": "标普500ETF国泰公告称，2026年9月9日，基金二级市场收盘价为2.074元，收盘时基金份额参考净值（IOPV）为1.9309元，二级市场交易价格明显高于基金份额参考净值，出现较大幅度溢价。若2026年9月10日溢价幅度未有效回落，基金有权申请盘中临时停牌、延长停牌时间及连续停牌等措施警示风险。基金目前运作正常，无应披露而未披露的重大信息，提醒投资者审慎决策，注意投资风险。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:19:09.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "sina-5084771",
+      "publishedAt": "2026-09-09T17:19:05+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8876419.d.html",
+      "title": "纳斯达克100ETF大成：二级市场交易价格出现较大幅度溢价",
+      "summary": "纳斯达克100ETF大成公告称，2026年9月9日，本基金二级市场收盘价为1.809元，收盘时基金份额参考净值（IOPV）为1.6649元，交易价格明显高于基金份额参考净值，出现较大幅度溢价。若2026年9月10日溢价幅度未有效回落，基金有权申请盘中临时停牌、延长停牌时间及连续停牌等措施警示风险。目前基金运作正常，无应披露而未披露的重大信息，提醒投资者关注溢价风险，审慎投资。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:19:05.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "sina-5084770",
+      "publishedAt": "2026-09-09T17:18:59+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcs5648893.d.html",
+      "title": "仁智股份：陈泽虹等19.51%股份转让及控制权拟变更终止",
+      "summary": "仁智股份公告，此前控股股东、实际控制人陈泽虹及一致行动人平达新材料拟向上海承适转让合计8314.91万股股份，占总股本19.51%，并拟变更公司控制权。因外部市场环境变化、交易相关条件未成就，各方签署《解除协议》，原《股份转让协议》《表决权放弃协议》解除，控制权拟变更事项终止；股份尚未过户，公司控股股东、实际控制人仍为陈泽虹。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:18:59.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    },
+    {
+      "id": "sina-5084766",
+      "publishedAt": "2026-09-09T17:18:28+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-09/detail-inirfqcq8875984.d.html",
+      "title": "标普500ETF华夏：二级市场交易价格溢价 提示投资风险",
+      "summary": "标普500ETF华夏公告称，本基金二级市场交易价格明显高于基金份额参考净值（IOPV），出现较大幅度溢价。2026年9月9日，本基金二级市场收盘价为2.027元，收盘时基金份额参考净值（IOPV）为1.8755元。若2026年9月10日溢价幅度未有效回落，本基金有权申请盘中临时停牌、延长停牌时间及连续停牌等措施警示风险。截至目前，本基金运作正常，无应披露而未披露的重大信息。敬请投资者密切关注溢价风险，审慎投资。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:18:28.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "em-202609093869384961",
+      "publishedAt": "2026-09-09T17:15:41+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "沐曦股份：9月17日起1397万股限售股上市流通",
+      "summary": "沐曦股份公告称，本次上市流通的限售股为公司首次公开发行网下配售部分限售股，股份数量为1397万股，占公司股本总数的3.4906%。前述股份限售期为自公司首次公开发行股票并上市之日起9个月，该部分限售股锁定期即将届满，将于2026年9月17日起上市流通。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "unlock",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-12T09:15:41.000Z",
+      "evidence": [
+        "命中限售解禁规则"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

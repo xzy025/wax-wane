@@ -1,0 +1,3156 @@
+{
+  "schemaVersion": "first-board-scan-v2",
+  "tradeDate": "2026-09-10",
+  "ruleVersion": "first-board-scan-v2",
+  "scoreVersion": "first-board-score-v3",
+  "generatedAt": "2026-09-10T01:45:00.431Z",
+  "dataQuality": "degraded",
+  "dataAsOf": "2026-09-10T01:45:00.431Z",
+  "source": "kaipanla",
+  "sourceVersion": "kaipanla-first-board-adapter-v1",
+  "rulesVersion": "first-board-scan-v2",
+  "strategyStatus": "research",
+  "evidenceStatus": "live",
+  "candidates": [
+    {
+      "code": "600667",
+      "name": "太极实业",
+      "price": 19.98,
+      "changePct": 10.02,
+      "firstTime": "093622",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-09-10T01:38:04.749Z",
+      "amount": 3101327798,
+      "turnoverRate": 11.03,
+      "sealAmount": 3743193856,
+      "primaryTheme": "芯片",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:36:22·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-09-10T01:38:04.749Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-09-10T01:38:04.749Z",
+      "lastObservedAt": "2026-09-10T01:45:00.431Z",
+      "providerFirstSealAt": "093622",
+      "lastSealAt": "093622",
+      "firstSeenSequence": 4,
+      "latestSequence": 11,
+      "openCount": 0,
+      "providerOpenCount": null,
+      "observedOpenCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "rankEligible": false,
+      "initialPrice": 19.98,
+      "initialAmount": 2905366635,
+      "initialTurnoverRate": 10.35,
+      "initialSealAmount": 3895878400,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-09-10T01:45:00.431Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 99.72,
+        "provisionalScore": 84,
+        "finalScore": 84,
+        "effectiveCoverage": 0.2,
+        "coverage": 0.2,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme",
+          "structure",
+          "price-volume",
+          "wyckoff",
+          "brooks"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:38:04.749Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:38:04.749Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.72,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:38:04.749Z",
+            "evidence": [
+              "首封时点分98.88",
+              "封单/成交额134.09%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 25,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:38:04.749Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "price-volume",
+            "score": null,
+            "weight": 10,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:38:04.749Z",
+            "evidence": [],
+            "unavailableReason": "缺少可见信号K线"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:38:04.749Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:38:04.749Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "discoverySnapshot": {
+        "snapshotId": "600667:discovery:2026-09-10T01:38:04.749Z",
+        "observedAt": "2026-09-10T01:38:04.749Z",
+        "decisionAt": "2026-09-10T01:38:04.749Z",
+        "inputHash": "e17b739b170ced223da7b3227f0341efcd8e5085b414fe85bc513102b7edf118",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 19.98,
+        "amount": 2905366635,
+        "turnoverRate": 10.35,
+        "sealAmount": 3895878400,
+        "firstTime": "093622",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 99.72,
+          "provisionalScore": 84,
+          "finalScore": 84,
+          "effectiveCoverage": 0.2,
+          "coverage": 0.2,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme",
+            "structure",
+            "price-volume",
+            "wyckoff",
+            "brooks"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:38:04.749Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:38:04.749Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 99.72,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:38:04.749Z",
+              "evidence": [
+                "首封时点分98.88",
+                "封单/成交额134.09%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": null,
+              "weight": 25,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:38:04.749Z",
+              "evidence": [],
+              "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+            },
+            {
+              "key": "price-volume",
+              "score": null,
+              "weight": 10,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:38:04.749Z",
+              "evidence": [],
+              "unavailableReason": "缺少可见信号K线"
+            },
+            {
+              "key": "wyckoff",
+              "score": null,
+              "weight": 20,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:38:04.749Z",
+              "evidence": [],
+              "unavailableReason": "维科夫特征不足"
+            },
+            {
+              "key": "brooks",
+              "score": null,
+              "weight": 15,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:38:04.749Z",
+              "evidence": [],
+              "unavailableReason": "Brooks代理特征不足"
+            }
+          ]
+        },
+        "selectionScore": 84
+      },
+      "liveSnapshot": {
+        "snapshotId": "600667:live:2026-09-10T01:45:00.431Z",
+        "observedAt": "2026-09-10T01:45:00.431Z",
+        "decisionAt": "2026-09-10T01:45:00.431Z",
+        "inputHash": "36e81bb385756aeb8ea7cb2ce03746ea7314b0b833c24f68b6d2bf22a5b9d7d8",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 19.98,
+        "amount": 3101327798,
+        "turnoverRate": 11.03,
+        "sealAmount": 3743193856,
+        "firstTime": "093622",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 68.72,
+          "provisionalScore": 66,
+          "finalScore": 66,
+          "effectiveCoverage": 0.78,
+          "coverage": 0.78,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 99.72,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "首封时点分98.88",
+                "封单/成交额120.7%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": 65.25,
+              "weight": 25,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "趋势70",
+                "距前20高-19.69%",
+                "ATR14扩展0.6R"
+              ]
+            },
+            {
+              "key": "price-volume",
+              "score": 100,
+              "weight": 10,
+              "confidence": 0.33,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "收盘位置/实体分100"
+              ]
+            },
+            {
+              "key": "wyckoff",
+              "score": 50,
+              "weight": 20,
+              "confidence": 0.75,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": []
+            },
+            {
+              "key": "brooks",
+              "score": 45,
+              "weight": 15,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "最近三根低点不下降",
+                "K线重叠度高且尚未突破前高"
+              ]
+            }
+          ]
+        },
+        "selectionScore": 66
+      },
+      "settlementSnapshot": null,
+      "liveScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 68.72,
+        "provisionalScore": 66,
+        "finalScore": 66,
+        "effectiveCoverage": 0.78,
+        "coverage": 0.78,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.72,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "首封时点分98.88",
+              "封单/成交额120.7%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": 65.25,
+            "weight": 25,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "趋势70",
+              "距前20高-19.69%",
+              "ATR14扩展0.6R"
+            ]
+          },
+          {
+            "key": "price-volume",
+            "score": 100,
+            "weight": 10,
+            "confidence": 0.33,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "收盘位置/实体分100"
+            ]
+          },
+          {
+            "key": "wyckoff",
+            "score": 50,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": []
+          },
+          {
+            "key": "brooks",
+            "score": 45,
+            "weight": 15,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "最近三根低点不下降",
+              "K线重叠度高且尚未突破前高"
+            ]
+          }
+        ]
+      },
+      "settledScore": null,
+      "selectionScore": 66,
+      "discoverySnapshotRef": "600667:discovery:2026-09-10T01:38:04.749Z",
+      "settlementSnapshotRef": null,
+      "themeLadder": {
+        "state": "none",
+        "levels": [
+          1
+        ],
+        "maxBoards": 1,
+        "higherBoardCount": 0,
+        "bonus": 0,
+        "evidence": [
+          "板块仅作加分，不作入池门槛",
+          "当前梯队1",
+          "未识别到连续连板梯队，首板不加题材分"
+        ]
+      },
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "002201",
+      "name": "九鼎新材",
+      "price": 10.08,
+      "changePct": 10.04,
+      "firstTime": "093836",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-09-10T01:41:00.084Z",
+      "amount": 393801400,
+      "turnoverRate": 10.13,
+      "sealAmount": 288005760,
+      "primaryTheme": "化工",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:38:36·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-09-10T01:41:00.084Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-09-10T01:41:00.084Z",
+      "lastObservedAt": "2026-09-10T01:45:00.431Z",
+      "providerFirstSealAt": "093836",
+      "lastSealAt": "093836",
+      "firstSeenSequence": 7,
+      "latestSequence": 11,
+      "openCount": 0,
+      "providerOpenCount": null,
+      "observedOpenCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "rankEligible": false,
+      "initialPrice": 10.08,
+      "initialAmount": 373492952,
+      "initialTurnoverRate": 9.61,
+      "initialSealAmount": 416249248,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-09-10T01:45:00.431Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 99.26,
+        "provisionalScore": 83,
+        "finalScore": 83,
+        "effectiveCoverage": 0.2,
+        "coverage": 0.2,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme",
+          "structure",
+          "price-volume",
+          "wyckoff",
+          "brooks"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.26,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [
+              "首封时点分97.05",
+              "封单/成交额111.45%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 25,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "price-volume",
+            "score": null,
+            "weight": 10,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少可见信号K线"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "discoverySnapshot": {
+        "snapshotId": "002201:discovery:2026-09-10T01:41:00.084Z",
+        "observedAt": "2026-09-10T01:41:00.084Z",
+        "decisionAt": "2026-09-10T01:41:00.084Z",
+        "inputHash": "924cb278dc4c5ee8bf7745d6515ce1690182d77442f2050aa8e4a453b5d4757a",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 10.08,
+        "amount": 373492952,
+        "turnoverRate": 9.61,
+        "sealAmount": 416249248,
+        "firstTime": "093836",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 99.26,
+          "provisionalScore": 83,
+          "finalScore": 83,
+          "effectiveCoverage": 0.2,
+          "coverage": 0.2,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme",
+            "structure",
+            "price-volume",
+            "wyckoff",
+            "brooks"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 99.26,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [
+                "首封时点分97.05",
+                "封单/成交额111.45%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": null,
+              "weight": 25,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+            },
+            {
+              "key": "price-volume",
+              "score": null,
+              "weight": 10,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少可见信号K线"
+            },
+            {
+              "key": "wyckoff",
+              "score": null,
+              "weight": 20,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "维科夫特征不足"
+            },
+            {
+              "key": "brooks",
+              "score": null,
+              "weight": 15,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "Brooks代理特征不足"
+            }
+          ]
+        },
+        "selectionScore": 83
+      },
+      "liveSnapshot": {
+        "snapshotId": "002201:live:2026-09-10T01:45:00.431Z",
+        "observedAt": "2026-09-10T01:45:00.431Z",
+        "decisionAt": "2026-09-10T01:45:00.431Z",
+        "inputHash": "1fc206389dbfa6a8eb149d2777ae183965656138b71bd32cc3ea41f62d4accae",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 10.08,
+        "amount": 393801400,
+        "turnoverRate": 10.13,
+        "sealAmount": 288005760,
+        "firstTime": "093836",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 99.26,
+          "provisionalScore": 83,
+          "finalScore": 83,
+          "effectiveCoverage": 0.2,
+          "coverage": 0.2,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme",
+            "structure",
+            "price-volume",
+            "wyckoff",
+            "brooks"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 99.26,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "首封时点分97.05",
+                "封单/成交额73.13%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": null,
+              "weight": 25,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+            },
+            {
+              "key": "price-volume",
+              "score": null,
+              "weight": 10,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少可见信号K线"
+            },
+            {
+              "key": "wyckoff",
+              "score": null,
+              "weight": 20,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "维科夫特征不足"
+            },
+            {
+              "key": "brooks",
+              "score": null,
+              "weight": 15,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "Brooks代理特征不足"
+            }
+          ]
+        },
+        "selectionScore": 91
+      },
+      "settlementSnapshot": null,
+      "liveScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 99.26,
+        "provisionalScore": 83,
+        "finalScore": 83,
+        "effectiveCoverage": 0.2,
+        "coverage": 0.2,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme",
+          "structure",
+          "price-volume",
+          "wyckoff",
+          "brooks"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.26,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "首封时点分97.05",
+              "封单/成交额73.13%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 25,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "price-volume",
+            "score": null,
+            "weight": 10,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少可见信号K线"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "settledScore": null,
+      "selectionScore": 91,
+      "discoverySnapshotRef": "002201:discovery:2026-09-10T01:41:00.084Z",
+      "settlementSnapshotRef": null,
+      "themeLadder": {
+        "state": "complete",
+        "levels": [
+          1,
+          2
+        ],
+        "maxBoards": 2,
+        "higherBoardCount": 1,
+        "bonus": 8,
+        "evidence": [
+          "板块仅作加分，不作入池门槛",
+          "当前梯队1/2",
+          "连板梯队完整，首板补涨加8分"
+        ]
+      },
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603318",
+      "name": "水发燃气",
+      "price": 10.35,
+      "changePct": 9.99,
+      "firstTime": "093842",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-09-10T01:41:00.084Z",
+      "amount": 570090222,
+      "turnoverRate": 21.55,
+      "sealAmount": 235314496,
+      "primaryTheme": "芯片",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:38:42·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-09-10T01:41:00.084Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-09-10T01:41:00.084Z",
+      "lastObservedAt": "2026-09-10T01:45:00.431Z",
+      "providerFirstSealAt": "093842",
+      "lastSealAt": "093842",
+      "firstSeenSequence": 7,
+      "latestSequence": 11,
+      "openCount": 0,
+      "providerOpenCount": null,
+      "observedOpenCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "rankEligible": false,
+      "initialPrice": 10.35,
+      "initialAmount": 529844247,
+      "initialTurnoverRate": 20.07,
+      "initialSealAmount": 313796480,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-09-10T01:45:00.431Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 99.17,
+        "provisionalScore": 83,
+        "finalScore": 83,
+        "effectiveCoverage": 0.2,
+        "coverage": 0.2,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme",
+          "structure",
+          "price-volume",
+          "wyckoff",
+          "brooks"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 99.17,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [
+              "首封时点分96.97",
+              "封单/成交额59.22%",
+              "换手容量分99.72",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 25,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "price-volume",
+            "score": null,
+            "weight": 10,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少可见信号K线"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "discoverySnapshot": {
+        "snapshotId": "603318:discovery:2026-09-10T01:41:00.084Z",
+        "observedAt": "2026-09-10T01:41:00.084Z",
+        "decisionAt": "2026-09-10T01:41:00.084Z",
+        "inputHash": "5d004294a0278d68177e18bc15dd262d53069744845dcdb7e966215e9a229a0c",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 10.35,
+        "amount": 529844247,
+        "turnoverRate": 20.07,
+        "sealAmount": 313796480,
+        "firstTime": "093842",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 99.17,
+          "provisionalScore": 83,
+          "finalScore": 83,
+          "effectiveCoverage": 0.2,
+          "coverage": 0.2,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme",
+            "structure",
+            "price-volume",
+            "wyckoff",
+            "brooks"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 99.17,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [
+                "首封时点分96.97",
+                "封单/成交额59.22%",
+                "换手容量分99.72",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": null,
+              "weight": 25,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+            },
+            {
+              "key": "price-volume",
+              "score": null,
+              "weight": 10,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少可见信号K线"
+            },
+            {
+              "key": "wyckoff",
+              "score": null,
+              "weight": 20,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "维科夫特征不足"
+            },
+            {
+              "key": "brooks",
+              "score": null,
+              "weight": 15,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "Brooks代理特征不足"
+            }
+          ]
+        },
+        "selectionScore": 91
+      },
+      "liveSnapshot": {
+        "snapshotId": "603318:live:2026-09-10T01:45:00.431Z",
+        "observedAt": "2026-09-10T01:45:00.431Z",
+        "decisionAt": "2026-09-10T01:45:00.431Z",
+        "inputHash": "25b1cdf9e9c29a89d4d27f6ae16a012a76329c9a3dfdb6deb04a4f5c2e93141f",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 10.35,
+        "amount": 570090222,
+        "turnoverRate": 21.55,
+        "sealAmount": 235314496,
+        "firstTime": "093842",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 80.89,
+          "provisionalScore": 77,
+          "finalScore": 77,
+          "effectiveCoverage": 0.78,
+          "coverage": 0.78,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 97.69,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "首封时点分96.97",
+                "封单/成交额41.28%",
+                "换手容量分93.8",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": 93,
+              "weight": 25,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "趋势100",
+                "距前20高-1.9%",
+                "ATR14扩展1.37R"
+              ]
+            },
+            {
+              "key": "price-volume",
+              "score": 100,
+              "weight": 10,
+              "confidence": 0.33,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "收盘位置/实体分100"
+              ]
+            },
+            {
+              "key": "wyckoff",
+              "score": 60,
+              "weight": 20,
+              "confidence": 0.75,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "referencePrice > EMA20 > EMA60，EMA20上升",
+                "20日区间未超过6×ATR14"
+              ]
+            },
+            {
+              "key": "brooks",
+              "score": 55,
+              "weight": 15,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "最近三根低点不下降",
+                "两段回调的第二低点未破前低并突破触发高点",
+                "K线重叠度高且尚未突破前高"
+              ]
+            }
+          ]
+        },
+        "selectionScore": 85
+      },
+      "settlementSnapshot": null,
+      "liveScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 80.89,
+        "provisionalScore": 77,
+        "finalScore": 77,
+        "effectiveCoverage": 0.78,
+        "coverage": 0.78,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 97.69,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "首封时点分96.97",
+              "封单/成交额41.28%",
+              "换手容量分93.8",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": 93,
+            "weight": 25,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "趋势100",
+              "距前20高-1.9%",
+              "ATR14扩展1.37R"
+            ]
+          },
+          {
+            "key": "price-volume",
+            "score": 100,
+            "weight": 10,
+            "confidence": 0.33,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "收盘位置/实体分100"
+            ]
+          },
+          {
+            "key": "wyckoff",
+            "score": 60,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "referencePrice > EMA20 > EMA60，EMA20上升",
+              "20日区间未超过6×ATR14"
+            ]
+          },
+          {
+            "key": "brooks",
+            "score": 55,
+            "weight": 15,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "最近三根低点不下降",
+              "两段回调的第二低点未破前低并突破触发高点",
+              "K线重叠度高且尚未突破前高"
+            ]
+          }
+        ]
+      },
+      "settledScore": null,
+      "selectionScore": 85,
+      "discoverySnapshotRef": "603318:discovery:2026-09-10T01:41:00.084Z",
+      "settlementSnapshotRef": null,
+      "themeLadder": {
+        "state": "complete",
+        "levels": [
+          1,
+          2
+        ],
+        "maxBoards": 2,
+        "higherBoardCount": 1,
+        "bonus": 8,
+        "evidence": [
+          "板块仅作加分，不作入池门槛",
+          "当前梯队1/2",
+          "连板梯队完整，首板补涨加8分"
+        ]
+      },
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "002661",
+      "name": "克明食品",
+      "price": 9.6,
+      "changePct": 9.97,
+      "firstTime": "094057",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-09-10T01:41:00.084Z",
+      "amount": 175616151,
+      "turnoverRate": 13.11,
+      "sealAmount": 105061448,
+      "primaryTheme": "农业",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:40:57·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-09-10T01:41:00.084Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-09-10T01:41:00.084Z",
+      "lastObservedAt": "2026-09-10T01:45:00.431Z",
+      "providerFirstSealAt": "094057",
+      "lastSealAt": "094057",
+      "firstSeenSequence": 7,
+      "latestSequence": 11,
+      "openCount": 0,
+      "providerOpenCount": null,
+      "observedOpenCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "rankEligible": false,
+      "initialPrice": 9.6,
+      "initialAmount": 104455809,
+      "initialTurnoverRate": 7.97,
+      "initialSealAmount": 8229120,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-09-10T01:45:00.431Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 84.54,
+        "provisionalScore": 71,
+        "finalScore": 71,
+        "effectiveCoverage": 0.2,
+        "coverage": 0.2,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme",
+          "structure",
+          "price-volume",
+          "wyckoff",
+          "brooks"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 84.54,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [
+              "首封时点分95.12",
+              "封单/成交额7.88%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 25,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "price-volume",
+            "score": null,
+            "weight": 10,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "缺少可见信号K线"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:41:00.084Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "discoverySnapshot": {
+        "snapshotId": "002661:discovery:2026-09-10T01:41:00.084Z",
+        "observedAt": "2026-09-10T01:41:00.084Z",
+        "decisionAt": "2026-09-10T01:41:00.084Z",
+        "inputHash": "18afcd400695148e2f8f245f415c3fee8d32189a8b957c3951e03faf79b44d68",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 9.6,
+        "amount": 104455809,
+        "turnoverRate": 7.97,
+        "sealAmount": 8229120,
+        "firstTime": "094057",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 84.54,
+          "provisionalScore": 71,
+          "finalScore": 71,
+          "effectiveCoverage": 0.2,
+          "coverage": 0.2,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme",
+            "structure",
+            "price-volume",
+            "wyckoff",
+            "brooks"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 84.54,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [
+                "首封时点分95.12",
+                "封单/成交额7.88%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": null,
+              "weight": 25,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+            },
+            {
+              "key": "price-volume",
+              "score": null,
+              "weight": 10,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "缺少可见信号K线"
+            },
+            {
+              "key": "wyckoff",
+              "score": null,
+              "weight": 20,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "维科夫特征不足"
+            },
+            {
+              "key": "brooks",
+              "score": null,
+              "weight": 15,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:41:00.084Z",
+              "evidence": [],
+              "unavailableReason": "Brooks代理特征不足"
+            }
+          ]
+        },
+        "selectionScore": 79
+      },
+      "liveSnapshot": {
+        "snapshotId": "002661:live:2026-09-10T01:45:00.431Z",
+        "observedAt": "2026-09-10T01:45:00.431Z",
+        "decisionAt": "2026-09-10T01:45:00.431Z",
+        "inputHash": "638001f6781cd6e3f562495b00d9b32e51b5e7e6a98a91aceb1fd74189b19ad9",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 9.6,
+        "amount": 175616151,
+        "turnoverRate": 13.11,
+        "sealAmount": 105061448,
+        "firstTime": "094057",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 86.28,
+          "provisionalScore": 83,
+          "finalScore": 83,
+          "effectiveCoverage": 0.78,
+          "coverage": 0.78,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 98.78,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "首封时点分95.12",
+                "封单/成交额59.82%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": 85,
+              "weight": 25,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "趋势100",
+                "距前20高4.35%",
+                "ATR14扩展3.67R"
+              ]
+            },
+            {
+              "key": "price-volume",
+              "score": 100,
+              "weight": 10,
+              "confidence": 0.33,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "收盘位置/实体分100"
+              ]
+            },
+            {
+              "key": "wyckoff",
+              "score": 60,
+              "weight": 20,
+              "confidence": 0.75,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "referencePrice > EMA20 > EMA60，EMA20上升",
+                "20日区间未超过6×ATR14"
+              ]
+            },
+            {
+              "key": "brooks",
+              "score": 95,
+              "weight": 15,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "价格在EMA20上方、EMA20上升、确认摆动HH/HL",
+                "前高突破、实体/区间强、位置高",
+                "最近三根低点不下降",
+                "突破前区间收敛且K线重叠度高",
+                "两段回调的第二低点未破前低并突破触发高点",
+                "价格偏离EMA20超过3×ATR或三根推进过快"
+              ]
+            }
+          ]
+        },
+        "selectionScore": 91
+      },
+      "settlementSnapshot": null,
+      "liveScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 86.28,
+        "provisionalScore": 83,
+        "finalScore": 83,
+        "effectiveCoverage": 0.78,
+        "coverage": 0.78,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 98.78,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "首封时点分95.12",
+              "封单/成交额59.82%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": 85,
+            "weight": 25,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "趋势100",
+              "距前20高4.35%",
+              "ATR14扩展3.67R"
+            ]
+          },
+          {
+            "key": "price-volume",
+            "score": 100,
+            "weight": 10,
+            "confidence": 0.33,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "收盘位置/实体分100"
+            ]
+          },
+          {
+            "key": "wyckoff",
+            "score": 60,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "referencePrice > EMA20 > EMA60，EMA20上升",
+              "20日区间未超过6×ATR14"
+            ]
+          },
+          {
+            "key": "brooks",
+            "score": 95,
+            "weight": 15,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "价格在EMA20上方、EMA20上升、确认摆动HH/HL",
+              "前高突破、实体/区间强、位置高",
+              "最近三根低点不下降",
+              "突破前区间收敛且K线重叠度高",
+              "两段回调的第二低点未破前低并突破触发高点",
+              "价格偏离EMA20超过3×ATR或三根推进过快"
+            ]
+          }
+        ]
+      },
+      "settledScore": null,
+      "selectionScore": 91,
+      "discoverySnapshotRef": "002661:discovery:2026-09-10T01:41:00.084Z",
+      "settlementSnapshotRef": null,
+      "themeLadder": {
+        "state": "complete",
+        "levels": [
+          1,
+          2,
+          3
+        ],
+        "maxBoards": 3,
+        "higherBoardCount": 2,
+        "bonus": 8,
+        "evidence": [
+          "板块仅作加分，不作入池门槛",
+          "当前梯队1/2/3",
+          "连板梯队完整，首板补涨加8分"
+        ]
+      },
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    },
+    {
+      "code": "603316",
+      "name": "诚邦股份",
+      "price": 15.72,
+      "changePct": 10.01,
+      "firstTime": "094150",
+      "nDayBoards": "首板",
+      "firstSeenAt": "2026-09-10T01:43:00.258Z",
+      "amount": 232382865,
+      "turnoverRate": 9.37,
+      "sealAmount": 185547872,
+      "primaryTheme": "芯片",
+      "boardType": "main",
+      "onePrice": false,
+      "tBoard": false,
+      "reason": "首板·首封09:41:50·换手提示仅作提示",
+      "eligibility": {
+        "status": "eligible",
+        "eligible": true,
+        "statusEvidence": "name-regex",
+        "confidence": "degraded",
+        "reasons": [
+          "仅有名称正则状态证据，不能进入校准回测"
+        ]
+      },
+      "tradability": {
+        "status": "unknown",
+        "confidence": 0,
+        "reasons": [
+          "缺少次日开盘和容量数据，暂不判断可成交性"
+        ]
+      },
+      "lifecycle": "detected",
+      "lifecycleHistory": [
+        {
+          "at": "2026-09-10T01:43:00.258Z",
+          "lifecycle": "detected",
+          "reason": "首次在完整点时快照中满足首板资格"
+        }
+      ],
+      "firstDetectedAt": "2026-09-10T01:43:00.258Z",
+      "lastObservedAt": "2026-09-10T01:45:00.431Z",
+      "providerFirstSealAt": "094150",
+      "lastSealAt": "094150",
+      "firstSeenSequence": 9,
+      "latestSequence": 11,
+      "openCount": 0,
+      "providerOpenCount": null,
+      "observedOpenCount": 0,
+      "everDetected": true,
+      "currentlySealed": true,
+      "finalSealed": null,
+      "rankEligible": false,
+      "initialPrice": 15.72,
+      "initialAmount": 211831526,
+      "initialTurnoverRate": 8.57,
+      "initialSealAmount": 99036,
+      "source": "kaipanla",
+      "fromCache": false,
+      "dataAsOf": "2026-09-10T01:45:00.431Z",
+      "dataQuality": "degraded",
+      "evidenceStatus": "live",
+      "sourceConflict": [],
+      "discoveryScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 68.69,
+        "provisionalScore": 58,
+        "finalScore": 58,
+        "effectiveCoverage": 0.2,
+        "coverage": 0.2,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme",
+          "structure",
+          "price-volume",
+          "wyckoff",
+          "brooks"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:43:00.258Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:43:00.258Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 68.69,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:43:00.258Z",
+            "evidence": [
+              "首封时点分94.4",
+              "封单/成交额0.05%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": null,
+            "weight": 25,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:43:00.258Z",
+            "evidence": [],
+            "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+          },
+          {
+            "key": "price-volume",
+            "score": null,
+            "weight": 10,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:43:00.258Z",
+            "evidence": [],
+            "unavailableReason": "缺少可见信号K线"
+          },
+          {
+            "key": "wyckoff",
+            "score": null,
+            "weight": 20,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:43:00.258Z",
+            "evidence": [],
+            "unavailableReason": "维科夫特征不足"
+          },
+          {
+            "key": "brooks",
+            "score": null,
+            "weight": 15,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:43:00.258Z",
+            "evidence": [],
+            "unavailableReason": "Brooks代理特征不足"
+          }
+        ]
+      },
+      "discoverySnapshot": {
+        "snapshotId": "603316:discovery:2026-09-10T01:43:00.258Z",
+        "observedAt": "2026-09-10T01:43:00.258Z",
+        "decisionAt": "2026-09-10T01:43:00.258Z",
+        "inputHash": "f09c3dd1ddec058baa43b76921c2aa5e620ea3b40dc0f51774c00d40085ec032",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 15.72,
+        "amount": 211831526,
+        "turnoverRate": 8.57,
+        "sealAmount": 99036,
+        "firstTime": "094150",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 68.69,
+          "provisionalScore": 58,
+          "finalScore": 58,
+          "effectiveCoverage": 0.2,
+          "coverage": 0.2,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme",
+            "structure",
+            "price-volume",
+            "wyckoff",
+            "brooks"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:43:00.258Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:43:00.258Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 68.69,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:43:00.258Z",
+              "evidence": [
+                "首封时点分94.4",
+                "封单/成交额0.05%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": null,
+              "weight": 25,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:43:00.258Z",
+              "evidence": [],
+              "unavailableReason": "至少需要 60 根点时可见 K 线和完整结构指标"
+            },
+            {
+              "key": "price-volume",
+              "score": null,
+              "weight": 10,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:43:00.258Z",
+              "evidence": [],
+              "unavailableReason": "缺少可见信号K线"
+            },
+            {
+              "key": "wyckoff",
+              "score": null,
+              "weight": 20,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:43:00.258Z",
+              "evidence": [],
+              "unavailableReason": "维科夫特征不足"
+            },
+            {
+              "key": "brooks",
+              "score": null,
+              "weight": 15,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:43:00.258Z",
+              "evidence": [],
+              "unavailableReason": "Brooks代理特征不足"
+            }
+          ]
+        },
+        "selectionScore": 58
+      },
+      "liveSnapshot": {
+        "snapshotId": "603316:live:2026-09-10T01:45:00.431Z",
+        "observedAt": "2026-09-10T01:45:00.431Z",
+        "decisionAt": "2026-09-10T01:45:00.431Z",
+        "inputHash": "f625ed5dc2d0856ece55cd14d571d9d662b92fe94f4d6b1f3cc96b31e79bbda1",
+        "source": "kaipanla",
+        "providerAt": null,
+        "dataQuality": "degraded",
+        "price": 15.72,
+        "amount": 232382865,
+        "turnoverRate": 9.37,
+        "sealAmount": 185547872,
+        "firstTime": "094150",
+        "openCount": 0,
+        "providerOpenCount": null,
+        "observedOpenCount": 0,
+        "score": {
+          "moment": "discovery",
+          "scoreVersion": "first-board-score-v3",
+          "rawScore": 79.05,
+          "provisionalScore": 76,
+          "finalScore": 76,
+          "effectiveCoverage": 0.78,
+          "coverage": 0.78,
+          "rankEligible": false,
+          "requiredGroupsComplete": false,
+          "pointInTimeCausal": true,
+          "settledFreshContractSatisfied": false,
+          "missingDimensions": [
+            "market",
+            "theme"
+          ],
+          "manifest": {
+            "version": "first-board-score-v3",
+            "dimensions": {
+              "market": {
+                "weight": 5,
+                "input": "same-time market breadth/sentiment archive"
+              },
+              "theme": {
+                "weight": 5,
+                "input": "same-time theme snapshot"
+              },
+              "seal": {
+                "weight": 20,
+                "input": "first-seal and seal stability fields"
+              },
+              "structure": {
+                "weight": 25,
+                "input": "point-in-time daily bars"
+              },
+              "price-volume": {
+                "weight": 10,
+                "input": "point-in-time price plus same-minute volume baseline"
+              },
+              "wyckoff": {
+                "weight": 20,
+                "input": "engineering proxy; not canonical Wyckoff"
+              },
+              "brooks": {
+                "weight": 15,
+                "input": "engineering proxy; not canonical Brooks"
+              }
+            }
+          },
+          "category": "data-insufficient",
+          "dimensions": [
+            {
+              "key": "market",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+            },
+            {
+              "key": "theme",
+              "score": null,
+              "weight": 5,
+              "confidence": 0,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [],
+              "unavailableReason": "缺少对应时点已归档题材快照"
+            },
+            {
+              "key": "seal",
+              "score": 98.6,
+              "weight": 20,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "首封时点分94.4",
+                "封单/成交额79.85%",
+                "换手容量分100",
+                "开板0次"
+              ]
+            },
+            {
+              "key": "structure",
+              "score": 80.5,
+              "weight": 25,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "趋势70",
+                "距前20高1.68%",
+                "ATR14扩展2.24R"
+              ]
+            },
+            {
+              "key": "price-volume",
+              "score": 100,
+              "weight": 10,
+              "confidence": 0.33,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "收盘位置/实体分100"
+              ]
+            },
+            {
+              "key": "wyckoff",
+              "score": 50,
+              "weight": 20,
+              "confidence": 0.75,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "20日区间未超过6×ATR14"
+              ]
+            },
+            {
+              "key": "brooks",
+              "score": 75,
+              "weight": 15,
+              "confidence": 1,
+              "asOf": "2026-09-10T01:45:00.431Z",
+              "evidence": [
+                "前高突破、实体/区间强、位置高",
+                "突破前区间收敛且K线重叠度高"
+              ]
+            }
+          ]
+        },
+        "selectionScore": 76
+      },
+      "settlementSnapshot": null,
+      "liveScore": {
+        "moment": "discovery",
+        "scoreVersion": "first-board-score-v3",
+        "rawScore": 79.05,
+        "provisionalScore": 76,
+        "finalScore": 76,
+        "effectiveCoverage": 0.78,
+        "coverage": 0.78,
+        "rankEligible": false,
+        "requiredGroupsComplete": false,
+        "pointInTimeCausal": true,
+        "settledFreshContractSatisfied": false,
+        "missingDimensions": [
+          "market",
+          "theme"
+        ],
+        "manifest": {
+          "version": "first-board-score-v3",
+          "dimensions": {
+            "market": {
+              "weight": 5,
+              "input": "same-time market breadth/sentiment archive"
+            },
+            "theme": {
+              "weight": 5,
+              "input": "same-time theme snapshot"
+            },
+            "seal": {
+              "weight": 20,
+              "input": "first-seal and seal stability fields"
+            },
+            "structure": {
+              "weight": 25,
+              "input": "point-in-time daily bars"
+            },
+            "price-volume": {
+              "weight": 10,
+              "input": "point-in-time price plus same-minute volume baseline"
+            },
+            "wyckoff": {
+              "weight": 20,
+              "input": "engineering proxy; not canonical Wyckoff"
+            },
+            "brooks": {
+              "weight": 15,
+              "input": "engineering proxy; not canonical Brooks"
+            }
+          }
+        },
+        "category": "data-insufficient",
+        "dimensions": [
+          {
+            "key": "market",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点的市场广度和情绪归档"
+          },
+          {
+            "key": "theme",
+            "score": null,
+            "weight": 5,
+            "confidence": 0,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [],
+            "unavailableReason": "缺少对应时点已归档题材快照"
+          },
+          {
+            "key": "seal",
+            "score": 98.6,
+            "weight": 20,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "首封时点分94.4",
+              "封单/成交额79.85%",
+              "换手容量分100",
+              "开板0次"
+            ]
+          },
+          {
+            "key": "structure",
+            "score": 80.5,
+            "weight": 25,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "趋势70",
+              "距前20高1.68%",
+              "ATR14扩展2.24R"
+            ]
+          },
+          {
+            "key": "price-volume",
+            "score": 100,
+            "weight": 10,
+            "confidence": 0.33,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "收盘位置/实体分100"
+            ]
+          },
+          {
+            "key": "wyckoff",
+            "score": 50,
+            "weight": 20,
+            "confidence": 0.75,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "20日区间未超过6×ATR14"
+            ]
+          },
+          {
+            "key": "brooks",
+            "score": 75,
+            "weight": 15,
+            "confidence": 1,
+            "asOf": "2026-09-10T01:45:00.431Z",
+            "evidence": [
+              "前高突破、实体/区间强、位置高",
+              "突破前区间收敛且K线重叠度高"
+            ]
+          }
+        ]
+      },
+      "settledScore": null,
+      "selectionScore": 76,
+      "discoverySnapshotRef": "603316:discovery:2026-09-10T01:43:00.258Z",
+      "settlementSnapshotRef": null,
+      "themeLadder": {
+        "state": "none",
+        "levels": [
+          1
+        ],
+        "maxBoards": 1,
+        "higherBoardCount": 0,
+        "bonus": 0,
+        "evidence": [
+          "板块仅作加分，不作入池门槛",
+          "当前梯队1",
+          "未识别到连续连板梯队，首板不加题材分"
+        ]
+      },
+      "wyckoffPhase": null,
+      "wyckoffEvents": [],
+      "brooksContext": null,
+      "brooksEvents": []
+    }
+  ],
+  "summary": {
+    "allDiscovered": 5,
+    "finalSealed": 0,
+    "tradableNextOpen": 0
+  },
+  "revision": 11,
+  "supersedes": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\10\\first-board-analysis-v2-r10.json"
+}

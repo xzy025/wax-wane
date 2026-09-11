@@ -1,0 +1,83 @@
+{
+  "tradeDate": "2026-09-11",
+  "generatedAt": "2026-09-11T07:34:44.161Z",
+  "modelVersion": "cross-market-v1-research",
+  "status": "degraded",
+  "themes": [
+    {
+      "id": "cpo",
+      "label": "CPO/大科技",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 306,
+      "themeReturnPct": -0.61,
+      "benchmarkReturnPct": -0.84,
+      "excessReturnPct": 0.23,
+      "positiveBreadthPct": 17.97,
+      "amount": 399695008115.8503,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 11,
+      "firstBoardCount": 10,
+      "strongCoreCount": 1,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0.25,
+        "cycleComponent": 0,
+        "metCriteria": [
+          "涨停≥3且首板≥2"
+        ],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅12日",
+        "题材成交额历史仅12日",
+        "题材高潮四项证据不足三项"
+      ]
+    },
+    {
+      "id": "innovative-drug",
+      "label": "创新药",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 114,
+      "themeReturnPct": -2.6,
+      "benchmarkReturnPct": -0.84,
+      "excessReturnPct": -1.76,
+      "positiveBreadthPct": 2.63,
+      "amount": 22914731497.059986,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 1,
+      "firstBoardCount": 1,
+      "strongCoreCount": 0,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0,
+        "cycleComponent": 0,
+        "metCriteria": [],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅12日",
+        "题材成交额历史仅12日",
+        "题材高潮四项证据不足三项"
+      ]
+    }
+  ],
+  "warnings": [
+    "全市场停牌或过时行情已剔除：5207/5558",
+    "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+    "题材收益历史仅12日",
+    "题材成交额历史仅12日",
+    "题材高潮四项证据不足三项"
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "generatedAt": "2026-09-10T07:12:57.705Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5086610",
+      "publishedAt": "2026-09-10T15:06:38+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "",
+      "title": "国海证券：维持动力新科“增持”评级，，“十五五”目标双倍增",
+      "summary": "国海证券研报指出，动力新科2026Q2剔除财务费用扰动后归母净利润同比高增，菱重量价皆增。2026H1公司销售11.05万台发动机（yoy+28.1%），配套AIDC相关市场的自主VK系列大功率发动机产品同比增长221.7%；上海菱重2026H1大功率发动机销量yoy+53%，收入7.3亿元，同比增幅为60%，净利润1.7亿元，同比增长70%，净利润增幅高于收入又高于销量。红岩2026Q2对公司投资收益造成约-0.13亿元影响，预计可控收敛。动力新科具备AIDC电源用发动机能力，相关业务有望带动公司快速增长；新领导层上任，“十五五”目标双倍增，公司有望向社会资源战略进一步转向，并优化提升产品结构与经营效率。维持“增持”评级。",
+      "codes": [],
+      "themes": [
+        "科技",
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-13T07:06:38.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202609103870514176",
+      "publishedAt": "2026-09-10T15:06:12+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "《金融强国建设“十五五”规划》正式出台",
+      "summary": "中国人民银行副行长陆磊9月10日在国新办举行的“开局起步‘十五五’”系列主题新闻发布会上表示，近日，《金融强国建设“十五五”规划》正式出台。为实施好相关部署，中国人民银行制定印发了《中国人民银行“十五五”改革发展规划》，配套出台了9份相关领域的行动方案。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 4,
+      "confidence": "verified",
+      "action": "theme-adjust",
+      "effectiveUntil": "2026-09-17T07:06:12.000Z",
+      "evidence": [
+        "命中产业政策规则"
+      ]
+    },
+    {
+      "id": "em-202609103870514068",
+      "publishedAt": "2026-09-10T15:05:31+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "商务部回应约谈法国企业",
+      "summary": "在商务部10日举行的例行新闻发布会上，商务部新闻发言人黄玲在回答有关近日商务部约见几家在华法国企业的提问时表示，有公开报道显示，一些法国企业接受了欧盟和成员国的相关补贴，可能在一定程度上传导至在华实体，为评估其影响，商务部依法向其了解相关情况，请其进行解释说明。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 4,
+      "confidence": "verified",
+      "action": "theme-adjust",
+      "effectiveUntil": "2026-09-17T07:05:31.000Z",
+      "evidence": [
+        "命中产业政策规则"
+      ]
+    },
+    {
+      "id": "sina-5086596",
+      "publishedAt": "2026-09-10T15:01:14+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-10/detail-inirinuu5362422.d.html",
+      "title": "A股收评：沪指窄幅震荡跌0.43%，农业股、粮食概念股集体回调",
+      "summary": "A股三大指数今日集体下跌，截至收盘，上证指数跌0.43%，深证成指跌0.77%，创业板指跌0.49%，北证50跌2.81%，科创50指数跌0.69%。全市场成交额16623亿元，较上日缩量2107亿元，全市场超4500只个股下跌。板块题材上，厨卫电器、银行、元件、电力、中船系板块涨幅居前；转基因、农产品加工、代糖概念、粮食概念、养殖业板块跌幅居前。盘面上，银行板块震荡走高，宁波银行、南京银行、江苏银行涨幅居前。电力板块表现活跃，华银电力、闽东电力、湖南发展、乐山电力、芯能科技涨停，九洲集团、明星电力、豫能控股涨幅居前。元件板块低开高走，金安国纪、超声电子涨停，逸豪新材、四会富仕、明阳电路涨幅居前。农产品加工板块大幅回调，中粮糖业触及跌停，华资实业、深粮控股、保龄宝跌幅居前。种植业与林业板块亦表现低迷，海南橡胶跌停，亚盛集团、农发种业、万向德农均大幅下跌。",
+      "codes": [
+        "600744",
+        "000993",
+        "000722",
+        "600644",
+        "603105",
+        "002636",
+        "000823"
+      ],
+      "themes": [
+        "电力",
+        "光伏",
+        "通信",
+        "农业",
+        "科技",
+        "金融"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-13T07:01:14.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5086585",
+      "publishedAt": "2026-09-10T14:59:00+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-10/detail-inirinuu5360107.d.html",
+      "title": "澳大利亚对印度、马来西亚和越南镀锌板启动第二次双反日落复审调查",
+      "summary": "9月9日，澳大利亚反倾销委员会发布第2026/127号公告称，应澳大利亚国内企业BlueScope Steel Limited提交的申请，对进口自印度、马来西亚和越南的镀锌板[zinc coated (galvanised) steel]启动第二次反倾销日落复审调查、对进口自印度的镀锌板启动第二次反补贴日落复审调查。本案倾销和补贴调查期为2025年7月1日至2026年6月30日，损害调查期自2021年7月1日起。涉案产品的澳大利亚海关编码为7210.49.00.55、7210.49.00.56、7210.49.00.57、7210.49.00.58、7212.30.00.61、7225.92.00.38和7226.99.00.71。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-13T06:59:00.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "em-202609103870506336",
+      "publishedAt": "2026-09-10T14:57:27+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "拨康视云被香港证监会强制停牌，涉刊发虚假、不完整或具误导性的资料",
+      "summary": "9月10日早间，眼科生物科技公司拨康视云-B突发停牌公告。公告称，依据证券及期货（在证券市场上市）规则之条例第8（1）条，香港联合交易所应香港证监会指令，于2026年9月10日上午9时起，停止拨康视云股份之买卖。",
+      "codes": [],
+      "themes": [
+        "医药",
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "trading-halt",
+      "direction": "negative",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-13T06:57:27.000Z",
+      "evidence": [
+        "命中停牌规则",
+        "未关联到具体股票，不执行硬否决"
+      ]
+    },
+    {
+      "id": "sina-5086577",
+      "publishedAt": "2026-09-10T14:56:10+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-10/detail-inirinuu5357552.d.html",
+      "title": "多元金融板块尾盘拉升，华金资本直线涨停",
+      "summary": "多元金融板块尾盘拉升，华金资本直线涨停，新力金融此前涨停，翠微股份、香溢融通、五矿资本等跟涨。",
+      "codes": [
+        "000532",
+        "600318"
+      ],
+      "themes": [
+        "金融概念",
+        "金融"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-13T06:56:10.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5086574",
+      "publishedAt": "2026-09-10T14:55:14+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-10/detail-inirinuu5356720.d.html",
+      "title": "富达国际：亚洲进入新一轮增长周期 投资机遇值得关注",
+      "summary": "富达国际最新发表观点认为，亚洲正进入新一轮增长周期。受AI投资、能源安全以及供应链多元化的支持，制造业和出口依然保持韧性。然而，在多年高度依赖外部需求之后，亚洲经济体正日益寻求新的国内增长动力。未来几年的关键问题在于，外部盈余能否转化为更广泛的国内增长。富达国际基金经理Ian Samson认为，中国内地的投资机会极为多元。政策支持正进一步推动先进制造、储能、光通信及其他战略科技领域的发展。创业板和科创50指数等市场能够为投资者提供参与这些高增长领域的机会，但鉴于创新速度较快，以及具备可持续竞争力的企业与未来可能陷入低利润率竞争的企业之间存在明显分化，主动管理至关重要。（上证报）",
+      "codes": [],
+      "themes": [
+        "通信",
+        "科技"
+      ],
+      "scope": "theme",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-13T06:55:14.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "em-202609103870496159",
+      "publishedAt": "2026-09-10T14:42:15+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "美对华线性液压缸产品发起反倾销反补贴调查",
+      "summary": "美东时间2026年9月9日，美国商务部宣布对进口自中国、印度、墨西哥的线性液压缸及其部件发起反倾销和反补贴调查，对加拿大和韩国的涉案产品发起反倾销调查。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-13T06:42:15.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {
+    "金融": 12
+  },
+  "marketRisk": "normal",
+  "warnings": []
+}

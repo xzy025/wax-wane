@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-09-11T07:49:09.132Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5089151",
+      "publishedAt": "2026-09-11T15:44:51+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-11/detail-inirmvzx5394617.d.html",
+      "title": "华源证券：维持上峰材料“买入”评级，半导体股权投资大幅增厚利润",
+      "summary": "华源证券研报指出，上峰材料水泥主业承压，半导体股权投资大幅增厚利润。上半年归母净利润13.64亿元，同比+452.54%；其中单二季度实现归母净利润13.32亿元，同比+698.01%。水泥产业链业务系统性承压。半导体股权投资业务迎来丰收，IC封装基板业务开始并表。公司已开始新增投入6亿元对现有制造基地进行一期技改提产及二期新线扩产，后续有望成为新增长极。考虑盛合晶微、长鑫科技上市带来的短期大额利润增厚，以及后续项目的上市预期，上调公司业绩预测，维持“买入”评级。",
+      "codes": [],
+      "themes": [
+        "科技",
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-14T07:44:51.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202609113872045035",
+      "publishedAt": "2026-09-11T15:40:03+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "9月11日涨停复盘：40只股涨停 超声电子5天3板",
+      "summary": "涨停个股数量方面，今日共计40股涨停，另有25只个股盘中一度触及涨停，封板率61.54%。",
+      "codes": [
+        "000823"
+      ],
+      "themes": [
+        "通信",
+        "科技"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 2,
+      "confidence": "verified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-14T07:40:03.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5089127",
+      "publishedAt": "2026-09-11T15:35:30+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-11/detail-inirmvzz2157424.d.html",
+      "title": "大和：下调海底捞目标价至11.3港元，控股股东减持压力已消除",
+      "summary": "大和发表研报指，海底捞控股股东因自身资金需要及财务安排减持2.59亿股，该行倾向解读为一次性事件，认为相关压力已消除，惟短期内中国消费及消费股或仍受类似事项的负面情绪影响。该行指，8月翻台率或按月改善，惟未必同比增长；预期9月翻台率受低基数带动同比改善，但2026年第四季需求仍不明朗。该行下调2026至2028年每股盈利预测，以反映需求尚未改善及出售亏损，并重申“跑赢大市”评级，按2026至2027年平均每股盈利、目标市盈率12.5倍(由14倍下调)计算，目标价由13.2港元下调至11.3港元。",
+      "codes": [],
+      "themes": [
+        "消费"
+      ],
+      "scope": "theme",
+      "category": "reduction",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-14T07:35:30.000Z",
+      "evidence": [
+        "命中减持或股份供给规则"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

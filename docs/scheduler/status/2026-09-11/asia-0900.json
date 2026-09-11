@@ -1,0 +1,20 @@
+{
+  "runId": "asia-0900-2026-09-11-1789088465197-p41725",
+  "tradeDate": "2026-09-11",
+  "phase": "premarket",
+  "checkpoint": "asia-0900",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "eastmoney-asia",
+  "providerTimestamp": "2026-09-11T01:01:05.198Z",
+  "startedAt": "2026-09-11T01:01:05.195Z",
+  "finishedAt": "2026-09-11T01:01:05.195Z",
+  "dataAsOf": "2026-09-11T01:01:05.198Z",
+  "warnings": [
+    "The operation was aborted.",
+    "日韩指数行情缺失",
+    "日韩行情未配置，无法构建状态向量",
+    "日韩量化状态向量已按检查点时间固化"
+  ]
+}

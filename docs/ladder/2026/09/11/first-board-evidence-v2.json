@@ -1,0 +1,5033 @@
+{
+  "schemaVersion": "first-board-scan-v2",
+  "tradeDate": "2026-09-11",
+  "ruleVersion": "first-board-scan-v2",
+  "observations": [
+    {
+      "observationKey": "2026-09-11:0",
+      "slot": 0,
+      "observedAt": "2026-09-11T01:35:04.725Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66191433,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "6e4c7072fb0384f2c1c36ade3b82daa7f04ef90e4d8b632cd7d4709ed9727b15",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:1",
+      "slot": 1,
+      "observedAt": "2026-09-11T01:36:03.506Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66237099,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "658ac159bf9b9d1b300ec57d22875f52913f52f168513734ab333b3cedf33df8",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:2",
+      "slot": 2,
+      "observedAt": "2026-09-11T01:37:06.047Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66295671,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "100242d7b2b578e63b5fd817535b3cecba7d29a1ee125115b77ca40785e6825a",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:3",
+      "slot": 3,
+      "observedAt": "2026-09-11T01:38:01.122Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66350425,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "5a13635e39fcf59c5b70df51d5f6f31c722c3b367deeee78c7b410ba926e2d42",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:4",
+      "slot": 4,
+      "observedAt": "2026-09-11T01:39:01.193Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66410177,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "1507178b2dc4bdf236ecc1165ecba9a8ef08b22e5aa5ec423ad876f05b8a1c3d",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:5",
+      "slot": 5,
+      "observedAt": "2026-09-11T01:40:01.306Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66470778,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "878b025b0f61fb610b7393c45043f3270122b0fd137634ec53b06debac18e40e",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:6",
+      "slot": 6,
+      "observedAt": "2026-09-11T01:41:01.412Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66530049,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "805968de66670637ef4ae0dd5df6593e0aadf65b5e682a596cb9a64c68bf875a",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:7",
+      "slot": 7,
+      "observedAt": "2026-09-11T01:42:01.519Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66592875,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "cc2372a5a7b3560febd9715a3fdebbc4cb905eafef1f4f03e9937a95c8e3b537",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:8",
+      "slot": 8,
+      "observedAt": "2026-09-11T01:43:01.620Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66650059,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "1bb853276d62b4e90c74139c990847c372d76090827353b809221a6b49a7a6aa",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:9",
+      "slot": 9,
+      "observedAt": "2026-09-11T01:44:01.708Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66711447,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "1e2baf981d849a5bae5d944c29aa652e4a426463821815a30f5527aeb007bf19",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:10",
+      "slot": 10,
+      "observedAt": "2026-09-11T01:45:01.783Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66770876,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "7b4d65ecc38ce06372d5b9baea1f5027a3709e1fd788e516b80fe3951821fc90",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:11",
+      "slot": 11,
+      "observedAt": "2026-09-11T01:46:01.883Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66832057,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "a6d43aafaa4063969afd0b499080f99f906e2d6031c8789e66d91af692ccb9c7",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:12",
+      "slot": 12,
+      "observedAt": "2026-09-11T01:47:01.970Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66890195,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "38ea735cdf2fd3af8fb3720b65d1a4b51224f11a4a89c9378d78adc5976e1254",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:13",
+      "slot": 13,
+      "observedAt": "2026-09-11T01:48:02.061Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 66950536,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "75adb5b2b8d5d0333b5b9d58330ae82dacd146ebb14a1a106e46b0e12dca46d4",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:14",
+      "slot": 14,
+      "observedAt": "2026-09-11T01:49:02.145Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67012447,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "61824d56df9763ea4516fc457d750bcadc09e99a3ca6b4d201ec1c0638bc3aec",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:15",
+      "slot": 15,
+      "observedAt": "2026-09-11T01:50:02.227Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67071584,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "5d49827d11af37b4a84440af10de7d887e8757de4c727422eecb0cefa1bfd911",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:16",
+      "slot": 16,
+      "observedAt": "2026-09-11T01:51:02.307Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67131264,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "8b87ddfb3c0a004b2e23c7c988c83fc1673629e5dcbf72a7faf888fb5ae16819",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:17",
+      "slot": 17,
+      "observedAt": "2026-09-11T01:52:02.413Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67191018,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "9239d677d0916b1d7d34eac97aee74375788bc9ff74b6bcb3a77ac4dadd3d0c9",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:18",
+      "slot": 18,
+      "observedAt": "2026-09-11T01:53:02.526Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67251580,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "393e9a8cd986934c4c409ab0e60bf904ec4ce9fea3439c306dc726d7f4174855",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:19",
+      "slot": 19,
+      "observedAt": "2026-09-11T01:54:02.633Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67312655,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "3b406ccd5b1d58265b8ae66990d0d761d7319786e34222063687db581de8d7b1",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:20",
+      "slot": 20,
+      "observedAt": "2026-09-11T01:55:02.706Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67372015,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "c406328e17affe9c0baf98ba672367e9b1e2f6ea8839ebafe34a0fc173c169af",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:21",
+      "slot": 21,
+      "observedAt": "2026-09-11T01:56:02.827Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67432078,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "8da52a326c1ccf16b7772b5409283db16f4e744f3a98162276261ff88b396a62",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:22",
+      "slot": 22,
+      "observedAt": "2026-09-11T01:57:02.912Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67493975,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "13cede89fbdc0528b8c192eb598040da7ba89acb16e97667da91dcb5b4bf5ea7",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:23",
+      "slot": 23,
+      "observedAt": "2026-09-11T01:58:03.016Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67551469,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "f6513b9809aea21d9daad3c53dea33bb306550adc0f4df19536858e0fa701f45",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:24",
+      "slot": 24,
+      "observedAt": "2026-09-11T01:59:03.117Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67611743,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "deab242fc101e848cf3a1a3ab323ec1049c27197a691d640e1a7aa8af68a880a",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:25",
+      "slot": 25,
+      "observedAt": "2026-09-11T02:00:03.234Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67673393,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "8aa2ee6eb48547dda3b4b30a16042d833518b7885827b89bbb30a9eb0d7779af",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:26",
+      "slot": 26,
+      "observedAt": "2026-09-11T02:01:03.337Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67731753,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "f7dc58c2c266d075366ea327b13d3bca011b94d3d17f8df80f5b0ac62265574e",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:27",
+      "slot": 27,
+      "observedAt": "2026-09-11T02:02:03.441Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67793024,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "53a031911c4afb580e81e7e25acdfe488fd411a7b9f098c4b46990ce4ceb22ca",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:28",
+      "slot": 28,
+      "observedAt": "2026-09-11T02:03:03.547Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67852710,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "259b425080a5eef18fb0ee52805695b6252ac8cbe833d88fd0e6581ea8df0d8e",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:29",
+      "slot": 29,
+      "observedAt": "2026-09-11T02:04:03.643Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67912151,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "757b37645e9a2556b5e89229df5109c4b6ba9c44ebd2b8594f0efaddc227ec6d",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:30",
+      "slot": 30,
+      "observedAt": "2026-09-11T02:05:03.760Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 67973264,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "af7f6285e4cf36a20a0325e9c4173b4e508a455dca33667a0af788b36be349ef",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:31",
+      "slot": 31,
+      "observedAt": "2026-09-11T02:06:03.869Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68033101,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "0f5801d38d805469ccb88b7dabf866f2db43de8e883c0c52502d7ec59a577026",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:32",
+      "slot": 32,
+      "observedAt": "2026-09-11T02:07:03.944Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68092420,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "70b0d38243f398e43bd4dc05d244823e8dc6326130f852fff628020f405bc5a3",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:33",
+      "slot": 33,
+      "observedAt": "2026-09-11T02:08:04.043Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68152660,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "9e07dfa26716ce318ad0af8ac2b4607b5dce2649d69f003a947306cd6dde140f",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:34",
+      "slot": 34,
+      "observedAt": "2026-09-11T02:09:04.121Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68214054,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "64dcc01aa80c1567915c44069eb5dd077d82a0bd2709da60d49207a25b153875",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:35",
+      "slot": 35,
+      "observedAt": "2026-09-11T02:10:04.226Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68275027,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "be1dafec01bd64b804c7f3d503034036adc81d06ee8850c3723e3d9989a6a3b3",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:36",
+      "slot": 36,
+      "observedAt": "2026-09-11T02:11:04.319Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68333908,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "a864ecd83aecf6d1cedf2f3091b1d19403311c33853bfb04b3c6c08044bc7742",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:37",
+      "slot": 37,
+      "observedAt": "2026-09-11T02:12:04.396Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68392945,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "0efc4d3bd8a2743f7a6945ef9f7f5fcd6bf8fcf753545ca553c9212026a2a0b4",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:38",
+      "slot": 38,
+      "observedAt": "2026-09-11T02:13:04.508Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68453410,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "57545ca88d9e7aaab99a93cd05d012e6b027ffbcfe6b6108e111340b694df2fa",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:39",
+      "slot": 39,
+      "observedAt": "2026-09-11T02:14:04.604Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68514451,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "4c7ce95521db9ca4cdc1d9e93c13ce5f5c91870d6d48c7852a8a9fabd5620e65",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:40",
+      "slot": 40,
+      "observedAt": "2026-09-11T02:15:04.682Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68574772,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "5cd0d7c3af585660c2796715f28b0104a87aa9cc3743059c5bcda47a5984de33",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:41",
+      "slot": 41,
+      "observedAt": "2026-09-11T02:16:04.773Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68633796,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "75c1cd199b75bebfe4a80074c0f38ee6cc58bd7ee14f154e3ca39e637e8c92c7",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:42",
+      "slot": 42,
+      "observedAt": "2026-09-11T02:17:04.877Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68693326,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "27ff20d1ac8078a704a8bc683a82607c75b50a21fd2928b2b45adb6f3b009be6",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:43",
+      "slot": 43,
+      "observedAt": "2026-09-11T02:18:04.949Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68756101,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "fa1f1a98202ce09d0f839ddc1331cb9611648efe408f8fc7e399d956514b06a4",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:44",
+      "slot": 44,
+      "observedAt": "2026-09-11T02:19:00.049Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68809388,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "f0c6fcae2e801637a59d5d246d01bcf41888bcf59a1e8a878bab00f89215edcf",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:45",
+      "slot": 45,
+      "observedAt": "2026-09-11T02:20:00.144Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68868463,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "c599911962c9582aaf823cb4ad10c32e46a0d8b13ae011cd103317655079090b",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:46",
+      "slot": 46,
+      "observedAt": "2026-09-11T02:21:00.241Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68928717,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "62f7fe733caee2ef1c06aae2ff9e35b9182c680ffdfb34de74a506c2b4740fee",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:47",
+      "slot": 47,
+      "observedAt": "2026-09-11T02:22:00.329Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 68990192,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "f02d7669d8c540f0dde64303a106d56c370b456cc097f3b10cac1b2befc2ad81",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:48",
+      "slot": 48,
+      "observedAt": "2026-09-11T02:23:00.438Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 69048811,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "c81f1e2def0887c8c72106446da7c358e70f883f9035006779dd2d3b515ecb5c",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:49",
+      "slot": 49,
+      "observedAt": "2026-09-11T02:24:00.527Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 69108930,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "d0a9f0a5f497459267cb26e02630884007fce505f0ca7e49c0776050e09c46e9",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:50",
+      "slot": 50,
+      "observedAt": "2026-09-11T02:25:00.624Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 69170607,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "c713d8bb91c00c7ceac073d5833489b72645a9ba10401238eb62af8e54972b51",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:51",
+      "slot": 51,
+      "observedAt": "2026-09-11T02:26:00.739Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 69231532,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "7db81d75f199178ab71853889d473ad725510747ed5dd33aee216d6228a0d85e",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:52",
+      "slot": 52,
+      "observedAt": "2026-09-11T02:27:00.810Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 69289515,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "dc75306256b0902c2eefd826ab68c0faf1e009f569c068bb6d2699ee7f41308c",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:53",
+      "slot": 53,
+      "observedAt": "2026-09-11T02:28:00.917Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 69350445,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "2d9d4b733da0c6dda8938c4c42fd7ae20bbe4b3cf312a03119793dae5c06c04e",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:54",
+      "slot": 54,
+      "observedAt": "2026-09-11T02:29:01.021Z",
+      "providerAt": "2026-09-10T07:12:15.076Z",
+      "timestampQuality": "rejected",
+      "source": "quicktiny",
+      "fromCache": true,
+      "cacheAgeMs": 69410728,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-10",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": false,
+      "rejectionReasons": [
+        "涨停池日期为2026-09-10，与扫描日2026-09-11不一致",
+        "缓存年龄无法证明在90秒内",
+        "providerAt 与接收时点相差超过90秒或晚于接收时点"
+      ],
+      "warnings": [
+        "response_truncated",
+        "QuickTiny 字段缺失或未提供：rows[].amplitudePct、rows[].isMarginEligible"
+      ],
+      "payloadHash": "bcc895e318de1a14faa3c31809fe58b4551e7205902ae8a9b4551f5a228b51af",
+      "dataStatus": "stale"
+    },
+    {
+      "observationKey": "2026-09-11:55",
+      "slot": 55,
+      "observedAt": "2026-09-11T02:30:01.118Z",
+      "providerAt": null,
+      "timestampQuality": "receipt-only",
+      "source": "kaipanla",
+      "fromCache": false,
+      "cacheAgeMs": 0,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-11",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": true,
+      "rejectionReasons": [],
+      "warnings": [
+        "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）",
+        "上游未提供 providerAt，本次只作 receipt-only 研究观察"
+      ],
+      "payloadHash": "5c3f20ae8a7396c2924bb575e5f2a0d4f3254da70269b5ec67c60fb188401f11",
+      "dataStatus": "partial",
+      "payload": {
+        "date": "2026-09-11",
+        "stocks": [
+          {
+            "code": "002161",
+            "name": "远望谷",
+            "price": 8.04,
+            "changePct": 9.99,
+            "firstTime": "092500",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "电子证照"
+            ],
+            "sealAmount": 540415552,
+            "amount": 120528725,
+            "turnoverRate": 2.45,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "605069",
+            "name": "正和生态",
+            "price": 11.5,
+            "changePct": 10.05,
+            "firstTime": "093251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI智能体"
+            ],
+            "sealAmount": 51897360,
+            "amount": 83205623,
+            "turnoverRate": 8.98,
+            "amplitudePct": 7.46,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002585",
+            "name": "双星新材",
+            "price": 9.96,
+            "changePct": 10.06,
+            "firstTime": "093318",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "元器件",
+            "themes": [
+              "元器件",
+              "电阻电容",
+              "复合集流体"
+            ],
+            "sealAmount": 456832320,
+            "amount": 853079327,
+            "turnoverRate": 12.72,
+            "amplitudePct": 11.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002194",
+            "name": "武汉凡谷",
+            "price": 11.95,
+            "changePct": 10.04,
+            "firstTime": "093415",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "6G"
+            ],
+            "sealAmount": 237085360,
+            "amount": 825378427,
+            "turnoverRate": 16.85,
+            "amplitudePct": 12.15,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603466",
+            "name": "风语筑",
+            "price": 13.27,
+            "changePct": 10.03,
+            "firstTime": "093556",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI视频"
+            ],
+            "sealAmount": 279358816,
+            "amount": 888966035,
+            "turnoverRate": 18.59,
+            "amplitudePct": 11.94,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600184",
+            "name": "光电股份",
+            "price": 19.98,
+            "changePct": 10.02,
+            "firstTime": "093621",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "军贸"
+            ],
+            "sealAmount": 155586256,
+            "amount": 549505042,
+            "turnoverRate": 9.73,
+            "amplitudePct": 12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603938",
+            "name": "三孚股份",
+            "price": 49.56,
+            "changePct": 10.01,
+            "firstTime": "093907",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "芯片",
+            "themes": [
+              "芯片",
+              "电子气体",
+              "通信"
+            ],
+            "sealAmount": 408235232,
+            "amount": 1237259670,
+            "turnoverRate": 19.49,
+            "amplitudePct": 13.03,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600207",
+            "name": "安彩高科",
+            "price": 4.94,
+            "changePct": 10.02,
+            "firstTime": "093934",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "智能电网"
+            ],
+            "sealAmount": 103014312,
+            "amount": 104419409,
+            "turnoverRate": 4.38,
+            "amplitudePct": 10.47,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600410",
+            "name": "华胜天成",
+            "price": 15.42,
+            "changePct": 9.99,
+            "firstTime": "094056",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "通信"
+            ],
+            "sealAmount": 1221545088,
+            "amount": 1882987298,
+            "turnoverRate": 11.33,
+            "amplitudePct": 8.7,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605258",
+            "name": "协和电子",
+            "price": 34.77,
+            "changePct": 10,
+            "firstTime": "094502",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 56017948,
+            "amount": 239489556,
+            "turnoverRate": 19.37,
+            "amplitudePct": 11.77,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600371",
+            "name": "万向德农",
+            "price": 15.57,
+            "changePct": 10.04,
+            "firstTime": "094519",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 126758792,
+            "amount": 749417234,
+            "turnoverRate": 34.79,
+            "amplitudePct": 14.56,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002560",
+            "name": "通达股份",
+            "price": 6.88,
+            "changePct": 10.08,
+            "firstTime": "094951",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电气设备",
+            "themes": [
+              "电气设备",
+              "智能电网"
+            ],
+            "sealAmount": 137035568,
+            "amount": 468515420,
+            "turnoverRate": 12.08,
+            "amplitudePct": 12.32,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605088",
+            "name": "冠盛股份",
+            "price": 22.48,
+            "changePct": 9.98,
+            "firstTime": "095040",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "机器人概念",
+            "themes": [
+              "机器人概念",
+              "汽车类"
+            ],
+            "sealAmount": 89922248,
+            "amount": 318686680,
+            "turnoverRate": 12.57,
+            "amplitudePct": 12.08,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002848",
+            "name": "高斯贝尔",
+            "price": 15.24,
+            "changePct": 10.04,
+            "firstTime": "095251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "覆铜板"
+            ],
+            "sealAmount": 102211632,
+            "amount": 293001639,
+            "turnoverRate": 15.76,
+            "amplitudePct": 11.26,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002902",
+            "name": "铭普光磁",
+            "price": 30.86,
+            "changePct": 10.02,
+            "firstTime": "095254",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "CPO",
+              "MPO"
+            ],
+            "sealAmount": 368407360,
+            "amount": 897303055,
+            "turnoverRate": 18.17,
+            "amplitudePct": 13.12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605011",
+            "name": "杭州热电",
+            "price": 19.03,
+            "changePct": 10,
+            "firstTime": "095517",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "热力"
+            ],
+            "sealAmount": 164240336,
+            "amount": 269351890,
+            "turnoverRate": 18.28,
+            "amplitudePct": 12.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603693",
+            "name": "江苏新能",
+            "price": 12.8,
+            "changePct": 9.97,
+            "firstTime": "100537",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "海洋经济"
+            ],
+            "sealAmount": 131797504,
+            "amount": 289054672,
+            "turnoverRate": 16.45,
+            "amplitudePct": 12.71,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "300563",
+            "name": "神宇股份",
+            "price": 27.92,
+            "changePct": 19.98,
+            "firstTime": "100624",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "高速连接"
+            ],
+            "sealAmount": 98214464,
+            "amount": 528915156,
+            "turnoverRate": 18.29,
+            "amplitudePct": 21.96,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002242",
+            "name": "九阳股份",
+            "price": 9.74,
+            "changePct": 10.06,
+            "firstTime": "100930",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "家电",
+            "themes": [
+              "家电",
+              "绿色电力"
+            ],
+            "sealAmount": 214154976,
+            "amount": 190870400,
+            "turnoverRate": 8.34,
+            "amplitudePct": 13.33,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605058",
+            "name": "澳弘电子",
+            "price": 33.31,
+            "changePct": 10.01,
+            "firstTime": "102017",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 133875560,
+            "amount": 282502561,
+            "turnoverRate": 20.45,
+            "amplitudePct": 11.59,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002912",
+            "name": "中新赛克",
+            "price": 23.51,
+            "changePct": 10.01,
+            "firstTime": "092500",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI安全"
+            ],
+            "sealAmount": 137578800,
+            "amount": 71679004,
+            "turnoverRate": 2.78,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "600876",
+            "name": "凯盛新能",
+            "price": 8.7,
+            "changePct": 9.99,
+            "firstTime": "093130",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "光热储能"
+            ],
+            "sealAmount": 43362540,
+            "amount": 134775391,
+            "turnoverRate": 8.21,
+            "amplitudePct": 6.07,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "000993",
+            "name": "闽东电力",
+            "price": 13.88,
+            "changePct": 9.98,
+            "firstTime": "092500",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力"
+            ],
+            "sealAmount": 220710048,
+            "amount": 618458156,
+            "turnoverRate": 20.5,
+            "amplitudePct": 3.8,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": true
+          },
+          {
+            "code": "600359",
+            "name": "新农开发",
+            "price": 10.6,
+            "changePct": 9.96,
+            "firstTime": "093002",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 140449888,
+            "amount": 918957567,
+            "turnoverRate": 38.55,
+            "amplitudePct": 8.2,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603421",
+            "name": "鼎信通讯",
+            "price": 8.02,
+            "changePct": 10.01,
+            "firstTime": "102033",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备",
+              "通信"
+            ],
+            "sealAmount": 137594912,
+            "amount": 426667569,
+            "turnoverRate": 18.2,
+            "amplitudePct": 19.48,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002790",
+            "name": "瑞尔特",
+            "price": 9.31,
+            "changePct": 10.05,
+            "firstTime": "092500",
+            "consecutiveDays": 4,
+            "nDayBoards": "4连板",
+            "primaryTheme": "地产链",
+            "themes": [
+              "地产链",
+              "装修家具"
+            ],
+            "sealAmount": 398416288,
+            "amount": 85282914,
+            "turnoverRate": 6.43,
+            "amplitudePct": 0,
+            "isMarginEligible": false,
+            "onePriceHint": true,
+            "tBoardHint": false
+          }
+        ],
+        "complete": true,
+        "missingTiers": [],
+        "tierFailures": [],
+        "source": "kaipanla",
+        "providerAt": null,
+        "capturedAt": "2026-09-11T02:30:19.254Z",
+        "fromCache": false,
+        "cacheAgeMs": 0,
+        "warnings": [
+          "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）"
+        ]
+      }
+    },
+    {
+      "observationKey": "2026-09-11:56",
+      "slot": 56,
+      "observedAt": "2026-09-11T02:31:01.225Z",
+      "providerAt": null,
+      "timestampQuality": "receipt-only",
+      "source": "kaipanla",
+      "fromCache": true,
+      "cacheAgeMs": 42010,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-11",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": true,
+      "rejectionReasons": [],
+      "warnings": [
+        "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）",
+        "上游未提供 providerAt，本次只作 receipt-only 研究观察"
+      ],
+      "payloadHash": "11f52df6029d8dc663ee75b6a3070a435cf1a37c86b2eb4bfcabe27a666d534d",
+      "dataStatus": "partial",
+      "payload": {
+        "date": "2026-09-11",
+        "stocks": [
+          {
+            "code": "002161",
+            "name": "远望谷",
+            "price": 8.04,
+            "changePct": 9.99,
+            "firstTime": "092500",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "电子证照"
+            ],
+            "sealAmount": 540415552,
+            "amount": 120528725,
+            "turnoverRate": 2.45,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "605069",
+            "name": "正和生态",
+            "price": 11.5,
+            "changePct": 10.05,
+            "firstTime": "093251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI智能体"
+            ],
+            "sealAmount": 51897360,
+            "amount": 83205623,
+            "turnoverRate": 8.98,
+            "amplitudePct": 7.46,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002585",
+            "name": "双星新材",
+            "price": 9.96,
+            "changePct": 10.06,
+            "firstTime": "093318",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "元器件",
+            "themes": [
+              "元器件",
+              "电阻电容",
+              "复合集流体"
+            ],
+            "sealAmount": 456832320,
+            "amount": 853079327,
+            "turnoverRate": 12.72,
+            "amplitudePct": 11.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002194",
+            "name": "武汉凡谷",
+            "price": 11.95,
+            "changePct": 10.04,
+            "firstTime": "093415",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "6G"
+            ],
+            "sealAmount": 237085360,
+            "amount": 825378427,
+            "turnoverRate": 16.85,
+            "amplitudePct": 12.15,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603466",
+            "name": "风语筑",
+            "price": 13.27,
+            "changePct": 10.03,
+            "firstTime": "093556",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI视频"
+            ],
+            "sealAmount": 279358816,
+            "amount": 888966035,
+            "turnoverRate": 18.59,
+            "amplitudePct": 11.94,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600184",
+            "name": "光电股份",
+            "price": 19.98,
+            "changePct": 10.02,
+            "firstTime": "093621",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "军贸"
+            ],
+            "sealAmount": 155586256,
+            "amount": 549505042,
+            "turnoverRate": 9.73,
+            "amplitudePct": 12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603938",
+            "name": "三孚股份",
+            "price": 49.56,
+            "changePct": 10.01,
+            "firstTime": "093907",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "芯片",
+            "themes": [
+              "芯片",
+              "电子气体",
+              "通信"
+            ],
+            "sealAmount": 408235232,
+            "amount": 1237259670,
+            "turnoverRate": 19.49,
+            "amplitudePct": 13.03,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600207",
+            "name": "安彩高科",
+            "price": 4.94,
+            "changePct": 10.02,
+            "firstTime": "093934",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "智能电网"
+            ],
+            "sealAmount": 103014312,
+            "amount": 104419409,
+            "turnoverRate": 4.38,
+            "amplitudePct": 10.47,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600410",
+            "name": "华胜天成",
+            "price": 15.42,
+            "changePct": 9.99,
+            "firstTime": "094056",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "通信"
+            ],
+            "sealAmount": 1221545088,
+            "amount": 1882987298,
+            "turnoverRate": 11.33,
+            "amplitudePct": 8.7,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605258",
+            "name": "协和电子",
+            "price": 34.77,
+            "changePct": 10,
+            "firstTime": "094502",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 56017948,
+            "amount": 239489556,
+            "turnoverRate": 19.37,
+            "amplitudePct": 11.77,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600371",
+            "name": "万向德农",
+            "price": 15.57,
+            "changePct": 10.04,
+            "firstTime": "094519",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 126758792,
+            "amount": 749417234,
+            "turnoverRate": 34.79,
+            "amplitudePct": 14.56,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002560",
+            "name": "通达股份",
+            "price": 6.88,
+            "changePct": 10.08,
+            "firstTime": "094951",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电气设备",
+            "themes": [
+              "电气设备",
+              "智能电网"
+            ],
+            "sealAmount": 137035568,
+            "amount": 468515420,
+            "turnoverRate": 12.08,
+            "amplitudePct": 12.32,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605088",
+            "name": "冠盛股份",
+            "price": 22.48,
+            "changePct": 9.98,
+            "firstTime": "095040",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "机器人概念",
+            "themes": [
+              "机器人概念",
+              "汽车类"
+            ],
+            "sealAmount": 89922248,
+            "amount": 318686680,
+            "turnoverRate": 12.57,
+            "amplitudePct": 12.08,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002848",
+            "name": "高斯贝尔",
+            "price": 15.24,
+            "changePct": 10.04,
+            "firstTime": "095251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "覆铜板"
+            ],
+            "sealAmount": 102211632,
+            "amount": 293001639,
+            "turnoverRate": 15.76,
+            "amplitudePct": 11.26,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002902",
+            "name": "铭普光磁",
+            "price": 30.86,
+            "changePct": 10.02,
+            "firstTime": "095254",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "CPO",
+              "MPO"
+            ],
+            "sealAmount": 368407360,
+            "amount": 897303055,
+            "turnoverRate": 18.17,
+            "amplitudePct": 13.12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605011",
+            "name": "杭州热电",
+            "price": 19.03,
+            "changePct": 10,
+            "firstTime": "095517",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "热力"
+            ],
+            "sealAmount": 164240336,
+            "amount": 269351890,
+            "turnoverRate": 18.28,
+            "amplitudePct": 12.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603693",
+            "name": "江苏新能",
+            "price": 12.8,
+            "changePct": 9.97,
+            "firstTime": "100537",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "海洋经济"
+            ],
+            "sealAmount": 131797504,
+            "amount": 289054672,
+            "turnoverRate": 16.45,
+            "amplitudePct": 12.71,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "300563",
+            "name": "神宇股份",
+            "price": 27.92,
+            "changePct": 19.98,
+            "firstTime": "100624",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "高速连接"
+            ],
+            "sealAmount": 98214464,
+            "amount": 528915156,
+            "turnoverRate": 18.29,
+            "amplitudePct": 21.96,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002242",
+            "name": "九阳股份",
+            "price": 9.74,
+            "changePct": 10.06,
+            "firstTime": "100930",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "家电",
+            "themes": [
+              "家电",
+              "绿色电力"
+            ],
+            "sealAmount": 214154976,
+            "amount": 190870400,
+            "turnoverRate": 8.34,
+            "amplitudePct": 13.33,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605058",
+            "name": "澳弘电子",
+            "price": 33.31,
+            "changePct": 10.01,
+            "firstTime": "102017",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 133875560,
+            "amount": 282502561,
+            "turnoverRate": 20.45,
+            "amplitudePct": 11.59,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002912",
+            "name": "中新赛克",
+            "price": 23.51,
+            "changePct": 10.01,
+            "firstTime": "092500",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI安全"
+            ],
+            "sealAmount": 137578800,
+            "amount": 71679004,
+            "turnoverRate": 2.78,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "600876",
+            "name": "凯盛新能",
+            "price": 8.7,
+            "changePct": 9.99,
+            "firstTime": "093130",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "光热储能"
+            ],
+            "sealAmount": 43362540,
+            "amount": 134775391,
+            "turnoverRate": 8.21,
+            "amplitudePct": 6.07,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "000993",
+            "name": "闽东电力",
+            "price": 13.88,
+            "changePct": 9.98,
+            "firstTime": "092500",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力"
+            ],
+            "sealAmount": 220710048,
+            "amount": 618458156,
+            "turnoverRate": 20.5,
+            "amplitudePct": 3.8,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": true
+          },
+          {
+            "code": "600359",
+            "name": "新农开发",
+            "price": 10.6,
+            "changePct": 9.96,
+            "firstTime": "093002",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 140449888,
+            "amount": 918957567,
+            "turnoverRate": 38.55,
+            "amplitudePct": 8.2,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603421",
+            "name": "鼎信通讯",
+            "price": 8.02,
+            "changePct": 10.01,
+            "firstTime": "102033",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备",
+              "通信"
+            ],
+            "sealAmount": 137594912,
+            "amount": 426667569,
+            "turnoverRate": 18.2,
+            "amplitudePct": 19.48,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002790",
+            "name": "瑞尔特",
+            "price": 9.31,
+            "changePct": 10.05,
+            "firstTime": "092500",
+            "consecutiveDays": 4,
+            "nDayBoards": "4连板",
+            "primaryTheme": "地产链",
+            "themes": [
+              "地产链",
+              "装修家具"
+            ],
+            "sealAmount": 398416288,
+            "amount": 85282914,
+            "turnoverRate": 6.43,
+            "amplitudePct": 0,
+            "isMarginEligible": false,
+            "onePriceHint": true,
+            "tBoardHint": false
+          }
+        ],
+        "complete": true,
+        "missingTiers": [],
+        "tierFailures": [],
+        "source": "kaipanla",
+        "providerAt": null,
+        "capturedAt": "2026-09-11T02:30:19.254Z",
+        "fromCache": true,
+        "cacheAgeMs": 42010,
+        "warnings": [
+          "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）"
+        ]
+      }
+    },
+    {
+      "observationKey": "2026-09-11:57",
+      "slot": 57,
+      "observedAt": "2026-09-11T02:32:01.293Z",
+      "providerAt": null,
+      "timestampQuality": "receipt-only",
+      "source": "kaipanla",
+      "fromCache": false,
+      "cacheAgeMs": 0,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-11",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": true,
+      "rejectionReasons": [],
+      "warnings": [
+        "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）",
+        "上游未提供 providerAt，本次只作 receipt-only 研究观察"
+      ],
+      "payloadHash": "6b47bd1cc2b222a73359b797c7cf9e913fbf76a49b3c2a13e7931ccc0cf00d5b",
+      "dataStatus": "partial",
+      "payload": {
+        "date": "2026-09-11",
+        "stocks": [
+          {
+            "code": "002161",
+            "name": "远望谷",
+            "price": 8.04,
+            "changePct": 9.99,
+            "firstTime": "092500",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "电子证照"
+            ],
+            "sealAmount": 541073216,
+            "amount": 120920273,
+            "turnoverRate": 2.45,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "605069",
+            "name": "正和生态",
+            "price": 11.5,
+            "changePct": 10.05,
+            "firstTime": "093251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI智能体"
+            ],
+            "sealAmount": 51711060,
+            "amount": 83465523,
+            "turnoverRate": 9,
+            "amplitudePct": 7.46,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002585",
+            "name": "双星新材",
+            "price": 9.96,
+            "changePct": 10.06,
+            "firstTime": "093318",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "元器件",
+            "themes": [
+              "元器件",
+              "电阻电容",
+              "复合集流体"
+            ],
+            "sealAmount": 401820256,
+            "amount": 857440811,
+            "turnoverRate": 12.79,
+            "amplitudePct": 11.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002194",
+            "name": "武汉凡谷",
+            "price": 11.95,
+            "changePct": 10.04,
+            "firstTime": "093415",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "6G"
+            ],
+            "sealAmount": 233178816,
+            "amount": 828012303,
+            "turnoverRate": 16.9,
+            "amplitudePct": 12.15,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603466",
+            "name": "风语筑",
+            "price": 13.27,
+            "changePct": 10.03,
+            "firstTime": "093556",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI视频"
+            ],
+            "sealAmount": 278102144,
+            "amount": 891086581,
+            "turnoverRate": 18.63,
+            "amplitudePct": 11.94,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600184",
+            "name": "光电股份",
+            "price": 19.98,
+            "changePct": 10.02,
+            "firstTime": "093621",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "军贸"
+            ],
+            "sealAmount": 181076992,
+            "amount": 551031255,
+            "turnoverRate": 9.76,
+            "amplitudePct": 12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603938",
+            "name": "三孚股份",
+            "price": 49.56,
+            "changePct": 10.01,
+            "firstTime": "093907",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "芯片",
+            "themes": [
+              "芯片",
+              "电子气体",
+              "通信"
+            ],
+            "sealAmount": 407209344,
+            "amount": 1239361013,
+            "turnoverRate": 19.53,
+            "amplitudePct": 13.03,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600207",
+            "name": "安彩高科",
+            "price": 4.94,
+            "changePct": 10.02,
+            "firstTime": "093934",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "智能电网"
+            ],
+            "sealAmount": 103079520,
+            "amount": 104591815,
+            "turnoverRate": 4.39,
+            "amplitudePct": 10.47,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600410",
+            "name": "华胜天成",
+            "price": 15.42,
+            "changePct": 9.99,
+            "firstTime": "094056",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "通信"
+            ],
+            "sealAmount": 1198967168,
+            "amount": 1888833020,
+            "turnoverRate": 11.37,
+            "amplitudePct": 8.7,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605258",
+            "name": "协和电子",
+            "price": 34.77,
+            "changePct": 10,
+            "firstTime": "094502",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 54449820,
+            "amount": 240591765,
+            "turnoverRate": 19.46,
+            "amplitudePct": 11.77,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600371",
+            "name": "万向德农",
+            "price": 15.57,
+            "changePct": 10.04,
+            "firstTime": "094519",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 124678640,
+            "amount": 750862130,
+            "turnoverRate": 34.86,
+            "amplitudePct": 14.56,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002560",
+            "name": "通达股份",
+            "price": 6.88,
+            "changePct": 10.08,
+            "firstTime": "094951",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电气设备",
+            "themes": [
+              "电气设备",
+              "智能电网"
+            ],
+            "sealAmount": 135045872,
+            "amount": 470011132,
+            "turnoverRate": 12.12,
+            "amplitudePct": 12.32,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605088",
+            "name": "冠盛股份",
+            "price": 22.48,
+            "changePct": 9.98,
+            "firstTime": "095040",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "机器人概念",
+            "themes": [
+              "机器人概念",
+              "汽车类"
+            ],
+            "sealAmount": 89488384,
+            "amount": 319161008,
+            "turnoverRate": 12.59,
+            "amplitudePct": 12.08,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002848",
+            "name": "高斯贝尔",
+            "price": 15.24,
+            "changePct": 10.04,
+            "firstTime": "095251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "覆铜板"
+            ],
+            "sealAmount": 101051864,
+            "amount": 296618091,
+            "turnoverRate": 15.95,
+            "amplitudePct": 11.26,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002902",
+            "name": "铭普光磁",
+            "price": 30.86,
+            "changePct": 10.02,
+            "firstTime": "095254",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "CPO",
+              "MPO"
+            ],
+            "sealAmount": 364778240,
+            "amount": 900426087,
+            "turnoverRate": 18.23,
+            "amplitudePct": 13.12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605011",
+            "name": "杭州热电",
+            "price": 19.03,
+            "changePct": 10,
+            "firstTime": "095517",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "热力"
+            ],
+            "sealAmount": 162778832,
+            "amount": 269738199,
+            "turnoverRate": 18.31,
+            "amplitudePct": 12.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603693",
+            "name": "江苏新能",
+            "price": 12.8,
+            "changePct": 9.97,
+            "firstTime": "100537",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "海洋经济"
+            ],
+            "sealAmount": 116341504,
+            "amount": 291426512,
+            "turnoverRate": 16.58,
+            "amplitudePct": 12.71,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "300563",
+            "name": "神宇股份",
+            "price": 27.92,
+            "changePct": 19.98,
+            "firstTime": "100624",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "高速连接"
+            ],
+            "sealAmount": 103670032,
+            "amount": 545770460,
+            "turnoverRate": 18.84,
+            "amplitudePct": 21.96,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002242",
+            "name": "九阳股份",
+            "price": 9.74,
+            "changePct": 10.06,
+            "firstTime": "100930",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "家电",
+            "themes": [
+              "家电",
+              "绿色电力"
+            ],
+            "sealAmount": 207695408,
+            "amount": 192299258,
+            "turnoverRate": 8.39,
+            "amplitudePct": 13.33,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605058",
+            "name": "澳弘电子",
+            "price": 33.31,
+            "changePct": 10.01,
+            "firstTime": "102017",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 131960232,
+            "amount": 283898250,
+            "turnoverRate": 20.55,
+            "amplitudePct": 11.59,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002912",
+            "name": "中新赛克",
+            "price": 23.51,
+            "changePct": 10.01,
+            "firstTime": "092500",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI安全"
+            ],
+            "sealAmount": 137355456,
+            "amount": 71874137,
+            "turnoverRate": 2.79,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "600876",
+            "name": "凯盛新能",
+            "price": 8.7,
+            "changePct": 9.99,
+            "firstTime": "093130",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "光热储能"
+            ],
+            "sealAmount": 43114588,
+            "amount": 134885881,
+            "turnoverRate": 8.22,
+            "amplitudePct": 6.07,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "000993",
+            "name": "闽东电力",
+            "price": 13.88,
+            "changePct": 9.98,
+            "firstTime": "092500",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力"
+            ],
+            "sealAmount": 220997360,
+            "amount": 619077204,
+            "turnoverRate": 20.53,
+            "amplitudePct": 3.8,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": true
+          },
+          {
+            "code": "600359",
+            "name": "新农开发",
+            "price": 10.6,
+            "changePct": 9.96,
+            "firstTime": "093002",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 129559448,
+            "amount": 919262847,
+            "turnoverRate": 38.56,
+            "amplitudePct": 8.2,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603421",
+            "name": "鼎信通讯",
+            "price": 8.02,
+            "changePct": 10.01,
+            "firstTime": "102033",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备",
+              "通信"
+            ],
+            "sealAmount": 126589064,
+            "amount": 429796171,
+            "turnoverRate": 18.32,
+            "amplitudePct": 19.48,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002790",
+            "name": "瑞尔特",
+            "price": 9.31,
+            "changePct": 10.05,
+            "firstTime": "092500",
+            "consecutiveDays": 4,
+            "nDayBoards": "4连板",
+            "primaryTheme": "地产链",
+            "themes": [
+              "地产链",
+              "装修家具"
+            ],
+            "sealAmount": 398085792,
+            "amount": 85894581,
+            "turnoverRate": 6.48,
+            "amplitudePct": 0,
+            "isMarginEligible": false,
+            "onePriceHint": true,
+            "tBoardHint": false
+          }
+        ],
+        "complete": true,
+        "missingTiers": [],
+        "tierFailures": [],
+        "source": "kaipanla",
+        "providerAt": null,
+        "capturedAt": "2026-09-11T02:32:21.782Z",
+        "fromCache": false,
+        "cacheAgeMs": 0,
+        "warnings": [
+          "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）"
+        ]
+      }
+    },
+    {
+      "observationKey": "2026-09-11:58",
+      "slot": 58,
+      "observedAt": "2026-09-11T02:33:01.401Z",
+      "providerAt": null,
+      "timestampQuality": "receipt-only",
+      "source": "kaipanla",
+      "fromCache": true,
+      "cacheAgeMs": 39630,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-11",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": true,
+      "rejectionReasons": [],
+      "warnings": [
+        "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）",
+        "上游未提供 providerAt，本次只作 receipt-only 研究观察"
+      ],
+      "payloadHash": "c02f72ff8929ada55d4b3a56b3bd5048daf10df53c685d7d4645795a765987dd",
+      "dataStatus": "partial",
+      "payload": {
+        "date": "2026-09-11",
+        "stocks": [
+          {
+            "code": "002161",
+            "name": "远望谷",
+            "price": 8.04,
+            "changePct": 9.99,
+            "firstTime": "092500",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "电子证照"
+            ],
+            "sealAmount": 541073216,
+            "amount": 120920273,
+            "turnoverRate": 2.45,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "605069",
+            "name": "正和生态",
+            "price": 11.5,
+            "changePct": 10.05,
+            "firstTime": "093251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI智能体"
+            ],
+            "sealAmount": 51711060,
+            "amount": 83465523,
+            "turnoverRate": 9,
+            "amplitudePct": 7.46,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002585",
+            "name": "双星新材",
+            "price": 9.96,
+            "changePct": 10.06,
+            "firstTime": "093318",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "元器件",
+            "themes": [
+              "元器件",
+              "电阻电容",
+              "复合集流体"
+            ],
+            "sealAmount": 401820256,
+            "amount": 857440811,
+            "turnoverRate": 12.79,
+            "amplitudePct": 11.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002194",
+            "name": "武汉凡谷",
+            "price": 11.95,
+            "changePct": 10.04,
+            "firstTime": "093415",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "6G"
+            ],
+            "sealAmount": 233178816,
+            "amount": 828012303,
+            "turnoverRate": 16.9,
+            "amplitudePct": 12.15,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603466",
+            "name": "风语筑",
+            "price": 13.27,
+            "changePct": 10.03,
+            "firstTime": "093556",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI视频"
+            ],
+            "sealAmount": 278102144,
+            "amount": 891086581,
+            "turnoverRate": 18.63,
+            "amplitudePct": 11.94,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600184",
+            "name": "光电股份",
+            "price": 19.98,
+            "changePct": 10.02,
+            "firstTime": "093621",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "军贸"
+            ],
+            "sealAmount": 181076992,
+            "amount": 551031255,
+            "turnoverRate": 9.76,
+            "amplitudePct": 12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603938",
+            "name": "三孚股份",
+            "price": 49.56,
+            "changePct": 10.01,
+            "firstTime": "093907",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "芯片",
+            "themes": [
+              "芯片",
+              "电子气体",
+              "通信"
+            ],
+            "sealAmount": 407209344,
+            "amount": 1239361013,
+            "turnoverRate": 19.53,
+            "amplitudePct": 13.03,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600207",
+            "name": "安彩高科",
+            "price": 4.94,
+            "changePct": 10.02,
+            "firstTime": "093934",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "智能电网"
+            ],
+            "sealAmount": 103079520,
+            "amount": 104591815,
+            "turnoverRate": 4.39,
+            "amplitudePct": 10.47,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600410",
+            "name": "华胜天成",
+            "price": 15.42,
+            "changePct": 9.99,
+            "firstTime": "094056",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "通信"
+            ],
+            "sealAmount": 1198967168,
+            "amount": 1888833020,
+            "turnoverRate": 11.37,
+            "amplitudePct": 8.7,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605258",
+            "name": "协和电子",
+            "price": 34.77,
+            "changePct": 10,
+            "firstTime": "094502",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 54449820,
+            "amount": 240591765,
+            "turnoverRate": 19.46,
+            "amplitudePct": 11.77,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600371",
+            "name": "万向德农",
+            "price": 15.57,
+            "changePct": 10.04,
+            "firstTime": "094519",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 124678640,
+            "amount": 750862130,
+            "turnoverRate": 34.86,
+            "amplitudePct": 14.56,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002560",
+            "name": "通达股份",
+            "price": 6.88,
+            "changePct": 10.08,
+            "firstTime": "094951",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电气设备",
+            "themes": [
+              "电气设备",
+              "智能电网"
+            ],
+            "sealAmount": 135045872,
+            "amount": 470011132,
+            "turnoverRate": 12.12,
+            "amplitudePct": 12.32,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605088",
+            "name": "冠盛股份",
+            "price": 22.48,
+            "changePct": 9.98,
+            "firstTime": "095040",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "机器人概念",
+            "themes": [
+              "机器人概念",
+              "汽车类"
+            ],
+            "sealAmount": 89488384,
+            "amount": 319161008,
+            "turnoverRate": 12.59,
+            "amplitudePct": 12.08,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002848",
+            "name": "高斯贝尔",
+            "price": 15.24,
+            "changePct": 10.04,
+            "firstTime": "095251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "覆铜板"
+            ],
+            "sealAmount": 101051864,
+            "amount": 296618091,
+            "turnoverRate": 15.95,
+            "amplitudePct": 11.26,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002902",
+            "name": "铭普光磁",
+            "price": 30.86,
+            "changePct": 10.02,
+            "firstTime": "095254",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "CPO",
+              "MPO"
+            ],
+            "sealAmount": 364778240,
+            "amount": 900426087,
+            "turnoverRate": 18.23,
+            "amplitudePct": 13.12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605011",
+            "name": "杭州热电",
+            "price": 19.03,
+            "changePct": 10,
+            "firstTime": "095517",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "热力"
+            ],
+            "sealAmount": 162778832,
+            "amount": 269738199,
+            "turnoverRate": 18.31,
+            "amplitudePct": 12.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603693",
+            "name": "江苏新能",
+            "price": 12.8,
+            "changePct": 9.97,
+            "firstTime": "100537",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "海洋经济"
+            ],
+            "sealAmount": 116341504,
+            "amount": 291426512,
+            "turnoverRate": 16.58,
+            "amplitudePct": 12.71,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "300563",
+            "name": "神宇股份",
+            "price": 27.92,
+            "changePct": 19.98,
+            "firstTime": "100624",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "高速连接"
+            ],
+            "sealAmount": 103670032,
+            "amount": 545770460,
+            "turnoverRate": 18.84,
+            "amplitudePct": 21.96,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002242",
+            "name": "九阳股份",
+            "price": 9.74,
+            "changePct": 10.06,
+            "firstTime": "100930",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "家电",
+            "themes": [
+              "家电",
+              "绿色电力"
+            ],
+            "sealAmount": 207695408,
+            "amount": 192299258,
+            "turnoverRate": 8.39,
+            "amplitudePct": 13.33,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605058",
+            "name": "澳弘电子",
+            "price": 33.31,
+            "changePct": 10.01,
+            "firstTime": "102017",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 131960232,
+            "amount": 283898250,
+            "turnoverRate": 20.55,
+            "amplitudePct": 11.59,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002912",
+            "name": "中新赛克",
+            "price": 23.51,
+            "changePct": 10.01,
+            "firstTime": "092500",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI安全"
+            ],
+            "sealAmount": 137355456,
+            "amount": 71874137,
+            "turnoverRate": 2.79,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "600876",
+            "name": "凯盛新能",
+            "price": 8.7,
+            "changePct": 9.99,
+            "firstTime": "093130",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "光热储能"
+            ],
+            "sealAmount": 43114588,
+            "amount": 134885881,
+            "turnoverRate": 8.22,
+            "amplitudePct": 6.07,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "000993",
+            "name": "闽东电力",
+            "price": 13.88,
+            "changePct": 9.98,
+            "firstTime": "092500",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力"
+            ],
+            "sealAmount": 220997360,
+            "amount": 619077204,
+            "turnoverRate": 20.53,
+            "amplitudePct": 3.8,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": true
+          },
+          {
+            "code": "600359",
+            "name": "新农开发",
+            "price": 10.6,
+            "changePct": 9.96,
+            "firstTime": "093002",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 129559448,
+            "amount": 919262847,
+            "turnoverRate": 38.56,
+            "amplitudePct": 8.2,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603421",
+            "name": "鼎信通讯",
+            "price": 8.02,
+            "changePct": 10.01,
+            "firstTime": "102033",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备",
+              "通信"
+            ],
+            "sealAmount": 126589064,
+            "amount": 429796171,
+            "turnoverRate": 18.32,
+            "amplitudePct": 19.48,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002790",
+            "name": "瑞尔特",
+            "price": 9.31,
+            "changePct": 10.05,
+            "firstTime": "092500",
+            "consecutiveDays": 4,
+            "nDayBoards": "4连板",
+            "primaryTheme": "地产链",
+            "themes": [
+              "地产链",
+              "装修家具"
+            ],
+            "sealAmount": 398085792,
+            "amount": 85894581,
+            "turnoverRate": 6.48,
+            "amplitudePct": 0,
+            "isMarginEligible": false,
+            "onePriceHint": true,
+            "tBoardHint": false
+          }
+        ],
+        "complete": true,
+        "missingTiers": [],
+        "tierFailures": [],
+        "source": "kaipanla",
+        "providerAt": null,
+        "capturedAt": "2026-09-11T02:32:21.782Z",
+        "fromCache": true,
+        "cacheAgeMs": 39630,
+        "warnings": [
+          "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）"
+        ]
+      }
+    },
+    {
+      "observationKey": "2026-09-11:59",
+      "slot": 59,
+      "observedAt": "2026-09-11T02:34:01.488Z",
+      "providerAt": null,
+      "timestampQuality": "receipt-only",
+      "source": "kaipanla",
+      "fromCache": false,
+      "cacheAgeMs": 0,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-11",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": true,
+      "rejectionReasons": [],
+      "warnings": [
+        "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）",
+        "上游未提供 providerAt，本次只作 receipt-only 研究观察"
+      ],
+      "payloadHash": "896f14e494f3fcc646edb78b9c4c7deddf4a335c8cda1884ed41d6eda6e7ae00",
+      "dataStatus": "partial",
+      "payload": {
+        "date": "2026-09-11",
+        "stocks": [
+          {
+            "code": "002161",
+            "name": "远望谷",
+            "price": 8.04,
+            "changePct": 9.99,
+            "firstTime": "092500",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "电子证照"
+            ],
+            "sealAmount": 538325952,
+            "amount": 121606889,
+            "turnoverRate": 2.47,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "605069",
+            "name": "正和生态",
+            "price": 11.5,
+            "changePct": 10.05,
+            "firstTime": "093251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI智能体"
+            ],
+            "sealAmount": 51729460,
+            "amount": 83526473,
+            "turnoverRate": 9.01,
+            "amplitudePct": 7.46,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002585",
+            "name": "双星新材",
+            "price": 9.96,
+            "changePct": 10.06,
+            "firstTime": "093318",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "元器件",
+            "themes": [
+              "元器件",
+              "电阻电容",
+              "复合集流体"
+            ],
+            "sealAmount": 399494592,
+            "amount": 860327219,
+            "turnoverRate": 12.83,
+            "amplitudePct": 11.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002194",
+            "name": "武汉凡谷",
+            "price": 11.95,
+            "changePct": 10.04,
+            "firstTime": "093415",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "6G"
+            ],
+            "sealAmount": 228336672,
+            "amount": 829942228,
+            "turnoverRate": 16.94,
+            "amplitudePct": 12.15,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603466",
+            "name": "风语筑",
+            "price": 13.27,
+            "changePct": 10.03,
+            "firstTime": "093556",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI视频"
+            ],
+            "sealAmount": 276288640,
+            "amount": 892483434,
+            "turnoverRate": 18.66,
+            "amplitudePct": 11.94,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600184",
+            "name": "光电股份",
+            "price": 19.98,
+            "changePct": 10.02,
+            "firstTime": "093621",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "军贸"
+            ],
+            "sealAmount": 176389696,
+            "amount": 553456827,
+            "turnoverRate": 9.8,
+            "amplitudePct": 12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603938",
+            "name": "三孚股份",
+            "price": 49.56,
+            "changePct": 10.01,
+            "firstTime": "093907",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "芯片",
+            "themes": [
+              "芯片",
+              "电子气体",
+              "通信"
+            ],
+            "sealAmount": 405905920,
+            "amount": 1240580190,
+            "turnoverRate": 19.54,
+            "amplitudePct": 13.03,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600207",
+            "name": "安彩高科",
+            "price": 4.94,
+            "changePct": 10.02,
+            "firstTime": "093934",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "智能电网"
+            ],
+            "sealAmount": 102650728,
+            "amount": 104731123,
+            "turnoverRate": 4.39,
+            "amplitudePct": 10.47,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600410",
+            "name": "华胜天成",
+            "price": 15.42,
+            "changePct": 9.99,
+            "firstTime": "094056",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "通信"
+            ],
+            "sealAmount": 1185241856,
+            "amount": 1893104360,
+            "turnoverRate": 11.39,
+            "amplitudePct": 8.7,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605258",
+            "name": "协和电子",
+            "price": 34.77,
+            "changePct": 10,
+            "firstTime": "094502",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 36536316,
+            "amount": 242813568,
+            "turnoverRate": 19.64,
+            "amplitudePct": 11.77,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600371",
+            "name": "万向德农",
+            "price": 15.57,
+            "changePct": 10.04,
+            "firstTime": "094519",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 123638568,
+            "amount": 751514513,
+            "turnoverRate": 34.88,
+            "amplitudePct": 14.56,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002560",
+            "name": "通达股份",
+            "price": 6.88,
+            "changePct": 10.08,
+            "firstTime": "094951",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备"
+            ],
+            "sealAmount": 134780992,
+            "amount": 470732844,
+            "turnoverRate": 12.14,
+            "amplitudePct": 12.32,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605088",
+            "name": "冠盛股份",
+            "price": 22.48,
+            "changePct": 9.98,
+            "firstTime": "095040",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "机器人概念",
+            "themes": [
+              "机器人概念",
+              "汽车类"
+            ],
+            "sealAmount": 89117464,
+            "amount": 319525184,
+            "turnoverRate": 12.6,
+            "amplitudePct": 12.08,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002848",
+            "name": "高斯贝尔",
+            "price": 15.24,
+            "changePct": 10.04,
+            "firstTime": "095251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "覆铜板"
+            ],
+            "sealAmount": 95431352,
+            "amount": 303460851,
+            "turnoverRate": 16.3,
+            "amplitudePct": 11.26,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002902",
+            "name": "铭普光磁",
+            "price": 30.86,
+            "changePct": 10.02,
+            "firstTime": "095254",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "CPO",
+              "MPO"
+            ],
+            "sealAmount": 346302336,
+            "amount": 902462847,
+            "turnoverRate": 18.27,
+            "amplitudePct": 13.12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605011",
+            "name": "杭州热电",
+            "price": 19.03,
+            "changePct": 10,
+            "firstTime": "095517",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "热力"
+            ],
+            "sealAmount": 161663680,
+            "amount": 270937089,
+            "turnoverRate": 18.39,
+            "amplitudePct": 12.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603693",
+            "name": "江苏新能",
+            "price": 12.8,
+            "changePct": 9.97,
+            "firstTime": "100537",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "海洋经济"
+            ],
+            "sealAmount": 106994944,
+            "amount": 294302672,
+            "turnoverRate": 16.73,
+            "amplitudePct": 12.71,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "300563",
+            "name": "神宇股份",
+            "price": 27.92,
+            "changePct": 19.98,
+            "firstTime": "100624",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "高速连接"
+            ],
+            "sealAmount": 89252144,
+            "amount": 548269300,
+            "turnoverRate": 18.92,
+            "amplitudePct": 21.96,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002242",
+            "name": "九阳股份",
+            "price": 9.74,
+            "changePct": 10.06,
+            "firstTime": "100930",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "家电",
+            "themes": [
+              "家电",
+              "绿色电力"
+            ],
+            "sealAmount": 200749808,
+            "amount": 194552120,
+            "turnoverRate": 8.49,
+            "amplitudePct": 13.33,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605058",
+            "name": "澳弘电子",
+            "price": 33.31,
+            "changePct": 10.01,
+            "firstTime": "102017",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 126357496,
+            "amount": 284317956,
+            "turnoverRate": 20.58,
+            "amplitudePct": 11.59,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600967",
+            "name": "内蒙一机",
+            "price": 14.98,
+            "changePct": 9.99,
+            "firstTime": "103410",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "无",
+            "themes": [
+              "无",
+              "军工",
+              "机器人概念"
+            ],
+            "sealAmount": 1083099904,
+            "amount": 1407583951,
+            "turnoverRate": 12.97,
+            "amplitudePct": 10.87,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002912",
+            "name": "中新赛克",
+            "price": 23.51,
+            "changePct": 10.01,
+            "firstTime": "092500",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI安全"
+            ],
+            "sealAmount": 137564704,
+            "amount": 72057515,
+            "turnoverRate": 2.8,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "600876",
+            "name": "凯盛新能",
+            "price": 8.7,
+            "changePct": 9.99,
+            "firstTime": "093130",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "光热储能"
+            ],
+            "sealAmount": 43210288,
+            "amount": 134966791,
+            "turnoverRate": 8.23,
+            "amplitudePct": 6.07,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "000993",
+            "name": "闽东电力",
+            "price": 13.88,
+            "changePct": 9.98,
+            "firstTime": "092500",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力"
+            ],
+            "sealAmount": 219835600,
+            "amount": 620034924,
+            "turnoverRate": 20.56,
+            "amplitudePct": 3.8,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": true
+          },
+          {
+            "code": "600359",
+            "name": "新农开发",
+            "price": 10.6,
+            "changePct": 9.96,
+            "firstTime": "093002",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 115074544,
+            "amount": 919734547,
+            "turnoverRate": 38.58,
+            "amplitudePct": 8.2,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603421",
+            "name": "鼎信通讯",
+            "price": 8.02,
+            "changePct": 10.01,
+            "firstTime": "102033",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备",
+              "通信"
+            ],
+            "sealAmount": 123908624,
+            "amount": 432426090,
+            "turnoverRate": 18.43,
+            "amplitudePct": 19.48,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002790",
+            "name": "瑞尔特",
+            "price": 9.31,
+            "changePct": 10.05,
+            "firstTime": "092500",
+            "consecutiveDays": 4,
+            "nDayBoards": "4连板",
+            "primaryTheme": "地产链",
+            "themes": [
+              "地产链",
+              "装修家具"
+            ],
+            "sealAmount": 398152832,
+            "amount": 85928097,
+            "turnoverRate": 6.48,
+            "amplitudePct": 0,
+            "isMarginEligible": false,
+            "onePriceHint": true,
+            "tBoardHint": false
+          }
+        ],
+        "complete": true,
+        "missingTiers": [],
+        "tierFailures": [],
+        "source": "kaipanla",
+        "providerAt": null,
+        "capturedAt": "2026-09-11T02:34:19.709Z",
+        "fromCache": false,
+        "cacheAgeMs": 0,
+        "warnings": [
+          "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）"
+        ]
+      }
+    },
+    {
+      "observationKey": "2026-09-11:60",
+      "slot": 60,
+      "observedAt": "2026-09-11T02:35:01.575Z",
+      "providerAt": null,
+      "timestampQuality": "receipt-only",
+      "source": "kaipanla",
+      "fromCache": true,
+      "cacheAgeMs": 41900,
+      "tradeDate": "2026-09-11",
+      "ladderDate": "2026-09-11",
+      "complete": true,
+      "missingTiers": [],
+      "accepted": true,
+      "rejectionReasons": [],
+      "warnings": [
+        "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）",
+        "上游未提供 providerAt，本次只作 receipt-only 研究观察"
+      ],
+      "payloadHash": "71563052a1fe3ad7c9539fa86d2524e47df4bb173f906ddf10ed9df61b14f531",
+      "dataStatus": "partial",
+      "payload": {
+        "date": "2026-09-11",
+        "stocks": [
+          {
+            "code": "002161",
+            "name": "远望谷",
+            "price": 8.04,
+            "changePct": 9.99,
+            "firstTime": "092500",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "电子证照"
+            ],
+            "sealAmount": 538325952,
+            "amount": 121606889,
+            "turnoverRate": 2.47,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "605069",
+            "name": "正和生态",
+            "price": 11.5,
+            "changePct": 10.05,
+            "firstTime": "093251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI智能体"
+            ],
+            "sealAmount": 51729460,
+            "amount": 83526473,
+            "turnoverRate": 9.01,
+            "amplitudePct": 7.46,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002585",
+            "name": "双星新材",
+            "price": 9.96,
+            "changePct": 10.06,
+            "firstTime": "093318",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "元器件",
+            "themes": [
+              "元器件",
+              "电阻电容",
+              "复合集流体"
+            ],
+            "sealAmount": 399494592,
+            "amount": 860327219,
+            "turnoverRate": 12.83,
+            "amplitudePct": 11.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002194",
+            "name": "武汉凡谷",
+            "price": 11.95,
+            "changePct": 10.04,
+            "firstTime": "093415",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "6G"
+            ],
+            "sealAmount": 228336672,
+            "amount": 829942228,
+            "turnoverRate": 16.94,
+            "amplitudePct": 12.15,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603466",
+            "name": "风语筑",
+            "price": 13.27,
+            "changePct": 10.03,
+            "firstTime": "093556",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI视频"
+            ],
+            "sealAmount": 276288640,
+            "amount": 892483434,
+            "turnoverRate": 18.66,
+            "amplitudePct": 11.94,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600184",
+            "name": "光电股份",
+            "price": 19.98,
+            "changePct": 10.02,
+            "firstTime": "093621",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "军贸"
+            ],
+            "sealAmount": 176389696,
+            "amount": 553456827,
+            "turnoverRate": 9.8,
+            "amplitudePct": 12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603938",
+            "name": "三孚股份",
+            "price": 49.56,
+            "changePct": 10.01,
+            "firstTime": "093907",
+            "consecutiveDays": 1,
+            "nDayBoards": "4天2板",
+            "primaryTheme": "芯片",
+            "themes": [
+              "芯片",
+              "电子气体",
+              "通信"
+            ],
+            "sealAmount": 405905920,
+            "amount": 1240580190,
+            "turnoverRate": 19.54,
+            "amplitudePct": 13.03,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600207",
+            "name": "安彩高科",
+            "price": 4.94,
+            "changePct": 10.02,
+            "firstTime": "093934",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "智能电网"
+            ],
+            "sealAmount": 102650728,
+            "amount": 104731123,
+            "turnoverRate": 4.39,
+            "amplitudePct": 10.47,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600410",
+            "name": "华胜天成",
+            "price": 15.42,
+            "changePct": 9.99,
+            "firstTime": "094056",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "通信"
+            ],
+            "sealAmount": 1185241856,
+            "amount": 1893104360,
+            "turnoverRate": 11.39,
+            "amplitudePct": 8.7,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605258",
+            "name": "协和电子",
+            "price": 34.77,
+            "changePct": 10,
+            "firstTime": "094502",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 36536316,
+            "amount": 242813568,
+            "turnoverRate": 19.64,
+            "amplitudePct": 11.77,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600371",
+            "name": "万向德农",
+            "price": 15.57,
+            "changePct": 10.04,
+            "firstTime": "094519",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 123638568,
+            "amount": 751514513,
+            "turnoverRate": 34.88,
+            "amplitudePct": 14.56,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002560",
+            "name": "通达股份",
+            "price": 6.88,
+            "changePct": 10.08,
+            "firstTime": "094951",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备"
+            ],
+            "sealAmount": 134780992,
+            "amount": 470732844,
+            "turnoverRate": 12.14,
+            "amplitudePct": 12.32,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605088",
+            "name": "冠盛股份",
+            "price": 22.48,
+            "changePct": 9.98,
+            "firstTime": "095040",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "机器人概念",
+            "themes": [
+              "机器人概念",
+              "汽车类"
+            ],
+            "sealAmount": 89117464,
+            "amount": 319525184,
+            "turnoverRate": 12.6,
+            "amplitudePct": 12.08,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002848",
+            "name": "高斯贝尔",
+            "price": 15.24,
+            "changePct": 10.04,
+            "firstTime": "095251",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "覆铜板"
+            ],
+            "sealAmount": 95431352,
+            "amount": 303460851,
+            "turnoverRate": 16.3,
+            "amplitudePct": 11.26,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002902",
+            "name": "铭普光磁",
+            "price": 30.86,
+            "changePct": 10.02,
+            "firstTime": "095254",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "CPO",
+              "MPO"
+            ],
+            "sealAmount": 346302336,
+            "amount": 902462847,
+            "turnoverRate": 18.27,
+            "amplitudePct": 13.12,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605011",
+            "name": "杭州热电",
+            "price": 19.03,
+            "changePct": 10,
+            "firstTime": "095517",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "热力"
+            ],
+            "sealAmount": 161663680,
+            "amount": 270937089,
+            "turnoverRate": 18.39,
+            "amplitudePct": 12.49,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603693",
+            "name": "江苏新能",
+            "price": 12.8,
+            "changePct": 9.97,
+            "firstTime": "100537",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力",
+              "海洋经济"
+            ],
+            "sealAmount": 106994944,
+            "amount": 294302672,
+            "turnoverRate": 16.73,
+            "amplitudePct": 12.71,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "300563",
+            "name": "神宇股份",
+            "price": 27.92,
+            "changePct": 19.98,
+            "firstTime": "100624",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "高速连接"
+            ],
+            "sealAmount": 89252144,
+            "amount": 548269300,
+            "turnoverRate": 18.92,
+            "amplitudePct": 21.96,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002242",
+            "name": "九阳股份",
+            "price": 9.74,
+            "changePct": 10.06,
+            "firstTime": "100930",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "家电",
+            "themes": [
+              "家电",
+              "绿色电力"
+            ],
+            "sealAmount": 200749808,
+            "amount": 194552120,
+            "turnoverRate": 8.49,
+            "amplitudePct": 13.33,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "605058",
+            "name": "澳弘电子",
+            "price": 33.31,
+            "changePct": 10.01,
+            "firstTime": "102017",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "通信",
+            "themes": [
+              "通信",
+              "PCB"
+            ],
+            "sealAmount": 126357496,
+            "amount": 284317956,
+            "turnoverRate": 20.58,
+            "amplitudePct": 11.59,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "600967",
+            "name": "内蒙一机",
+            "price": 14.98,
+            "changePct": 9.99,
+            "firstTime": "103410",
+            "consecutiveDays": 1,
+            "nDayBoards": "首板",
+            "primaryTheme": "无",
+            "themes": [
+              "无",
+              "军工",
+              "机器人概念"
+            ],
+            "sealAmount": 1083099904,
+            "amount": 1407583951,
+            "turnoverRate": 12.97,
+            "amplitudePct": 10.87,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002912",
+            "name": "中新赛克",
+            "price": 23.51,
+            "changePct": 10.01,
+            "firstTime": "092500",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "AI应用",
+            "themes": [
+              "AI应用",
+              "AI安全"
+            ],
+            "sealAmount": 137564704,
+            "amount": 72057515,
+            "turnoverRate": 2.8,
+            "amplitudePct": 0,
+            "isMarginEligible": true,
+            "onePriceHint": true,
+            "tBoardHint": false
+          },
+          {
+            "code": "600876",
+            "name": "凯盛新能",
+            "price": 8.7,
+            "changePct": 9.99,
+            "firstTime": "093130",
+            "consecutiveDays": 2,
+            "nDayBoards": "2连板",
+            "primaryTheme": "光伏",
+            "themes": [
+              "光伏",
+              "光伏玻璃",
+              "光热储能"
+            ],
+            "sealAmount": 43210288,
+            "amount": 134966791,
+            "turnoverRate": 8.23,
+            "amplitudePct": 6.07,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "000993",
+            "name": "闽东电力",
+            "price": 13.88,
+            "changePct": 9.98,
+            "firstTime": "092500",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "电力",
+            "themes": [
+              "电力",
+              "绿色电力"
+            ],
+            "sealAmount": 219835600,
+            "amount": 620034924,
+            "turnoverRate": 20.56,
+            "amplitudePct": 3.8,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": true
+          },
+          {
+            "code": "600359",
+            "name": "新农开发",
+            "price": 10.6,
+            "changePct": 9.96,
+            "firstTime": "093002",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "农业",
+            "themes": [
+              "农业",
+              "转基因"
+            ],
+            "sealAmount": 115074544,
+            "amount": 919734547,
+            "turnoverRate": 38.58,
+            "amplitudePct": 8.2,
+            "isMarginEligible": true,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "603421",
+            "name": "鼎信通讯",
+            "price": 8.02,
+            "changePct": 10.01,
+            "firstTime": "102033",
+            "consecutiveDays": 3,
+            "nDayBoards": "3连板",
+            "primaryTheme": "智能电网",
+            "themes": [
+              "智能电网",
+              "电气设备",
+              "通信"
+            ],
+            "sealAmount": 123908624,
+            "amount": 432426090,
+            "turnoverRate": 18.43,
+            "amplitudePct": 19.48,
+            "isMarginEligible": false,
+            "onePriceHint": false,
+            "tBoardHint": false
+          },
+          {
+            "code": "002790",
+            "name": "瑞尔特",
+            "price": 9.31,
+            "changePct": 10.05,
+            "firstTime": "092500",
+            "consecutiveDays": 4,
+            "nDayBoards": "4连板",
+            "primaryTheme": "地产链",
+            "themes": [
+              "地产链",
+              "装修家具"
+            ],
+            "sealAmount": 398152832,
+            "amount": 85928097,
+            "turnoverRate": 6.48,
+            "amplitudePct": 0,
+            "isMarginEligible": false,
+            "onePriceHint": true,
+            "tBoardHint": false
+          }
+        ],
+        "complete": true,
+        "missingTiers": [],
+        "tierFailures": [],
+        "source": "kaipanla",
+        "providerAt": null,
+        "capturedAt": "2026-09-11T02:34:19.709Z",
+        "fromCache": true,
+        "cacheAgeMs": 41900,
+        "warnings": [
+          "悟道 QuickTiny 不可用或未返回可验证梯队，已降级到开盘啦实时梯队：QuickTiny 返回空梯队（empty）"
+        ]
+      }
+    }
+  ]
+}
