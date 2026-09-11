@@ -529,6 +529,25 @@ describe('LadderView', () => {
     expect(panel.queryByText(zh.ladder.v2.candidateEmpty)).not.toBeInTheDocument()
   })
 
+  it.each([
+    { formalSignalEligible: false },
+    { quality: { ...v2Data.quality, providerAt: null } },
+    { quality: { ...v2Data.quality, degraded: true } },
+  ])('does not display retained candidates when archive data is blocked: %j', (overrides) => {
+    vi.mocked(useLadderAnalysis).mockReturnValue({
+      data: { ...v2Data, ...overrides, nextDayCandidates: [v2Leader] },
+      loading: false, error: null, refresh, importData,
+    })
+
+    render(<LadderView t={zh} language="zh" />)
+
+    const panel = within(screen.getByLabelText(zh.ladder.v2.candidates))
+    expect(panel.getByText('数据质量阻断，正式候选未生成')).toBeInTheDocument()
+    expect(panel.queryByRole('table')).not.toBeInTheDocument()
+    expect(panel.queryByText(v2Leader.name)).not.toBeInTheDocument()
+    expect(panel.queryByText(zh.ladder.v2.candidateEmpty)).not.toBeInTheDocument()
+  })
+
   it('keeps the threshold empty state for eligible data despite observation-only warnings', () => {
     const analysis = {
       ...v2Data,

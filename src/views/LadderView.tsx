@@ -1581,7 +1581,7 @@ function NextDayCandidates({
         </div>
       </header>
       {warning && <div className="ladder-candidate-warning">{warning}</div>}
-      {candidates.length ? (
+      {candidates.length > 0 && !dataBlock ? (
         <div className="ladder-candidate-table-wrap">
           <table className="ladder-candidate-table">
             <thead>
