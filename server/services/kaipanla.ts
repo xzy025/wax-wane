@@ -40,9 +40,13 @@ const KPL_HEADERS = {
 // endpoint accepts it with UserID=0 / Token=0 (anonymous, read-only).
 const KPL_DEVICE_ID = '00000000-025d-1ffd-fa71-8fd5272bb997'
 
+const fullSentimentTtl = sessionTtl(60_000, 30 * 60_000)
 const sentimentCache = createCache<SentimentData>({
   name: 'Sentiment',
-  ttl: sessionTtl(60_000, 30 * 60_000),
+  // A failed/partial feed can recover after close. Do not pin that degraded
+  // result for the full closed-session TTL; retain cache deduplication while
+  // allowing the next request after one minute to probe the provider again.
+  ttl: (): number => sentimentCache.peek()?.status === 'full' ? fullSentimentTtl() : 60_000,
   fetcher: fetchSentimentFresh,
 })
 
