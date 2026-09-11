@@ -35,6 +35,32 @@ docs/research/
 # Private indicator reverse-engineering evidence (personal/proprietary, local only)
 docs/n/
 
+# ---- Third-party source material and derived research (never public) ----
+# 公众号原文/截图、作者原图、第三方课程材料、蒸馏出的 skill、反推因子证据。
+# 全部为「不可公开的重要数据源」：本地保留，永不入库。
+#
+# 2026-09-11 修复：docs/翼形形态/ 是错字规则（翼 ≠ 妖），从未生效，
+# 导致 1095 个第三方形态截图（228MB）被跟踪并推送到公开远端。
+# 两处都保留，避免再被改错。
+docs/妖股形态/
+docs/翼形形态/
+
+# 作者原图、逐 bar 证据、冻结行情 fixture、复现工具
+docs/v13-research/
+
+# 蒸馏出的分析 skill（claim ledger 复现了作者主张与阈值）
+skills/analyze-huishou-trading/
+
+# 第三方课程原始转录与派生模式
+server/knowledge/teacher/
+
+# 研究运行产物与交接文档
+/huishou-research.html
+/TASK_HANDOFF_*.md
+docs/task-progress/*huishou*
+docs/task-progress/*ynmc*
+docs/task-progress/*v13*
+
 # ---- Personal / non-source artifacts (never commit) ----
 # Job-search resumes, career planning, interview cheatsheets
 docs/career/
@@ -44,7 +70,6 @@ docs/Zhengyan_Xia_*
 docs/夏正彦*
 docs/interview-cheatsheet-2026.*
 docs/202682410*.docx*
-docs/翼形形态/
 docs/附件*
 docs/电力交易岗*
 

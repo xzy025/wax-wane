@@ -4,9 +4,24 @@
 
 - `src/`: React/TypeScript UI and application agents; `server/`: Express services,
   market data, research and scheduling. Each has its own test environment.
-- `skills/analyze-huishou-trading/`: canonical portable domain skill;
-  `.agents/skills/`: repository Codex skills; `.claude/skills/`: Claude workflows.
-  Edit the canonical source; personal installations are separate copies.
+- `.agents/skills/`: repository Codex skills; `.claude/skills/`: Claude workflows.
+- **Third-party source material and derived research is local-only, never committed.**
+  This covers 公众号原文/截图, 作者原图与逐 bar 证据, 第三方课程转录, the distilled
+  `analyze-huishou-trading` skill, and the reverse-engineered indicator evidence.
+  All of it lives on disk and is gitignored — see the block in `.gitignore` anchored at
+  "Third-party source material and derived research". **The repository is public**, so
+  anything committed is world-readable. Before `git add`, ask whether the path is
+  evidence/source material; if it is, it must not be staged.
+  - Local paths: `docs/n/`, `docs/v13-research/`, `docs/妖股形态/`,
+    `server/knowledge/teacher/`, `skills/analyze-huishou-trading/`, `huishou-research.html`.
+  - The skill's single source of truth is `skills/analyze-huishou-trading/` on disk.
+    Copies under `~/.codex/skills/` and `~/.claude/skills/` are install artifacts:
+    edit the working copy, then run `scripts/sync-huishou-skill.ps1` and treat the
+    working copy as authoritative whenever they differ. After changing it, bump the
+    `verdict-rev` marker at the top of its `SKILL.md` so drift is visible in a diff.
+  - Because these paths are untracked, a fresh clone will not have them. Code and CI
+    must not depend on them; if a tracked file needs to cite one, state that it is not
+    distributed and include a verifiable excerpt or hash.
 - `docs/`: research evidence and operating records. Read focused source ranges;
   exclude `docs/archive/raw-sessions/`, generated snapshots and large raw data
   unless the task needs them. Existing uncommitted work may belong to other tasks.
