@@ -13,6 +13,7 @@ import { getSettledArchiveSchedulerStatus } from '../services/settlementArchive'
 import { getSchedulerCoordinatorStatus } from '../services/schedulerCoordinator'
 import { getFirstBoardProviderHealth } from '../services/firstBoardScan'
 import { getQuickTinyMcpHealth, probeQuickTinyMcp } from '../services/quicktinyMcp'
+import { buildDataQualityAudit } from '../services/dataQualityAudit'
 
 const router = Router()
 
@@ -65,6 +66,17 @@ router.get('/api/ops/quicktiny-mcp-probe', async (_req, res) => {
     res.status(status.state === 'unavailable' ? 503 : 200).json(status)
   } catch {
     res.status(503).json(getQuickTinyMcpHealth())
+  }
+})
+
+// Read-only integrity audit. It only reads local archives and database rows;
+// it never calls a market-data provider and never repairs or rewrites data.
+router.get('/api/ops/data-quality', async (_req, res) => {
+  try {
+    const report = await buildDataQualityAudit()
+    res.status(report.overall === 'block' ? 503 : 200).json(report)
+  } catch (err) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' })
   }
 })
 
