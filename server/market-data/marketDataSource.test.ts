@@ -6,6 +6,7 @@ import {
   envelopeForKplLadder,
   isMarketDataAllowedForPurpose,
   selectMarketDataEnvelope,
+  selectMarketDataEnvelopeForPurpose,
 } from './marketDataSource'
 
 describe('market data envelope and provider registry', () => {
@@ -48,6 +49,41 @@ describe('market data envelope and provider registry', () => {
     expect(selected?.source).toBe('quicktiny')
     expect(selected?.fallbackChain).toEqual(['kaipanla', 'quicktiny'])
     expect(selected?.data).toEqual([{ code: '600001' }])
+  })
+
+  it('uses only a quality-approved source for formal/scoring purposes', () => {
+    const selected = selectMarketDataEnvelopeForPurpose([
+      createMarketDataEnvelope({
+        datasetId: 'quote',
+        provider: 'eastmoney',
+        data: [{ code: '600001' }],
+        status: 'partial',
+        asOf: '2026-09-02',
+        providerAt: '2026-09-02T07:00:00.000Z',
+        coverage: 0.5,
+      }),
+      createMarketDataEnvelope({
+        datasetId: 'quote',
+        provider: 'sina',
+        data: [{ code: '600001' }],
+        asOf: '2026-09-02',
+        providerAt: '2026-09-02T07:00:01.000Z',
+        receivedAt: '2026-09-02T07:00:02.000Z',
+        coverage: 1,
+      }),
+    ], 'formal')
+    expect(selected?.source).toBe('sina')
+    expect(selected?.fallbackChain).toEqual(['eastmoney', 'sina'])
+    expect(selectMarketDataEnvelopeForPurpose([
+      createMarketDataEnvelope({
+        datasetId: 'quote',
+        provider: 'eastmoney',
+        data: [{ code: '600001' }],
+        asOf: '2026-09-02',
+        providerAt: '2026-09-02T07:00:00.000Z',
+        coverage: 0.5,
+      }),
+    ], 'formal')).toBeNull()
   })
 
   it('does not call an empty ladder successful and exposes stale date', () => {
@@ -100,6 +136,7 @@ describe('market data envelope and provider registry', () => {
   it('does not turn unknown or research-only providers into scoring inputs', () => {
     const registry = createDefaultMarketDataProviderRegistry()
     expect(isMarketDataAllowedForPurpose(registry, 'eastmoney', 'quote', 'scoring')).toBe(true)
+    expect(isMarketDataAllowedForPurpose(registry, 'eastmoney', 'quote', 'formal')).toBe(true)
     expect(isMarketDataAllowedForPurpose(registry, 'hithink-finance', 'research-valuation', 'scoring')).toBe(false)
     expect(isMarketDataAllowedForPurpose(registry, 'missing', 'quote', 'scoring')).toBe(false)
     expect(isMarketDataAllowedForPurpose(registry, 'eastmoney', 'quote', 'scoring', 'shadow')).toBe(false)

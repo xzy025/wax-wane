@@ -2,6 +2,7 @@ import { hashPayload } from './pointInTime'
 import type { AShareData, KlineFetchResult } from '../services/ashare'
 import type { KplRealtimeLadder } from '../services/kaipanlaLadder'
 import type { DataEnvelope, DataStatus } from './dataQuality'
+import { evaluateMarketDataQuality, type MarketDataSourceTier, type MarketDataUse } from './qualityPolicy'
 
 export const MARKET_DATA_ENVELOPE_SCHEMA_VERSION = 'market-data-envelope-v1'
 
@@ -23,7 +24,7 @@ export type MarketDatasetId =
 
 export type MarketDataLicense = 'public' | 'authorized' | 'unknown'
 export type MarketDataCredentialMode = 'anonymous' | 'configured' | 'unknown'
-export type MarketDataPurpose = 'research' | 'display' | 'scoring'
+export type MarketDataPurpose = 'research' | 'display' | 'scoring' | 'formal'
 
 export interface MarketDataProviderDescriptor {
   readonly id: string
@@ -135,6 +136,28 @@ export function selectMarketDataEnvelope<T>(envelopes: readonly MarketDataEnvelo
   }
 }
 
+/**
+ * Select only a response that is valid for the requested use. The legacy
+ * selector above intentionally remains permissive for display/research
+ * callers; formal/scoring callers must opt into this fail-closed path.
+ */
+export function selectMarketDataEnvelopeForPurpose<T>(
+  envelopes: readonly MarketDataEnvelope<T>[],
+  use: MarketDataUse,
+  sourceTier?: MarketDataSourceTier,
+): MarketDataEnvelope<T> | null {
+  if (envelopes.length === 0) return null
+  const selected = envelopes.find((envelope) => evaluateMarketDataQuality(envelope, use, sourceTier).allowed)
+  if (!selected) return null
+  const attempted = unique(envelopes.flatMap((envelope) => envelope.fallbackChain.length ? envelope.fallbackChain : [envelope.source]))
+  return {
+    ...selected,
+    fallbackChain: attempted,
+    warnings: unique(envelopes.flatMap((envelope) => envelope.warnings)),
+    missingReasons: unique(envelopes.flatMap((envelope) => envelope.missingReasons)),
+  }
+}
+
 export class MarketDataProviderRegistry {
   private readonly providers = new Map<string, MarketDataProviderDescriptor>()
 
@@ -179,7 +202,7 @@ export function isMarketDataAllowedForPurpose(
   purpose: MarketDataPurpose,
   sourceTier?: 'research-only' | 'shadow' | 'production',
 ): boolean {
-  if (purpose !== 'scoring') return true
+  if (purpose !== 'scoring' && purpose !== 'formal') return true
   if (sourceTier === 'research-only' || sourceTier === 'shadow' || datasetId.startsWith('research-')) return false
   const provider = registry.get(providerId)
   return Boolean(provider?.datasets.includes(datasetId) && provider.purposes?.includes('scoring'))
@@ -370,6 +393,7 @@ export function envelopeForKplLadder(
     providerAt: ladder.providerAt ?? null,
     asOf: ladder.date || null,
     expectedTradeDate,
+    coverage: ladder.coverage ?? null,
     status,
     rawPayload: ladder,
     missingReasons: [
