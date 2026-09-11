@@ -1,0 +1,260 @@
+{
+  "evidencePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\09\\evidence-limit-ladder-v6.json",
+  "evidenceSha256": "482d61981a45598f3ab02c739ce83be2799eef67aa66399f15fa982c2b9bed60",
+  "generatedAt": "2026-09-09T09:52:42.498Z",
+  "tradeDate": "2026-09-09",
+  "startDate": "2026-08-31",
+  "source": "hithink-finance-api",
+  "status": "research-only",
+  "eligibleAsTradeGate": false,
+  "providerAt": null,
+  "contract": "https://github.com/HiThink-Tech/Financial-API/blob/main/docs/api/endpoints-prices.md",
+  "totalEvidenceStocks": 48,
+  "requestedStocks": 1,
+  "summary": {
+    "requests": 2,
+    "ohlcvAgrees": 2,
+    "invalid": 0,
+    "mismatches": 0,
+    "unavailable": 0
+  },
+  "notes": [
+    "Window parity only; does not certify the full archived history or historical point-in-time availability.",
+    "Contract timestamp means latest bar upstream effective/ready time, not explicitly publication time; never copied to providerAt.",
+    "Price tolerance 0.011 CNY; known native lots converted to shares with one-lot (100 shares) quantization tolerance; turnover tolerance 1 CNY.",
+    "Missing peer turnover remains uncomparable; OHLCV agreement is not full parity or production eligibility.",
+    "Raw SHA256 identifies the upstream response; report retains normalized bars only, not a byte-replay capture."
+  ],
+  "rows": [
+    {
+      "code": "000019",
+      "adjustment": "qfq",
+      "endpoint": "/api/a-share/prices/historical",
+      "params": {
+        "thscode": "000019.SZ",
+        "interval": "1d",
+        "adjust": "forward",
+        "start": 1788105600000,
+        "end": 1788883200000
+      },
+      "providerAt": null,
+      "eligibleAsTradeGate": false,
+      "receivedAt": "2026-09-09T09:52:42.065Z",
+      "rawSha256": "1dc2f0d7e0d1715585694d76558292f8e5e2be1dcc1d20166a7e43e2129bd7bf",
+      "httpStatus": 200,
+      "apiCode": 0,
+      "attempts": 1,
+      "status": "ohlcv-agrees",
+      "errors": [],
+      "bars": [
+        {
+          "date": "2026-08-31",
+          "open": 7.32,
+          "high": 7.5,
+          "low": 7.17,
+          "close": 7.2,
+          "volume": 36694195,
+          "turnover": 267364648.65
+        },
+        {
+          "date": "2026-09-01",
+          "open": 7.17,
+          "high": 7.92,
+          "low": 7.11,
+          "close": 7.92,
+          "volume": 25030876,
+          "turnover": 193817809.39
+        },
+        {
+          "date": "2026-09-02",
+          "open": 8.08,
+          "high": 8.14,
+          "low": 7.13,
+          "close": 7.18,
+          "volume": 61608914,
+          "turnover": 453755737.37
+        },
+        {
+          "date": "2026-09-03",
+          "open": 7.16,
+          "high": 7.23,
+          "low": 6.81,
+          "close": 6.99,
+          "volume": 37435399,
+          "turnover": 261596096.65
+        },
+        {
+          "date": "2026-09-04",
+          "open": 6.92,
+          "high": 7.22,
+          "low": 6.8,
+          "close": 7.13,
+          "volume": 34192177,
+          "turnover": 243218047.37
+        },
+        {
+          "date": "2026-09-07",
+          "open": 7.13,
+          "high": 7.42,
+          "low": 7.13,
+          "close": 7.38,
+          "volume": 33517212,
+          "turnover": 245842382.01
+        },
+        {
+          "date": "2026-09-08",
+          "open": 7.37,
+          "high": 7.73,
+          "low": 7.36,
+          "close": 7.69,
+          "volume": 38176877,
+          "turnover": 290849241.24
+        },
+        {
+          "date": "2026-09-09",
+          "open": 7.5,
+          "high": 8.46,
+          "low": 7.48,
+          "close": 8.46,
+          "volume": 70782949,
+          "turnover": 581275010.82
+        }
+      ],
+      "timestamp": 1788883200000,
+      "timestampDate": "2026-09-09",
+      "echoed": [
+        "thscode",
+        "interval",
+        "adjust"
+      ],
+      "parity": {
+        "compared": 8,
+        "missingInThs": [],
+        "missingInPeer": [],
+        "mismatches": [],
+        "errors": [],
+        "turnoverUncomparable": 8,
+        "volumeUncomparable": 0,
+        "ohlcvPass": true,
+        "fullParityPass": false
+      },
+      "timestampInterpretation": "target-trading-day-midnight-not-close-publication",
+      "requestBinding": "Single-symbol daily endpoint; code/interval/adjustment without response echoes are request-bound only."
+    },
+    {
+      "code": "000019",
+      "adjustment": "raw",
+      "endpoint": "/api/a-share/prices/historical",
+      "params": {
+        "thscode": "000019.SZ",
+        "interval": "1d",
+        "adjust": "none",
+        "start": 1788105600000,
+        "end": 1788883200000
+      },
+      "providerAt": null,
+      "eligibleAsTradeGate": false,
+      "receivedAt": "2026-09-09T09:52:42.497Z",
+      "rawSha256": "7d9b8b8fb1932af68dfcce327aa0620f04c9d8ed0e1d2f9bf67ac9ea39c15c85",
+      "httpStatus": 200,
+      "apiCode": 0,
+      "attempts": 1,
+      "status": "ohlcv-agrees",
+      "errors": [],
+      "bars": [
+        {
+          "date": "2026-08-31",
+          "open": 7.32,
+          "high": 7.5,
+          "low": 7.17,
+          "close": 7.2,
+          "volume": 36694195,
+          "turnover": 267364648.65
+        },
+        {
+          "date": "2026-09-01",
+          "open": 7.17,
+          "high": 7.92,
+          "low": 7.11,
+          "close": 7.92,
+          "volume": 25030876,
+          "turnover": 193817809.39
+        },
+        {
+          "date": "2026-09-02",
+          "open": 8.08,
+          "high": 8.14,
+          "low": 7.13,
+          "close": 7.18,
+          "volume": 61608914,
+          "turnover": 453755737.37
+        },
+        {
+          "date": "2026-09-03",
+          "open": 7.16,
+          "high": 7.23,
+          "low": 6.81,
+          "close": 6.99,
+          "volume": 37435399,
+          "turnover": 261596096.65
+        },
+        {
+          "date": "2026-09-04",
+          "open": 6.92,
+          "high": 7.22,
+          "low": 6.8,
+          "close": 7.13,
+          "volume": 34192177,
+          "turnover": 243218047.37
+        },
+        {
+          "date": "2026-09-07",
+          "open": 7.13,
+          "high": 7.42,
+          "low": 7.13,
+          "close": 7.38,
+          "volume": 33517212,
+          "turnover": 245842382.01
+        },
+        {
+          "date": "2026-09-08",
+          "open": 7.37,
+          "high": 7.73,
+          "low": 7.36,
+          "close": 7.69,
+          "volume": 38176877,
+          "turnover": 290849241.24
+        },
+        {
+          "date": "2026-09-09",
+          "open": 7.5,
+          "high": 8.46,
+          "low": 7.48,
+          "close": 8.46,
+          "volume": 70782949,
+          "turnover": 581275010.82
+        }
+      ],
+      "timestamp": 1788883200000,
+      "timestampDate": "2026-09-09",
+      "echoed": [
+        "thscode",
+        "interval",
+        "adjust"
+      ],
+      "parity": {
+        "compared": 8,
+        "missingInThs": [],
+        "missingInPeer": [],
+        "mismatches": [],
+        "errors": [],
+        "turnoverUncomparable": 8,
+        "volumeUncomparable": 0,
+        "ohlcvPass": true,
+        "fullParityPass": false
+      },
+      "timestampInterpretation": "target-trading-day-midnight-not-close-publication",
+      "requestBinding": "Single-symbol daily endpoint; code/interval/adjustment without response echoes are request-bound only."
+    }
+  ]
+}
