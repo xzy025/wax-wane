@@ -18,7 +18,8 @@ export interface OrgSurveyBoardHookResult {
   loading: boolean
   error: string | null
   lastUpdated: Date | null
-  refresh: () => void
+  /** Re-run the board and resolve false when the refresh did not complete. */
+  refresh: () => Promise<boolean>
 }
 
 /** 机构调研榜(纯排行·非战法·非买点·未回测)。from /api/screener/org-survey-board。 */
@@ -65,15 +66,17 @@ export function useOrgSurveyBoard(): OrgSurveyBoardHookResult {
     }
   }, [load])
 
-  const refresh = useCallback(async () => {
-    if (fetching.current) return
+  const refresh = useCallback(async (): Promise<boolean> => {
+    if (fetching.current) return false
     fetching.current = true
     setLoading(true)
     setError(null)
     try {
       await load(true)
+      return true
     } catch {
       setError('机构调研榜获取失败')
+      return false
     } finally {
       setLoading(false)
       fetching.current = false

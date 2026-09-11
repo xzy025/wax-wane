@@ -92,14 +92,16 @@ export function useInstitutionAccum(immediate = true) {
   }, [immediate, load])
 
   const refresh = useCallback(async () => {
-    if (fetching.current) return
+    if (fetching.current) return false
     fetching.current = true
     setLoading(true)
     setError(null)
     try {
       await load(true)
+      return true
     } catch {
       setError('机构累积选股获取失败')
+      return false
     } finally {
       fetching.current = false
       setLoading(false)
