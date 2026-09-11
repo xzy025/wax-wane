@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-09-09T08:21:18.996Z",
+  "generatedAt": "2026-09-11T08:22:21.260Z",
   "ruleVersions": [
     "limit-ladder-v3",
     "limit-ladder-v4",
     "limit-ladder-v5",
     "limit-ladder-v6"
   ],
-  "latestSignalDate": "2026-09-08",
-  "latestTradeDate": "2026-09-09",
+  "latestSignalDate": "2026-09-10",
+  "latestTradeDate": "2026-09-11",
   "sample": {
-    "signalDays": 12,
+    "signalDays": 14,
     "formalCandidates": 40,
     "validFormalCandidates": 39,
     "unresolvedFormalCandidates": 1
@@ -26,15 +26,15 @@
     "ci95High": 43.78
   },
   "waitOpen": {
-    "total": 240,
-    "valid": 197,
-    "promoted": 55,
-    "failed": 142,
-    "unresolved": 43,
-    "promotionRate": 27.92,
-    "coverage": 82.08,
-    "ci95Low": 22.12,
-    "ci95High": 34.56
+    "total": 326,
+    "valid": 224,
+    "promoted": 71,
+    "failed": 153,
+    "unresolved": 102,
+    "promotionRate": 31.7,
+    "coverage": 68.71,
+    "ci95Low": 25.96,
+    "ci95High": 38.05
   },
   "trade": {
     "observations": 25,
@@ -291,7 +291,7 @@
     "note": "样本未达到长期校准门槛，只能做描述性复盘。"
   },
   "recommendations": [
-    "当前仅12个信号日、40个正式候选，未达到120个交易日/300个候选的校准门槛；只做记录，不自动改权重。",
+    "当前仅14个信号日、40个正式候选，未达到120个交易日/300个候选的校准门槛；只做记录，不自动改权重。",
     "分层复核：3进4当前晋级率33.33%；1进2当前晋级率26.32%，优先检查其环境闸门和候选阈值。",
     "分数校准：比较75-84与65-74相对总体28.21%，达到足够样本后再调整 promotionScore 门槛。",
     "次日开收标记正收益率40%，样本25；该指标不是可实现交易胜率。"
@@ -390,6 +390,22 @@
       "tradeDate": "2026-09-09",
       "ruleVersion": "limit-ladder-v6",
       "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\08\\outcome-limit-ladder-v6.json",
+      "formalCandidates": 0,
+      "formalPromotionRate": null
+    },
+    {
+      "signalDate": "2026-09-09",
+      "tradeDate": "2026-09-10",
+      "ruleVersion": "limit-ladder-v6",
+      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\09\\outcome-limit-ladder-v6.json",
+      "formalCandidates": 0,
+      "formalPromotionRate": null
+    },
+    {
+      "signalDate": "2026-09-10",
+      "tradeDate": "2026-09-11",
+      "ruleVersion": "limit-ladder-v6",
+      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\10\\outcome-limit-ladder-v6.json",
       "formalCandidates": 0,
       "formalPromotionRate": null
     }
