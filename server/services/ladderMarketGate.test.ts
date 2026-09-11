@@ -121,6 +121,41 @@ describe('ladder market hierarchy gate', () => {
     expect(gate.state).toBe('frozen')
   })
 
+  it('does not consume a live domestic snapshot that fails the scoring-purpose gate', () => {
+    const premarket = riskOffPremarket()
+    const domestic = {
+      ...buildDomesticMarketSnapshot({
+        capturedAt: '2026-08-19T01:25:00.000Z',
+        indices: [quote('000001', '上证指数', -2.4)],
+        advance: 420,
+        decline: 4_700,
+        flat: 40,
+        limitUp: 6,
+        limitDown: 35,
+        highBoardState: 'panic',
+      }),
+      marketDataQuality: {
+        status: 'partial' as const,
+        scoringAllowed: false,
+        source: 'eastmoney+sina',
+        asOf: '2026-08-19',
+        reasons: ['缺少可验证 providerAt'],
+      },
+    }
+    const gate = buildMarketRiskGate({
+      signalDate: premarket.signalDate,
+      tradeDate: premarket.tradeDate,
+      phase: 'auction',
+      premarket,
+      domestic,
+      themes: ['芯片'],
+    })
+
+    expect(gate.domestic).toBeNull()
+    expect(gate.domesticRiskScore).toBeNull()
+    expect(gate.warnings).toContain('缺少可验证 providerAt')
+  })
+
   it('blocks high-beta themes while only allowing defensive themes with independent auction breadth', () => {
     const permissions = buildThemePermissions({
       gateState: 'restricted',

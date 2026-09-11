@@ -3,6 +3,9 @@ import { fetchIndexQuotes, type IndexQuote, type IndexSpec } from './emQuotes'
 import { fetchMacroData, type MacroIndicator } from './macro'
 import { fetchNewsFlash, type NewsFlashItem } from './newsFlash'
 import { fetchUSData } from './us'
+import { envelopeForAShare } from '../market-data/marketDataSource'
+import { evaluateMarketDataQuality } from '../market-data/qualityPolicy'
+import { todayShanghai } from '../lib/time'
 
 export type ExternalRiskState = 'risk-on' | 'mixed' | 'risk-off' | 'panic' | 'unavailable'
 export type MarketGateState = 'normal' | 'cautious' | 'restricted' | 'frozen' | 'unavailable'
@@ -77,6 +80,14 @@ export interface DomesticMarketSnapshot {
   coverage: number
   reasons: string[]
   warnings: string[]
+  /** Present on live captures; absent on legacy/test snapshots for compatibility. */
+  marketDataQuality?: {
+    status: 'full' | 'degraded' | 'partial' | 'empty' | 'stale' | 'unavailable'
+    scoringAllowed: boolean
+    source: string
+    asOf: string | null
+    reasons: string[]
+  }
 }
 
 export interface MarketRepairContext {
@@ -525,11 +536,12 @@ export function buildDomesticMarketSnapshot(args: {
 export async function fetchDomesticMarketSnapshot(
   highBoardState?: 'expansion' | 'divergence' | 'contraction' | 'panic' | null,
 ): Promise<DomesticMarketSnapshot> {
+  const expectedTradeDate = todayShanghai()
   const [data, styleIndices] = await Promise.all([
     fetchAShareData(),
     fetchIndexQuotes(SIZE_STYLE_INDICES).catch(() => []),
   ])
-  return buildDomesticMarketSnapshot({
+  const snapshot = buildDomesticMarketSnapshot({
     capturedAt: new Date().toISOString(),
     indices: data.indices,
     styleIndices,
@@ -540,6 +552,26 @@ export async function fetchDomesticMarketSnapshot(
     limitDown: data.limitDownCount,
     highBoardState,
   })
+  const envelope = envelopeForAShare(data, expectedTradeDate)
+  const decision = evaluateMarketDataQuality(envelope, 'scoring')
+  return {
+    ...snapshot,
+    // A live risk gate must not consume a partially described quote payload.
+    // Missing providerAt/coverage stays visible as a block until the adapter
+    // can provide verifiable upstream metadata; receivedAt is not a substitute.
+    riskScore: decision.allowed ? snapshot.riskScore : null,
+    marketDataQuality: {
+      status: envelope.status,
+      scoringAllowed: decision.allowed,
+      source: envelope.source,
+      asOf: envelope.asOf,
+      reasons: decision.reasons,
+    },
+    warnings: Array.from(new Set([
+      ...snapshot.warnings,
+      ...(decision.allowed ? [] : [`行情数据未通过评分用途闸门：${decision.reasons.join('；')}`]),
+    ])),
+  }
 }
 
 function averageChange(
@@ -789,7 +821,9 @@ export function buildMarketRiskGate(args: {
   frozenRepairContext?: MarketRepairContext | null
 }): MarketRiskGate {
   const external = args.premarket?.riskScore ?? null
-  const domestic = args.domestic?.riskScore ?? null
+  const domesticSourceBlocked = args.domestic?.marketDataQuality?.scoringAllowed === false
+  const domesticSnapshot = domesticSourceBlocked ? null : args.domestic ?? null
+  const domestic = domesticSnapshot?.riskScore ?? null
   const combined =
     args.phase === 'premarket'
       ? external
@@ -820,7 +854,7 @@ export function buildMarketRiskGate(args: {
   })
   const repairContext = buildMarketRepairContext({
     phase: args.phase,
-    domestic: args.domestic,
+    domestic: domesticSnapshot,
     largeCapAuctionAmountSharePct:
       args.largeCapAuctionAmountSharePct,
     highBoardState: args.highBoardState,
@@ -828,7 +862,7 @@ export function buildMarketRiskGate(args: {
   })
   const reasons = [
     ...(args.premarket?.reasons ?? []),
-    ...(args.domestic?.reasons ?? []),
+    ...(domesticSnapshot?.reasons ?? []),
   ]
   if (domesticConfirmed) reasons.push('外盘风险已被A股竞价负反馈确认')
   else if (args.phase !== 'premarket' && external != null && external >= 50) {
@@ -836,9 +870,12 @@ export function buildMarketRiskGate(args: {
   }
   const warnings = [
     ...(args.premarket?.warnings ?? []),
-    ...(args.domestic?.warnings ?? []),
+    ...(domesticSnapshot?.warnings ?? []),
     ...repairContext.warnings,
   ]
+  if (domesticSourceBlocked) {
+    warnings.push(...(args.domestic?.marketDataQuality?.reasons ?? ['行情数据未通过评分用途闸门']))
+  }
   if (combined == null) warnings.push('市场风险数据不可用，禁止形成确认结论')
   return {
     signalDate: args.signalDate,
@@ -851,7 +888,7 @@ export function buildMarketRiskGate(args: {
     domesticRiskScore: domestic,
     domesticConfirmed,
     premarket: args.premarket,
-    domestic: args.domestic ?? null,
+    domestic: domesticSnapshot,
     repairContext,
     themePermissions,
     reasons: Array.from(new Set(reasons)),

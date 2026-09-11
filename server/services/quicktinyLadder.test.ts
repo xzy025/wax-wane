@@ -15,6 +15,7 @@ vi.mock('./quicktinyMcp', () => ({
 const callMock = vi.mocked(callQuickTinyMcpTool)
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.unstubAllEnvs()
   vi.resetAllMocks()
 })
@@ -28,6 +29,7 @@ describe('QuickTiny authorized ladder mapper', () => {
       providerAt: '2026-09-02T17:13:01.687Z',
       complete: true,
       missingTiers: [],
+      coverage: 1,
     })
     expect(ladder.stocks).toHaveLength(2)
     expect(ladder.stocks[0]).toMatchObject({
@@ -68,6 +70,7 @@ describe('QuickTiny authorized ladder mapper', () => {
     structured.data.total = 3
     const ladder = mapQuickTinyLadderPayload(payload, { requestedDate: '2026-09-02' })
     expect(ladder.complete).toBe(false)
+    expect(ladder.coverage).toBeCloseTo(2 / 3)
     expect(ladder.stocks).toHaveLength(2)
     expect(ladder.warnings?.join(' ')).toContain('2/3')
   })
@@ -98,9 +101,9 @@ describe('QuickTiny authorized ladder fetch', () => {
         limit: 100,
         sortBy: 'continue_num',
         sortOrder: 'desc',
-        detailLevel: 'raw',
-        includeFirstBoard: true,
-        includeReasonInfo: true,
+        detailLevel: 'standard',
+        includeFirstBoard: false,
+        includeReasonInfo: false,
         format: 'json',
       })
       return (replayFixture as QuickTinyLadderReplayFixture).result
@@ -119,5 +122,20 @@ describe('QuickTiny authorized ladder fetch', () => {
       limit: 100,
     }))
   })
-})
 
+  it('records receive time after the provider timestamp', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-09-02T17:13:00.000Z'))
+    vi.stubEnv('QUICKTINY_LADDER_TOOL_NAME', 'limit_up_ladder')
+    vi.stubEnv('QUICKTINY_LADDER_FILTER_TOOL_NAME', 'limit_up_filter')
+    callMock.mockImplementation(async () => {
+      vi.setSystemTime(new Date('2026-09-02T17:13:02.000Z'))
+      return (replayFixture as QuickTinyLadderReplayFixture).result
+    })
+
+    const ladder = await fetchQuickTinyRealtimeLadder({ date: '2026-09-02' })
+
+    expect(ladder.providerAt).toBe('2026-09-02T17:13:01.687Z')
+    expect(Date.parse(ladder.capturedAt ?? '')).toBeGreaterThanOrEqual(Date.parse(ladder.providerAt ?? ''))
+  })
+})

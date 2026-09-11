@@ -59,6 +59,8 @@ export interface KplRealtimeLadder {
   missingTiers: number[]
   /** Provider-level availability classification; empty is not proof of no market data. */
   dataStatus?: 'full' | 'degraded' | 'partial' | 'empty' | 'stale' | 'unavailable'
+  /** Provider-declared row coverage when a trustworthy denominator exists. */
+  coverage?: number | null
   /** Per-tier request failures retained when a partial ladder is returned. */
   tierFailures?: Array<{ tier: number; message: string }>
   source?: string

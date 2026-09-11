@@ -242,7 +242,12 @@ export function mapQuickTinyLadderPayload(payload: unknown, options: MapOptions 
   const pagination = isRecord(data.pagination) ? data.pagination : null
   const declaredTotal = finiteNumber(data.totalStocks ?? data.total ?? pagination?.total)
   const total = declaredTotal ?? stocks.length
-  const complete = total === stocks.length
+  const complete = declaredTotal != null && total === stocks.length
+  const coverage = declaredTotal == null
+    ? null
+    : total === 0
+      ? 1
+      : Math.min(1, stocks.length / total)
   const warnings = schemaQualityWarnings(document)
   if (total > stocks.length) warnings.push(`QuickTiny 返回 ${stocks.length}/${total} 条，存在分页或 maxRows 截断`)
   if (missingFields.size > 0) warnings.push(`QuickTiny 字段缺失或未提供：${Array.from(missingFields).join('、')}`)
@@ -260,6 +265,7 @@ export function mapQuickTinyLadderPayload(payload: unknown, options: MapOptions 
     stocks,
     complete,
     missingTiers: [],
+    coverage,
     dataStatus,
     source: options.source ?? QUICKTINY_LADDER_SOURCE,
     providerAt,
@@ -295,9 +301,12 @@ function filterArguments(date: string, page: number): Record<string, unknown> {
     limit: 100,
     sortBy: 'continue_num',
     sortOrder: 'desc',
-    detailLevel: 'raw',
-    includeFirstBoard: true,
-    includeReasonInfo: true,
+    // The filter is the complete row source. Keep it in standard mode so the
+    // MCP server does not drop raw data (and mark the response truncated) just
+    // because optional long reason text was requested.
+    detailLevel: 'standard',
+    includeFirstBoard: false,
+    includeReasonInfo: false,
     format: 'json',
   }
 }
@@ -367,7 +376,6 @@ export async function fetchQuickTinyRealtimeLadder(
   const date = normalizeDate(options.date) || todayShanghai()
   const ladderToolName = configuredToolName('QUICKTINY_LADDER_TOOL_NAME', options.ladderToolName)
   const filterToolName = configuredToolName('QUICKTINY_LADDER_FILTER_TOOL_NAME', options.filterToolName)
-  const capturedAt = new Date().toISOString()
   let ladderPayload: RecordValue | null = null
   let ladderError: unknown = null
   try {
@@ -395,6 +403,10 @@ export async function fetchQuickTinyRealtimeLadder(
     throw new Error(`QuickTiny 梯队工具均不可用${details ? `：${details}` : ''}`)
   }
 
+  // This is the application receive time, so capture it only after both
+  // provider calls complete. Recording it before the requests can make a
+  // legitimate provider timestamp appear to be later than receipt.
+  const capturedAt = new Date().toISOString()
   const payload = filterPayload ? mergePayloads(ladderPayload, filterPayload) : ladderPayload as RecordValue
   const mapped = mapQuickTinyLadderPayload(payload, {
     requestedDate: date,
