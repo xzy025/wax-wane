@@ -1,0 +1,181 @@
+{
+  "generatedAt": "2026-09-15T07:10:37.099Z",
+  "coverage": 100,
+  "sourceStatus": {
+    "eastmoneyFlash": true,
+    "clsFlash": true,
+    "sinaFlash": true,
+    "announcement": true
+  },
+  "events": [
+    {
+      "id": "sina-5094586",
+      "publishedAt": "2026-09-15T15:01:26+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "",
+      "title": "A股收评：创业板指冲高回落跌超1%，风电设备、电子化学品板块涨幅居前",
+      "summary": "A股三大指数今日集体下跌，截至收盘，上证指数跌0.54%，深证成指跌0.72%，创业板指跌1.15%，北证50涨0.65%，科创50指数涨1.55%。全市场成交额16253亿元，较上日缩量177亿元，全市场超4300只个股下跌。板块题材上，风电设备、电子化学品、PET铜箔、半导体、光刻胶板块涨幅居前；旅游及酒店、粮食概念、零售、兵装重组概念、种植业与林业板块跌幅居前。盘面上，风电设备板块表现强势，吉鑫科技、天顺风能、锡华科技、大金重工涨停，振宏股份、海力风电、威力传动涨幅居前。电子化学品板块低开高走，西陇科学涨停，方邦股份、同宇新材、宏和科技涨幅居前。MLCC概念板块表现活跃，双星新材、华瓷股份涨停，斯迪克、国风新材、春光集团涨幅居前。旅游及酒店板块低开低走，华天酒店、桂林旅游、天目湖、云南旅游跌停，张家界、西安饮食、凯撒旅业跌幅居前。粮食概念板块持续走弱，敦煌种业、金健米业、国投丰乐、新农开发跌停，秋乐种业、新赛股份、万向德农跌幅居前。零售板块亦表现疲软，国光连锁、百大集团、国芳集团等股跌停。",
+      "codes": [
+        "601218",
+        "002531",
+        "603248",
+        "002487",
+        "002584",
+        "002585",
+        "001216"
+      ],
+      "themes": [
+        "风电",
+        "化工",
+        "元器件",
+        "科技",
+        "消费"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-18T07:01:26.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5094574",
+      "publishedAt": "2026-09-15T14:59:53+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-15/detail-inirwwmw6932901.d.html",
+      "title": "浙商证券：维持三一重工“买入”评级，下半年业绩有望提速",
+      "summary": "浙商证券研报指出，三一重工回购股份彰显信心，下半年业绩有望提速。公司拟4-8亿元回购股份用于A股员工持股计划，首次已回购62.39万股。2026上半年归母净利润同比增长9%，单二季度同比增长17%，多品类稳居行业龙头。全球化加速推进，国外收入、毛利持续增长。未来三年业绩有望创历史新高。2021年公司实现营业总收入1069亿元，为此前收入高点；2020年公司实现归母净利润154亿元，为此前利润高点；后续行业周期向上、公司经营质量持续提高（2022-2025年，公司的销售净利率从5.5%提升至9.5%，加权ROE从6.7%提升至11.2%），业绩有望逐步创历史新高。25-28年复合增速为29%，对应26-28年PE为17、13、10倍，维持“买入”评级。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-18T06:59:53.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "sina-5094564",
+      "publishedAt": "2026-09-15T14:52:30+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-15/detail-inirwwmy3700698.d.html",
+      "title": "突然，直线涨停！10倍大牛股，发生了什么？",
+      "summary": "9月15日，A股PCB概念股集体走高。开盘仅1分钟，华正新材直线封板；随后，欧克科技、诺德股份等相继涨停，宏和科技也一度涨停。自去年4月9日以来，华正新材股价累计涨幅超过10倍。市场分析人士指出，PCB概念股大涨与行业涨价预期升温有关。目前，PCB厂商已陆续启动重新报价，三季度有望成为产品价格、产能利用率与订单结构同步改善的起涨点。随着AI持续发展，高多层PCB与HDI需求旺盛，行业中长期景气度较高。（券中社）",
+      "codes": [
+        "603186",
+        "001223",
+        "600110"
+      ],
+      "themes": [
+        "通信",
+        "科技"
+      ],
+      "scope": "stock",
+      "category": "other",
+      "direction": "neutral",
+      "severity": 1,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-18T06:52:30.000Z",
+      "evidence": []
+    },
+    {
+      "id": "sina-5094561",
+      "publishedAt": "2026-09-15T14:51:02+08:00",
+      "source": "sina-flash",
+      "sourceUrl": "https://finance.sina.cn/7x24/2026-09-15/detail-inirwwmy3699648.d.html",
+      "title": "浙商证券：杰美特收购戴尔蒙德切入PCB钻针赛道，2027年有望扭亏",
+      "summary": "浙商证券研报指出，杰美特新一代PCB钻针新秀，技术迭代阿尔法强。上半年实现归母净利润-0.15亿元，同比下滑47%。单Q2，公司归母净利润为-0.06亿元，环比减亏20%。市场认为公司主业空间有限，业绩承压；公司中长期成长确定性不足。公司收购的戴尔蒙德（52%股权）为新一代PCB钻针新秀，金刚石涂层钻针技术、产业化优势凸显，有望打开成长空间。戴尔蒙德聚焦CVD纳米金刚石涂层、PVD复合涂层和超硬刀具等方向，目前拥有惠州CVD纳米金刚石涂层产业化基地、微型钻针和精密铣刀生产基地、PVD复合镀膜中心，合作国内多所知名高校，可针对涂层技术的多领域应用展开研究和产品开发。另外，公司限制性股票激励计划草案出台，锚定未来三年业绩。该行预计2026-2028年公司收入分别为8.2、25.3、44.2亿元，同比增长30%、209%、75%；归母净利润分别为-0.2、2.3、5.0亿元，27年扭亏、28年同比增长119%。2027-2028年对应PE分别为49、23倍。",
+      "codes": [],
+      "themes": [
+        "金融"
+      ],
+      "scope": "theme",
+      "category": "earnings",
+      "direction": "positive",
+      "severity": 2,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-18T06:51:02.000Z",
+      "evidence": [
+        "命中业绩规则"
+      ]
+    },
+    {
+      "id": "em-202609153874640495",
+      "publishedAt": "2026-09-15T14:43:58+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "日本财务大臣片山皋月：政府将大幅审查并削减冗余的补贴和税收优惠",
+      "summary": "日本财务大臣片山皋月表示，政府将大幅审查并削减冗余的补贴和税收优惠，力求削减开支。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-18T06:43:58.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "cls-2483552",
+      "publishedAt": "2026-09-15T14:43:58+08:00",
+      "source": "cls-flash",
+      "sourceUrl": "https://api3.cls.cn/share/article/2483552?os=web&sv=7.7.5&app=",
+      "title": "财联社9月15日电，日本财务大臣片山皋月表示，政府将大幅审查并削减冗余的补贴和税收优惠，力求削减开支。",
+      "summary": "",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "positive",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-18T06:43:58.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    },
+    {
+      "id": "em-202609153874639374",
+      "publishedAt": "2026-09-15T14:41:14+08:00",
+      "source": "eastmoney-flash",
+      "sourceUrl": "",
+      "title": "北京拟严控居民区周边噪声污染",
+      "summary": "为解决老百姓“家门口”的噪声问题，北京市人大常委会近日对《北京市噪声污染防治条例（草案）》进行首次审议，其中拟加强噪声源头防控，其中明确提出，禁止午间、夜间在毗邻居民住宅区的街道、广场、公园等公共场所，开展产生噪声的娱乐、健身活动。",
+      "codes": [],
+      "themes": [],
+      "scope": "market",
+      "category": "policy",
+      "direction": "negative",
+      "severity": 3,
+      "confidence": "unverified",
+      "action": "informational",
+      "effectiveUntil": "2026-09-18T06:41:14.000Z",
+      "evidence": [
+        "命中产业政策规则",
+        "来源未验证，仅展示不改变模型"
+      ]
+    }
+  ],
+  "hardBlockedCodes": [],
+  "riskCappedCodes": [],
+  "themeAdjustments": {},
+  "marketRisk": "normal",
+  "warnings": []
+}

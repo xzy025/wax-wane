@@ -1,0 +1,17 @@
+{
+  "runId": "auction-lock-2026-09-18-1789694420639-wgp23k",
+  "tradeDate": "2026-09-18",
+  "phase": "auction",
+  "checkpoint": "auction-lock",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:20:17",
+  "startedAt": "2026-09-18T01:20:20.631Z",
+  "finishedAt": "2026-09-18T01:20:20.631Z",
+  "dataAsOf": "2026-09-18T01:20:20.717Z",
+  "warnings": [
+    "09:20 不可撤单初始检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

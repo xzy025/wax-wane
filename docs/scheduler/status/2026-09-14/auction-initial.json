@@ -1,0 +1,17 @@
+{
+  "runId": "auction-initial-2026-09-14-1789348507473-cuumz2",
+  "tradeDate": "2026-09-14",
+  "phase": "auction",
+  "checkpoint": "auction-initial",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:15:00",
+  "startedAt": "2026-09-14T01:15:07.473Z",
+  "finishedAt": "2026-09-14T01:15:07.473Z",
+  "dataAsOf": "2026-09-14T01:15:07.512Z",
+  "warnings": [
+    "09:15 首次聚合申报检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

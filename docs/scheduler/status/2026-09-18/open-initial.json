@@ -1,0 +1,17 @@
+{
+  "runId": "open-initial-2026-09-18-1789695007421-dqsjc1",
+  "tradeDate": "2026-09-18",
+  "phase": "open",
+  "checkpoint": "open-initial",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:30:07",
+  "startedAt": "2026-09-18T01:30:07.280Z",
+  "finishedAt": "2026-09-18T01:30:07.280Z",
+  "dataAsOf": "2026-09-18T01:30:07.436Z",
+  "warnings": [
+    "09:30 首笔成交确认检查点采用固定指数池作为过渡采集，正式开盘承接在后续批次接入"
+  ]
+}

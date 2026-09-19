@@ -1,0 +1,17 @@
+{
+  "runId": "auction-prefinal-2026-09-18-1789694694357-iuz2cq",
+  "tradeDate": "2026-09-18",
+  "phase": "auction",
+  "checkpoint": "auction-prefinal",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:25:00",
+  "startedAt": "2026-09-18T01:24:54.351Z",
+  "finishedAt": "2026-09-18T01:24:54.351Z",
+  "dataAsOf": "2026-09-18T01:24:54.459Z",
+  "warnings": [
+    "09:24 竞价结束前状态检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

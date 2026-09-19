@@ -1,0 +1,17 @@
+{
+  "runId": "auction-final-2026-09-17-1789608307697-6fj2w7",
+  "tradeDate": "2026-09-17",
+  "phase": "auction",
+  "checkpoint": "auction-final",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:25:03",
+  "startedAt": "2026-09-17T01:25:07.697Z",
+  "finishedAt": "2026-09-17T01:25:07.697Z",
+  "dataAsOf": "2026-09-17T01:25:07.867Z",
+  "warnings": [
+    "09:25 正式开盘价固化检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

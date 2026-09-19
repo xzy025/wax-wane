@@ -1,0 +1,18 @@
+{
+  "runId": "asia-open-2026-09-18-1789689672663-0ctcap",
+  "tradeDate": "2026-09-18",
+  "phase": "premarket",
+  "checkpoint": "asia-open",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "eastmoney-asia",
+  "providerTimestamp": "2026-09-18T00:01:12.664Z",
+  "startedAt": "2026-09-18T00:01:12.662Z",
+  "finishedAt": "2026-09-18T00:01:12.662Z",
+  "dataAsOf": "2026-09-18T00:01:12.664Z",
+  "warnings": [
+    "无法判定检查点时点，质量降级",
+    "日韩量化状态向量已按检查点时间固化"
+  ]
+}

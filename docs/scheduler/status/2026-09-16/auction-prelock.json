@@ -1,0 +1,20 @@
+{
+  "runId": "auction-prelock-2026-09-16-1789521591223-b3k8xu",
+  "tradeDate": "2026-09-16",
+  "phase": "auction",
+  "checkpoint": "auction-prelock",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-09-16T01:19:51.222Z",
+  "finishedAt": "2026-09-16T01:19:51.222Z",
+  "dataAsOf": "2026-09-16T01:19:51.259Z",
+  "warnings": [
+    "公开源竞价行情全部失败",
+    "Sina 竞价行情缺失",
+    "腾讯竞价行情缺失",
+    "09:19 锁价前峰值结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

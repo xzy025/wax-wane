@@ -1,0 +1,85 @@
+{
+  "tradeDate": "2026-09-17",
+  "generatedAt": "2026-09-17T07:21:56.413Z",
+  "modelVersion": "cross-market-v1-research",
+  "status": "degraded",
+  "themes": [
+    {
+      "id": "cpo",
+      "label": "CPO/大科技",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 307,
+      "themeReturnPct": -0.16,
+      "benchmarkReturnPct": -0.45,
+      "excessReturnPct": 0.29,
+      "positiveBreadthPct": 33.22,
+      "amount": 415187501119.56006,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 6,
+      "firstBoardCount": 2,
+      "strongCoreCount": 4,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0.25,
+        "cycleComponent": 0,
+        "metCriteria": [
+          "涨停≥3且首板≥2"
+        ],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "unavailable",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅14日",
+        "题材成交额历史仅14日",
+        "题材高潮四项证据不足三项"
+      ]
+    },
+    {
+      "id": "innovative-drug",
+      "label": "创新药",
+      "source": "eastmoney-industry-proxy",
+      "constituentCount": 114,
+      "themeReturnPct": 1.19,
+      "benchmarkReturnPct": -0.45,
+      "excessReturnPct": 1.64,
+      "positiveBreadthPct": 73.68,
+      "amount": 22475848406.370007,
+      "amountRatio20": null,
+      "returnZ": null,
+      "limitUpCount": 2,
+      "firstBoardCount": 2,
+      "strongCoreCount": 0,
+      "cycle": {
+        "state": "unavailable",
+        "climaxScore": 0.25,
+        "cycleComponent": 0,
+        "metCriteria": [
+          "上涨宽度≥70%"
+        ],
+        "availableCriteria": 2,
+        "warnings": [
+          "题材高潮四项证据不足三项"
+        ]
+      },
+      "outcome": "continuation",
+      "warnings": [
+        "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+        "题材收益历史仅14日",
+        "题材成交额历史仅14日",
+        "题材高潮四项证据不足三项"
+      ]
+    }
+  ],
+  "warnings": [
+    "全市场停牌或过时行情已剔除：5209/5560",
+    "题材成分暂用东财行业字段代理，正式概率化前需固化成分历史",
+    "题材收益历史仅14日",
+    "题材成交额历史仅14日",
+    "题材高潮四项证据不足三项"
+  ]
+}

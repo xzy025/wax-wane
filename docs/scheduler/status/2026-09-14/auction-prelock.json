@@ -1,0 +1,17 @@
+{
+  "runId": "auction-prelock-2026-09-14-1789348792944-gyybv2",
+  "tradeDate": "2026-09-14",
+  "phase": "auction",
+  "checkpoint": "auction-prelock",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:19:48",
+  "startedAt": "2026-09-14T01:19:52.943Z",
+  "finishedAt": "2026-09-14T01:19:52.943Z",
+  "dataAsOf": "2026-09-14T01:19:52.963Z",
+  "warnings": [
+    "09:19 锁价前峰值结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

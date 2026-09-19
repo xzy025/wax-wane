@@ -1,0 +1,17 @@
+{
+  "runId": "auction-prefinal-2026-09-14-1789349093414-8pt5d6",
+  "tradeDate": "2026-09-14",
+  "phase": "auction",
+  "checkpoint": "auction-prefinal",
+  "status": "success",
+  "captureStatus": "on-time",
+  "sourceStatus": "full",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:24:48",
+  "startedAt": "2026-09-14T01:24:53.413Z",
+  "finishedAt": "2026-09-14T01:24:53.413Z",
+  "dataAsOf": "2026-09-14T01:24:53.435Z",
+  "warnings": [
+    "09:24 竞价结束前状态检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

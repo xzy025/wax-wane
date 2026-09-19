@@ -1,0 +1,17 @@
+{
+  "runId": "open-confirm-2026-09-18-1789695336291-kqef54",
+  "tradeDate": "2026-09-18",
+  "phase": "open",
+  "checkpoint": "open-confirm",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:35:34",
+  "startedAt": "2026-09-18T01:35:36.290Z",
+  "finishedAt": "2026-09-18T01:35:36.290Z",
+  "dataAsOf": "2026-09-18T01:35:36.297Z",
+  "warnings": [
+    "09:35 五分钟承接确认检查点采用固定指数池作为过渡采集，正式开盘承接在后续批次接入"
+  ]
+}

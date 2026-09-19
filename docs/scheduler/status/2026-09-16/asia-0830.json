@@ -1,0 +1,20 @@
+{
+  "runId": "asia-0830-2026-09-16-1789518718920-dk6lnz",
+  "tradeDate": "2026-09-16",
+  "phase": "premarket",
+  "checkpoint": "asia-0830",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "eastmoney-asia",
+  "providerTimestamp": "2026-09-16T00:31:58.926Z",
+  "startedAt": "2026-09-16T00:31:58.919Z",
+  "finishedAt": "2026-09-16T00:31:58.919Z",
+  "dataAsOf": "2026-09-16T00:31:58.926Z",
+  "warnings": [
+    "request to https://push2delay.eastmoney.com/api/qt/ulist.np/get?fltt=2&secids=100.N225,100.TOPX,100.KS11,100.KQ11&fields=f2,f3,f4,f5,f6,f12,f14,f15,f16,f17,f18 failed, reason: write EPROTO E8A00000:error:0A00010B:SSL routines:ssl3_get_record:wrong version number:c:\\ws\\deps\\openssl\\openssl\\ssl\\record\\ssl3_record.c:355:\n",
+    "日韩指数行情缺失",
+    "日韩行情未配置，无法构建状态向量",
+    "日韩量化状态向量已按检查点时间固化"
+  ]
+}

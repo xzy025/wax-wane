@@ -1,0 +1,17 @@
+{
+  "runId": "auction-prelock-2026-09-17-1789607994223-wmnjzh",
+  "tradeDate": "2026-09-17",
+  "phase": "auction",
+  "checkpoint": "auction-prelock",
+  "status": "degraded",
+  "captureStatus": "on-time",
+  "sourceStatus": "degraded",
+  "provider": "shadow-public",
+  "providerTimestamp": "09:19:43",
+  "startedAt": "2026-09-17T01:19:54.218Z",
+  "finishedAt": "2026-09-17T01:19:54.218Z",
+  "dataAsOf": "2026-09-17T01:19:54.423Z",
+  "warnings": [
+    "09:19 锁价前峰值结构检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

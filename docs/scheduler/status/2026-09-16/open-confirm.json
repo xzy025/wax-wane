@@ -1,0 +1,20 @@
+{
+  "runId": "open-confirm-2026-09-16-1789522558832-si3hc7",
+  "tradeDate": "2026-09-16",
+  "phase": "open",
+  "checkpoint": "open-confirm",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-09-16T01:35:58.828Z",
+  "finishedAt": "2026-09-16T01:35:58.828Z",
+  "dataAsOf": "2026-09-16T01:35:58.832Z",
+  "warnings": [
+    "公开源竞价行情全部失败",
+    "Sina 竞价行情缺失",
+    "腾讯竞价行情缺失",
+    "09:35 五分钟承接确认检查点采用固定指数池作为过渡采集，正式开盘承接在后续批次接入"
+  ]
+}

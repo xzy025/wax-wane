@@ -1,0 +1,20 @@
+{
+  "runId": "auction-prefinal-2026-09-16-1789521891613-6aigrp",
+  "tradeDate": "2026-09-16",
+  "phase": "auction",
+  "checkpoint": "auction-prefinal",
+  "status": "failed",
+  "captureStatus": "on-time",
+  "sourceStatus": "unavailable",
+  "provider": "shadow-public",
+  "providerTimestamp": null,
+  "startedAt": "2026-09-16T01:24:51.606Z",
+  "finishedAt": "2026-09-16T01:24:51.606Z",
+  "dataAsOf": "2026-09-16T01:24:51.657Z",
+  "warnings": [
+    "公开源竞价行情全部失败",
+    "Sina 竞价行情缺失",
+    "腾讯竞价行情缺失",
+    "09:24 竞价结束前状态检查点准时触发；公开源固定 shadow，不进入正式候选升级"
+  ]
+}

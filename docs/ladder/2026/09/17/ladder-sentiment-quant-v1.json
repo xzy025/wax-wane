@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "ladder-sentiment-quant-v1",
+  "asof": "2026-09-17",
+  "generatedAt": "2026-09-17T07:30:59.105Z",
+  "status": "unavailable",
+  "source": "derived-from-ladder-v6",
+  "sourceStatus": {
+    "breadth": "ok",
+    "boardOutcomes": "degraded",
+    "down5Count": "missing",
+    "crowding": "missing"
+  },
+  "emotion": {
+    "score": null,
+    "maxScore": 12,
+    "coverage": 0.17,
+    "metrics": [
+      {
+        "id": "first-red",
+        "label": "昨日首板今日红盘比",
+        "value": null,
+        "threshold": ">60%",
+        "state": "unavailable",
+        "score": null,
+        "denominator": 25,
+        "coverage": 20,
+        "evidence": "当前结果覆盖率20.0%<95%"
+      },
+      {
+        "id": "first-big-face",
+        "label": "昨日首板今日大面比",
+        "value": null,
+        "threshold": "<=30%",
+        "state": "unavailable",
+        "score": null,
+        "denominator": 25,
+        "coverage": 20,
+        "evidence": "当前结果覆盖率20.0%<95%"
+      },
+      {
+        "id": "ladder-red",
+        "label": "昨日连板今日红盘比",
+        "value": null,
+        "threshold": ">60%",
+        "state": "unavailable",
+        "score": null,
+        "denominator": 6,
+        "coverage": 16.67,
+        "evidence": "当前结果覆盖率16.7%<95%"
+      },
+      {
+        "id": "ladder-count-ratio",
+        "label": "今日/昨日主板连板数",
+        "value": 1.5,
+        "threshold": ">1.00",
+        "state": "hot",
+        "score": 2,
+        "denominator": 6,
+        "coverage": 100,
+        "evidence": "9/6"
+      },
+      {
+        "id": "ladder-big-face",
+        "label": "昨日连板今日大面比",
+        "value": null,
+        "threshold": "<=30%",
+        "state": "unavailable",
+        "score": null,
+        "denominator": 6,
+        "coverage": 16.67,
+        "evidence": "当前结果覆盖率16.7%<95%"
+      },
+      {
+        "id": "ladder-green-non-limit",
+        "label": "昨日连板未涨停且收绿比例",
+        "value": null,
+        "threshold": "<=40%",
+        "state": "unavailable",
+        "score": null,
+        "denominator": 6,
+        "coverage": 16.67,
+        "evidence": "当前结果覆盖率16.7%<95%"
+      }
+    ],
+    "missingReasons": [
+      "昨日首板今日红盘比不可用：当前结果覆盖率20.0%<95%",
+      "昨日首板今日大面比不可用：当前结果覆盖率20.0%<95%",
+      "昨日连板今日红盘比不可用：当前结果覆盖率16.7%<95%",
+      "昨日连板今日大面比不可用：当前结果覆盖率16.7%<95%",
+      "昨日连板未涨停且收绿比例不可用：当前结果覆盖率16.7%<95%"
+    ]
+  },
+  "market": {
+    "score": null,
+    "maxScore": 10,
+    "coverage": 0.4,
+    "metrics": [
+      {
+        "id": "limit-up-count",
+        "label": "涨停数",
+        "value": 50,
+        "threshold": ">=40",
+        "state": "hot",
+        "score": 2,
+        "denominator": null,
+        "coverage": 100,
+        "evidence": "50"
+      },
+      {
+        "id": "ladder-count",
+        "label": "连板股数",
+        "value": 9,
+        "threshold": ">=11",
+        "state": "cold",
+        "score": -2,
+        "denominator": 9,
+        "coverage": 100,
+        "evidence": "9"
+      },
+      {
+        "id": "down-five-count",
+        "label": "跌幅低于-5%家数",
+        "value": null,
+        "threshold": "<=100",
+        "state": "unavailable",
+        "score": null,
+        "denominator": null,
+        "coverage": 0,
+        "evidence": "缺少-5%以下家数"
+      },
+      {
+        "id": "advance-rate",
+        "label": "上涨家数/有效交易家数",
+        "value": null,
+        "threshold": ">=40%",
+        "state": "unavailable",
+        "score": null,
+        "denominator": null,
+        "coverage": 0,
+        "evidence": "缺少涨跌家数"
+      },
+      {
+        "id": "loss-effect",
+        "label": "亏钱效应比",
+        "value": null,
+        "threshold": "<=2.0",
+        "state": "unavailable",
+        "score": null,
+        "denominator": 50,
+        "coverage": 0,
+        "evidence": "缺少-5%家数或涨停数"
+      }
+    ],
+    "missingReasons": [
+      "跌幅低于-5%家数不可用：缺少-5%以下家数",
+      "上涨家数/有效交易家数不可用：缺少涨跌家数",
+      "亏钱效应比不可用：缺少-5%家数或涨停数"
+    ]
+  },
+  "B": null,
+  "M": null,
+  "C": null,
+  "crowding": {
+    "status": "unavailable",
+    "rMid": null,
+    "rClose": null,
+    "percentileMid": null,
+    "percentileClose": null,
+    "percentile": null,
+    "level": "unavailable",
+    "evidence": [],
+    "missingReasons": [
+      "未采集午间/收盘触板池成交额"
+    ]
+  },
+  "gateState": "UNAVAILABLE",
+  "nextDayRelayWeight": null,
+  "noNewRelay": false,
+  "warnings": [
+    "昨日首板今日红盘比不可用：当前结果覆盖率20.0%<95%",
+    "昨日首板今日大面比不可用：当前结果覆盖率20.0%<95%",
+    "昨日连板今日红盘比不可用：当前结果覆盖率16.7%<95%",
+    "昨日连板今日大面比不可用：当前结果覆盖率16.7%<95%",
+    "昨日连板未涨停且收绿比例不可用：当前结果覆盖率16.7%<95%",
+    "跌幅低于-5%家数不可用：缺少-5%以下家数",
+    "上涨家数/有效交易家数不可用：缺少涨跌家数",
+    "亏钱效应比不可用：缺少-5%家数或涨停数",
+    "未采集午间/收盘触板池成交额",
+    "关键情绪数据缺失，不按中性值放行"
+  ],
+  "evidence": [
+    "B=--",
+    "M=--",
+    "C=--",
+    "次日接力权重=--"
+  ]
+}
