@@ -15,6 +15,43 @@ let proxyResolved = false
 let marketHttpAgent: HttpsProxyAgent<string> | undefined
 let marketHttpProxy: string | undefined
 
+// ── 代理失败自动回退直连 ────────────────────────────────────────────────
+// 代理是单点故障：实测腾讯 web.ifzq.gtimg.cn 走 127.0.0.1:10809 返回 501
+// 反爬页，而直连 200 正常返回 qfq 前复权数据。代理一抖动，整条 K 线降级链
+// (EM → 腾讯 → 新浪) 就会掉到新浪不复权，导致复权口径不一致、数据质检
+// historyCoverage 归零、盘后扫描整轮作废。
+// 因此：代理返回非 2xx 或网络错误时，用直连重试一次；直连成功就记住该 host
+// 在 TTL 内直接走直连，避免批量扫描(600 只)每只都白付一次代理往返。
+const PROXY_BYPASS_TTL_MS = 5 * 60_000
+const DIRECT_FALLBACK_TIMEOUT_MS = 8_000
+const proxyBypassUntil: Record<string, number> = {}
+
+function proxyBypassed(hostname: string): boolean {
+  const until = proxyBypassUntil[hostname]
+  return until !== undefined && Date.now() < until
+}
+
+function markProxyBypass(hostname: string): void {
+  proxyBypassUntil[hostname] = Date.now() + PROXY_BYPASS_TTL_MS
+}
+
+/** node-fetch 的响应类型；显式标注，避免兜底分支把返回值退化成 any。 */
+type FetchResponse = Awaited<ReturnType<typeof fetch>>
+
+/** 直连重试。原 signal 可能已随代理请求超时而 abort，必须换一个新的。 */
+async function fetchDirect(url: string, options: any): Promise<FetchResponse | null> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), DIRECT_FALLBACK_TIMEOUT_MS)
+  try {
+    const { signal: _drop, ...rest } = options ?? {}
+    return await fetch(url, { ...rest, signal: controller.signal } as any)
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 function getProxyAgent(): SocksProxyAgent | undefined {
   if (!proxyResolved) {
     proxyResolved = true
@@ -30,7 +67,7 @@ function getProxyAgent(): SocksProxyAgent | undefined {
   return proxyAgent
 }
 
-export async function fetchWithProxy(url: string, options: any = {}) {
+export async function fetchWithProxy(url: string, options: any = {}): Promise<FetchResponse> {
   const hostname = new URL(url).hostname
   const isMarket = ['eastmoney.com', 'sinajs.cn', 'gtimg.cn', 'longhuvip.com', 'quicktiny.cn']
     .some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
@@ -43,7 +80,29 @@ export async function fetchWithProxy(url: string, options: any = {}) {
       marketHttpAgent = new HttpsProxyAgent(configuredMarketProxy)
       marketHttpProxy = configuredMarketProxy
     }
-    return fetch(url, { ...options, agent: marketHttpAgent } as any)
+    if (!proxyBypassed(hostname)) {
+      let proxied: FetchResponse
+      try {
+        proxied = await fetch(url, { ...options, agent: marketHttpAgent } as any)
+      } catch {
+        // 代理不可达：直连兜底
+        const direct = await fetchDirect(url, options)
+        if (direct) {
+          markProxyBypass(hostname)
+          return direct
+        }
+        throw new Error(`market proxy unreachable and direct fallback failed: ${url}`)
+      }
+      if (proxied.ok) return proxied
+      // 代理可达但被目标拒绝(501/5xx 多为反爬拦截页)：直连往往正常
+      const direct = await fetchDirect(url, options)
+      if (direct?.ok) {
+        markProxyBypass(hostname)
+        return direct
+      }
+      return proxied
+    }
+    return fetch(url, options as any)
   }
   const needsProxy =
     url.includes('googleapis.com') ||
