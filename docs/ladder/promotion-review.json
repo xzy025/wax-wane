@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-09-11T08:22:21.260Z",
+  "generatedAt": "2026-09-18T15:30:09.410Z",
   "ruleVersions": [
     "limit-ladder-v3",
     "limit-ladder-v4",
     "limit-ladder-v5",
     "limit-ladder-v6"
   ],
-  "latestSignalDate": "2026-09-10",
-  "latestTradeDate": "2026-09-11",
+  "latestSignalDate": "2026-09-17",
+  "latestTradeDate": "2026-09-18",
   "sample": {
-    "signalDays": 14,
+    "signalDays": 17,
     "formalCandidates": 40,
     "validFormalCandidates": 39,
     "unresolvedFormalCandidates": 1
@@ -26,15 +26,15 @@
     "ci95High": 43.78
   },
   "waitOpen": {
-    "total": 326,
-    "valid": 224,
-    "promoted": 71,
-    "failed": 153,
+    "total": 439,
+    "valid": 337,
+    "promoted": 98,
+    "failed": 239,
     "unresolved": 102,
-    "promotionRate": 31.7,
-    "coverage": 68.71,
-    "ci95Low": 25.96,
-    "ci95High": 38.05
+    "promotionRate": 29.08,
+    "coverage": 76.77,
+    "ci95Low": 24.49,
+    "ci95High": 34.14
   },
   "trade": {
     "observations": 25,
@@ -291,7 +291,7 @@
     "note": "样本未达到长期校准门槛，只能做描述性复盘。"
   },
   "recommendations": [
-    "当前仅14个信号日、40个正式候选，未达到120个交易日/300个候选的校准门槛；只做记录，不自动改权重。",
+    "当前仅17个信号日、40个正式候选，未达到120个交易日/300个候选的校准门槛；只做记录，不自动改权重。",
     "分层复核：3进4当前晋级率33.33%；1进2当前晋级率26.32%，优先检查其环境闸门和候选阈值。",
     "分数校准：比较75-84与65-74相对总体28.21%，达到足够样本后再调整 promotionScore 门槛。",
     "次日开收标记正收益率40%，样本25；该指标不是可实现交易胜率。"
@@ -301,7 +301,7 @@
       "signalDate": "2026-08-14",
       "tradeDate": "2026-08-17",
       "ruleVersion": "limit-ladder-v3",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\14\\outcome-limit-ladder-v3.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\14\\outcome-limit-ladder-v3.json",
       "formalCandidates": 3,
       "formalPromotionRate": 0
     },
@@ -309,7 +309,7 @@
       "signalDate": "2026-08-17",
       "tradeDate": "2026-08-18",
       "ruleVersion": "limit-ladder-v4",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\17\\outcome-limit-ladder-v4.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\17\\outcome-limit-ladder-v4.json",
       "formalCandidates": 6,
       "formalPromotionRate": 50
     },
@@ -317,7 +317,7 @@
       "signalDate": "2026-08-18",
       "tradeDate": "2026-08-19",
       "ruleVersion": "limit-ladder-v5",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\18\\outcome-limit-ladder-v5.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\18\\outcome-limit-ladder-v5.json",
       "formalCandidates": 6,
       "formalPromotionRate": 33.33
     },
@@ -325,7 +325,7 @@
       "signalDate": "2026-08-19",
       "tradeDate": "2026-08-20",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\19\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\19\\outcome-limit-ladder-v6.json",
       "formalCandidates": 3,
       "formalPromotionRate": 0
     },
@@ -333,7 +333,7 @@
       "signalDate": "2026-08-21",
       "tradeDate": "2026-08-24",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\21\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\21\\outcome-limit-ladder-v6.json",
       "formalCandidates": 5,
       "formalPromotionRate": 20
     },
@@ -341,7 +341,7 @@
       "signalDate": "2026-08-25",
       "tradeDate": "2026-08-26",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\25\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\25\\outcome-limit-ladder-v6.json",
       "formalCandidates": 4,
       "formalPromotionRate": 0
     },
@@ -349,7 +349,7 @@
       "signalDate": "2026-08-26",
       "tradeDate": "2026-08-27",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\26\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\26\\outcome-limit-ladder-v6.json",
       "formalCandidates": 4,
       "formalPromotionRate": 100
     },
@@ -357,7 +357,7 @@
       "signalDate": "2026-08-27",
       "tradeDate": "2026-08-28",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\08\\27\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\08\\27\\outcome-limit-ladder-v6.json",
       "formalCandidates": 9,
       "formalPromotionRate": 22.22
     },
@@ -365,7 +365,7 @@
       "signalDate": "2026-09-03",
       "tradeDate": "2026-09-04",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\03\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\03\\outcome-limit-ladder-v6.json",
       "formalCandidates": 0,
       "formalPromotionRate": null
     },
@@ -373,7 +373,7 @@
       "signalDate": "2026-09-04",
       "tradeDate": "2026-09-07",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\04\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\04\\outcome-limit-ladder-v6.json",
       "formalCandidates": 0,
       "formalPromotionRate": null
     },
@@ -381,7 +381,7 @@
       "signalDate": "2026-09-07",
       "tradeDate": "2026-09-08",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\07\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\07\\outcome-limit-ladder-v6.json",
       "formalCandidates": 0,
       "formalPromotionRate": null
     },
@@ -389,7 +389,7 @@
       "signalDate": "2026-09-08",
       "tradeDate": "2026-09-09",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\08\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\08\\outcome-limit-ladder-v6.json",
       "formalCandidates": 0,
       "formalPromotionRate": null
     },
@@ -397,7 +397,7 @@
       "signalDate": "2026-09-09",
       "tradeDate": "2026-09-10",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\09\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\09\\outcome-limit-ladder-v6.json",
       "formalCandidates": 0,
       "formalPromotionRate": null
     },
@@ -405,7 +405,31 @@
       "signalDate": "2026-09-10",
       "tradeDate": "2026-09-11",
       "ruleVersion": "limit-ladder-v6",
-      "sourcePath": "D:\\AI\\codex\\todo-list\\docs\\ladder\\2026\\09\\10\\outcome-limit-ladder-v6.json",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\10\\outcome-limit-ladder-v6.json",
+      "formalCandidates": 0,
+      "formalPromotionRate": null
+    },
+    {
+      "signalDate": "2026-09-11",
+      "tradeDate": "2026-09-14",
+      "ruleVersion": "limit-ladder-v6",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\11\\outcome-limit-ladder-v6.json",
+      "formalCandidates": 0,
+      "formalPromotionRate": null
+    },
+    {
+      "signalDate": "2026-09-15",
+      "tradeDate": "2026-09-17",
+      "ruleVersion": "limit-ladder-v6",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\15\\outcome-limit-ladder-v6.json",
+      "formalCandidates": 0,
+      "formalPromotionRate": null
+    },
+    {
+      "signalDate": "2026-09-17",
+      "tradeDate": "2026-09-18",
+      "ruleVersion": "limit-ladder-v6",
+      "sourcePath": "D:\\AI\\codex\\wax-wane\\docs\\ladder\\2026\\09\\17\\outcome-limit-ladder-v6.json",
       "formalCandidates": 0,
       "formalPromotionRate": null
     }
