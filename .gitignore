@@ -98,9 +98,12 @@ docs/agent/
 # workbuddy assistant memory
 docs/.workbuddy-ai/
 /.workbuddy-ai/
+/.workbuddy/
+docs/.workbuddy/
 
 # Personal job-hunt workspace (resumes, search results)
 docs/job-hunt-2026-09/
+docs/job-match-*/
 
 # Scratch files and caches
 tmp/
