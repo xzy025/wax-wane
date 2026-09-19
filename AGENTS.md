@@ -10,14 +10,17 @@
   `analyze-huishou-trading` skill, and the reverse-engineered indicator evidence.
   All of it lives on disk and is gitignored — see the block in `.gitignore` anchored at
   "Third-party source material and derived research". **The repository is public**, so
-  anything committed is world-readable. Before `git add`, ask whether the path is
-  evidence/source material; if it is, it must not be staged.
+  anything committed is world-readable. Before staging, classify each path as
+  code, project documentation, or evidence/source material; never stage the
+  evidence/source paths listed below.
   - Local paths: `docs/n/`, `docs/v13-research/`, `docs/妖股形态/`,
     `server/knowledge/teacher/`, `skills/analyze-huishou-trading/`, `huishou-research.html`.
   - The skill's single source of truth is `skills/analyze-huishou-trading/` on disk.
     Copies under `~/.codex/skills/` and `~/.claude/skills/` are install artifacts:
     edit the working copy, then run `scripts/sync-huishou-skill.ps1` and treat the
-    working copy as authoritative whenever they differ. After changing it, bump the
+    working copy as authoritative whenever they differ. The script syncs the
+    Codex install by default; pass `-IncludeClaude` only when that install is
+    present. After changing it, bump the
     `verdict-rev` marker at the top of its `SKILL.md` so drift is visible in a diff.
   - Because these paths are untracked, a fresh clone will not have them. Code and CI
     must not depend on them; if a tracked file needs to cite one, state that it is not
