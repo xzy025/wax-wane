@@ -114,7 +114,7 @@ const digest: string[] = []
   const s = review.structure as Record<string, any> | undefined
   digest.push(
     s
-      ? `- 结构:强势延续${s.hsCount}/底部反转${s.lsCount}/高位回调${s.hwCount}/持续走弱${s.lwCount}|5日上涨板块占比${s.shortUpPct}%|领涨:${(s.topHs as Array<Record<string, any>> | undefined)?.slice(0, 3).map((b) => b.name).join('、') ?? '?'}`
+      ? `- 结构:强势延续${s.hsCount}/底部反转${s.lsCount}/高位回调${s.hwCount}/持续走弱${s.lwCount}|5日上涨板块占比${s.shortUpPct}%|5日领涨:${(s.topHs as Array<Record<string, any>> | undefined)?.slice(0, 3).map((b) => b.name).join('、') ?? '?'}`
       : '- 结构:(缺档)',
   )
 }

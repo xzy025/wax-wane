@@ -17,8 +17,8 @@ description: 执行 A 股收盘复盘归档、叙事注入及日度日志，或�
   和 15:30 时钟垫片不能证明上游数据日期正确，也不提供任意历史回放。
 - 检查项目依赖与 PG 状态。PG 缺失不阻断磁盘归档，但说明入库及连续性限制；
   环境修复仅在任务需要时进行，不默认要求启动 Docker Desktop。
-- 日期不符时先诊断。`--force` 仅用于日历判断错误且已核实上游为目标日定盘数据；
-  不用于绕过盘中、未来或错日数据限制。窗口关闭后改用真实历史数据或报告阻塞。
+- 日期不符时先诊断。`backfillDay.ts` 不提供绕过日历判断的 `--force`；
+  不得绕过盘中、未来或错日数据限制。窗口关闭后改用真实历史数据或报告阻塞。
 
 ## 运行与核验
 
@@ -36,10 +36,11 @@ node node_modules/tsx/dist/cli.mjs scripts/backfillDay.ts <YYYY-MM-DD>
 3. 失败只重跑受影响步骤及其依赖，例如选股恢复后
    `--only=screener,review,forward`。限流时换可用来源或有依据地退避；
    没有状态变化不反复重试，记录未完成部分。
-4. structure 缺失时可运行
-   `node node_modules/tsx/dist/cli.mjs scripts/backfillStructure.ts <日期>`。
-   核对数据来源、日期、生成时间与重构标记；默认已有档会跳过。
-   `--overwrite` 只用于已确认的档案修复，不能以更弱数据覆盖较强档。
+4. structure 缺失时没有独立的 `backfillStructure.ts`。在目标日期仍满足
+   `backfillDay.ts` 的窗口和输入契约、且依赖档案已存在时，运行
+   `node node_modules/tsx/dist/cli.mjs scripts/backfillDay.ts <日期> --only=structure`
+   （必要时先补齐其依赖步骤）。核对数据来源、日期、生成时间与重构标记；
+   窗口关闭或依赖缺失时使用经过验证的隔离输入，不能用更弱数据覆盖较强档。
 
 ## 叙事与交付
 

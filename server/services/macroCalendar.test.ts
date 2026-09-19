@@ -1,12 +1,16 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import {
   parseJin10Day,
   isImportant,
   builtinCalendar,
   mergeCalendar,
   dateRange,
+  beijingHourOfFomcStatement,
   type MacroEvent,
 } from './macroCalendar'
+import { setTradingCalendarForTests } from './tradingCalendar'
+
+afterEach(() => setTradingCalendarForTests(null))
 
 describe('parseJin10Day — 金十单日解析容错', () => {
   it('正常数组 → 字段映射正确', () => {
@@ -115,6 +119,60 @@ describe('builtinCalendar — 内置规则日历', () => {
     const out = builtinCalendar('2026-07-01', 31)
     expect(out.length).toBeGreaterThan(0)
     expect(out.every((e) => e.star === 3 && e.source === 'builtin')).toBe(true)
+  })
+})
+
+describe('builtinCalendar — LPR 休息日顺延(20 日口径)', () => {
+  const lprOf = (from: string, days: number) => builtinCalendar(from, days).filter((e) => e.name.includes('LPR'))
+
+  it('20 日落在周日 → 顺延至下周一(2026-09-20 周日 → 09-21),原 20 日不再出现', () => {
+    const lpr = lprOf('2026-09-15', 7)
+    expect(lpr.map((e) => e.date)).toEqual(['2026-09-21'])
+    expect(lpr[0].approx).toBe(false)
+  })
+
+  it('20 日落在普通工作日 → 不顺延(2026-10-20 周二)', () => {
+    expect(lprOf('2026-10-15', 7).map((e) => e.date)).toEqual(['2026-10-20'])
+  })
+
+  it('20 日落在周日 → 顺延至下周一(2026-12-20 周日 → 12-21)', () => {
+    expect(lprOf('2026-12-15', 7).map((e) => e.date)).toEqual(['2026-12-21'])
+  })
+
+  it('跨月窗口仍只报一次 LPR,且不把窗口外的月份算进来', () => {
+    const out = builtinCalendar('2026-09-28', 7)
+    expect(out.some((e) => e.name.includes('官方制造业PMI') && e.date === '2026-09-30')).toBe(true)
+    expect(out.some((e) => e.name.includes('LPR'))).toBe(false)
+  })
+
+  it('配置了真实交易日历时可跨法定假日顺延(注入日历把 09-21 标为非交易日)', () => {
+    setTradingCalendarForTests({
+      source: 'test-holidays',
+      isTradingDay: (d: string) => d !== '2026-09-21' && new Date(`${d}T00:00:00Z`).getUTCDay() % 6 !== 0,
+    })
+    // 窗口取 8 天,否则顺延后的 09-22 落在 7 天窗口之外(事件按窗口语义本就该消失)。
+    expect(lprOf('2026-09-15', 8).map((e) => e.date)).toEqual(['2026-09-22'])
+  })
+
+  it('未配置日历时只跳过周末(不宣称支持法定假日):09-21 仍是 LPR 公布日', () => {
+    // 默认日历源为 weekdays-only;此处显式断言这一局限,防止后续误以为已支持节假日。
+    expect(lprOf('2026-09-15', 7).map((e) => e.date)).toEqual(['2026-09-21'])
+  })
+})
+
+describe('FOMC 日期口径 — 美东日程日 vs 北京公布时刻', () => {
+  it('date 保留美东日程日,事件名同时给出美东时刻与北京时间', () => {
+    const fomc = builtinCalendar('2026-09-15', 7).find((e) => e.name.includes('FOMC'))
+    expect(fomc?.date).toBe('2026-09-16')
+    expect(fomc?.name).toBe('FOMC 利率决议(美东 09-16 14:00,北京时间 09-17 02:00 公布)')
+    expect(fomc?.approx).toBe(false)
+  })
+
+  it('夏令时边界:EDT 期间为北京时间次日 02:00,EST 期间为次日 03:00', () => {
+    expect(beijingHourOfFomcStatement('2026-09-16')).toBe('02:00') // EDT
+    expect(beijingHourOfFomcStatement('2026-07-29')).toBe('02:00') // EDT
+    expect(beijingHourOfFomcStatement('2026-01-28')).toBe('03:00') // EST
+    expect(beijingHourOfFomcStatement('2026-12-09')).toBe('03:00') // EST
   })
 })
 

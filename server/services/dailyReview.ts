@@ -281,7 +281,20 @@ async function computeDailyReview(): Promise<DailyReviewData> {
 
 function writeReviewDisk(result: DailyReviewData): void {
   try {
-    if (!mayReplaceDatedArchive(result, loadReviewDisk(result.asof), todayShanghai(), 'review')) return
+    const previous = loadReviewDisk(result.asof)
+    // 拒绝替换必须留痕:否则"重跑成功"与"算出但拒绝覆盖旧档"在日志里长得一模一样
+    // (2026-09-15 复盘重跑就踩过这个坑:步骤报 ✅,磁盘档其实一字未改)。
+    if (!mayReplaceDatedArchive(result, previous, todayShanghai(), 'review')) {
+      console.warn(
+        `[DailyReview] 拒绝替换 review-${result.asof}.json(未通过质量/不回退守卫):` +
+          `overnight ${previous?.overnight.length ?? 'n/a'}→${result.overnight.length}` +
+          ` news ${previous?.news.length ?? 'n/a'}→${result.news.length}` +
+          ` dragonTiger ${previous?.dragonTiger.length ?? 'n/a'}→${result.dragonTiger.length}` +
+          ` marketDataAsOf=${result.marketDataAsOf ?? 'null'}` +
+          ` narrative=${result.narrative ? '有' : '无'}`,
+      )
+      return
+    }
     mkdirSync(SCREENER_DIR, { recursive: true })
     writeFileSync(join(SCREENER_DIR, `review-${result.asof}.json`), JSON.stringify(result, null, 2))
   } catch (err) {

@@ -112,6 +112,20 @@ async function main() {
     console.warn('[backfillDay] PG 初始化失败(非致命,仅落磁盘):', e instanceof Error ? e.message : e)
   }
 
+  // 战法层:选股快照/实盘战绩读的是私有 panels,而 getStrategy() 在未先 loadStrategy()
+  // 时恒为 null(见 strategy/loader.ts)。服务进程由 index.ts 加载,脚本进程必须自己加载,
+  // 否则 --only=screener,forward 在任何环境下都会误报"未安装私有战法层"。
+  try {
+    const { loadStrategy, strategyStatus } = await import('../strategy/loader')
+    await loadStrategy()
+    const st = strategyStatus()
+    console.log(
+      `[backfillDay] 战法层 ${st.loaded ? `已加载(${st.entry})` : `未加载: ${st.reason}；选股/实盘战绩步骤将失败`}`,
+    )
+  } catch (e) {
+    console.warn('[backfillDay] 战法层加载异常(非致命):', e instanceof Error ? e.message : e)
+  }
+
   // 每步必须先 clear 再 fetch:盘后冷启动 createCache 会直接端「磁盘种子」(最新历史档,
   // 如 07-10)而不跑 fetcher;clear() 解除种子武装,才能强制真算出目标日的档。
   type Step = { name: string; key: string; archivePath: string; run: () => Promise<{ asof: string }> }
