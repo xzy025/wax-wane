@@ -57,7 +57,7 @@ export default function ReviewView({
     debouncedDispatch(selectedGroupId, next)
   }
   return (
-    <div className="content-grid review-grid">
+    <div className="content-grid review-grid review-view">
       <section className="panel group-list-panel">
         <div className="panel-title">
           <div>
@@ -100,6 +100,21 @@ export default function ReviewView({
             <strong>{formatMoney(selectedGroup.pnl, { withSign: true })}</strong>
             <span>{selectedGroup.returnRate}%</span>
           </div>
+        </div>
+
+        <div className="review-meta-strip" aria-label={language === 'en' ? 'Trade context' : '交易上下文'}>
+          <span>
+            <small>{language === 'en' ? 'Holding period' : '持仓周期'}</small>
+            <strong>{selectedGroup.days}{t.reviews.dayUnit}</strong>
+          </span>
+          <span>
+            <small>{language === 'en' ? 'Status' : '状态'}</small>
+            <strong>{selectedGroup.closed ? (language === 'en' ? 'Closed' : '已闭环') : t.reviews.open}</strong>
+          </span>
+          <span>
+            <small>{language === 'en' ? 'Fees' : '交易费用'}</small>
+            <strong>{formatMoney(selectedGroup.totalFee)}</strong>
+          </span>
         </div>
 
         <div className="review-form-grid">

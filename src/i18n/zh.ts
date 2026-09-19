@@ -717,6 +717,7 @@ export default {
       instAccum: '机构累积',
       orgSurvey: '机构调研榜',
       track: '实盘战绩',
+      mcpUniverse: 'MCP候选',
     },
     groups: {
       breakout: '今日首次突破',
@@ -1065,6 +1066,28 @@ export default {
     },
     osDesc:
       '机构调研榜(纯排行 · 非战法 · 非买点 · 未回测):近20个交易日全市场机构调研关注度排行,按机构家数降序。数据来自公开调研纪要,反映"最近被机构密集拜访"的标的,不代表买卖点,请结合自己的判断。',
+    muDesc:
+      'MCP 候选集(影子观察 · 非战法 · 非买点 · 未回测):由腾讯自选股/通达信数据源按"当日事件"直接产出的候选池(创新高、涨停、连板、突破250日线、均线多头发散、主力净流入)。它测的是当日事件,而正式战法测的是趋势延续与形态质量,两者互补而非互相验证——用于排查 600 只初筛上限造成的漏票。不进评分、不改信号状态、不计入实盘战绩。',
+    muBoard: {
+      disclaimer: '⚠ 影子运行 · 非战法 · 非买点 · 未回测 · 不进评分 · 不计入实盘战绩',
+      empty: '该策略当日无命中',
+      multiHitTitle: '跨策略共振',
+      multiHitDesc: '同时命中 ≥2 个策略的标的(信号更硬,优先人工复核)',
+      groupTitle: '按策略分组',
+      colName: '名称',
+      colHits: '命中',
+      colStrategy: 'MCP 策略',
+      asOf: '数据日期',
+      provider: '数据源',
+      generatedAt: '生成时间',
+      unionSize: '去重候选',
+      collected: '已取/总数',
+      truncated: '被截断',
+      shadowNote: '本面板仅做覆盖率 diff 与漏票排查,不构成买卖建议',
+      refresh: '刷新 MCP 候选集',
+      loadFail: 'MCP 候选集加载失败',
+      noData: '暂无 MCP 候选集,需先由 WorkBuddy 会话生成 docs/screener/mcp-universe-<date>.json',
+    },
     osBoard: {
       title: '机构调研榜',
       disclaimer: '⚠ 非战法·非买点·未回测:仅反映近20个交易日机构调研密集度,不构成买卖建议',

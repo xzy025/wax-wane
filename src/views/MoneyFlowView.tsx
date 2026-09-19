@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import { ArrowUp, ArrowDown } from 'phosphor-react'
+import { ArrowClockwise, ArrowUp, ArrowDown, ChartBar } from 'phosphor-react'
 import { useMoneyFlow, useTradingDates, type LhbStock, type Seat } from '../hooks/useMoneyFlow'
 import MarketDatePicker, { getLastTradingDay } from '../components/MarketDatePicker'
 import type { Translation } from '../types'
@@ -57,7 +57,7 @@ export default function MoneyFlowView({ t }: MoneyFlowViewProps) {
   const showSell = flow !== 'inflow'
 
   return (
-    <section className="view-stack">
+    <section className="view-stack moneyflow-view">
       <div className="panel-title themes-toolbar">
         <h2>{m.title}</h2>
         <MarketDatePicker
@@ -143,13 +143,9 @@ export default function MoneyFlowView({ t }: MoneyFlowViewProps) {
       </div>
 
       {!data ? (
-        <div className="data-table">
-          <div className="table-row">{loading ? '…' : m.noData}</div>
-        </div>
+        <MoneyFlowEmpty loading={loading} message={m.noData} hint={m.hint} refreshLabel={m.refresh} onRefresh={refresh} />
       ) : totalCount === 0 ? (
-        <div className="data-table">
-          <div className="table-row">{m.noData}</div>
-        </div>
+        <MoneyFlowEmpty message={m.noData} hint={m.hint} refreshLabel={m.refresh} onRefresh={refresh} />
       ) : (
         <div className="dt-board">
           {showBuy && (
@@ -169,6 +165,34 @@ export default function MoneyFlowView({ t }: MoneyFlowViewProps) {
         </div>
       )}
     </section>
+  )
+}
+
+function MoneyFlowEmpty({
+  loading,
+  message,
+  hint,
+  refreshLabel,
+  onRefresh,
+}: {
+  loading?: boolean
+  message: string
+  hint: string
+  refreshLabel: string
+  onRefresh: () => void
+}) {
+  return (
+    <div className={`tab-empty-state moneyflow-empty${loading ? ' is-loading' : ''}`} role="status">
+      <span className="tab-empty-icon"><ChartBar size={20} aria-hidden="true" /></span>
+      <div>
+        <strong>{loading ? '…' : message}</strong>
+        <p>{hint}</p>
+      </div>
+      <button type="button" className="text-button" onClick={onRefresh} disabled={loading}>
+        <ArrowClockwise size={15} className={loading ? 'spin' : ''} aria-hidden="true" />
+        {refreshLabel}
+      </button>
+    </div>
   )
 }
 

@@ -1076,6 +1076,7 @@ export interface Translation {
       instAccum: string
       orgSurvey: string
       track: string
+      mcpUniverse: string
     }
     groups: {
       breakout: string
@@ -1318,6 +1319,27 @@ export interface Translation {
       refresh: string
     }
     osDesc: string
+    muDesc: string
+    muBoard: {
+      disclaimer: string
+      empty: string
+      multiHitTitle: string
+      multiHitDesc: string
+      groupTitle: string
+      colName: string
+      colHits: string
+      colStrategy: string
+      asOf: string
+      provider: string
+      generatedAt: string
+      unionSize: string
+      collected: string
+      truncated: string
+      shadowNote: string
+      refresh: string
+      loadFail: string
+      noData: string
+    }
     osBoard: {
       title: string
       disclaimer: string

@@ -17,6 +17,8 @@ import holdingsRoutes from './routes/holdings'
 import ladderRoutes from './routes/ladder'
 import opsRoutes from './routes/ops'
 import hithinkResearchRoutes from './routes/hithinkResearch'
+// MCP 候选集影子面板：挂在公开注册链上，不依赖私有战法层是否安装。
+import mcpUniverseRoutes from './routes/mcpUniverse'
 import { startSchedulerCoordinator } from './services/schedulerCoordinator'
 import { getStrategy, loadStrategy, logStrategyStatus } from './strategy/loader'
 
@@ -63,6 +65,7 @@ app.use(holdingsRoutes)
 app.use(ladderRoutes)
 app.use(opsRoutes)
 app.use(hithinkResearchRoutes)
+app.use(mcpUniverseRoutes)
 
 // Initialize database and start server
 async function startServer() {

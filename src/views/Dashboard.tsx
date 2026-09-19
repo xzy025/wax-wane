@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Warning, CaretRight, CurrencyCircleDollar } from 'phosphor-react'
+import { Warning, CaretRight, CurrencyCircleDollar, UploadSimple, ArrowRight, ChartLineUp } from 'phosphor-react'
 import {
   AreaChart,
   Area,
@@ -185,8 +185,8 @@ export default function Dashboard({ t, range }: DashboardProps) {
         })}
       </section>
 
-      <section className="content-grid">
-        <article className="panel wide">
+      <section className="content-grid dashboard-content-grid">
+        <article className="panel">
           <div className="panel-title">
             <div>
               <h2>{t.dashboard.equityTitle}</h2>
@@ -233,15 +233,18 @@ export default function Dashboard({ t, range }: DashboardProps) {
               </ResponsiveContainer>
             ) : (
               <div
-                style={{
-                  height: 220,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--muted)',
-                }}
+                className="dashboard-chart-empty"
               >
-                {t.dashboard.noClosedTrades}
+                <div className="dashboard-empty-icon" aria-hidden="true">
+                  <ChartLineUp size={22} />
+                </div>
+                <strong>{t.dashboard.noClosedTrades}</strong>
+                <span>{t.import.uploadDesc}</span>
+                <a className="dashboard-empty-link" href="/import">
+                  <UploadSimple size={15} aria-hidden="true" />
+                  {t.import.selectFile}
+                  <ArrowRight size={15} aria-hidden="true" />
+                </a>
               </div>
             )}
           </div>
@@ -256,13 +259,18 @@ export default function Dashboard({ t, range }: DashboardProps) {
             <Warning size={20} aria-hidden="true" />
           </div>
           <div className="alert-list">
-            {alerts.map((alert) => (
-              <AlertItem
-                key={alert.title}
-                tone={alert.tone}
-                title={alert.title}
-                text={alert.text}
-              />
+            {filteredGroups.length === 0 ? (
+              <div className="dashboard-risk-empty">
+                <div className="dashboard-empty-icon" aria-hidden="true">
+                  <Warning size={18} />
+                </div>
+                <div>
+                  <strong>{t.dashboard.noClosedTrades}</strong>
+                  <span>{t.import.uploadDesc}</span>
+                </div>
+              </div>
+            ) : alerts.map((alert) => (
+              <AlertItem key={alert.title} tone={alert.tone} title={alert.title} text={alert.text} />
             ))}
           </div>
         </article>
@@ -274,12 +282,22 @@ export default function Dashboard({ t, range }: DashboardProps) {
             <h2>{t.dashboard.recentTitle}</h2>
             <p>{t.dashboard.recentDesc}</p>
           </div>
-          <button className="text-button" type="button">
+          <a className="text-button" href="/reviews">
             {t.dashboard.viewAll}
             <CaretRight size={16} aria-hidden="true" />
-          </button>
+          </a>
         </div>
-        <TradeGroupTable groups={filteredGroups} t={t} />
+        {filteredGroups.length > 0 ? (
+          <TradeGroupTable groups={filteredGroups} t={t} />
+        ) : (
+          <div className="dashboard-recent-empty">
+            <span>{t.dashboard.noClosedTrades}</span>
+            <a className="dashboard-empty-link" href="/import">
+              {t.import.uploadTitle}
+              <ArrowRight size={15} aria-hidden="true" />
+            </a>
+          </div>
+        )}
       </section>
     </div>
   )

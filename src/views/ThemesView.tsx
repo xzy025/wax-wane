@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowClockwise, CaretDown, CaretUp, Crown } from 'phosphor-react'
+import { ArrowClockwise, CaretDown, CaretUp, ChartBar, Crown } from 'phosphor-react'
 import { useThemes, type ThemeBlock, type ThemeRow, type PeerRow } from '../hooks/useThemes'
 import { useSortableRows, type Accessors } from '../hooks/useSortableRows'
 import type { Translation } from '../types'
@@ -95,7 +95,17 @@ export default function ThemesView({ t, language }: ThemesViewProps) {
   )
 
   return (
-    <section className="view-stack">
+    <section className="view-stack themes-view">
+      <div className="tab-view-intro">
+        <div>
+          <span className="tab-view-kicker">{language === 'en' ? 'SECTOR STRENGTH' : '板块强弱'}</span>
+          <p>{t.themes.heatDesc}</p>
+        </div>
+        <div className="tab-view-stats" aria-label={language === 'en' ? 'Sector coverage' : '板块覆盖'}>
+          <span><strong>{ranked.length}</strong>{language === 'en' ? ' sectors' : ' 个板块'}</span>
+          <span><strong>{selected?.constituents.length ?? 0}</strong>{language === 'en' ? ' names' : ' 只成分股'}</span>
+        </div>
+      </div>
       <div className="panel-title themes-toolbar">
         <h2>{t.themes.heatTitle}</h2>
         {lastUpdated && (
@@ -113,8 +123,6 @@ export default function ThemesView({ t, language }: ThemesViewProps) {
           <ArrowClockwise size={18} className={loading ? 'spin' : ''} />
         </button>
       </div>
-      <p className="themes-desc">{t.themes.heatDesc}</p>
-
       {error && !themes && <div className="alert-item danger">{t.themes.loadFail}</div>}
       {!themes && loading && <div className="themes-desc">…</div>}
 
@@ -175,7 +183,18 @@ export default function ThemesView({ t, language }: ThemesViewProps) {
           {th('ytd', c.ytd)}
           <span>{c.tag}</span>
         </div>
-        {rows.length === 0 && <div className="table-row">{t.themes.noData}</div>}
+        {rows.length === 0 && (
+          <div className="table-empty-row" role="status">
+            <span className="table-empty-icon"><ChartBar size={18} aria-hidden="true" /></span>
+            <span>
+              <strong>{t.themes.noData}</strong>
+              <small>{language === 'en' ? 'Refresh when the market data source is available.' : '数据源恢复后可刷新板块快照。'}</small>
+            </span>
+            <button type="button" className="text-button" onClick={refresh} disabled={loading}>
+              {t.themes.refresh}
+            </button>
+          </div>
+        )}
         {rows.map((r) => (
           <div className="table-row" key={r.code}>
             <span>

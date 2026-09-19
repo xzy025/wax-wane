@@ -11,8 +11,8 @@ const ResearchPanel = strategyView('ResearchPanel')
 export default function IntelView({ t }: { t: Translation }) {
   const [tab, setTab] = useState<'flash' | 'research'>('flash')
   return (
-    <section className="view-stack">
-      <div>
+    <section className="view-stack intel-view">
+      <div className="intel-tab-bar">
         <div className="seg-group">
           <button className={`seg-btn${tab === 'flash' ? ' active' : ''}`} onClick={() => setTab('flash')}>
             {t.intel.tabFlash}
@@ -21,6 +21,7 @@ export default function IntelView({ t }: { t: Translation }) {
             {t.intel.tabResearch}
           </button>
         </div>
+        <p>{tab === 'flash' ? t.intel.flash.desc : t.intel.research.desc}</p>
       </div>
       {tab === 'flash' && <NewsFlashPanel t={t} />}
       {tab === 'research' && (

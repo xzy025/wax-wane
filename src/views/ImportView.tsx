@@ -121,7 +121,7 @@ export default function ImportView({ t }: ImportViewProps) {
   }, [])
 
   return (
-    <div className="content-grid import-grid">
+    <div className="content-grid import-grid import-view">
       <article className="panel upload-panel">
         <div className="upload-box">
           {step === 'upload' ? (

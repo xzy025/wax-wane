@@ -239,7 +239,7 @@ export default function AnalyticsView({ t }: AnalyticsViewProps) {
   }
 
   return (
-    <div className="content-grid">
+    <div className="content-grid analytics-view">
       {/* Quantitative Metrics */}
       <article className="panel wide">
         <div className="panel-title">

@@ -23,14 +23,9 @@ import { AgentProvider } from './agent/agentStore'
 import { useRagSync } from './hooks/useRagSync'
 import { useGraphSync } from './hooks/useGraphSync'
 import SegmentedControl from './components/SegmentedControl'
-import MacroBanner from './components/MacroBanner'
-import AShareBanner from './components/AShareBanner'
-import HKBanner from './components/HKBanner'
-import USBanner from './components/USBanner'
-import HotListBanner from './components/HotListBanner'
-import MarketDatePicker, { getLastTradingDay } from './components/MarketDatePicker'
+import { getLastTradingDay } from './components/MarketDatePicker'
 import ErrorBoundary from './components/ErrorBoundary'
-import { todayStr, clearDay, clearAllDays } from './utils/marketHistory'
+import { clearAllDays } from './utils/marketHistory'
 import Dashboard from './views/Dashboard'
 import ImportView from './views/ImportView'
 import LedgerView from './views/LedgerView'
@@ -46,24 +41,31 @@ const ScreenerView = strategyView('ScreenerView')
 const RotationView = strategyView('RotationView')
 import IntelView from './views/IntelView'
 import LadderView from './views/LadderView'
+import MarketView from './views/MarketView'
 import { Suspense } from 'react'
 import type { Translation } from './types'
 
 const navItems = [
-  { id: 'market', icon: TrendUp, path: '/market' },
-  { id: 'intel', icon: Newspaper, path: '/intel' },
-  { id: 'themes', icon: SquaresFour, path: '/themes' },
-  { id: 'moneyflow', icon: Trophy, path: '/moneyflow' },
-  { id: 'rotation', icon: ArrowsClockwise, path: '/rotation' },
-  { id: 'ladder', icon: Stack, path: '/ladder' },
-  { id: 'screener', icon: Crosshair, path: '/screener' },
-  { id: 'dashboard', icon: ChartBar, path: '/dashboard' },
-  { id: 'import', icon: UploadSimple, path: '/import' },
-  { id: 'ledger', icon: File, path: '/ledger' },
-  { id: 'reviews', icon: BookOpen, path: '/reviews' },
-  { id: 'analytics', icon: ChartPieSlice, path: '/analytics' },
-  { id: 'agent', icon: Robot, path: '/agent' },
+  { id: 'market', icon: TrendUp, path: '/market', section: 'research' },
+  { id: 'intel', icon: Newspaper, path: '/intel', section: 'research' },
+  { id: 'themes', icon: SquaresFour, path: '/themes', section: 'research' },
+  { id: 'moneyflow', icon: Trophy, path: '/moneyflow', section: 'research' },
+  { id: 'rotation', icon: ArrowsClockwise, path: '/rotation', section: 'research' },
+  { id: 'ladder', icon: Stack, path: '/ladder', section: 'research' },
+  { id: 'screener', icon: Crosshair, path: '/screener', section: 'research' },
+  { id: 'dashboard', icon: ChartBar, path: '/dashboard', section: 'journal' },
+  { id: 'import', icon: UploadSimple, path: '/import', section: 'journal' },
+  { id: 'ledger', icon: File, path: '/ledger', section: 'journal' },
+  { id: 'reviews', icon: BookOpen, path: '/reviews', section: 'journal' },
+  { id: 'analytics', icon: ChartPieSlice, path: '/analytics', section: 'journal' },
+  { id: 'agent', icon: Robot, path: '/agent', section: 'assistant' },
 ]
+
+const navSections = [
+  { id: 'research', zh: '研究', en: 'Research' },
+  { id: 'journal', zh: '交易记录', en: 'Journal' },
+  { id: 'assistant', zh: '辅助工具', en: 'Tools' },
+] as const
 
 const translations: Record<string, Translation> = { zh, en }
 
@@ -106,20 +108,27 @@ function AppLayout() {
           </div>
         </div>
 
-        <nav className="nav-list">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <NavLink
-                key={item.id}
-                to={item.path}
-                className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
-              >
-                <Icon size={18} aria-hidden="true" />
-                {t.nav[item.id]}
-              </NavLink>
-            )
-          })}
+        <nav className="nav-sections" aria-label="Primary navigation">
+          {navSections.map((section) => (
+            <div className="nav-section" key={section.id}>
+              <span className="nav-section-label">{language === 'zh' ? section.zh : section.en}</span>
+              <div className="nav-list">
+                {navItems.filter((item) => item.section === section.id).map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <NavLink
+                      key={item.id}
+                      to={item.path}
+                      className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}
+                    >
+                      <Icon size={18} aria-hidden="true" />
+                      {t.nav[item.id]}
+                    </NavLink>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <div className="sidebar-card">
@@ -158,37 +167,30 @@ function AppLayout() {
           </header>
         )}
 
-        {activeView === 'market' && (
-          <>
-            <MarketDatePicker
-              selectedDate={selectedDate}
-              onSelect={setSelectedDate}
-              onRefresh={async () => {
-                // Drop local cache + all server caches, then remount the banners
-                // (via refreshKey) so each re-fetches fresh — no full page reload.
-                clearAllDays()
-                try {
-                  await fetch('/api/refresh', { method: 'POST' })
-                } catch {
-                  // Server may be down; components will handle fetch errors
-                }
-                setRefreshKey((k) => k + 1)
-              }}
-              t={t}
-            />
-            <ErrorBoundary key={refreshKey}>
-              <MacroBanner key={`macro-${refreshKey}`} t={t} date={selectedDate} />
-              <AShareBanner key={`ashare-${refreshKey}`} t={t} date={selectedDate} />
-              <HKBanner key={`hk-${refreshKey}`} t={t} date={selectedDate} />
-              <USBanner key={`us-${refreshKey}`} t={t} date={selectedDate} />
-              <HotListBanner key={`hot-${refreshKey}`} t={t} date={selectedDate} />
-            </ErrorBoundary>
-          </>
-        )}
-
         <ErrorBoundary>
           <Routes>
-          <Route path="/market" element={<div />} />
+          <Route
+            path="/market"
+            element={
+              <MarketView
+                t={t}
+                language={language as 'zh' | 'en'}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                onRefresh={async () => {
+                  // Drop local cache + all server caches, then remount the data modules.
+                  clearAllDays()
+                  try {
+                    await fetch('/api/refresh', { method: 'POST' })
+                  } catch {
+                    // Server may be down; modules expose their own error state.
+                  }
+                  setRefreshKey((k) => k + 1)
+                }}
+                refreshKey={refreshKey}
+              />
+            }
+          />
           <Route path="/intel" element={<IntelView t={t} />} />
           <Route path="/themes" element={<ThemesView t={t} language={language as 'zh' | 'en'} />} />
           <Route path="/moneyflow" element={<MoneyFlowView t={t} language={language as 'zh' | 'en'} />} />

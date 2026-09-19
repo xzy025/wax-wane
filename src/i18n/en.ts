@@ -753,6 +753,7 @@ export default {
       instAccum: 'Inst Accumulation',
       orgSurvey: 'Org Survey Board',
       track: 'Track Record',
+      mcpUniverse: 'MCP Picks',
     },
     groups: {
       breakout: 'First Breakout Today',
@@ -1107,6 +1108,30 @@ export default {
     },
     osDesc:
       'Institutional Survey Board (pure ranking · not a strategy · not a buy signal · not backtested): market-wide institutional survey attention over the last 20 trading days, sorted by number of institutions. Sourced from public survey minutes — reflects recent research interest, not a trade signal; use your own judgment.',
+    muDesc:
+      'MCP candidate pool (shadow run · not a strategy · not a buy signal · not backtested): candidates produced directly from Tencent Stock / Tongdaxin feeds by same-day events (new highs, limit-ups, consecutive limit-ups, MA250 breakouts, bullish MA alignment, main-capital net inflow). It measures same-day events while the formal strategies measure trend persistence and pattern quality — complementary, not cross-validating. Used to surface stocks missed by the 600-name first-pass cap. Excluded from scoring, signal state and track record.',
+    muBoard: {
+      disclaimer:
+        '⚠ Shadow run · not a strategy · not a buy signal · not backtested · excluded from scoring and track record',
+      empty: 'No hits today',
+      multiHitTitle: 'Cross-strategy confluence',
+      multiHitDesc: 'Names hitting ≥2 strategies (stronger signal — review these first)',
+      groupTitle: 'By strategy',
+      colName: 'Name',
+      colHits: 'Hits',
+      colStrategy: 'MCP strategy',
+      asOf: 'Data date',
+      provider: 'Provider',
+      generatedAt: 'Generated',
+      unionSize: 'Unique picks',
+      collected: 'Fetched/total',
+      truncated: 'Truncated',
+      shadowNote: 'For coverage diff and missed-name checks only — not trade advice',
+      refresh: 'Refresh MCP pool',
+      loadFail: 'Failed to load MCP candidate pool',
+      noData:
+        'No MCP candidate pool yet — generate docs/screener/mcp-universe-<date>.json from a WorkBuddy session first',
+    },
     osBoard: {
       title: 'Institutional Survey Board',
       disclaimer:

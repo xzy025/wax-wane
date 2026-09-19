@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import IntelView from './IntelView'
+import { mountedStrategyPanels } from '../strategy-ui'
 import type { Translation } from '../types'
 import type { NewsFlashData, NewsFlashHookResult } from '../hooks/useNewsFlash'
 import type { ResearchData, ResearchHookResult, ResearchReportEntry } from '../hooks/useResearch'
@@ -100,6 +101,13 @@ vi.mock('../hooks/useResearch', () => ({
   useResearchDates: () => datesResult,
 }))
 
+// 研报面板是私有战法层视图,经 strategyView 动态挂载(拆分后)。本测试按环境适配:
+// · 本地叠加层已挂载(panelMounted=true)→ 断言真实面板内容,面板异步挂载,用 findBy* 等待;
+// · 公开构建未装私有层 → 断言占位提示与 tab 导航本身工作。两种状态下都绿,不依赖私有路径。
+const panelMounted = mountedStrategyPanels().includes('ResearchPanel')
+const PANEL_TIMEOUT = { timeout: 5000 } as const
+const strategyPlaceholder = /私有战法面板暂未接入/
+
 describe('IntelView', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -149,10 +157,16 @@ describe('IntelView', () => {
   it('切到研报 tab:分析卡字段 + 展开核心逻辑 + 待分析/解析失败状态', async () => {
     render(<IntelView t={t} />)
     await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
+    if (!panelMounted) {
+      // 公开构建未挂载私有研报面板 → 占位提示,tab 导航本身仍工作
+      expect(await screen.findByText(strategyPlaceholder, undefined, PANEL_TIMEOUT)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: '7×24 快讯' })).toBeInTheDocument()
+      return
+    }
     // 分析卡(「宁德时代」同时出现在卡名与汇总重点标的 chip → 恰为 2 处)
-    expect(screen.getAllByText('宁德时代')).toHaveLength(2)
-    expect(screen.getAllByText('300750').length).toBeGreaterThan(0)
-    expect(screen.getByText('买入')).toBeInTheDocument()
+    expect((await screen.findAllByText('宁德时代', undefined, PANEL_TIMEOUT)).length).toBe(2)
+    expect((await screen.findAllByText('300750')).length).toBeGreaterThan(0)
+    expect(await screen.findByText('买入')).toBeInTheDocument()
     expect(screen.getByText('动力电池龙头,储能打开第二曲线。')).toBeInTheDocument()
     // 展开三段
     expect(screen.queryByText('市占率稳定')).not.toBeInTheDocument()
@@ -177,7 +191,8 @@ describe('IntelView', () => {
     researchResult.data = { ...structuredClone(researchData), llmConfigured: false, digest: null }
     render(<IntelView t={t} />)
     await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
-    expect(screen.getByText(/LLM 未配置或不可用/)).toBeInTheDocument()
+    if (!panelMounted) return // LLM 降级条属私有面板,未安装时占位路径已在上一条用例覆盖
+    expect(await screen.findByText(/LLM 未配置或不可用/, undefined, PANEL_TIMEOUT)).toBeInTheDocument()
     expect(screen.getByText('b.md')).toBeInTheDocument()
   })
 
@@ -185,7 +200,8 @@ describe('IntelView', () => {
     researchResult.data = { ...structuredClone(researchData), reports: [], digest: null }
     render(<IntelView t={t} />)
     await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
-    expect(screen.getByText(/当日暂无研报/)).toBeInTheDocument()
+    if (!panelMounted) return
+    expect(await screen.findByText(/当日暂无研报/, undefined, PANEL_TIMEOUT)).toBeInTheDocument()
   })
 
   it('飞书同步状态:未配置不渲染,出错显示徽标(title 带详情),成功显示时间', async () => {

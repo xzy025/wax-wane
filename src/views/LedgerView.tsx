@@ -75,7 +75,7 @@ export default function LedgerView({ t, range }: LedgerViewProps) {
   ]
 
   return (
-    <section className="panel">
+    <section className="panel ledger-view">
       <div className="panel-title">
         <div>
           <h2>{t.ledger.title}</h2>
