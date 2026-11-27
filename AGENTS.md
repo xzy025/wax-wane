@@ -25,6 +25,12 @@
   - Because these paths are untracked, a fresh clone will not have them. Code and CI
     must not depend on them; if a tracked file needs to cite one, state that it is not
     distributed and include a verifiable excerpt or hash.
+  - Generated market snapshots are local-only too. Do not stage
+    `docs/ladder/` date trees, `docs/ladder/promotion-review.*`,
+    `docs/ladder/provider-validation/`, `docs/cross-market/{raw,snapshots,reports}/`,
+    `docs/auction-l1/raw/`, `docs/scheduler/status/`, or `docs/fundamentals/*.md`.
+    They are regenerable and gitignored. `docs/ladder/auction-brief-wechat.md` and the
+    other explanatory docs stay in git.
 - `docs/`: research evidence and operating records. Read focused source ranges;
   exclude `docs/archive/raw-sessions/`, generated snapshots and large raw data
   unless the task needs them. Existing uncommitted work may belong to other tasks.

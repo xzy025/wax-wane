@@ -109,9 +109,21 @@ docs/job-match-*/
 tmp/
 __pycache__/
 
-# Heavy generated limit-ladder analysis archives (per-stock research rows; snapshots, not source)
-docs/ladder/**/analysis-limit-ladder-v6*.json
-docs/ladder/**/evidence-limit-ladder-v6*.json
+# Regenerable market/research snapshots (not source). Already-tracked copies were
+# removed from the branch tip; history may still contain the blobs.
+# Date trees: docs/ladder/2026/08/21 and the older flat docs/ladder/2026-08-21.
+docs/ladder/[0-9][0-9][0-9][0-9]/
+docs/ladder/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+docs/ladder/provider-validation/
+docs/ladder/promotion-review.json
+docs/ladder/promotion-review.md
+docs/cross-market/raw/
+docs/cross-market/snapshots/
+docs/cross-market/reports/
+docs/auction-l1/raw/
+docs/scheduler/status/
+# LLM one-pagers written by routes/analysis.ts ({code}-{YYYY-MM-DD}.md)
+docs/fundamentals/*.md
 
 # ── 私有战法层的前端覆盖（superposition 工作树）────────────────────────────
 # 这些路径的文件属私有层。公开仓库里不存在；启用私有层时从

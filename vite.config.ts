@@ -1,8 +1,9 @@
 /// <reference types="vitest/config" />
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
+import { defineConfig, type ProxyOptions } from 'vite'
 import react from '@vitejs/plugin-react'
+import { DEV_LOCALHOST_TOKEN, readDotEnvValue, resolveBindHost } from './server/http/bind'
 
 // The 挥手研究 console (huishou-research.html -> src/huishouResearchMain.tsx) is
 // a private strategy entry, gitignored in the public repo. Only register it as a
@@ -14,10 +15,38 @@ if (existsSync(resolve(process.cwd(), 'huishou-research.html'))) {
 }
 
 // Use the IPv4 loopback explicitly on Windows. localhost may resolve to
- // ::1 while Express is listening on IPv4, surfacing as Failed to fetch.
+// ::1 while Express is listening on IPv4, surfacing as Failed to fetch.
 const apiTarget = process.env.VITE_API_TARGET ?? 'http://127.0.0.1:3002'
 
-export default defineConfig({
+function localApiToken(): string {
+  const fromFile = readDotEnvValue(resolve(process.cwd(), 'server/.env'), 'WAX_WANE_API_TOKEN')
+  return (process.env.WAX_WANE_API_TOKEN ?? fromFile ?? '').trim() || DEV_LOCALHOST_TOKEN
+}
+
+function localBindHost(): string {
+  const fromFile = readDotEnvValue(resolve(process.cwd(), 'server/.env'), 'WAX_WANE_BIND')
+  return resolveBindHost(process.env.WAX_WANE_BIND ?? fromFile)
+}
+
+// The token stays in the dev server. It is never written into the client bundle.
+function apiProxy(token: string): ProxyOptions {
+  return {
+    target: apiTarget,
+    configure: (proxy) => {
+      proxy.on('proxyReq', (proxyReq) => {
+        if (!proxyReq.getHeader('authorization') && !proxyReq.getHeader('x-wax-wane-token')) {
+          proxyReq.setHeader('x-wax-wane-token', token)
+        }
+      })
+    },
+  }
+}
+
+export default defineConfig(() => {
+  const host = localBindHost()
+  const token = localApiToken()
+  const proxy = apiProxy(token)
+  return {
   plugins: [react()],
   resolve: {
     alias: {
@@ -25,13 +54,20 @@ export default defineConfig({
     },
   },
   server: {
+    host,
     port: 3000,
     headers: {
       // Avoid a corrupted/304'd Vite module leaving the dev app blank.
       'Cache-Control': 'no-store',
     },
     proxy: {
-      '/api': apiTarget,
+      '/api': proxy,
+    },
+  },
+  preview: {
+    host,
+    proxy: {
+      '/api': proxy,
     },
   },
   build: {
@@ -73,4 +109,5 @@ export default defineConfig({
     // (server/**/*.test.ts) use their own Node runner, so scope vitest to src/.
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
+  }
 })

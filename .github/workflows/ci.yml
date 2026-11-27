@@ -2,9 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - refactor/split-public-private
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - refactor/split-public-private
 
 permissions:
   contents: read

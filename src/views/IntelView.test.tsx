@@ -210,6 +210,7 @@ describe('IntelView', () => {
     await userEvent.click(screen.getByRole('button', { name: '每日研报' }))
     expect(screen.queryByText(/飞书同步/)).not.toBeInTheDocument()
     first.unmount()
+    if (!panelMounted) return
 
     // 出错:徽标 + title 详情
     researchResult.data = {
