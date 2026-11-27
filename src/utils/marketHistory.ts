@@ -74,9 +74,15 @@ export function getLastTradingDay(): string {
  * generated after 15:10, so intraday views must keep using the previous
  * session as the signal date.
  */
+/** Local Date whose wall clock matches Asia/Shanghai, on any host timezone. */
+function shanghaiWallClock(now: Date): Date {
+  return new Date(now.getTime() + now.getTimezoneOffset() * 60_000 + 8 * 3_600_000)
+}
+
 export function getLastSettledTradingDay(now = new Date()): string {
-  const d = new Date(now)
-  const minutes = now.getHours() * 60 + now.getMinutes()
+  // 15:10 is the Shanghai settlement cutoff, not the machine's local clock.
+  const d = shanghaiWallClock(now)
+  const minutes = d.getHours() * 60 + d.getMinutes()
   if (minutes < 15 * 60 + 10) {
     d.setDate(d.getDate() - 1)
   }

@@ -7,10 +7,10 @@
     "./host": "./server/host/index.ts"
   },
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite",
     "start:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/start-trade-review.ps1",
     "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0",
+    "preview": "vite preview",
     "lint": "eslint src/ server/",
     "lint:fix": "eslint src/ server/ --fix",
     "typecheck:server": "tsc -p server --noEmit",

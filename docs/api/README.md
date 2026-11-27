@@ -2,7 +2,8 @@
 
 后端 Express 服务的 REST 接口速查。机器可读规范见同目录 [`openapi.yaml`](./openapi.yaml)(OpenAPI 3.1)。
 
-- **Base URL:** `http://localhost:3002`(`server/index.ts` 默认 `PORT=3002`;前端 `vite.config.ts` 把 `/api` 代理到 3002)
+- **Base URL:** `http://127.0.0.1:3002`(`server/index.ts` 默认 `PORT=3002`，默认只绑 `127.0.0.1`;前端 `vite.config.ts` 把 `/api` 代理到 3002)
+- **凭证:** 改状态、调用付费接口，以及 `/api/screener`（`GET /api/screener/mcp-universe` 在回环上除外）、`/api/rotation`、`/api/huishou`、`/api/research/hithink` 的读请求，需要 `Authorization: Bearer <WAX_WANE_API_TOKEN>` 或 `X-Wax-Wane-Token`。未配置密钥时，本机回环可用 `wax-wane-dev-localhost`。`GET /api/health` 与普通行情 GET 在回环上不需要凭证。非回环监听时除健康检查外都需要密钥。缺凭证返回 `401` 与 `{ "error": string }`。
 - **路径前缀:** 各 router 自带 `/api...` 前缀,服务端未挂全局前缀
 - **错误格式:** 统一 `{ "error": string }`,状态码多为 `400 / 404 / 500 / 503`
 - **流式:** `POST /api/agent/chat` 与 `POST /api/analysis/fundamental` 为 **SSE**(`text/event-stream`),以 `data: {...}` 行推送、`data: [DONE]` 结束

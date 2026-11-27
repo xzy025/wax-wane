@@ -53,6 +53,11 @@ AI、数据库和部分外部数据源采用渐进增强：未配置 LLM 时 AI 
 | `server/knowledge/teacher/` | 第三方课程转录与派生知识材料 | 不分发 |
 | `skills/analyze-huishou-trading/` | 本地研究分析 skill 的单一事实来源 | 不分发 |
 | `huishou-research.html` | 私有研究控制台入口 | 不分发 |
+| `docs/ladder/` 日期目录、`promotion-review.*`、`provider-validation/` | 连板天梯与晋级复盘的生成归档 | 不分发，可再生成 |
+| `docs/cross-market/raw/`、`snapshots/`、`reports/` | 跨市场原始行情、快照与回补报告 | 不分发，可再生成 |
+| `docs/auction-l1/raw/` | 竞价 L1 录制 | 不分发，可再生成 |
+| `docs/scheduler/status/` | 调度检查点状态 | 不分发，可再生成 |
+| `docs/fundamentals/*.md` | 基本面一页纸的模型存档 | 不分发，可再生成 |
 
 当前本地快照的可验证锚点（2026-09-19）：
 
@@ -109,7 +114,7 @@ Copy-Item server/.env.example server/.env
 npm run start:local
 ```
 
-启动完成后访问 <http://localhost:3000>。后端默认监听 <http://localhost:3002>。
+启动完成后访问 <http://127.0.0.1:3000>。API 与 Vite 默认只监听 `127.0.0.1`（前端 3000，后端 3002）。
 
 `start:local` 会检查两个端口，只补齐尚未运行的前后端进程；启动日志写入 `.runtime/`。
 
@@ -127,7 +132,9 @@ npm --prefix server run dev
 npm run dev
 ```
 
-前端会把 `/api` 代理到 `http://127.0.0.1:3002`。如需连接其他后端，可设置 `VITE_API_TARGET`。
+前端会把 `/api` 代理到 `http://127.0.0.1:3002`，并自动附上本机 API 凭证。如需连接其他后端，可设置 `VITE_API_TARGET`。
+
+第一次在本机执行 `npm run dev` 不需要额外配置凭证。未设置 `WAX_WANE_API_TOKEN` 时，服务接受请求头 `X-Wax-Wane-Token: wax-wane-dev-localhost`，且只接受直接来自回环地址的客户端；Vite 代理会替页面加上这个头。直接用 curl 调用会改状态或调用付费接口的路由时，带上同一个头即可。
 
 ## 配置
 
@@ -142,9 +149,17 @@ npm run dev
 | `PG_HOST` / `PG_PORT` | PostgreSQL 地址 | 数据库能力需要 |
 | `PG_DATABASE` / `PG_USER` / `PG_PASSWORD` | PostgreSQL 连接信息 | 数据库能力需要 |
 | `CORS_ORIGINS` | 额外允许的前端来源，逗号分隔 | 可选 |
+| `WAX_WANE_BIND` | 监听地址。默认 `127.0.0.1`。`lan` / `0.0.0.0` 才监听全部网卡。API 与 Vite 都读它 | 可选 |
+| `WAX_WANE_API_TOKEN` | 状态变更、付费接口和战法层路由的共享凭证。本机开发可留空 | 非回环监听时必需 |
+| `WAX_WANE_PROTECTED_PREFIXES` | 额外需要凭证的 GET 前缀，逗号分隔 | 可选 |
+| `WAX_WANE_JSON_LIMIT` | 普通 JSON 请求体上限，默认 `1mb`。聊天、同步和天梯导入固定 `8mb` | 可选 |
 | `WAX_WANE_STRATEGY_DIR` | 可选策略扩展目录 | 可选 |
 
 不要提交 `server/.env` 或任何真实密钥。
+
+`WAX_WANE_BIND` 不是回环地址时，进程会拒绝启动，直到 `WAX_WANE_API_TOKEN` 是至少 16 位、且不同于本机开发默认值的密钥。局域网模式下，除 `GET /api/health` 以外的 `/api` 请求都要带这个凭证。凭证放在请求头 `Authorization: Bearer <token>` 或 `X-Wax-Wane-Token`。开发服务器只在代理进程里附加它，不会写进浏览器包。
+
+会花费用、调用付费数据源或改状态的路由都要凭证，包括之后挂到同一个 Express 应用上的私有战法路由（例如 `POST /api/screener/scan`）。本机回环上，普通行情 GET（如 `/api/ashare`）和 `GET /api/screener/mcp-universe` 仍可直接访问。
 
 ## 开发与验证
 
@@ -156,7 +171,7 @@ npm run test:server       # 后端测试
 npm run build             # 生产构建
 ```
 
-GitHub Actions 在 Node.js 22 上依次执行依赖安装、lint、后端类型检查、前后端测试和生产构建。CI 配置见 [`.github/workflows/ci.yml`](.github/workflows/ci.yml)。
+GitHub Actions 在 Node.js 22 上依次执行依赖安装、lint、后端类型检查、前后端测试和生产构建。推送到 `refactor/split-public-private` 或 `main`，以及针对这两条分支的 pull request，都会跑这套检查。配置见 [`.github/workflows/ci.yml`](.github/workflows/ci.yml)。
 
 ## 目录结构
 

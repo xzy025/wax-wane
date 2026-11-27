@@ -83,7 +83,7 @@ if (-not (Test-ListeningPort -Port 3002)) {
 if (-not (Test-ListeningPort -Port 3000)) {
   Start-Process `
     -FilePath $npm `
-    -ArgumentList @('run', 'dev', '--', '--host', '0.0.0.0', '--port', '3000') `
+    -ArgumentList @('run', 'dev', '--', '--port', '3000') `
     -WorkingDirectory $repoRoot `
     -WindowStyle Hidden `
     -RedirectStandardOutput (Join-Path $runtimeDir 'web.out.log') `

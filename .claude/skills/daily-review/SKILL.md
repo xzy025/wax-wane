@@ -58,7 +58,7 @@ node node_modules/tsx/dist/cli.mjs scripts/injectNarrative.ts <日期> <叙事�
 
 已授权修订现有叙事时使用 `--force`。核对目标 review 的
 `narrative.markdown/tone` 和 `docs/screener/daily-journal.md` 同日条目。
-日志是幂等更新；`docs/screener/` 被 gitignore，不是唯一留存。
+日志是幂等更新；`docs/screener/` 与 `docs/ladder/` 下按日期生成的归档都被 gitignore，不是唯一留存，也不要提交。
 
 仅在需要刷新运行中页面且服务对应目标日期时，刷新 daily-review 缓存后读取
 `/api/screener/daily-review`；历史归档以目标文件为准，不因 API 返回最新日重跑。

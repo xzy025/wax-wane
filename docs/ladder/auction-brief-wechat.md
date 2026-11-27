@@ -19,8 +19,11 @@ SendKey 只能保存在本机 `server/.env`。接口响应、日志和每日简�
 后端运行后执行：
 
 ```powershell
-Invoke-RestMethod -Method Post http://localhost:3002/api/ladder/notifications/serverchan/test
+Invoke-RestMethod -Method Post http://127.0.0.1:3002/api/ladder/notifications/serverchan/test `
+  -Headers @{ 'X-Wax-Wane-Token' = 'wax-wane-dev-localhost' }
 ```
+
+未设置 `WAX_WANE_API_TOKEN` 时，上面的默认凭证只接受本机回环上的直接请求。自定义凭证时改成该值。
 
 该操作会实际消耗一条 Server酱额度。正常交易日固定发送两条：
 
@@ -50,7 +53,7 @@ Get-ScheduledTaskInfo -TaskName 'AshareAuctionBrief'
 
 ## 4. 归档与降级
 
-每日结构化简报和投递记录位于 `docs/ladder/YYYY-MM-DD/`：
+每日结构化简报和投递记录写在本地 `docs/ladder/YYYY-MM-DD/`（以及 `docs/ladder/YYYY/MM/DD/`）。这些是可再生成的归档，已被 `.gitignore` 排除，克隆仓库时不会带上：
 
 - `auction-brief-limit-ladder-v3.json`
 - `notification-delivery-limit-ladder-v3.json`
